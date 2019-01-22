@@ -113,14 +113,14 @@
 					$smart_status_icon = "<span class=\"grey-off\" alt=\"S.M.A.R.T: Off/None\" title=\"S.M.A.R.T: Off/None\" />&#11044;</span>";
 			}
 			
-			$unraid_dev = ( isset($unraid_array[$devicenode]["type"]) ? "<b>" . $unraid_array[$devicenode]["type"] . "</b>: " . $unraid_array[$devicenode]["name"] . ", " . $unraid_array[$devicenode]["device"] . "," : "<b>Unassigned:</b>" );
+			$unraid_dev = ( isset($unraid_array[$devicenode]["type"]) ? "<b>" . $unraid_array[$devicenode]["type"] . "</b>: " . $unraid_array[$devicenode]["name"] : "<b>Unassigned:</b>" );
 			
 			$drive_tray_order[$luname] = get_tray_location($db, $luname);
 			$drive_tray_order[$luname] = ( empty($drive_tray_order[$luname]) ? $count_real : $drive_tray_order[$luname] );
 			
 			if($disk_tray_direction == "h") { $insert_break = "<br />"; } else { $insert_break = ""; }
 			
-			$devicenode_page = ( empty($devicenode) ? null : ", " . $devicenode);
+			$devicenode_page = str_replace("-", "", $devicenode);
 			
 			$disklocation_page .= "
 				<div style=\"order: " . $drive_tray_order[$luname] . "\">
@@ -133,7 +133,7 @@
 								
 							</div>
 							<div class=\"flex-container-middle\">
-								$unraid_dev $devicenode_page $device (" . $luname . ")<br />
+								$unraid_dev $device $devicenode_page (" . $luname . ")<br />
 								$smart_modelfamily $smart_modelname <span style=\"white-space: nowrap;\">$smart_serialnumber</span><br />
 								$smart_temperature $smart_powerontime $smart_loadcycle $smart_capacity $smart_rotation $smart_formfactor
 							</div>
