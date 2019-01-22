@@ -1,7 +1,7 @@
 <?xml version='1.0' standalone='yes'?>
 
 <!DOCTYPE PLUGIN [
-<!ENTITY name        "Disk Location">
+<!ENTITY name        "DiskLocation">
 <!ENTITY path        "disklocation">
 <!ENTITY author      "Ole-Henrik Jakobsen">
 <!ENTITY version     "19.01.22">
