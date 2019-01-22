@@ -23,6 +23,7 @@
          version="&version;"
          launch="&launch;"
          pluginURL="&pluginURL;"
+	 icon="&path;.png"
 >
 
 <FILE Name="/boot/packages/&smartmontools;" Run="upgradepkg --install-new">
