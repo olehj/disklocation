@@ -15,7 +15,7 @@
 <!ENTITY emhttpLOC        "&emplugLOC;/&name;">
 <!ENTITY smartmontools    "smartmontools-7.0-x86_64-1.txz">
 <!ENTITY smartmontoolsMD5 "c5c852915332cd0984b040eeb545c43c">
-<!ENTITY pluginsupportURL "https://forums.unraid.net/topic/77302-plugin-disk-location/"
+<!ENTITY pluginsupportURL "https://forums.unraid.net/topic/77302-plugin-disk-location/">
 ]>
 
 <PLUGIN  name="&name;"
