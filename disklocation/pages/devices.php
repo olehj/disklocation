@@ -120,6 +120,8 @@
 			
 			if($disk_tray_direction == "h") { $insert_break = "<br />"; } else { $insert_break = ""; }
 			
+			$devicenode_page = ( empty($devicenode) ? null : ", " . $devicenode);
+			
 			$disklocation_page .= "
 				<div style=\"order: " . $drive_tray_order[$luname] . "\">
 					<div class=\"flex-container\">
@@ -131,7 +133,7 @@
 								
 							</div>
 							<div class=\"flex-container-middle\">
-								$unraid_dev " . $devicenode . " (" . $luname . ")<br />
+								$unraid_dev $devicenode_page $device (" . $luname . ")<br />
 								$smart_modelfamily $smart_modelname <span style=\"white-space: nowrap;\">$smart_serialnumber</span><br />
 								$smart_temperature $smart_powerontime $smart_loadcycle $smart_capacity $smart_rotation $smart_formfactor
 							</div>
