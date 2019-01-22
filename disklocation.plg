@@ -6,7 +6,7 @@
 <!ENTITY version          "2019.01.23">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/master/&name;.plg">
-<!ENTITY packageMD5       "3791b7788580ecd45bdda64ec3c57cbe">
+<!ENTITY packageMD5       "f06028dc39595ff22500336b1fd545fe">
 <!ENTITY packagefile      "&name;.&version;.tar.bz2">
 <!ENTITY packageURL       "https://raw.githubusercontent.com/olehj/&name;/master/&packagefile;">
 <!ENTITY pluginLOC        "/boot/config/plugins/&name;">
@@ -33,6 +33,7 @@
 <CHANGES>
 ###2019.01.23
 - Fixed a bug where device name and model became the same for all drives.
+- Corrected minor fault in Help
 
 ###2019.01.22
 - Initial Release

@@ -20,7 +20,7 @@
 	<dd>During installation, smartmontools 7.0 will be installed. This is required for JSON-output for the smartctl command.</dd>
 	
 	<dt>What else does it install in the system?</dt>
-	<dd>It will install a smartlocate.sh script in /usr/local/bin/, this is needed for the "Locate" function.</dd>
+	<dd>It will install a smartlocate script in /usr/local/bin/, this is needed for the "Locate" function.</dd>
 	
 	<dt>How is the versioning working?</dt>
 	<dd>The digits are as following: the first is the year, second the month, and third the day. Technically an ISO date. First version released was 2019.01.22</dd>
