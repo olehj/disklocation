@@ -51,6 +51,8 @@
 			$devicenode = $data["devicenode"];
 			$luname = $data["luname"];
 			$smart_status = $data["smart_status"];
+			$smart_modelfamily = $data["model_family"];
+			$smart_modelname = $data["model_name"];
 			$smart_serialnumber = ( isset($data["smart_serialnumber"]) ? "(" . $data["smart_serialnumber"] . ")" : null );
 			$smart_temperature = ( isset($data["smart_temperature"]) ? $data["smart_temperature"] . "°C" : null );
 			$smart_powerontime = ( isset($data["smart_powerontime"]) ? "<span style=\"cursor: help;\" title=\"" . seconds_to_time($data["smart_powerontime"] * 60 * 60) . "\">" . $data["smart_powerontime"] . "h</span>" : null );
@@ -130,7 +132,7 @@
 							</div>
 							<div class=\"flex-container-middle\">
 								$unraid_dev " . $devicenode . " (" . $luname . ")<br />
-								" . $smart_array["model_family"] . " " . $smart_array["model_name"] . " <span style=\"white-space: nowrap;\">$smart_serialnumber</span><br />
+								$smart_modelfamily $smart_modelname <span style=\"white-space: nowrap;\">$smart_serialnumber</span><br />
 								$smart_temperature $smart_powerontime $smart_loadcycle $smart_capacity $smart_rotation $smart_formfactor
 							</div>
 							<!--
