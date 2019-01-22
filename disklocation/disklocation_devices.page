@@ -1,0 +1,8 @@
+Menu="disklocation:1"
+Title="Devices"
+---
+<?php
+	require_once("/usr/local/emhttp/plugins/disklocation/pages/system.php");
+	require_once("/usr/local/emhttp/plugins/disklocation/pages/locate.php");
+	include '/usr/local/emhttp/plugins/disklocation/pages/devices.php';
+?>
