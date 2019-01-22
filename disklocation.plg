@@ -1,20 +1,21 @@
 <?xml version='1.0' standalone='yes'?>
 
 <!DOCTYPE PLUGIN [
-<!ENTITY name        "disklocation">
-<!ENTITY author      "Ole-Henrik Jakobsen">
-<!ENTITY version     "19.01.22">
-<!ENTITY launch      "Settings/&name;">
-<!ENTITY pluginURL   "https://raw.githubusercontent.com/olehj/&name;/master/&name;.plg">
-<!ENTITY packageVER  "&version;">
-<!ENTITY packageMD5  "aa2653334177e18349b37c7e405c822d">
-<!ENTITY packagefile "&name;.&packageVER;.tar.bz2">
-<!ENTITY packageURL  "https://raw.githubusercontent.com/olehj/&name;/master/&packagefile;">
-<!ENTITY pluginLOC   "/boot/config/plugins/&name;">
-<!ENTITY emplugLOC   "/usr/local/emhttp/plugins">
-<!ENTITY emhttpLOC   "&emplugLOC;/&name;">
-<!ENTITY smartmontools "smartmontools-7.0-x86_64-1.txz">
+<!ENTITY name             "disklocation">
+<!ENTITY author           "Ole-Henrik Jakobsen">
+<!ENTITY version          "19.01.22">
+<!ENTITY launch           "Settings/&name;">
+<!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/master/&name;.plg">
+<!ENTITY packageVER       "&version;">
+<!ENTITY packageMD5       "aa2653334177e18349b37c7e405c822d">
+<!ENTITY packagefile      "&name;.&packageVER;.tar.bz2">
+<!ENTITY packageURL       "https://raw.githubusercontent.com/olehj/&name;/master/&packagefile;">
+<!ENTITY pluginLOC        "/boot/config/plugins/&name;">
+<!ENTITY emplugLOC        "/usr/local/emhttp/plugins">
+<!ENTITY emhttpLOC        "&emplugLOC;/&name;">
+<!ENTITY smartmontools    "smartmontools-7.0-x86_64-1.txz">
 <!ENTITY smartmontoolsMD5 "c5c852915332cd0984b040eeb545c43c">
+<!ENTITY pluginsupportURL "https://forums.unraid.net/topic/77302-plugin-disk-location/"
 ]>
 
 <PLUGIN  name="&name;"
@@ -22,6 +23,7 @@
          version="&version;"
          launch="&launch;"
          pluginURL="&pluginURL;"
+	 support="&pluginsupportURL;"
 >
 
 <FILE Name="/boot/packages/&smartmontools;" Run="upgradepkg --install-new">
