@@ -197,6 +197,7 @@ logit()
 logit "Removing plugin..."
 [ -f "/tmp/&path;-install" ] &amp;&amp; rm -f "/tmp/&path;-install"
 [ -d "&emhttpLOC;" ] &amp;&amp; rm -fR "&emhttpLOC;"
+[ -f "/usr/local/bin/smartlocate" ] &amp;&amp; rm -f "/usr/local/bin/smartlocate"
 logit "Plugin stopped and removed - no files removed from &pluginLOC;"
 </INLINE>
 </FILE>
