@@ -1,0 +1,203 @@
+<?xml version='1.0' standalone='yes'?>
+
+<!DOCTYPE PLUGIN [
+<!ENTITY name        "Disk Location">
+<!ENTITY path        "disklocation">
+<!ENTITY author      "Ole-Henrik Jakobsen">
+<!ENTITY version     "19.01.22">
+<!ENTITY launch      "Settings/&name;">
+<!ENTITY pluginURL   "https://raw.githubusercontent.com/olehj/&path;/master/&path;.plg">
+<!ENTITY packageVER  "&version;">
+<!ENTITY packageMD5  "fc7b3b954ef41c4059b9b5b60f4b6b4c">
+<!ENTITY packagefile "&path;.&packageVER;.tar.bz2">
+<!ENTITY packageURL  "https://raw.githubusercontent.com/olehj/&path;/master/&packagefile;">
+<!ENTITY pluginLOC   "/boot/config/plugins/&path;">
+<!ENTITY emplugLOC   "/usr/local/emhttp/plugins">
+<!ENTITY emhttpLOC   "&emplugLOC;/&path;">
+<!ENTITY smartmontools "smartmontools-7.0-x86_64-1.txz">
+<!ENTITY smartmontoolsMD5 "c5c852915332cd0984b040eeb545c43c">
+]>
+
+<PLUGIN  name="&name;"
+         author="&author;"
+         version="&version;"
+         launch="&launch;"
+         pluginURL="&pluginURL;"
+>
+
+<FILE Name="/boot/packages/&smartmontools;" Run="upgradepkg --install-new">
+<URL>https://mirrors.slackware.com/slackware/slackware64-current/slackware64/a/&smartmontools;</URL>
+<MD5>&smartmontoolsMD5;</MD5>
+</FILE>
+	
+<CHANGES>
+###2019.01.22
+- Initial Release
+</CHANGES>
+
+<!--
+############################################
+# Plugin Install script
+############################################
+-->
+<FILE Name="/tmp/&path;-install" Run="/bin/bash">
+<INLINE>
+<!--
+#################
+# L O G I T
+#################
+-->
+logit()
+{
+  <!--logger -trc.&name; -plocal7.info -is "$1"-->
+  echo ""
+  echo "$1"
+}
+
+DOWNLOAD_PKG="false"
+INSTALL_PKG="false"
+
+logit "Installing plugin..."
+
+<!--
+logit "Cleaning up older versions if exist in &emhttpLOC;"
+[ -d "&emhttpLOC;" ] &amp;&amp; rm -fR "&emhttpLOC;"
+-->
+
+<!--# Create plugin folder if needed -->
+if [ ! -d "&pluginLOC;" ] ; then
+  logit "Creating plugin folder &pluginLOC;"
+  mkdir -p "&pluginLOC;"
+else
+  logit "Plugin folder &pluginLOC; already exists"
+fi
+
+<!--# Check local package file -->
+logit "Checking existing package &pluginLOC;/&packagefile;..."
+if [ -f "&pluginLOC;/&packagefile;" ] ; then
+  PKG_LOCAL_MD5=$(/usr/bin/md5sum &pluginLOC;/&packagefile; | cut -d' ' -f1)
+  if [ "$PKG_LOCAL_MD5" == "&packageMD5;" ] ; then
+    logit "Latest package already exists &pluginLOC;/&packagefile;"
+    INSTALL_PKG="true"
+  else
+    logit "Local/Online package MD5 mismatch ($PKG_LOCAL_MD5/&packageMD5;) on &pluginLOC;/&packagefile; - deleting local package"
+    DOWNLOAD_PKG="true"
+  fi
+else
+  logit "Latest package does not exist &pluginLOC;/&packagefile;"
+  DOWNLOAD_PKG="true"
+fi
+
+<!--# Download plugin files -->
+if [ "$DOWNLOAD_PKG" == "true" ]; then
+
+  <!--# Save existing packages until new package is downloaded OK -->
+  logit "Saving any previous packages from &pluginLOC;"
+  mkdir -p "/tmp/&path;-packages"
+  TEMP="&pluginLOC;/&path;-package-*"
+  mv -f $TEMP "/tmp/&path;-packages"
+
+  logit "Attempting to download plugin package &packageURL;..."
+  wget --quiet --spider --no-check-certificate --timeout=10 &packageURL;
+  if [ ! $? == "0" ] ; then
+    logit "Package server down &packageURL; - Plugin cannot install"
+    INSTALL_PKG="false"
+  else
+    wget --quiet --no-check-certificate --timeout=10 -O &pluginLOC;/&packagefile; &packageURL;
+    if [ ! -f "&pluginLOC;/&packagefile;" ] ; then
+      logit "Package download failed &packageURL; - Plugin cannot install"
+      INSTALL_PKG="false"
+    else
+      PKG_LOCAL_MD5=$(/usr/bin/md5sum &pluginLOC;/&packagefile; | cut -d' ' -f1)
+      if [ "$PKG_LOCAL_MD5" != "&packageMD5;" ] ; then
+        logit "Package MD5 mismatch ($PKG_LOCAL_MD5/&packageMD5;) on &pluginLOC;/&packagefile; - Plugin cannot install"
+        INSTALL_PKG="false"
+      else
+        logit "Package &packagefile; downloaded to &pluginLOC; - MD5 match "$PKG_LOCAL_MD5""
+        INSTALL_PKG="true"
+      fi
+    fi
+  fi
+fi
+
+if [ "$INSTALL_PKG" == "true" ] ; then
+  logit "Extracting plugin package..."
+  <!--# Remove current existing files -->
+  [ -d "&emhttpLOC;" ] &amp;&amp; rm -fR "&emhttpLOC;"
+  <!--# Extract files -->
+  tar -jxf "&pluginLOC;/&packagefile;" -C "&emplugLOC;"
+  <!--# Edit PAGE file  - Dynamically add version number -->
+  echo "Version=\"&version;\"" &gt;&gt; "&emhttpLOC;/&path;.page"
+  
+  <!--# Add locate bash script -->
+  cat &gt;/usr/local/bin/smartlocate &lt;&lt;EOL
+#!/bin/bash
+
+# Simple hack too locate harddrives in hotswap arrays,
+#   might not work on all drives or SSD's.
+#
+# Run: ./smartlocate [address]
+#  Ex: ./smartlocate 8:0:0:0
+#
+# Check addresses available: ls -l /dev/bsg/
+#
+# Script needs to be interrupted: [CTRL]+[C]
+#   or killed: pkill -f smartlocate
+#
+# Made by &author; &lt;ole@gidderikke.no&gt;
+
+while sleep 0.5; do
+  smartctl -x /dev/bsg/$1 &amp;&gt; /dev/null;
+done
+EOL
+  chmod +x /usr/local/bin/smartlocate
+  
+  rm -Rf "/tmp/&path;-packages"
+  rm -f "/tmp/&path;-install"
+  logit "Plugin and Package file &packagefile; extracted and installed successfully"
+  exit 0
+else
+  <!-- Revert back to previous packages -->
+  if [ -f "&pluginLOC;/&packagefile;" ] ; then
+    <!-- Remove bad MD5 downloaded package if exists -->
+    rm -f "&pluginLOC;/&packagefile;"
+  fi
+  logit "Reverting back to previously saved packages..."
+  TEMP1="/tmp/&path;-packages"
+  TEMP2=$(ls $TEMP1)
+  if [ "$TEMP2" != "" ] ; then
+    TEMP="/tmp/&path;-packages/&path;-package-*"
+    mv -f $TEMP "&pluginLOC;"
+    logit "Previous packages restored"
+  else
+    logit "No previous packages to restored"
+  fi
+  rm -Rf "/tmp/&path;-packages"
+  rm -f "/tmp/&path;-install"
+  logit "Plugin install failed"
+  exit 1
+fi
+</INLINE>
+</FILE>
+
+<!--
+############################################
+# plugin Remove method
+############################################
+-->
+<FILE Run="/bin/bash" Method="remove">
+<INLINE>
+logit()
+{
+  <!--logger -trc.&name; -plocal7.info -is "$1"-->
+  echo "$1"
+  echo ""
+}
+
+logit "Removing plugin..."
+[ -f "/tmp/&path;-install" ] &amp;&amp; rm -f "/tmp/&path;-install"
+[ -d "&emhttpLOC;" ] &amp;&amp; rm -fR "&emhttpLOC;"
+logit "Plugin stopped and removed - no files removed from &pluginLOC;"
+</INLINE>
+</FILE>
+</PLUGIN>
