@@ -1,0 +1,77 @@
+	.grey-off {
+		color: #444444;
+		font-size: 8pt;
+		cursor: help;
+	}	
+
+	.green-on {
+		color: #00FF00;
+		font-size: 8pt;
+		cursor: help;
+	}
+	.green-blink {
+		animation: blinker-green 2s linear infinite;
+		animation-timing-function: ease-in-out;
+		font-size: 8pt;
+		cursor: help;
+	}
+	@keyframes blinker-green {
+		0% {color: #AAAAAA;}
+		50% {color: #00FF00;}
+		100% {color: #AAAAAA;}
+	
+	.yellow-on {
+		color: #FFFF00;
+		font-size: 8pt;
+		cursor: help;
+	}
+	.yellow-blink {
+		animation: blinker-yellow 2s linear infinite;
+		animation-timing-function: ease-in-out;
+		font-size: 8pt;
+		cursor: help;
+	}
+	@keyframes blinker-yellow {
+		0% {color: #AAAAAA;}
+		50% {color: #FFFF00;}
+		100% {color: #AAAAAA;}
+	}
+	
+	.red-on {
+		color: #FF0000;
+		font-size: 8pt;
+		cursor: help;
+	}
+	.red-off {
+		color: #FF0000;
+		font-size: 8pt;
+		cursor: help;
+	}
+	.red-blink {
+		animation: blinker-red 2s linear infinite;
+		animation-timing-function: ease-in-out;
+		font-size: 8pt;
+		cursor: help;
+	}
+	@keyframes blinker-red {
+		0% {color: #AAAAAA;}
+		50% {color: #FF0000;}
+		100% {color: #AAAAAA;}
+	}
+	
+	.blue-on {
+		color: #0000FF;
+		font-size: 8pt;
+		cursor: help;
+	}
+	.blue-blink {
+		animation: blinker-blue 2s linear infinite;
+		animation-timing-function: ease-in-out;
+		font-size: 8pt;
+		cursor: help;
+	}
+	@keyframes blinker-blue {
+		0% {color: #AAAAAA;}
+		50% {color: #0000FF;}
+		100% {color: #AAAAAA;}
+	}
