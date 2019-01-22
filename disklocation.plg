@@ -1,19 +1,18 @@
 <?xml version='1.0' standalone='yes'?>
 
 <!DOCTYPE PLUGIN [
-<!ENTITY name        "DiskLocation">
-<!ENTITY path        "disklocation">
+<!ENTITY name        "disklocation">
 <!ENTITY author      "Ole-Henrik Jakobsen">
 <!ENTITY version     "19.01.22">
 <!ENTITY launch      "Settings/&name;">
-<!ENTITY pluginURL   "https://raw.githubusercontent.com/olehj/&path;/master/&path;.plg">
+<!ENTITY pluginURL   "https://raw.githubusercontent.com/olehj/&name;/master/&name;.plg">
 <!ENTITY packageVER  "&version;">
 <!ENTITY packageMD5  "aa2653334177e18349b37c7e405c822d">
-<!ENTITY packagefile "&path;.&packageVER;.tar.bz2">
-<!ENTITY packageURL  "https://raw.githubusercontent.com/olehj/&path;/master/&packagefile;">
-<!ENTITY pluginLOC   "/boot/config/plugins/&path;">
+<!ENTITY packagefile "&name;.&packageVER;.tar.bz2">
+<!ENTITY packageURL  "https://raw.githubusercontent.com/olehj/&name;/master/&packagefile;">
+<!ENTITY pluginLOC   "/boot/config/plugins/&name;">
 <!ENTITY emplugLOC   "/usr/local/emhttp/plugins">
-<!ENTITY emhttpLOC   "&emplugLOC;/&path;">
+<!ENTITY emhttpLOC   "&emplugLOC;/&name;">
 <!ENTITY smartmontools "smartmontools-7.0-x86_64-1.txz">
 <!ENTITY smartmontoolsMD5 "c5c852915332cd0984b040eeb545c43c">
 ]>
@@ -40,7 +39,7 @@
 # Plugin Install script
 ############################################
 -->
-<FILE Name="/tmp/&path;-install" Run="/bin/bash">
+<FILE Name="/tmp/&name;-install" Run="/bin/bash">
 <INLINE>
 <!--
 #################
@@ -93,9 +92,9 @@ if [ "$DOWNLOAD_PKG" == "true" ]; then
 
   <!--# Save existing packages until new package is downloaded OK -->
   logit "Saving any previous packages from &pluginLOC;"
-  mkdir -p "/tmp/&path;-packages"
-  TEMP="&pluginLOC;/&path;-package-*"
-  mv -f $TEMP "/tmp/&path;-packages"
+  mkdir -p "/tmp/&name;-packages"
+  TEMP="&pluginLOC;/&name;-package-*"
+  mv -f $TEMP "/tmp/&name;-packages"
 
   logit "Attempting to download plugin package &packageURL;..."
   wget --quiet --spider --no-check-certificate --timeout=10 &packageURL;
@@ -127,7 +126,7 @@ if [ "$INSTALL_PKG" == "true" ] ; then
   <!--# Extract files -->
   tar -jxf "&pluginLOC;/&packagefile;" -C "&emplugLOC;"
   <!--# Edit PAGE file  - Dynamically add version number -->
-  echo "Version=\"&version;\"" &gt;&gt; "&emhttpLOC;/&path;.page"
+  echo "Version=\"&version;\"" &gt;&gt; "&emhttpLOC;/&name;.page"
   
   <!--# Add locate bash script -->
   cat &gt;/usr/local/bin/smartlocate &lt;&lt;EOL
@@ -152,8 +151,8 @@ done
 EOL
   chmod +x /usr/local/bin/smartlocate
   
-  rm -Rf "/tmp/&path;-packages"
-  rm -f "/tmp/&path;-install"
+  rm -Rf "/tmp/&name;-packages"
+  rm -f "/tmp/&name;-install"
   logit "Plugin and Package file &packagefile; extracted and installed successfully"
   exit 0
 else
@@ -163,17 +162,17 @@ else
     rm -f "&pluginLOC;/&packagefile;"
   fi
   logit "Reverting back to previously saved packages..."
-  TEMP1="/tmp/&path;-packages"
+  TEMP1="/tmp/&name;-packages"
   TEMP2=$(ls $TEMP1)
   if [ "$TEMP2" != "" ] ; then
-    TEMP="/tmp/&path;-packages/&path;-package-*"
+    TEMP="/tmp/&name;-packages/&name;-package-*"
     mv -f $TEMP "&pluginLOC;"
     logit "Previous packages restored"
   else
     logit "No previous packages to restored"
   fi
-  rm -Rf "/tmp/&path;-packages"
-  rm -f "/tmp/&path;-install"
+  rm -Rf "/tmp/&name;-packages"
+  rm -f "/tmp/&name;-install"
   logit "Plugin install failed"
   exit 1
 fi
@@ -195,7 +194,7 @@ logit()
 }
 
 logit "Removing plugin..."
-[ -f "/tmp/&path;-install" ] &amp;&amp; rm -f "/tmp/&path;-install"
+[ -f "/tmp/&name;-install" ] &amp;&amp; rm -f "/tmp/&name;-install"
 [ -d "&emhttpLOC;" ] &amp;&amp; rm -fR "&emhttpLOC;"
 [ -f "/usr/local/bin/smartlocate" ] &amp;&amp; rm -f "/usr/local/bin/smartlocate"
 logit "Plugin stopped and removed - no files removed from &pluginLOC;"
