@@ -3,10 +3,10 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.01.23">
+<!ENTITY version          "2019.01.23b">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/master/&name;.plg">
-<!ENTITY packageMD5       "f06028dc39595ff22500336b1fd545fe">
+<!ENTITY packageMD5       "c87386749375ffa617d62a98c5ebba1a">
 <!ENTITY packagefile      "&name;.&version;.tar.bz2">
 <!ENTITY packageURL       "https://raw.githubusercontent.com/olehj/&name;/master/&packagefile;">
 <!ENTITY pluginLOC        "/boot/config/plugins/&name;">
@@ -31,8 +31,12 @@
 </FILE>
 
 <CHANGES>
+###2019.01.23b
+- Fixed a bug where PATH name didn't show on the Device page.
+- Added devicenode for unassigned devices where it exists.
+
 ###2019.01.23
-- Fixed a bug where device name and model became the same for all drives.
+- Fixed a bug where device name and model became the same for all drives. Commit #1
 - Corrected minor fault in Help
 
 ###2019.01.22
