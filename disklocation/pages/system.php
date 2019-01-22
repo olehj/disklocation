@@ -3,7 +3,7 @@
 	define('DISKLOCATION_DB', '/boot/config/plugins/disklocation/disklocation.sqlite');
 	define('DISKINFORMATION', '/var/local/emhttp/disks.ini');
 	define('DISKLOGFILE', '/boot/config/disk.log');
-	define('DISKLOCATION_VERSION', "2019.01.23b");
+	define('DISKLOCATION_VERSION', "2019.01.23c");
 	
 	$disklocation_error = array();
 	
