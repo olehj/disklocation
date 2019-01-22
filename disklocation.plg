@@ -8,7 +8,7 @@
 <!ENTITY launch      "Settings/&name;">
 <!ENTITY pluginURL   "https://raw.githubusercontent.com/olehj/&path;/master/&path;.plg">
 <!ENTITY packageVER  "&version;">
-<!ENTITY packageMD5  "fc7b3b954ef41c4059b9b5b60f4b6b4c">
+<!ENTITY packageMD5  "aa2653334177e18349b37c7e405c822d">
 <!ENTITY packagefile "&path;.&packageVER;.tar.bz2">
 <!ENTITY packageURL  "https://raw.githubusercontent.com/olehj/&path;/master/&packagefile;">
 <!ENTITY pluginLOC   "/boot/config/plugins/&path;">
