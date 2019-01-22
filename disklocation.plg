@@ -133,7 +133,7 @@ if [ "$INSTALL_PKG" == "true" ] ; then
   cat &gt;/usr/local/bin/smartlocate &lt;&lt;EOL
 #!/bin/bash
 
-# Simple hack too locate harddrives in hotswap arrays,
+# Simple hack to locate harddrives in hotswap arrays,
 #   might not work on all drives or SSD's.
 #
 # Run: ./smartlocate [address]
@@ -147,7 +147,7 @@ if [ "$INSTALL_PKG" == "true" ] ; then
 # Made by &author; &lt;ole@gidderikke.no&gt;
 
 while sleep 0.5; do
-  smartctl -x /dev/bsg/&dollar;1 &amp;&gt; /dev/null;
+  smartctl -x /dev/bsg/1 &amp;&gt; /dev/null;
 done
 EOL
   chmod +x /usr/local/bin/smartlocate
