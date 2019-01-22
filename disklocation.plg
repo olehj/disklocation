@@ -3,12 +3,11 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "19.01.22">
+<!ENTITY version          "2019.01.22">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/master/&name;.plg">
-<!ENTITY packageVER       "&version;">
-<!ENTITY packageMD5       "aa2653334177e18349b37c7e405c822d">
-<!ENTITY packagefile      "&name;.&packageVER;.tar.bz2">
+<!ENTITY packageMD5       "e008492fc8e30be5e8f39fe02be4971e">
+<!ENTITY packagefile      "&name;.&version;.tar.bz2">
 <!ENTITY packageURL       "https://raw.githubusercontent.com/olehj/&name;/master/&packagefile;">
 <!ENTITY pluginLOC        "/boot/config/plugins/&name;">
 <!ENTITY emplugLOC        "/usr/local/emhttp/plugins">

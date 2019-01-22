@@ -23,10 +23,10 @@
 	<dd>It will install a smartlocate.sh script in /usr/local/bin/, this is needed for the "Locate" function.</dd>
 	
 	<dt>How is the versioning working?</dt>
-	<dd>The digits are as following: the first is the year, second the month, and third the day. Technically an ISO date. First version released was 19.01.21</dd>
+	<dd>The digits are as following: the first is the year, second the month, and third the day. Technically an ISO date. First version released was 2019.01.21</dd>
 	
 	<dt>What's the requirements?</dt>
-	<dd>A newer browser supporting HTML5, tested with Chrome-based browsers and Firefox. Smartmontools 7.0 or newer must be installed for this plugin to work, this should've been done automatically.</dd>
+	<dd>A newer browser supporting HTML5, tested with Chrome-based browsers and Firefox.</dd>
 </dl>
 
 <h3>Configuration</h3>
