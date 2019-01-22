@@ -147,7 +147,7 @@ if [ "$INSTALL_PKG" == "true" ] ; then
 # Made by &author; &lt;ole@gidderikke.no&gt;
 
 while sleep 0.5; do
-  smartctl -x /dev/bsg/$1 &amp;&gt; /dev/null;
+  smartctl -x /dev/bsg/&dollar;1 &amp;&gt; /dev/null;
 done
 EOL
   chmod +x /usr/local/bin/smartlocate
