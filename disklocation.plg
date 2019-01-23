@@ -3,10 +3,10 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.01.23d">
+<!ENTITY version          "2019.01.23e">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/master/&name;.plg">
-<!ENTITY packageMD5       "f82658b45f780bee07499bad9dcc3543">
+<!ENTITY packageMD5       "ff853cc9c4fe63de823c7d12199812e3">
 <!ENTITY packagefile      "&name;.&version;.tar.bz2">
 <!ENTITY packageURL       "https://raw.githubusercontent.com/olehj/&name;/master/&packagefile;">
 <!ENTITY pluginLOC        "/boot/config/plugins/&name;">
@@ -31,8 +31,13 @@
 </FILE>
 
 <CHANGES>
+###2019.01.23e
+- Commit #13 - Use version from the installer in system.php
+- Commit #12 - Plugin installer now removes older packages.
+- Commit #11 - Warning message for Unraid 6.7+ due to empty array, now checking for content before issuing array_values()
+
 ###2019.01.23d
-- Minor issue, wrong version number stored in system.php.
+- Commit #9 - Minor issue, wrong version number stored in system.php.
 
 ###2019.01.23c
 - Commit #7 - Fixed a minor design issue with the trays from the Device page nor showing correctly.
@@ -73,11 +78,6 @@ INSTALL_PKG="false"
 
 logit "Installing plugin..."
 
-<!--
-logit "Cleaning up older versions if exist in &emhttpLOC;"
-[ -d "&emhttpLOC;" ] &amp;&amp; rm -fR "&emhttpLOC;"
--->
-
 <!--# Create plugin folder if needed -->
 if [ ! -d "&pluginLOC;" ] ; then
   logit "Creating plugin folder &pluginLOC;"
@@ -108,7 +108,7 @@ if [ "$DOWNLOAD_PKG" == "true" ]; then
   <!--# Save existing packages until new package is downloaded OK -->
   logit "Saving any previous packages from &pluginLOC;"
   mkdir -p "/tmp/&name;-packages"
-  TEMP="&pluginLOC;/&name;-package-*"
+  TEMP="&pluginLOC;/&name;.*.tar.bz2"
   mv -f $TEMP "/tmp/&name;-packages"
 
   logit "Attempting to download plugin package &packageURL;..."
@@ -180,7 +180,7 @@ else
   TEMP1="/tmp/&name;-packages"
   TEMP2=$(ls $TEMP1)
   if [ "$TEMP2" != "" ] ; then
-    TEMP="/tmp/&name;-packages/&name;-package-*"
+    TEMP="/tmp/&name;-packages/&name;.*.tar.bz2"
     mv -f $TEMP "&pluginLOC;"
     logit "Previous packages restored"
   else
@@ -212,7 +212,8 @@ logit "Removing plugin..."
 [ -f "/tmp/&name;-install" ] &amp;&amp; rm -f "/tmp/&name;-install"
 [ -d "&emhttpLOC;" ] &amp;&amp; rm -fR "&emhttpLOC;"
 [ -f "/usr/local/bin/smartlocate" ] &amp;&amp; rm -f "/usr/local/bin/smartlocate"
-logit "Plugin stopped and removed - no files removed from &pluginLOC;"
+rm -f &pluginLOC;/disklocation.*.tar.bz2
+logit "Plugin stopped and removed, package files removed from &pluginLOC;, database is not removed."
 </INLINE>
 </FILE>
 </PLUGIN>
