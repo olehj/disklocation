@@ -3,6 +3,9 @@
 	$i_empty=1;
 	$i_drive=1;
 	unset($disklocation_page); unset($disklocation_layout);
+	
+	if($disk_tray_direction == "h") { $insert_break = "<br />"; } else { $insert_break = ""; }
+	
 	while($i <= $total_trays) {
 		if(is_array($get_empty_trays)) {
 			if($datasql[$i_drive-1]["tray"] == $i) { $data = $datasql[$i_drive-1]; } else { $data = ""; }
@@ -117,8 +120,6 @@
 			
 			$drive_tray_order[$luname] = get_tray_location($db, $luname);
 			$drive_tray_order[$luname] = ( empty($drive_tray_order[$luname]) ? $count_real : $drive_tray_order[$luname] );
-			
-			if($disk_tray_direction == "h") { $insert_break = "<br />"; } else { $insert_break = ""; }
 			
 			$devicenode_page = str_replace("-", "", $devicenode);
 			
