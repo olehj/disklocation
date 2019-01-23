@@ -1,10 +1,15 @@
 <?php
+	// Set warning level
+	error_reporting(E_ERROR | E_WARNING | E_PARSE);
+	
+	$get_page_info = parse_ini_file("/usr/local/emhttp/plugins/disklocation/disklocation.page");
+	
 	// define constants
 	define('DISKLOCATION_DB', '/boot/config/plugins/disklocation/disklocation.sqlite');
 	define('DISKINFORMATION', '/var/local/emhttp/disks.ini');
 	define('DISKLOGFILE', '/boot/config/disk.log');
-	define('DISKLOCATION_VERSION', "2019.01.23d");
-	
+	define('DISKLOCATION_VERSION', $get_page_info["Version"]);
+
 	$disklocation_error = array();
 	
 	// open and/or create database
@@ -484,7 +489,7 @@
 		$i++;
 	}
 	
-	$empty_tray_order = array_values(get_tray_location($db, "empty", 1));
+	$empty_tray_order = ( empty(get_tray_location($db, "empty", 1)) ? null : array_values(get_tray_location($db, "empty", 1)) );
 	
 	$color_array = array();
 	$color_array['empty'] = $bgcolor_empty;
