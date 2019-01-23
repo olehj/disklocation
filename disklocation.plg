@@ -3,10 +3,10 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.01.23c">
+<!ENTITY version          "2019.01.23d">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/master/&name;.plg">
-<!ENTITY packageMD5       "c9fcf63c2f8b5f5573f8efe096507b5c">
+<!ENTITY packageMD5       "f82658b45f780bee07499bad9dcc3543">
 <!ENTITY packagefile      "&name;.&version;.tar.bz2">
 <!ENTITY packageURL       "https://raw.githubusercontent.com/olehj/&name;/master/&packagefile;">
 <!ENTITY pluginLOC        "/boot/config/plugins/&name;">
@@ -31,6 +31,9 @@
 </FILE>
 
 <CHANGES>
+###2019.01.23d
+- Minor issue, wrong version number stored in system.php.
+
 ###2019.01.23c
 - Commit #7 - Fixed a minor design issue with the trays from the Device page nor showing correctly.
 
