@@ -3,10 +3,10 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.01.23e">
+<!ENTITY version          "2019.01.23f">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/master/&name;.plg">
-<!ENTITY packageMD5       "ff853cc9c4fe63de823c7d12199812e3">
+<!ENTITY packageMD5       "6a8f14aae6e30c488c46503e17a67b07">
 <!ENTITY packagefile      "&name;.&version;.tar.bz2">
 <!ENTITY packageURL       "https://raw.githubusercontent.com/olehj/&name;/master/&packagefile;">
 <!ENTITY pluginLOC        "/boot/config/plugins/&name;">
@@ -31,6 +31,9 @@
 </FILE>
 
 <CHANGES>
+###2019.01.23f
+- Commit #15 - Empty horizontal trays not aligned correctly due to missing break.
+
 ###2019.01.23e
 - Commit #13 - Use version from the installer in system.php
 - Commit #12 - Plugin installer now removes older packages.
