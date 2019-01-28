@@ -9,7 +9,7 @@
 	define('DISKINFORMATION', '/var/local/emhttp/disks.ini');
 	define('DISKLOGFILE', '/boot/config/disk.log');
 	define('DISKLOCATION_VERSION', $get_page_info["Version"]);
-
+	
 	$disklocation_error = array();
 	
 	// open and/or create database
@@ -594,6 +594,13 @@
 	
 	$total_trays = ( empty($grid_trays) ? $grid_columns * $grid_rows : $grid_trays );
 	$get_empty_trays = get_tray_location($db, "empty", 1);
+	
+	$total_main_trays = 0;
+	if($total_trays > ($grid_columns * $grid_rows)) {
+		$total_main_trays = $grid_columns * $grid_rows;
+		$total_rows_override_trays = ($total_trays - $total_main_trays) / $grid_columns;
+		$grid_columns_override_styles = str_repeat(" auto", $total_rows_override_trays);
+	}
 	
 	if(!is_array($get_empty_trays)) {
 		$sql = "SELECT * FROM disks WHERE status IS NULL;";

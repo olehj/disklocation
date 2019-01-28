@@ -160,6 +160,12 @@
 			
 			$i_drive++;
 		}
+		
+		if($total_main_trays == $i) {
+			$disklocation_page .= "</div><div class=\"grid-container\" style=\"grid-template-rows: " . $grid_columns_override_styles . "; margin: " . $tray_height . "px;\">";
+			$disklocation_layout .= "</div><div class=\"grid-container\" style=\"grid-template-rows: " . $grid_columns_override_styles . "; margin: " . $tray_height / 10 . "px;\">";
+		}
+		
 		$i++;
 	}
 	

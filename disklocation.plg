@@ -3,10 +3,10 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.01.23f">
+<!ENTITY version          "2019.01.28">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/master/&name;.plg">
-<!ENTITY packageMD5       "6a8f14aae6e30c488c46503e17a67b07">
+<!ENTITY packageMD5       "2d1018d44b65055d2bec08b9693ccda1">
 <!ENTITY packagefile      "&name;.&version;.tar.bz2">
 <!ENTITY packageURL       "https://raw.githubusercontent.com/olehj/&name;/master/&packagefile;">
 <!ENTITY pluginLOC        "/boot/config/plugins/&name;">
@@ -31,6 +31,9 @@
 </FILE>
 
 <CHANGES>
+###2019.01.28
+- Commit #17 - Added slightly better support for 36 tray servers and in general override tray optimization.
+
 ###2019.01.23f
 - Commit #15 - Empty horizontal trays not aligned correctly due to missing break.
 
