@@ -64,6 +64,7 @@
 				status CHAR(1),
 				purchased DATE,
 				warranty SMALLINT,
+				warranty_date DATE,
 				comment VARCHAR(255)
 			);
 			CREATE TABLE location(
@@ -83,7 +84,8 @@
 				grid_trays SMALLINT,
 				disk_tray_direction CHAR(1),
 				tray_width SMALLINT,
-				tray_height SMALLINT
+				tray_height SMALLINT,
+				warranty_field CHAR(1) NOT NULL
 			);
 			
 			INSERT INTO 
@@ -98,7 +100,8 @@
 					grid_trays,
 					disk_tray_direction,
 					tray_width,
-					tray_height
+					tray_height,
+					warranty_field
 				)
 				VALUES(
 					'200',		/* set milliseconds for next execution for SMART shell_exec - needed to actually grab all the information for unassigned devices. Default: 200 */
@@ -111,7 +114,8 @@
 					'',		/* total number of trays. default this is (grid_columns * grid_rows), but we choose to add some flexibility for drives outside normal trays */
 					'h',		/* direction of the hard drive trays [h]horizontal | [v]ertical */
 					'400',		/* the pixel width of the hard drive tray: in the horizontal direction === */
-					'70'		/* the pixel height of the hard drive tray: in the horizontal direction === */
+					'70',		/* the pixel height of the hard drive tray: in the horizontal direction === */
+					'u'		/* choose which format to enter in the warranty field, [u]nraid version (12/24.. months) | [m]anual entry in ISO date */
 				)
 			;
 		";
@@ -119,6 +123,16 @@
 		if(!$ret) {
 			echo $db->lastErrorMsg();
 		}
+	}
+	else {
+		// For future db/table update
+		
+		/*
+		$ret = $db->exec($sql);
+		if(!$ret) {
+			echo $db->lastErrorMsg();
+		}
+		*/
 	}
 	
 	function is_tray_allocated($db, $tray) {
