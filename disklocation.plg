@@ -32,7 +32,7 @@
 
 <CHANGES>
 ###2019.01.28
-- Added slightly better support for 36 tray servers and in general override tray optimization.
+- Commit #17 - Added slightly better support for 36 tray servers and in general override tray optimization.
 
 ###2019.01.23f
 - Commit #15 - Empty horizontal trays not aligned correctly due to missing break.
