@@ -289,6 +289,17 @@
 		return count(array_filter($array)) !== count(array_unique(array_filter($array)));
 	}
 	
+	function recursive_array_search($needle,$haystack) {
+		/* from php.net: buddel */
+		foreach($haystack as $key=>$value) {
+			$current_key=$key;
+			if($needle===$value OR (is_array($value) && recursive_array_search($needle,$value) !== false)) {
+				return $current_key;
+			}
+		}
+		return false;
+	}
+	
 	if($_POST["save_settings"]) {
 		// trays
 		$post_drives = $_POST["drives"];
@@ -520,6 +531,8 @@
 				$smart_i++;
 			}
 			
+			$rotation_rate = ( recursive_array_search("Solid State Device Statistics", $smart_array) ? -1 : $smart_array["rotation_rate"] );
+			
 			$sql = "
 				INSERT INTO 
 					disks(
@@ -550,7 +563,7 @@
 						'" . $smart_array["power_on_time"]["hours"] . "',
 						'" . $smart_loadcycle_find . "',
 						'" . $smart_array["user_capacity"]["bytes"] . "',
-						'" . $smart_array["rotation_rate"] . "',
+						'" . $rotation_rate . "',
 						'" . $smart_array["form_factor"]["name"] . "',
 						'h'
 					)
@@ -561,7 +574,8 @@
 						smart_status='" . $smart_array["smart_status"]["passed"] . "',
 						smart_temperature='" . $smart_array["temperature"]["current"] . "',
 						smart_powerontime='" . $smart_array["power_on_time"]["hours"] . "',
-						smart_loadcycle='" . $smart_loadcycle_find . "'
+						smart_loadcycle='" . $smart_loadcycle_find . "',
+						smart_rotation='" . $rotation_rate . "'
 				;
 			";
 			
@@ -586,6 +600,8 @@
 			else {
 				$color_array[$lsscsi_luname[$i]] = $bgcolor_others;
 			}
+			
+			unset($smart_array);
 		}
 		$i++;
 	}

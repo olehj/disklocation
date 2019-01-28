@@ -61,7 +61,18 @@
 			$smart_powerontime = ( isset($data["smart_powerontime"]) ? "<span style=\"cursor: help;\" title=\"" . seconds_to_time($data["smart_powerontime"] * 60 * 60) . "\">" . $data["smart_powerontime"] . "h</span>" : null );
 			$smart_loadcycle = ( empty($data["smart_loadcycle"]) ? null : $data["smart_loadcycle"] . "c" );
 			$smart_capacity = human_filesize($data["smart_capacity"], 1, true);
-			$smart_rotation = ( empty($data["smart_rotation"]) ? "SSD" : $data["smart_rotation"] . "rpm");
+			
+			switch($data["smart_rotation"]) {
+				case -1:
+					$smart_rotation = "SSD";
+					break;
+				case 0:
+					$smart_rotation = "";
+					break;
+				default:
+					$smart_rotation = $data["smart_rotation"] . "rpm";
+			}
+			
 			$smart_formfactor = str_replace(" inches", "&quot;", $data["smart_formfactor"]);
 			
 			if($unraid_array[$devicenode]["color"] && $unraid_array[$devicenode]["status"]) {

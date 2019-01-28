@@ -24,6 +24,17 @@
 		else {
 			$smart_powerontime = seconds_to_time($data["smart_powerontime"] * 60 * 60);
 			
+			switch($data["smart_rotation"]) {
+				case -1:
+					$smart_rotation = "SSD";
+					break;
+				case 0:
+					$smart_rotation = "";
+					break;
+				default:
+					$smart_rotation = $data["smart_rotation"] . "rpm";
+			}
+			
 			$warranty_expire = "";
 			$warranty_left = "";
 			if($data["purchased"] && $data["warranty"]) {
@@ -49,7 +60,7 @@
 					<td style=\"padding: 0 10px 0 10px;\">" . $data["model_name"] . "</td>
 					<td style=\"padding: 0 10px 0 10px;\">" . $data["smart_serialnumber"] . "</td>
 					<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . human_filesize($data["smart_capacity"], 1, true) . "</td>
-					<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . ( empty($data["smart_rotation"]) ? "SSD" : $data["smart_rotation"] . " rpm" ) . "</td>
+					<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $smart_rotation . "</td>
 					<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $data["smart_formfactor"] . "</td>
 					<td style=\"padding: 0 10px 0 10px; text-align: center;\">" . ( empty($data["smart_status"]) ? "FAILED" : "PASSED" ) . "</td>
 					<td style=\"padding: 0 10px 0 10px; text-align: right;\"><span style=\"cursor: help;\" title=\"" . $smart_powerontime . "\">" . $data["smart_powerontime"] . "</span></td>

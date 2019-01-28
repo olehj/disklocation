@@ -38,6 +38,18 @@
 				if($data["warranty"] == $warr_i) { $selected="selected"; } else { $selected=""; }
 				$warr_options .= "<option value=\"$warr_i\" " . $selected . " style=\"text-align: right;\">$warr_i months</option>";
 			}
+			
+			switch($data["smart_rotation"]) {
+				case -1:
+					$smart_rotation = "SSD";
+					break;
+				case 0:
+					$smart_rotation = "";
+					break;
+				default:
+					$smart_rotation = $data["smart_rotation"] . "rpm";
+			}
+			
 			$print_drives[$tray_assign] = "
 				<tr style=\"background: #" . $color_array[$data["luname"]] . ";\">
 					<td style=\"padding: 0 10px 0 10px; text-align: right;\"><select name=\"drives[" . $data["luname"] . "]\" dir=\"rtl\" style=\"min-width: 0; max-width: 50px; width: 40px;\"><option value=\"\" style=\"text-align: right;\">--</option>" . $tray_options . "</select></td>
@@ -48,7 +60,7 @@
 					<td style=\"padding: 0 10px 0 10px;\">" . $data["model_name"] . "</td>
 					<td style=\"padding: 0 10px 0 10px;\">" . $data["smart_serialnumber"] . "</td>
 					<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . human_filesize($data["smart_capacity"], 1, true) . "</td>
-					<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . ( empty($data["smart_rotation"]) ? "SSD" : $data["smart_rotation"] . " rpm" ) . "</td>
+					<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $smart_rotation . "</td>
 					<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $data["smart_formfactor"] . "</td>
 					<td style=\"padding: 0 10px 0 10px; text-align: right;\"><input type=\"date\" name=\"purchased[" . $data["luname"] . "]\" value=\"" . $data["purchased"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" /></td>
 					<td style=\"padding: 0 10px 0 10px; text-align: right;\"><select name=\"warranty[" . $data["luname"] . "]\" style=\"min-width: 0; max-width: 80px; width: 80px;\"><option value=\"\" style=\"text-align: right;\">unknown</option>" . $warr_options . "</select></td>
