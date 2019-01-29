@@ -3,10 +3,10 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.01.30">
+<!ENTITY version          "2019.01.30b">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/master/&name;.plg">
-<!ENTITY packageMD5       "5b40b9c360b7f18ac11dc59f50875add">
+<!ENTITY packageMD5       "60cc0a61644b5ec8c72353c09493eb89">
 <!ENTITY packagefile      "&name;.&version;.tar.bz2">
 <!ENTITY packageURL       "https://raw.githubusercontent.com/olehj/&name;/master/&packagefile;">
 <!ENTITY pluginLOC        "/boot/config/plugins/&name;">
@@ -31,6 +31,9 @@
 </FILE>
 
 <CHANGES>
+###2019.01.30b
+- Devices shows no contents unless the selection is saved. By default show all.
+
 ###2019.01.30
 - Commit #21 - FEATURE: Added options to select what to show at Devices page
 - Commit #20 - FEATURE: Added temperature unit selection, C/F/K

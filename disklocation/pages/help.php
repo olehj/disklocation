@@ -49,6 +49,12 @@
 	<dt>Set physical tray assignment direction</dt>
 	<dd>Select how to count the tray, from "top to bottom" or from "left to right"</dd>
 	
+	<dt>Set temperature unit</dt>
+	<dd>Select desired temperature unit, even Kelvin!</dd>
+	
+	<dt>Set warranty date entry</dt>
+	<dd>Select how you want to enter the warranty date: the Unraid way of selecting amount of months, or manual ISO date for specific dates. Both values can be stored, but only one can be visible at a time.</dd>
+	
 	<dt>SMART execution delay</dt>
 	<dd>This is a delay for execution of the next smartctl command in a loop, this might be necessary to be able to read all the SMART data from all the drives. Default value is 200ms, and seems to work very well. If you realize it won't detect all the data you can increase this value, but hardly any point decreasing it.</dd>
 	
@@ -60,6 +66,9 @@
 	
 	<dt>Comment</dt>
 	<dd>Enter a comment, like where you bought the drive or anything else you'd like.</dd>
+	
+	<dt>Visible Information</dt>
+	<dd>Select the information you want to display on the "Devices" page. Each row is based upon the layout.</dd>
 </dl>
 
 <h3>Operation</h3>
