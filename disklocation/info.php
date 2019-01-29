@@ -37,10 +37,20 @@
 			
 			$warranty_expire = "";
 			$warranty_left = "";
-			if($data["purchased"] && $data["warranty"]) {
+			if($data["purchased"] && ($data["warranty"] || $data["warranty_date"])) {
 				$warranty_start = strtotime($data["purchased"]);
-				$warranty_end = strtotime("" . $data["purchased"] . " +" . $data["warranty"] . " month");
-				$warranty_expire = date("Y-m-d", $warranty_end);
+				
+				if($warranty_field == "u") {
+					$warranty_end = strtotime("" . $data["purchased"] . " + " . $data["warranty"] . " month");
+					$warranty_expire = date("Y-m-d", $warranty_end);
+					$date_warranty = $data["warranty"] . " months.";
+				}
+				else {
+					$warranty_end = strtotime($data["warranty_date"]);
+					$warranty_expire = $data["warranty_date"];
+					$date_warranty = $data["warranty_date"];
+				}
+				
 				$warranty_expire_left = $warranty_end-date("U");
 				if($warranty_expire_left > 0) {
 					$warranty_left = seconds_to_time($warranty_expire_left);
@@ -48,7 +58,6 @@
 				else {
 					$warranty_left = "EXPIRED!";
 				}
-				
 			}
 			
 			$print_drives[$tray_assign] = "
@@ -66,7 +75,7 @@
 					<td style=\"padding: 0 10px 0 10px; text-align: right;\"><span style=\"cursor: help;\" title=\"" . $smart_powerontime . "\">" . $data["smart_powerontime"] . "</span></td>
 					<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $data["smart_loadcycle"] . "</td>
 					<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $data["purchased"] . "</td>
-					<td style=\"padding: 0 10px 0 10px; text-align: right;\"><span style=\"cursor: help;\" title=\"Warranty: " . $data["warranty"] . " months. Expires: " . $warranty_left . "\">" . $warranty_expire . "</span></td>
+					<td style=\"padding: 0 10px 0 10px; text-align: right;\"><span style=\"cursor: help;\" title=\"Warranty: " . $date_warranty . " Expires: " . $warranty_left . "\">" . $warranty_expire . "</span></td>
 					<td style=\"padding: 0 10px 0 10px;\">" . stripslashes(htmlspecialchars($data["comment"])) . "</td>
 				</tr>
 			";

@@ -9,6 +9,7 @@
 	define('DISKINFORMATION', '/var/local/emhttp/disks.ini');
 	define('DISKLOGFILE', '/boot/config/disk.log');
 	define('DISKLOCATION_VERSION', $get_page_info["Version"]);
+	define('DISKLOCATION_URL', '/Settings/disklocation');
 	
 	$disklocation_error = array();
 	
@@ -44,80 +45,20 @@
 		exit;
 	}
 	
+	require_once("sqlite_tables.php");
+	
 	if(filesize(DISKLOCATION_DB) === 0) {
 		$sql = "
 			CREATE TABLE disks(
-				id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-				device VARCHAR(16) NOT NULL,
-				devicenode VARCHAR(8),
-				luname VARCHAR(50) UNIQUE NOT NULL,
-				model_family VARCHAR(50),
-				model_name VARCHAR(50),
-				smart_status TINYINT,
-				smart_serialnumber VARCHAR(128),
-				smart_temperature DECIMAL(4,1),
-				smart_powerontime INT,
-				smart_loadcycle INT,
-				smart_capacity INT,
-				smart_rotation INT,
-				smart_formfactor VARCHAR(16),
-				status CHAR(1),
-				purchased DATE,
-				warranty SMALLINT,
-				warranty_date DATE,
-				comment VARCHAR(255)
+				$sql_create_disks
 			);
 			CREATE TABLE location(
-				id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-				luname VARCHAR(50) UNIQUE NOT NULL,
-				empty VARCHAR(255),
-				tray SMALLINT
+				$sql_create_location
 			);
 			CREATE TABLE settings(
-				smart_exec_delay INT NOT NULL,
-				bgcolor_unraid CHAR(6) NOT NULL,
-				bgcolor_others CHAR(6) NOT NULL,
-				bgcolor_empty CHAR(6) NOT NULL,
-				grid_count VARCHAR(6) NOT NULL,
-				grid_columns TINYINT NOT NULL,
-				grid_rows TINYINT NOT NULL,
-				grid_trays SMALLINT,
-				disk_tray_direction CHAR(1),
-				tray_width SMALLINT,
-				tray_height SMALLINT,
-				warranty_field CHAR(1) NOT NULL
+				$sql_create_settings
 			);
-			
-			INSERT INTO 
-				settings(
-					smart_exec_delay,
-					bgcolor_unraid,
-					bgcolor_others,
-					bgcolor_empty,
-					grid_count,
-					grid_columns,
-					grid_rows,
-					grid_trays,
-					disk_tray_direction,
-					tray_width,
-					tray_height,
-					warranty_field
-				)
-				VALUES(
-					'200',		/* set milliseconds for next execution for SMART shell_exec - needed to actually grab all the information for unassigned devices. Default: 200 */
-					'ef6441',	/* background color for Unraid array disks */
-					'41b5ef',	/* background color for unassigned/other disks */
-					'aaaaaa',	/* background color for empty trays */
-					'column',	/* how to count the trays: [column]: trays ordered from top to bottom from left to right | [row]: ..from left to right from top to bottom */
-					'4',		/* number of horizontal trays */
-					'6',		/* number of verical trays */
-					'',		/* total number of trays. default this is (grid_columns * grid_rows), but we choose to add some flexibility for drives outside normal trays */
-					'h',		/* direction of the hard drive trays [h]horizontal | [v]ertical */
-					'400',		/* the pixel width of the hard drive tray: in the horizontal direction === */
-					'70',		/* the pixel height of the hard drive tray: in the horizontal direction === */
-					'u'		/* choose which format to enter in the warranty field, [u]nraid version (12/24.. months) | [m]anual entry in ISO date */
-				)
-			;
+			PRAGMA user_version = '1';
 		";
 		$ret = $db->exec($sql);
 		if(!$ret) {
@@ -125,14 +66,49 @@
 		}
 	}
 	else {
-		// For future db/table update
+		$sql = "PRAGMA user_version";
+		$database_version = $db->querySingle($sql);
 		
-		/*
-		$ret = $db->exec($sql);
-		if(!$ret) {
-			echo $db->lastErrorMsg();
+		$db_update = 0;
+		
+		$sql = "";
+		if($database_version < 1) {
+			$sql .= "
+				PRAGMA foreign_keys = true;
+				
+				BEGIN TRANSACTION;
+				
+				ALTER TABLE disks RENAME TO new_disks;
+				ALTER TABLE settings RENAME TO new_settings;
+				
+				CREATE TABLE disks($sql_create_disks);
+				CREATE TABLE settings($sql_create_settings);
+				
+				INSERT INTO disks ($sql_tables_disks_v0) SELECT $sql_tables_disks_v0 FROM new_disks;
+				INSERT INTO settings ($sql_tables_settings_v0) SELECT $sql_tables_settings_v0 FROM new_settings;
+				
+				DROP TABLE new_disks;
+				DROP TABLE new_settings;
+				
+				COMMIT;
+				
+				PRAGMA foreign_keys = false;
+				PRAGMA user_version = '1';
+				
+				VACUUM;
+			";
+			$db_update = 1;
 		}
-		*/
+		
+		if($db_update) {
+			$ret = $db->exec($sql);
+			if(!$ret) {
+				echo $db->lastErrorMsg();
+			}
+			$db->close();
+			print("<h3>Database updated, refreshing...</h3><meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+			exit;
+		}
 	}
 	
 	function is_tray_allocated($db, $tray) {
@@ -173,7 +149,52 @@
 		$factor = floor((strlen($bytes) - 1) / 3);
 		return sprintf("%.{$decimals}f", $bytes / pow($bytefactor, $factor)) . @$size[$factor];
 	}
-
+	
+	function temperature_conv($float, $input, $output) {
+		// temperature_conv(floatnumber, F, C) : from F to C
+		
+		// Celcius to Farenheit, [F]=[C]*9/5+32 | [C]=5/9*([F]-32)
+		// Celcius to Kelvin, 0C = 273.15K
+			
+		$result = 0;
+		if($input != $output) {
+			if($output == "C") {
+				if($input == "F") {
+					$result = ($float-32)*5/9;
+				}
+				if($input == "K") {
+					$result = $float-273.15;
+				}
+			}
+			if($output == "F") {
+				if($input == "C") {
+					$result = $float*9/5+32;
+				}
+				if($input == "K") {
+					$result = ($float-273.15)*9/5+32;
+				}
+			}
+			if($output == "K") {
+				if($input == "C") {
+					$result = $float+273.15;
+				}
+				if($input == "F") {
+					$result = (($float-32)*5/9)+273.15;
+				}
+			}
+		}
+		else {
+			$result = $float;
+		}
+		
+		if($result) {
+			return $result;
+		}
+		else {
+			return false;
+		}
+	}
+	
 	function get_unraid_disk_status($color, $status, $type = '') {
 		if($type == "cache") {
 			$type = 1; // Cache drive(s)
@@ -318,15 +339,8 @@
 		// trays
 		$post_drives = $_POST["drives"];
 		$post_empty = $_POST["empty"];
+		$post_info = json_encode($_POST["displayinfo"]);
 		
-		/*
-		if($_POST["drives"] && $_POST["empty"]) {
-			$tray_array = $_POST["drives"] + $_POST["empty"];
-		}
-		else {
-			$tray_array = $_POST["drives"];
-		}
-		*/
 		if(array_duplicates($post_drives)) { $disklocation_error[] = "Duplicate tray assignment found, be sure to assign trays in a unique order."; }
 		
 		// settings
@@ -341,6 +355,8 @@
 		if(!preg_match("/(h|v)/", $_POST["disk_tray_direction"])) { $disklocation_error[] = "Physical tray direction invalid."; }
 		if(!preg_match("/[0-9]{1,4}/", $_POST["tray_width"])) { $disklocation_error[] = "Tray's longest side outside limits or invalid number entered."; }
 		if(!preg_match("/[0-9]{1,3}/", $_POST["tray_height"])) { $disklocation_error[] = "Tray's smallest side outside limits or invalid number entered."; }
+		if(!preg_match("/(u|m)/", $_POST["warranty_field"])) { $disklocation_error[] = "Warranty field is invalid."; }
+		if(!preg_match("/(C|F|K)/", $_POST["tempunit"])) { $disklocation_error[] = "Temperature unit is invalid."; }
 		
 		if(empty($disklocation_error)) {
 			$keys_drives = array_keys($post_drives);
@@ -421,7 +437,10 @@
 					grid_trays = '" . ( empty($_POST["grid_trays"]) ? null : $_POST["grid_trays"] ) . "',
 					disk_tray_direction = '" . $_POST["disk_tray_direction"] . "',
 					tray_width = '" . $_POST["tray_width"] . "',
-					tray_height = '" . $_POST["tray_height"] . "'
+					tray_height = '" . $_POST["tray_height"] . "',
+					warranty_field = '" . $_POST["warranty_field"] . "',
+					tempunit = '" . $_POST["tempunit"] . "',
+					displayinfo = '" . $post_info . "'
 				;
 			";
 			
@@ -429,7 +448,14 @@
 				$sql .= "
 					UPDATE disks SET
 						purchased = '" . $_POST["purchased"][$keys_drives[$i]] . "',
-						warranty = '" . $_POST["warranty"][$keys_drives[$i]] . "',
+				";
+				if($_POST["current_warranty_field"] == "u") {
+					$sql .= "warranty = '" . $_POST["warranty"][$keys_drives[$i]] . "',";
+				}
+				else {
+					$sql .= "warranty_date = '" . $_POST["warranty_date"][$keys_drives[$i]] . "',";
+				}
+				$sql .= "
 						comment = '" . $_POST["comment"][$keys_drives[$i]] . "'
 					WHERE luname = '" . $keys_drives[$i] . "'
 					;
@@ -479,6 +505,8 @@
 	while($data = $results->fetchArray(1)) {
 		extract($data);
 	}
+	
+	$displayinfo = json_decode($displayinfo, true);
 	
 	// get all attached SCSI drives - usually should grab all local drives available
 	$lsscsi_cmd = shell_exec("lsscsi -u -g");
