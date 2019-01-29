@@ -33,10 +33,17 @@
 				$tray_options .= "<option value=\"$tray_i\" " . $selected . " style=\"text-align: right;\">$tray_i</option>";
 			}
 			
-			$warr_options = "";
-			for($warr_i = 12; $warr_i <= (12*5); $warr_i+=12) {
-				if($data["warranty"] == $warr_i) { $selected="selected"; } else { $selected=""; }
-				$warr_options .= "<option value=\"$warr_i\" " . $selected . " style=\"text-align: right;\">$warr_i months</option>";
+			$warr_input = "";
+			if($warranty_field == "u") {
+				$warr_options = "";
+				for($warr_i = 12; $warr_i <= (12*5); $warr_i+=12) {
+					if($data["warranty"] == $warr_i) { $selected="selected"; } else { $selected=""; }
+					$warr_options .= "<option value=\"$warr_i\" " . $selected . " style=\"text-align: right;\">$warr_i months</option>";
+				}
+				$warr_input = "<select name=\"warranty[" . $data["luname"] . "]\" style=\"min-width: 0; max-width: 80px; width: 80px;\"><option value=\"\" style=\"text-align: right;\">unknown</option>" . $warr_options . "</select>";
+			}
+			else {
+				$warr_input = "<input type=\"date\" name=\"warranty_date[" . $data["luname"] . "]\" value=\"" . $data["warranty_date"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" />";
 			}
 			
 			switch($data["smart_rotation"]) {
@@ -63,7 +70,7 @@
 					<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $smart_rotation . "</td>
 					<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $data["smart_formfactor"] . "</td>
 					<td style=\"padding: 0 10px 0 10px; text-align: right;\"><input type=\"date\" name=\"purchased[" . $data["luname"] . "]\" value=\"" . $data["purchased"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" /></td>
-					<td style=\"padding: 0 10px 0 10px; text-align: right;\"><select name=\"warranty[" . $data["luname"] . "]\" style=\"min-width: 0; max-width: 80px; width: 80px;\"><option value=\"\" style=\"text-align: right;\">unknown</option>" . $warr_options . "</select></td>
+					<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $warr_input . "</td>
 					<td style=\"padding: 0 10px 0 10px; text-align: right;\"><input type=\"text\" name=\"comment[" . $data["luname"] . "]\" value=\"" . stripslashes(htmlspecialchars($data["comment"])) . "\" style=\"width: 150px;\" /></td>
 				</tr>
 			";
@@ -100,6 +107,14 @@
 				$tray_options .= "<option value=\"$tray_i\" style=\"text-align: right;\">$tray_i</option>";
 		}
 		
+		$warr_input = "";
+		if($warranty_field == "u") {
+			$warr_input = "<select name=\"warranty[" . $data["luname"] . "]\" style=\"min-width: 0; max-width: 80px; width: 80px;\"><option value=\"\" style=\"text-align: right;\">unknown</option>" . $warr_options . "</select>";
+		}
+		else {
+			$warr_input = "<input type=\"date\" name=\"warranty_date[" . $data["luname"] . "]\" value=\"" . $data["warranty_date"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" />";
+		}
+		
 		$print_add_drives .= "
 			<tr style=\"background: #" . $color_array[$data["luname"]] . ";\">
 				<td style=\"padding: 0 10px 0 10px;\"><select name=\"drives[" . $data["luname"] . "]\" dir=\"rtl\" style=\"min-width: 0; max-width: 50px; width: 40px;\"><option value=\"\" selected style=\"text-align: right;\">--</option>" . $tray_options . "</select></td>
@@ -113,13 +128,15 @@
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . ( empty($data["smart_rotation"]) ? "SSD" : $data["smart_rotation"] . " rpm" ) . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $data["smart_formfactor"] . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><input type=\"date\" name=\"purchased[" . $data["luname"] . "]\" value=\"" . $data["purchased"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" /></td>
-				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><select name=\"warranty[" . $data["luname"] . "]\" style=\"min-width: 0; max-width: 80px; width: 80px;\"><option value=\"\" style=\"text-align: right;\">unknown</option>" . $warr_options . "</select></td>
+				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $warr_input . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><input type=\"text\" name=\"comment[" . $data["luname"] . "]\" value=\"" . stripslashes(htmlspecialchars($data["comment"])) . "\" style=\"width: 150px;\" /></td>
 			</tr>
 		";
 	}
 	
 	$db->close();
+	
+	$vi_width = 150;
 ?>
 <?php
 	if(!empty($disklocation_error)) {
@@ -148,8 +165,8 @@
 				</p>
 				<p>
 					<b>Set sizes for trays:</b><br />
-					<input type="number" required min="200" max="2000" name="tray_width" value="<?php print($tray_width); ?>" style="width: 50px;" /> px longest side<br />
-					<input type="number" required min="70" max="700" name="tray_height" value="<?php print($tray_height); ?>" style="width: 50px;" /> px shortest side
+					<input type="number" required min="100" max="2000" name="tray_width" value="<?php print($tray_width); ?>" style="width: 50px;" /> px longest side<br />
+					<input type="number" required min="30" max="700" name="tray_height" value="<?php print($tray_height); ?>" style="width: 50px;" /> px shortest side
 				</p>
 					<b>Set grid size:</b><br />
 					<input type="number" required min="1" max="255" name="grid_columns" value="<?php print($grid_columns); ?>" style="width: 50px;" /> columns<br />
@@ -167,10 +184,22 @@
 					<input type="radio" name="grid_count" value="row" <?php if($grid_count == "row") echo "checked"; ?>/>left to right
 				</p>
 				<p>
+					<b>Set temperature unit:</b><br />
+					<input type="radio" name="tempunit" value="C" <?php if($tempunit == "C") echo "checked"; ?> />°C
+					<input type="radio" name="tempunit" value="F" <?php if($tempunit == "F") echo "checked"; ?>/>°F
+					<input type="radio" name="tempunit" value="K" <?php if($tempunit == "K") echo "checked"; ?>/>K
+				</p>
+				<p>
+					<b>Set warranty date entry:</b><br />
+					<input type="radio" name="warranty_field" value="u" <?php if($warranty_field == "u") echo "checked"; ?> />Unraid
+					<input type="radio" name="warranty_field" value="m" <?php if($warranty_field == "m") echo "checked"; ?>/>Manual ISO
+				</p>
+				<p>
 					<b>SMART execution delay:</b><br />
 					<input type="number" required min="0" max="5000" name="smart_exec_delay" value="<?php print($smart_exec_delay); ?>" style="width: 50px;" />ms
 				</p>
 				<p style="text-align: center;">
+					<input type="hidden" name="current_warranty_field" value="<?php echo $warranty_field ?>" />
 					<input type="submit" name="save_settings" value="Save" /><input type="reset" value="Reset" />
 				</p>
 			</td>
@@ -224,6 +253,65 @@
 							");
 						}
 					?>
+				</table>
+				<h2 style="padding-bottom: 25px;">Visible Information</h2>
+				<table style="width: 0;">
+					<tr>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[tray]" value="1" <?php if($displayinfo["tray"]) echo "checked"; ?> />Tray number
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[leddiskop]" value="1" <?php if($displayinfo["leddiskop"]) echo "checked"; ?> />Disk Operation LED
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[ledsmart]" value="1" <?php if($displayinfo["ledsmart"]) echo "checked"; ?> />SMART Status LED
+						</td>
+					</tr>
+					<tr>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[unraidinfo]" value="1" <?php if($displayinfo["unraidinfo"]) echo "checked"; ?> />Unraid info
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[path]" value="1" <?php if($displayinfo["path"]) echo "checked"; ?> />Path
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[devicenode]" value="1" <?php if($displayinfo["devicenode"]) echo "checked"; ?> />Device Node
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[luname]" value="1" <?php if($displayinfo["luname"]) echo "checked"; ?> />Logical Unit Name
+						</td>
+					</tr>
+					<tr>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[manufacturer]" value="1" <?php if($displayinfo["manufacturer"]) echo "checked"; ?> />Manufacturer
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[devicemodel]" value="1" <?php if($displayinfo["devicemodel"]) echo "checked"; ?> />Device Model
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[serialnumber]" value="1" <?php if($displayinfo["serialnumber"]) echo "checked"; ?> />Serial Number
+						</td>
+					</tr>
+					<tr>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[temperature]" value="1" <?php if($displayinfo["temperature"]) echo "checked"; ?> />Temperature
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[powerontime]" value="1" <?php if($displayinfo["powerontime"]) echo "checked"; ?> />Power On Time
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[loadcyclecount]" value="1" <?php if($displayinfo["loadcyclecount"]) echo "checked"; ?> />Load Cycle Count
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[capacity]" value="1" <?php if($displayinfo["capacity"]) echo "checked"; ?> />Capacity
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[rotation]" value="1" <?php if($displayinfo["rotation"]) echo "checked"; ?> />Rotation
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[formfactor]" value="1" <?php if($displayinfo["formfactor"]) echo "checked"; ?> />Form Factor
+						</td>
+					</tr>
 				</table>
 			</td>
 		</tr>
