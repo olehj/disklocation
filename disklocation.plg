@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.01.29">
+<!ENTITY version          "2019.01.30">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/master/&name;.plg">
 <!ENTITY packageMD5       "5b40b9c360b7f18ac11dc59f50875add">
@@ -31,7 +31,7 @@
 </FILE>
 
 <CHANGES>
-###2019.01.29
+###2019.01.30
 - Commit #21 - FEATURE: Added options to select what to show at Devices page
 - Commit #20 - FEATURE: Added temperature unit selection, C/F/K
 - Commit #19 - BUG: Fixed HDD reported as SSD if rotation was 0
@@ -181,7 +181,7 @@ EOL
   
   rm -Rf "/tmp/&name;-packages"
   rm -f "/tmp/&name;-install"
-  if [[ -f "&pluginLOC;/disklocation.sqlite" &amp;&amp; -f "&pluginLOC;/disklocation_db_v0.sqlite.tar.bz2" ]]; then
+  if [[ -f "&pluginLOC;/disklocation.sqlite" &amp;&amp; ! -f "&pluginLOC;/disklocation_db_v0.sqlite.tar.bz2" ]]; then
     tar jcf &pluginLOC;/disklocation_db_v0.sqlite.tar.bz2 &pluginLOC;/disklocation.sqlite
     logit "Made backup of database (&pluginLOC;/disklocation_db_v0.sqlite.tar.bz2) before it will be upgraded to version 1"
   fi
