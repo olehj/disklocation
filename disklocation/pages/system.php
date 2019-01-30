@@ -507,26 +507,6 @@
 	}
 	
 	$displayinfo = json_decode($displayinfo, true);
-	if(empty($displayinfo)) {
-		$displayinfo = array(
-			'tray' => 1,
-			'leddiskop' => 1,
-			'ledsmart' => 1,
-			'unraidinfo' => 1,
-			'path' => 1,
-			'devicenode' => 1,
-			'luname' => 1,
-			'manufacturer' => 1,
-			'devicemodel' => 1,
-			'serialnumber' => 1,
-			'temperature' => 1,
-			'powerontime' => 1,
-			'loadcyclecount' => 1,
-			'capacity' => 1,
-			'rotation' => 1,
-			'formfactor' => 1
-		);
-	}
 	
 	// get all attached SCSI drives - usually should grab all local drives available
 	$lsscsi_cmd = shell_exec("lsscsi -u -g");

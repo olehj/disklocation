@@ -129,7 +129,7 @@
 					$unraid_disk_status_message = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["status"], $disk_status_type);
 					
 					if($unraid_array[$devicenode]["color"] == "green-blink") { $unraid_add_greenblinkid = " class=\"greenblink\" id=\"greenblink\""; } else { $unraid_add_greenblinkid = ""; }
-					$unraid_array_icon = "<span class=\"" . $unraid_array[$devicenode]["color"] . "\" alt=\"" . $unraid_disk_status_message . "\" title=\"" . $unraid_disk_status_message . "\" />&#11044;</span>";
+					$unraid_array_icon = "<span class=\"" . $unraid_array[$devicenode]["color"] . "\" alt=\"" . $unraid_disk_status_message . "\" title=\"" . $unraid_disk_status_message . "\" />&#11044;</span>" . $insert_break . "";
 				}
 				else {
 					usleep($smart_exec_delay . 000); // delay script to get the output of the next shell_exec()
@@ -261,8 +261,8 @@ function locateStart(locateDisk){
 		locateDisk.addEventListener("click", locateStop);
 		locateDisk.value = "Stop";
 		locateDisk.style.backgroundColor = '#000000';
-		
-		$.get('/plugins/disklocation/pages/locate.php',{ disklocation:locateDisk.id, cmd:"start"},function(data) {
+		var diskpath = encodeURI(locateDisk.id);
+		$.get('/plugins/disklocation/pages/locate.php',{ disklocation:diskpath, cmd:"start"},function(data) {
 			// script is handled in the background, nothing to do here
 		});
 	}
@@ -274,8 +274,8 @@ function locateStop(locateDisk){
 	locateDisk.addEventListener("click", locateStart);
 	locateDisk.value = "Locate";
 	locateDisk.style.backgroundColor = '#FFFFFF';
-	
-	$.get('/plugins/disklocation/pages/locate.php',{ disklocation:locateDisk.id, cmd:"stop"},function(data) {
+	var diskpath = encodeURI(locateDisk.id);
+	$.get('/plugins/disklocation/pages/locate.php',{ disklocation:diskpath, cmd:"stop"},function(data) {
 		// script is handled in the background, nothing to do here
 	});
 }
@@ -291,7 +291,7 @@ function locateKillAll(locateDisk){
 		//console.log("Locating killed: " + y[i].id);
 	}
 	
-	$.get('/plugins/disklocation/pages/locate.php',{ disklocation:locateDisk.id, cmd:"killall"},function(data) {
+	$.get('/plugins/disklocation/pages/locate.php',{ cmd:"killall"},function(data) {
 		// script is handled in the background, nothing to do here
 	});
 }
