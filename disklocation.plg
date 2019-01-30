@@ -38,6 +38,7 @@
 - Commit #21 - FEATURE: Added options to select what to show at Devices page
 - Commit #20 - FEATURE: Added temperature unit selection, C/F/K
 - Commit #19 - BUG: Fixed HDD reported as SSD if rotation was 0
+- FEATURE: You can now choose between Unraid version (select months: 12/24/36...) or Manual ISO dates (YYYY-MM-DD) in the warranty section, a config switch is required before this is accessible.
 - Updated Help for new features.
 - Database will be backed up during install because it will be upgraded.
 
