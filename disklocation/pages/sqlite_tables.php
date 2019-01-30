@@ -1,26 +1,42 @@
 <?php
 /*
 	Database Version: current
-	
-	
-	Variable name		Default value	Description
-	--------------------------------------------------------------------------------
-	smart_exec_delay	'200',		set milliseconds for next execution for SMART shell_exec - needed to actually grab all the information for unassigned devices. Default: 200
-	bgcolor_unraid		'ef6441',	background color for Unraid array disks
-	bgcolor_others		'41b5ef',	background color for unassigned/other disks
-	bgcolor_empty		'aaaaaa',	background color for empty trays
-	grid_count		'column',	how to count the trays: [column]: trays ordered from top to bottom from left to right | [row]: ..from left to right from top to bottom
-	grid_columns		'4',		number of horizontal trays
-	grid_rows		'6',		number of verical trays
-	grid_trays		'',		total number of trays. default this is (grid_columns * grid_rows), but we choose to add some flexibility for drives outside normal trays
-	disk_tray_direction	'h',		direction of the hard drive trays [h]horizontal | [v]ertical
-	tray_width		'400',		the pixel width of the hard drive tray: in the horizontal direction ===
-	tray_height		'70'		the pixel height of the hard drive tray: in the horizontal direction ===
-	warranty_field		'u'		choose [u]nraid's way of entering warranty date (12/24/36... months) or enter [m]anual ISO dates.
-	tempunit		'C'		choose default temperature unit to display, default is [C]elsius (as reported from harddisks), other options: [F]arenheit | [K]elvin.
-	displayinfo		Array		This will store an json_encoded array for display settings for the "Device" page.
-
 */
+
+//	Variable name		Default value	Description
+//	--------------------------------------------------------------------------------
+	$smart_exec_delay =	'200';		// set milliseconds for next execution for SMART shell_exec - needed to actually grab all the information for unassigned devices. Default: 200
+	$bgcolor_unraid =	'ef6441';	// background color for Unraid array disks
+	$bgcolor_others =	'41b5ef';	// background color for unassigned/other disks
+	$bgcolor_empty =	'aaaaaa';	// background color for empty trays
+	$grid_count =		'column';	// how to count the trays: [column]: trays ordered from top to bottom from left to right | [row]: ..from left to right from top to bottom
+	$grid_columns =		'4';		// number of horizontal trays
+	$grid_rows =		'6';		// number of verical trays
+	$grid_trays = 		'';		// total number of trays. default this is (grid_columns * grid_rows), but we choose to add some flexibility for drives outside normal trays
+	$disk_tray_direction =	'h';		// direction of the hard drive trays [h]horizontal | [v]ertical
+	$tray_width =		'400';		// the pixel width of the hard drive tray: in the horizontal direction ===
+	$tray_height =		'70';		// the pixel height of the hard drive tray: in the horizontal direction ===
+	$warranty_field =	'u';		// choose [u]nraid's way of entering warranty date (12/24/36... months) or enter [m]anual ISO dates.
+	$tempunit =		'C';		// choose default temperature unit to display, default is [C]elsius (as reported from harddisks), other options: [F]arenheit | [K]elvin.
+	$displayinfo =	json_encode(array(	// this will store an json_encoded array of display settings for the "Device" page.
+		'tray' => 1,
+		'leddiskop' => 1,
+		'ledsmart' => 1,
+		'unraidinfo' => 1,
+		'path' => 1,
+		'devicenode' => 1,
+		'luname' => 1,
+		'manufacturer' => 1,
+		'devicemodel' => 1,
+		'serialnumber' => 1,
+		'temperature' => 1,
+		'powerontime' => 1,
+		'loadcyclecount' => 1,
+		'capacity' => 1,
+		'rotation' => 1,
+		'formfactor' => 1
+	));
+
 $sql_create_disks = "
 	id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 	device VARCHAR(16) NOT NULL,

@@ -3,10 +3,10 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.01.30b">
+<!ENTITY version          "2019.01.31">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/master/&name;.plg">
-<!ENTITY packageMD5       "60cc0a61644b5ec8c72353c09493eb89">
+<!ENTITY packageMD5       "e25259e757768a9f63e06438b895196b">
 <!ENTITY packagefile      "&name;.&version;.tar.bz2">
 <!ENTITY packageURL       "https://raw.githubusercontent.com/olehj/&name;/master/&packagefile;">
 <!ENTITY pluginLOC        "/boot/config/plugins/&name;">
@@ -31,6 +31,11 @@
 </FILE>
 
 <CHANGES>
+###2019.01.31
+- Commit #29 - BUG: Locate button acting weirdly, especially under Windows(?). Added escape and encode. Also modified the bash script.
+- Commit #28 - Minor issue: break-variable missing from the Unraid LEDs.
+- Commit #27 - BUG: added variables for new users so they don't see an empty page.
+
 ###2019.01.30b
 - Devices shows no contents unless the selection is saved. By default show all.
 
@@ -178,7 +183,8 @@ if [ "$INSTALL_PKG" == "true" ] ; then
 # Made by &author; &lt;ole@gidderikke.no&gt;
 
 while sleep 0.5; do
-  smartctl -x /dev/bsg/\&#36;1 &amp;&gt; /dev/null;
+  pkill -f smartctl &amp;&gt; /dev/null
+  smartctl -x /dev/bsg/\&#36;1 &amp;&gt; /dev/null
 done
 EOL
   chmod +x /usr/local/bin/smartlocate
