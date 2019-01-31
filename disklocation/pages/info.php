@@ -22,6 +22,7 @@
 			$i_empty++;
 		}
 		else {
+			$hash = $data["hash"];
 			$smart_powerontime = seconds_to_time($data["smart_powerontime"] * 60 * 60);
 			
 			switch($data["smart_rotation"]) {
@@ -61,7 +62,7 @@
 			}
 			
 			$print_drives[$tray_assign] = "
-				<tr style=\"background: #" . $color_array[$data["luname"]] . ";\">
+				<tr style=\"background: #" . $color_array[$data["hash"]] . ";\">
 					<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $tray_assign . "</td>
 					<td style=\"padding: 0 10px 0 10px;\">" . $data["device"] . "</td>
 					<td style=\"padding: 0 10px 0 10px;\">" . $data["luname"] . "</td>
@@ -102,7 +103,19 @@
 	$results = $db->query($sql);
 	
 	while($data = $results->fetchArray(1)) {
+		$hash = $data["hash"];
 		$smart_powerontime = seconds_to_time($data["smart_powerontime"] * 60 * 60);
+		
+		switch($data["smart_rotation"]) {
+			case -1:
+				$smart_rotation = "SSD";
+				break;
+			case 0:
+				$smart_rotation = "";
+				break;
+			default:
+				$smart_rotation = $data["smart_rotation"] . "rpm";
+		}
 		
 		$warranty_expire = "";
 		$warranty_left = "";
@@ -121,15 +134,15 @@
 		}
 		
 		$print_removed_drives .= "
-			<tr style=\"background: #" . $color_array[$data["luname"]] . ";\">
-				<td style=\"padding: 0 10px 0 10px;\"><form action=\"/plugins/disklocation/pages/system.php\" method=\"post\"><input type=\"image\" name=\"delete\" src=\"/plugins/disklocation/icons/delete.png\"  /><input type=\"hidden\" name=\"luname\" value=\"" . $data["luname"] . "\"  /></form></td><!-- onclick=\"deleteDisk('" . $data["luname"] . "');\" -->
+			<tr style=\"background: #" . $color_array[$data["hash"]] . ";\">
+				<td style=\"padding: 0 10px 0 10px;\"><form action=\"/plugins/disklocation/pages/system.php\" method=\"post\"><input type=\"image\" name=\"delete\" src=\"/plugins/disklocation/icons/delete.png\"  /><input type=\"hidden\" name=\"hash\" value=\"" . $data["hash"] . "\"  /></form></td>
 				<td style=\"padding: 0 10px 0 10px;\">" . $data["device"] . "</td>
 				<td style=\"padding: 0 10px 0 10px;\">" . $data["luname"] . "</td>
 				<td style=\"padding: 0 10px 0 10px;\">" . $data["model_family"] . "</td>
 				<td style=\"padding: 0 10px 0 10px;\">" . $data["model_name"] . "</td>
 				<td style=\"padding: 0 10px 0 10px;\">" . $data["smart_serialnumber"] . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . human_filesize($data["smart_capacity"], 1, true) . "</td>
-				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . ( empty($data["smart_rotation"]) ? "SSD" : $data["smart_rotation"] . " rpm" ) . "</td>
+				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $smart_rotation . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $data["smart_formfactor"] . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: center;\">" . ( empty($data["smart_status"]) ? "FAILED" : "PASSED" ) . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><span style=\"cursor: help;\" title=\"" . $smart_powerontime . "\">" . $data["smart_powerontime"] . "</span></td>

@@ -47,80 +47,16 @@
 	
 	require_once("sqlite_tables.php");
 	
-	if(filesize(DISKLOCATION_DB) === 0) {
-		$sql = "
-			CREATE TABLE disks(
-				$sql_create_disks
-			);
-			CREATE TABLE location(
-				$sql_create_location
-			);
-			CREATE TABLE settings(
-				$sql_create_settings
-			);
-			PRAGMA user_version = '1';
-		";
-		$ret = $db->exec($sql);
-		if(!$ret) {
-			echo $db->lastErrorMsg();
-		}
-	}
-	else {
-		$sql = "PRAGMA user_version";
-		$database_version = $db->querySingle($sql);
-		
-		$db_update = 0;
-		
-		$sql = "";
-		if($database_version < 1) {
-			$sql .= "
-				PRAGMA foreign_keys = true;
-				
-				BEGIN TRANSACTION;
-				
-				ALTER TABLE disks RENAME TO new_disks;
-				ALTER TABLE settings RENAME TO new_settings;
-				
-				CREATE TABLE disks($sql_create_disks);
-				CREATE TABLE settings($sql_create_settings);
-				
-				INSERT INTO disks ($sql_tables_disks_v0) SELECT $sql_tables_disks_v0 FROM new_disks;
-				INSERT INTO settings ($sql_tables_settings_v0) SELECT $sql_tables_settings_v0 FROM new_settings;
-				
-				DROP TABLE new_disks;
-				DROP TABLE new_settings;
-				
-				COMMIT;
-				
-				PRAGMA foreign_keys = false;
-				PRAGMA user_version = '1';
-				
-				VACUUM;
-			";
-			$db_update = 1;
-		}
-		
-		if($db_update) {
-			$ret = $db->exec($sql);
-			if(!$ret) {
-				echo $db->lastErrorMsg();
-			}
-			$db->close();
-			print("<h3>Database updated, refreshing...</h3><meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-			exit;
-		}
-	}
-	
 	function is_tray_allocated($db, $tray) {
-		$sql = "SELECT luname FROM location WHERE tray = '" . $tray . "'";
+		$sql = "SELECT hash FROM location WHERE tray = '" . $tray . "'";
 		$results = $db->query($sql);
 		while($data = $results->fetchArray(1)) {
-			return ( isset($data["luname"]) ? $data["luname"] : false);
+			return ( isset($data["hash"]) ? $data["hash"] : false);
 		}
 	}
 	
-	function get_tray_location($db, $luname, $empty = '') {
-		$sql = "SELECT * FROM location WHERE luname = '" . $luname . "'";
+	function get_tray_location($db, $hash, $empty = '') {
+		$sql = "SELECT * FROM location WHERE hash = '" . $hash . "'";
 		$results = $db->query($sql);
 		if(!$empty) {
 			while($data = $results->fetchArray(1)) {
@@ -285,28 +221,28 @@
 		}
 	}
 	
-	function find_and_set_removed_devices_status($db, $arr_luname) {
-		$sql = "SELECT luname FROM disks WHERE status IS NULL;";
+	function find_and_set_removed_devices_status($db, $arr_hash) {
+		$sql = "SELECT hash FROM disks WHERE status IS NULL;";
 		$results = $db->query($sql);
-		$sql_luname = array();
+		$sql_hash = array();
 		while($res = $results->fetchArray(1)) {
-			$sql_luname[] = $res["luname"];
+			$sql_hash[] = $res["hash"];
 		}
 		
-		$arr_luname = array_filter($arr_luname);
-		$sql_luname = array_filter($sql_luname);
+		$arr_hash = array_filter($arr_hash);
+		$sql_hash = array_filter($sql_hash);
 		
-		sort($arr_luname);
-		sort($sql_luname);
+		sort($arr_hash);
+		sort($sql_hash);
 		
-		$results = array_diff($sql_luname, $arr_luname);
-		$old_luname = array_values($results);
+		$results = array_diff($sql_hash, $arr_hash);
+		$old_hash = array_values($results);
 		
-		for($i=0; $i < count($old_luname); ++$i) {
+		for($i=0; $i < count($old_hash); ++$i) {
 			$sql_status .= "
 				UPDATE disks SET
 					status = 'r'
-				WHERE luname = '" . $old_luname[$i] . "'
+				WHERE hash = '" . $old_hash[$i] . "'
 				;
 			";
 		}
@@ -316,7 +252,7 @@
 			return $db->lastErrorMsg();
 		}
 		else {
-			return $old_luname;
+			return $old_hash;
 		}
 	}
 	
@@ -337,6 +273,7 @@
 	
 	if($_POST["save_settings"]) {
 		// trays
+		$sql = "";
 		$post_drives = $_POST["drives"];
 		$post_empty = $_POST["empty"];
 		$post_info = json_encode($_POST["displayinfo"]);
@@ -362,33 +299,31 @@
 			$keys_drives = array_keys($post_drives);
 			for($i=0; $i < count($keys_drives); ++$i) {
 				$tray_assign = ( empty($post_drives[$keys_drives[$i]]) ? null : $post_drives[$keys_drives[$i]] );
-				$sql .= "
-					INSERT INTO 
-						location(
-							luname,
-							tray
-						)
-						VALUES(
-							'" . $keys_drives[$i] . "',
-							'" . $tray_assign . "'
-						)
-						ON CONFLICT(luname) DO UPDATE SET
-							tray='" . $tray_assign . "'
-					;
-				";
 				if(!$tray_assign) {
 					$sql .= "
 						UPDATE disks SET
 							status = 'h'
-						WHERE luname = '" . $keys_drives[$i] . "'
+						WHERE hash = '" . $keys_drives[$i] . "'
 						;
 					";
 				}
 				else {
 					$sql .= "
+						INSERT INTO
+							location(
+								hash,
+								tray
+							)
+							VALUES(
+								'" . $keys_drives[$i] . "',
+								'" . $tray_assign . "'
+							)
+							ON CONFLICT(hash) DO UPDATE SET
+								tray='" . $tray_assign . "'
+						;
 						UPDATE disks SET
 							status = NULL
-						WHERE luname = '" . $keys_drives[$i] . "'
+						WHERE hash = '" . $keys_drives[$i] . "'
 						;
 					";
 				}
@@ -401,7 +336,7 @@
 			
 			$sql = "";
 			
-			$sql .= "DELETE FROM location WHERE luname = 'empty';";
+			$sql .= "DELETE FROM location WHERE hash = 'empty';";
 			
 			for($i=0; $i < count($post_empty); ++$i) {
 				if($post_empty[$i] > $_POST["grid_trays"]) { 
@@ -416,7 +351,7 @@
 			$sql .= "
 				INSERT INTO 
 					location(
-						luname,
+						hash,
 						empty
 					)
 					VALUES(
@@ -457,7 +392,7 @@
 				}
 				$sql .= "
 						comment = '" . $_POST["comment"][$keys_drives[$i]] . "'
-					WHERE luname = '" . $keys_drives[$i] . "'
+					WHERE hash = '" . $keys_drives[$i] . "'
 					;
 				";
 			}
@@ -486,7 +421,7 @@
 			$sql = "
 				UPDATE location SET
 					empty = '" . $empty_results . "'
-				WHERE luname = 'empty'
+				WHERE hash = 'empty'
 				;
 			";
 			
@@ -574,6 +509,7 @@
 			}
 			
 			$rotation_rate = ( recursive_array_search("Solid State Device Statistics", $smart_array) ? -1 : $smart_array["rotation_rate"] );
+			$deviceid[$i] = hash('sha256', $smart_array["model_name"] . $smart_array["serial_number"]);
 			
 			$sql = "
 				INSERT INTO 
@@ -591,7 +527,8 @@
 						smart_capacity,
 						smart_rotation,
 						smart_formfactor,
-						status
+						status,
+						hash
 					)
 					VALUES(
 						'" . $lsscsi_device[$i] . "',
@@ -607,11 +544,13 @@
 						'" . $smart_array["user_capacity"]["bytes"] . "',
 						'" . $rotation_rate . "',
 						'" . $smart_array["form_factor"]["name"] . "',
-						'h'
+						'h',
+						'" . $deviceid[$i] . "'
 					)
-					ON CONFLICT(luname) DO UPDATE SET
+					ON CONFLICT(hash) DO UPDATE SET
 						device='" . $lsscsi_device[$i] . "',
 						devicenode='" . $lsscsi_devicenode[$i] . "',
+						luname='" . $lsscsi_luname[$i] . "',
 						model_family='" . $smart_array["model_family"] . "',
 						smart_status='" . $smart_array["smart_status"]["passed"] . "',
 						smart_temperature='" . $smart_array["temperature"]["current"] . "',
@@ -626,7 +565,7 @@
 					UPDATE disks SET
 						purchased='" . $unraid_disklog["" . str_replace(" ", "_", $smart_array["model_name"]) . "_" . str_replace(" ", "_", $smart_array["serial_number"]) . ""]["purchase"] . "',
 						warranty='" . $unraid_disklog["" . str_replace(" ", "_", $smart_array["model_name"]) . "_" . str_replace(" ", "_", $smart_array["serial_number"]) . ""]["warranty"] . "'
-					WHERE luname = '" . $lsscsi_luname[$i] . "'
+					WHERE hash = '" . $deviceid[$i] . "'
 					;
 				";
 			}
@@ -637,10 +576,10 @@
 			}
 			
 			if($unraid_array[$lsscsi_devicenode[$i]]["color"] && $unraid_array[$lsscsi_devicenode[$i]]["status"]) {
-				$color_array[$lsscsi_luname[$i]] = $bgcolor_unraid;
+				$color_array[$deviceid[$i]] = $bgcolor_unraid;
 			}
 			else {
-				$color_array[$lsscsi_luname[$i]] = $bgcolor_others;
+				$color_array[$deviceid[$i]] = $bgcolor_others;
 			}
 			
 			unset($smart_array);
@@ -649,6 +588,8 @@
 	}
 	
 	// get disk info for "Information" and "Configuration"
+	
+	find_and_set_removed_devices_status($db, $deviceid);
 	
 	$total_trays = ( empty($grid_trays) ? $grid_columns * $grid_rows : $grid_trays );
 	$get_empty_trays = get_tray_location($db, "empty", 1);
@@ -664,7 +605,7 @@
 		$sql = "SELECT * FROM disks WHERE status IS NULL;";
 	}
 	else {
-		$sql = "SELECT * FROM disks JOIN location ON disks.luname=location.luname WHERE status IS NULL ORDER BY tray ASC;";
+		$sql = "SELECT * FROM disks JOIN location ON disks.hash=location.hash WHERE status IS NULL ORDER BY tray ASC;";
 	}
 	
 	$results = $db->query($sql);
