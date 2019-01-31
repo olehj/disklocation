@@ -40,10 +40,10 @@
 					if($data["warranty"] == $warr_i) { $selected="selected"; } else { $selected=""; }
 					$warr_options .= "<option value=\"$warr_i\" " . $selected . " style=\"text-align: right;\">$warr_i months</option>";
 				}
-				$warr_input = "<select name=\"warranty[" . $data["luname"] . "]\" style=\"min-width: 0; max-width: 80px; width: 80px;\"><option value=\"\" style=\"text-align: right;\">unknown</option>" . $warr_options . "</select>";
+				$warr_input = "<select name=\"warranty[" . $data["hash"] . "]\" style=\"min-width: 0; max-width: 80px; width: 80px;\"><option value=\"\" style=\"text-align: right;\">unknown</option>" . $warr_options . "</select>";
 			}
 			else {
-				$warr_input = "<input type=\"date\" name=\"warranty_date[" . $data["luname"] . "]\" value=\"" . $data["warranty_date"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" />";
+				$warr_input = "<input type=\"date\" name=\"warranty_date[" . $data["hash"] . "]\" value=\"" . $data["warranty_date"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" />";
 			}
 			
 			switch($data["smart_rotation"]) {
@@ -58,8 +58,8 @@
 			}
 			
 			$print_drives[$tray_assign] = "
-				<tr style=\"background: #" . $color_array[$data["luname"]] . ";\">
-					<td style=\"padding: 0 10px 0 10px; text-align: right;\"><select name=\"drives[" . $data["luname"] . "]\" dir=\"rtl\" style=\"min-width: 0; max-width: 50px; width: 40px;\"><option value=\"\" style=\"text-align: right;\">--</option>" . $tray_options . "</select></td>
+				<tr style=\"background: #" . $color_array[$data["hash"]] . ";\">
+					<td style=\"padding: 0 10px 0 10px; text-align: right;\"><select name=\"drives[" . $data["hash"] . "]\" dir=\"rtl\" style=\"min-width: 0; max-width: 50px; width: 40px;\"><option value=\"\" style=\"text-align: right;\">--</option>" . $tray_options . "</select></td>
 					<td style=\"padding: 0 10px 0 10px; text-align: center;\"><input type=\"button\" class=\"diskLocation\" style=\"transform: none;\" onclick=\"locateStart()\" value=\"Locate\" id=\"" . $data["device"] . "\" name=\"" . $data["device"] . "\" /></td>
 					<td style=\"padding: 0 10px 0 10px;\">" . $data["device"] . "</td>
 					<td style=\"padding: 0 10px 0 10px;\">" . $data["luname"] . "</td>
@@ -69,9 +69,9 @@
 					<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . human_filesize($data["smart_capacity"], 1, true) . "</td>
 					<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $smart_rotation . "</td>
 					<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $data["smart_formfactor"] . "</td>
-					<td style=\"padding: 0 10px 0 10px; text-align: right;\"><input type=\"date\" name=\"purchased[" . $data["luname"] . "]\" value=\"" . $data["purchased"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" /></td>
+					<td style=\"padding: 0 10px 0 10px; text-align: right;\"><input type=\"date\" name=\"purchased[" . $data["hash"] . "]\" value=\"" . $data["purchased"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" /></td>
 					<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $warr_input . "</td>
-					<td style=\"padding: 0 10px 0 10px; text-align: right;\"><input type=\"text\" name=\"comment[" . $data["luname"] . "]\" value=\"" . stripslashes(htmlspecialchars($data["comment"])) . "\" style=\"width: 150px;\" /></td>
+					<td style=\"padding: 0 10px 0 10px; text-align: right;\"><input type=\"text\" name=\"comment[" . $data["hash"] . "]\" value=\"" . stripslashes(htmlspecialchars($data["comment"])) . "\" style=\"width: 150px;\" /></td>
 				</tr>
 			";
 			$i_drive++;
@@ -109,15 +109,26 @@
 		
 		$warr_input = "";
 		if($warranty_field == "u") {
-			$warr_input = "<select name=\"warranty[" . $data["luname"] . "]\" style=\"min-width: 0; max-width: 80px; width: 80px;\"><option value=\"\" style=\"text-align: right;\">unknown</option>" . $warr_options . "</select>";
+			$warr_input = "<select name=\"warranty[" . $data["hash"] . "]\" style=\"min-width: 0; max-width: 80px; width: 80px;\"><option value=\"\" style=\"text-align: right;\">unknown</option>" . $warr_options . "</select>";
 		}
 		else {
-			$warr_input = "<input type=\"date\" name=\"warranty_date[" . $data["luname"] . "]\" value=\"" . $data["warranty_date"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" />";
+			$warr_input = "<input type=\"date\" name=\"warranty_date[" . $data["hash"] . "]\" value=\"" . $data["warranty_date"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" />";
+		}
+		
+		switch($data["smart_rotation"]) {
+			case -1:
+				$smart_rotation = "SSD";
+				break;
+			case 0:
+				$smart_rotation = "";
+				break;
+			default:
+				$smart_rotation = $data["smart_rotation"] . "rpm";
 		}
 		
 		$print_add_drives .= "
-			<tr style=\"background: #" . $color_array[$data["luname"]] . ";\">
-				<td style=\"padding: 0 10px 0 10px;\"><select name=\"drives[" . $data["luname"] . "]\" dir=\"rtl\" style=\"min-width: 0; max-width: 50px; width: 40px;\"><option value=\"\" selected style=\"text-align: right;\">--</option>" . $tray_options . "</select></td>
+			<tr style=\"background: #" . $color_array[$data["hash"]] . ";\">
+				<td style=\"padding: 0 10px 0 10px;\"><select name=\"drives[" . $data["hash"] . "]\" dir=\"rtl\" style=\"min-width: 0; max-width: 50px; width: 40px;\"><option value=\"\" selected style=\"text-align: right;\">--</option>" . $tray_options . "</select></td>
 				<td style=\"padding: 0 10px 0 10px; text-align: center;\"><input type=\"button\" class=\"diskLocation\" style=\"transform: none;\" onclick=\"locateStart()\" value=\"Locate\" id=\"" . $data["device"] . "\" name=\"" . $data["device"] . "\" /></td>
 				<td style=\"padding: 0 10px 0 10px;\">" . $data["device"] . "</td>
 				<td style=\"padding: 0 10px 0 10px;\">" . $data["luname"] . "</td>
@@ -125,11 +136,11 @@
 				<td style=\"padding: 0 10px 0 10px;\">" . $data["model_name"] . "</td>
 				<td style=\"padding: 0 10px 0 10px;\">" . $data["smart_serialnumber"] . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . human_filesize($data["smart_capacity"], 1, true) . "</td>
-				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . ( empty($data["smart_rotation"]) ? "SSD" : $data["smart_rotation"] . " rpm" ) . "</td>
+				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $smart_rotation . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $data["smart_formfactor"] . "</td>
-				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><input type=\"date\" name=\"purchased[" . $data["luname"] . "]\" value=\"" . $data["purchased"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" /></td>
+				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><input type=\"date\" name=\"purchased[" . $data["hash"] . "]\" value=\"" . $data["purchased"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" /></td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $warr_input . "</td>
-				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><input type=\"text\" name=\"comment[" . $data["luname"] . "]\" value=\"" . stripslashes(htmlspecialchars($data["comment"])) . "\" style=\"width: 150px;\" /></td>
+				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><input type=\"text\" name=\"comment[" . $data["hash"] . "]\" value=\"" . stripslashes(htmlspecialchars($data["comment"])) . "\" style=\"width: 150px;\" /></td>
 			</tr>
 		";
 	}
@@ -318,15 +329,20 @@
 	</table>
 </form>
 <script>
-$('.diskLocation').click(function(e) {
+function sleep(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
+}
+$('.diskLocation').click(async function(e) {
 	var locateDisk = document.getElementById(this.id);
 	
 	if(locateDisk.value == "Locate") {
 		locateKillAll(locateDisk.className);
+		await sleep(200);
 		locateStart(locateDisk);
 	}
 	else {
 		locateStop(locateDisk);
+		await sleep(200);
 		locateKillAll(locateDisk.className);
 	}
 });

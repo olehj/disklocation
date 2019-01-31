@@ -61,6 +61,7 @@
 			$device = $data["device"];
 			$devicenode = $data["devicenode"];
 			$luname = $data["luname"];
+			$hash = $data["hash"];
 			
 			if($displayinfo["path"]) {
 				$device_page = $device;
@@ -179,10 +180,10 @@
 			}
 			
 			$tray_assign = ( empty($data["tray"]) ? $i : $data["tray"] );
-			$drive_tray_order[$luname] = get_tray_location($db, $luname);
-			$drive_tray_order[$luname] = ( empty($drive_tray_order[$luname]) ? $count_real : $drive_tray_order[$luname] );
+			$drive_tray_order[$hash] = get_tray_location($db, $hash);
+			$drive_tray_order[$hash] = ( empty($drive_tray_order[$hash]) ? $count_real : $drive_tray_order[$hash] );
 			if($displayinfo["tray"]) {
-				$add_traynumber = "<b>" . $drive_tray_order[$luname] . "</b>" . $insert_break . "";
+				$add_traynumber = "<b>" . $drive_tray_order[$hash] . "</b>" . $insert_break . "";
 			}
 			
 			if($displayinfo["devicenode"]) {
@@ -199,9 +200,9 @@
 			}
 			
 			$disklocation_page .= "
-				<div style=\"order: " . $drive_tray_order[$luname] . "\">
+				<div style=\"order: " . $drive_tray_order[$hash] . "\">
 					<div class=\"flex-container\">
-						<div style=\"background-color: #" . $color_array[$luname] . ";\">
+						<div style=\"background-color: #" . $color_array[$hash] . ";\">
 							<div class=\"flex-container-start\">
 								$add_traynumber
 								$unraid_array_icon
@@ -224,10 +225,10 @@
 			";
 			
 			$disklocation_layout .= "
-				<div style=\"order: " . $drive_tray_order[$luname] . "\">
+				<div style=\"order: " . $drive_tray_order[$hash] . "\">
 					<div class=\"flex-container-layout\">
-						<div style=\"background-color: #" . $color_array[$luname] . ";\">
-							<b>" . $drive_tray_order[$luname] . "</b>
+						<div style=\"background-color: #" . $color_array[$hash] . ";\">
+							<b>" . $drive_tray_order[$hash] . "</b>
 						</div>
 					</div>
 				</div>
@@ -243,8 +244,6 @@
 		
 		$i++;
 	}
-	
-	find_and_set_removed_devices_status($db, $lsscsi_luname);
 	
 	$grid_columns_styles = str_repeat(" auto", $grid_columns);
 	$grid_rows_styles = str_repeat(" auto", $grid_rows);

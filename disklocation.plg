@@ -3,10 +3,10 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.01.31">
+<!ENTITY version          "2019.02.01">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/master/&name;.plg">
-<!ENTITY packageMD5       "e25259e757768a9f63e06438b895196b">
+<!ENTITY packageSHA256    "668e395d279d1c164efbb0d3128fd2b3cd7c72e374c5be254236277233a99844">
 <!ENTITY packagefile      "&name;.&version;.tar.bz2">
 <!ENTITY packageURL       "https://raw.githubusercontent.com/olehj/&name;/master/&packagefile;">
 <!ENTITY pluginLOC        "/boot/config/plugins/&name;">
@@ -31,6 +31,10 @@
 </FILE>
 
 <CHANGES>
+###2019.02.01
+- Commit #31 - Improvement: Created a new SHA256 string of static device model name and serial number instead of using LUN. Should now remember devices regardless of controllers. Require a database upgrade (v2).
+- Commit #29 - BUG: Javascript: Added delay between kill and start/stop to the Locate button, should be more stable now. Thanks to TeeNoodle for debugging and testing.
+
 ###2019.01.31
 - Commit #29 - BUG: Locate button acting weirdly, especially under Windows(?). Added escape and encode. Also modified the bash script.
 - Commit #28 - Minor issue: break-variable missing from the Unraid LEDs.
@@ -111,12 +115,12 @@ fi
 <!--# Check local package file -->
 logit "Checking existing package &pluginLOC;/&packagefile;..."
 if [ -f "&pluginLOC;/&packagefile;" ] ; then
-  PKG_LOCAL_MD5=$(/usr/bin/md5sum &pluginLOC;/&packagefile; | cut -d' ' -f1)
-  if [ "$PKG_LOCAL_MD5" == "&packageMD5;" ] ; then
+  PKG_LOCAL_SHA256=$(/usr/bin/sha256sum &pluginLOC;/&packagefile; | cut -d' ' -f1)
+  if [ "$PKG_LOCAL_SHA256" == "&packageSHA256;" ] ; then
     logit "Latest package already exists &pluginLOC;/&packagefile;"
     INSTALL_PKG="true"
   else
-    logit "Local/Online package MD5 mismatch ($PKG_LOCAL_MD5/&packageMD5;) on &pluginLOC;/&packagefile; - deleting local package"
+    logit "Local/Online package SHA256 mismatch ($PKG_LOCAL_SHA256/&packageSHA256;) on &pluginLOC;/&packagefile; - deleting local package"
     DOWNLOAD_PKG="true"
   fi
 else
@@ -144,12 +148,12 @@ if [ "$DOWNLOAD_PKG" == "true" ]; then
       logit "Package download failed &packageURL; - Plugin cannot install"
       INSTALL_PKG="false"
     else
-      PKG_LOCAL_MD5=$(/usr/bin/md5sum &pluginLOC;/&packagefile; | cut -d' ' -f1)
-      if [ "$PKG_LOCAL_MD5" != "&packageMD5;" ] ; then
-        logit "Package MD5 mismatch ($PKG_LOCAL_MD5/&packageMD5;) on &pluginLOC;/&packagefile; - Plugin cannot install"
+      PKG_LOCAL_SHA256=$(/usr/bin/sha256sum &pluginLOC;/&packagefile; | cut -d' ' -f1)
+      if [ "$PKG_LOCAL_SHA256" != "&packageSHA256;" ] ; then
+        logit "Package SHA256 mismatch ($PKG_LOCAL_SHA256/&packageSHA256;) on &pluginLOC;/&packagefile; - Plugin cannot install"
         INSTALL_PKG="false"
       else
-        logit "Package &packagefile; downloaded to &pluginLOC; - MD5 match "$PKG_LOCAL_MD5""
+        logit "Package &packagefile; downloaded to &pluginLOC; - SHA256 match "$PKG_LOCAL_SHA256""
         INSTALL_PKG="true"
       fi
     fi
@@ -191,16 +195,16 @@ EOL
   
   rm -Rf "/tmp/&name;-packages"
   rm -f "/tmp/&name;-install"
-  if [[ -f "&pluginLOC;/disklocation.sqlite" &amp;&amp; ! -f "&pluginLOC;/disklocation_db_v0.sqlite.tar.bz2" ]]; then
-    tar jcf &pluginLOC;/disklocation_db_v0.sqlite.tar.bz2 &pluginLOC;/disklocation.sqlite
-    logit "Made backup of database (&pluginLOC;/disklocation_db_v0.sqlite.tar.bz2) before it will be upgraded to version 1"
+  if [[ -f "&pluginLOC;/disklocation.sqlite" &amp;&amp; ! -f "&pluginLOC;/disklocation_db_v1.sqlite.tar.bz2" ]]; then
+    tar jcf &pluginLOC;/disklocation_db_v1.sqlite.tar.bz2 &pluginLOC;/disklocation.sqlite
+    logit "Made backup of database (&pluginLOC;/disklocation_db_v1.sqlite.tar.bz2) before it will be upgraded to version 2"
   fi
   logit "Plugin and Package file &packagefile; extracted and installed successfully"
   exit 0
 else
   <!-- Revert back to previous packages -->
   if [ -f "&pluginLOC;/&packagefile;" ] ; then
-    <!-- Remove bad MD5 downloaded package if exists -->
+    <!-- Remove bad SHA256 downloaded package if exists -->
     rm -f "&pluginLOC;/&packagefile;"
   fi
   logit "Reverting back to previously saved packages..."
