@@ -1,4 +1,4 @@
 Menu="disklocation:3"
 Title="Configuration"
 ---
-<?php include '/usr/local/emhttp/plugins/disklocation/pages/config.php'; ?>
+<?php include "/usr/local/emhttp/plugins/disklocation/pages/config.php"; ?>

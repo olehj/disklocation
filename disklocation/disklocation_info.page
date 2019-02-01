@@ -1,4 +1,4 @@
 Menu="disklocation:2"
 Title="Information"
 ---
-<?php include '/usr/local/emhttp/plugins/disklocation/pages/info.php'; ?>
+<?php include "/usr/local/emhttp/plugins/disklocation/pages/info.php"; ?>
