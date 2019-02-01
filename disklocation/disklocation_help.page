@@ -1,4 +1,4 @@
 Menu="disklocation:4"
 Title="Help"
 ---
-<?php include "/usr/local/emhttp" . DISKLOCATION_PATH . "/pages/help.php"; ?>
+<?php include "pages/help.php"; ?>

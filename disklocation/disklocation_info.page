@@ -1,4 +1,4 @@
 Menu="disklocation:2"
 Title="Information"
 ---
-<?php include "/usr/local/emhttp" . DISKLOCATION_PATH . "/pages/info.php"; ?>
+<?php include "pages/info.php"; ?>

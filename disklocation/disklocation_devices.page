@@ -2,7 +2,7 @@ Menu="disklocation:1"
 Title="Devices"
 ---
 <?php
-	require_once("/usr/local/emhttp" . DISKLOCATION_PATH . "/pages/system.php");
-	require_once("/usr/local/emhttp" . DISKLOCATION_PATH . "/pages/locate.php");
-	include "/usr/local/emhttp" . DISKLOCATION_PATH . "/pages/devices.php";
+	require_once("pages/system.php");
+	require_once("pages/locate.php");
+	include "pages/devices.php";
 ?>
