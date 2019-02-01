@@ -95,8 +95,8 @@ if [ "$DOWNLOAD_PKG" == "true" ]; then
     git clone --single-branch --branch devel &packageGIT; "/tmp/&name;-git"
     mv "/tmp/&name;-git/&origname;" "/tmp/&name;-git/&name;"
     tar jcf &packagefile; -C "/tmp/&name;-git" &name;
-    mv "/tmp/&name;-git/&packagefile;" &pluginLOC;
-    rm -rf "/tmp/&name;-git"
+    #mv "/tmp/&name;-git/&packagefile;" &pluginLOC;
+    #rm -rf "/tmp/&name;-git"
     if [ ! -f "&pluginLOC;/&packagefile;" ] ; then
       logit "Package download failed &packageGIT; - Plugin cannot install"
       INSTALL_PKG="false"
