@@ -5,11 +5,12 @@
 	$get_page_info = parse_ini_file("/usr/local/emhttp/plugins/disklocation/disklocation.page");
 	
 	// define constants
-	define('DISKLOCATION_DB', '/boot/config/plugins/disklocation/disklocation.sqlite');
+	define('DISKLOCATION_DB', "/boot/config/plugins/disklocation/disklocation.sqlite");
 	define('DISKINFORMATION', '/var/local/emhttp/disks.ini');
 	define('DISKLOGFILE', '/boot/config/disk.log');
 	define('DISKLOCATION_VERSION', $get_page_info["Version"]);
-	define('DISKLOCATION_URL', '/Settings/disklocation');
+	define('DISKLOCATION_URL', "/Settings/disklocation");
+	define('DISKLOCATION_PATH', "/plugins/disklocation");
 	
 	$disklocation_error = array();
 	
@@ -41,7 +42,8 @@
 		
 		$db->close();
 		
-		header("Location: /Settings/disklocation");
+		//header("Location: " . DISKLOCATION_URL);
+		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
 	
@@ -361,21 +363,39 @@
 				;
 			";
 			$sql .= "
-				UPDATE settings SET
-					smart_exec_delay = '" . $_POST["smart_exec_delay"] . "',
-					bgcolor_unraid = '" . $_POST["bgcolor_unraid"] . "',
-					bgcolor_others = '" . $_POST["bgcolor_others"] . "',
-					bgcolor_empty = '" . $_POST["bgcolor_empty"] . "',
-					grid_count = '" . $_POST["grid_count"] . "',
-					grid_columns = '" . $_POST["grid_columns"] . "',
-					grid_rows = '" . $_POST["grid_rows"] . "',
-					grid_trays = '" . ( empty($_POST["grid_trays"]) ? null : $_POST["grid_trays"] ) . "',
-					disk_tray_direction = '" . $_POST["disk_tray_direction"] . "',
-					tray_width = '" . $_POST["tray_width"] . "',
-					tray_height = '" . $_POST["tray_height"] . "',
-					warranty_field = '" . $_POST["warranty_field"] . "',
-					tempunit = '" . $_POST["tempunit"] . "',
-					displayinfo = '" . $post_info . "'
+				REPLACE INTO
+					settings(
+						smart_exec_delay,
+						bgcolor_unraid,
+						bgcolor_others,
+						bgcolor_empty,
+						grid_count,
+						grid_columns,
+						grid_rows,
+						grid_trays,
+						disk_tray_direction,
+						tray_width,
+						tray_height,
+						warranty_field,
+						tempunit,
+						displayinfo
+					)
+					VALUES(
+						'" . $_POST["smart_exec_delay"] . "',
+						'" . $_POST["bgcolor_unraid"] . "',
+						'" . $_POST["bgcolor_others"] . "',
+						'" . $_POST["bgcolor_empty"] . "',
+						'" . $_POST["grid_count"] . "',
+						'" . $_POST["grid_columns"] . "',
+						'" . $_POST["grid_rows"] . "',
+						'" . ( empty($_POST["grid_trays"]) ? null : $_POST["grid_trays"] ) . "',
+						'" . $_POST["disk_tray_direction"] . "',
+						'" . $_POST["tray_width"] . "',
+						'" . $_POST["tray_height"] . "',
+						'" . $_POST["warranty_field"] . "',
+						'" . $_POST["tempunit"] . "',
+						'" . $post_info . "'
+					)
 				;
 			";
 			
