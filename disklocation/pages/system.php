@@ -361,21 +361,39 @@
 				;
 			";
 			$sql .= "
-				UPDATE settings SET
-					smart_exec_delay = '" . $_POST["smart_exec_delay"] . "',
-					bgcolor_unraid = '" . $_POST["bgcolor_unraid"] . "',
-					bgcolor_others = '" . $_POST["bgcolor_others"] . "',
-					bgcolor_empty = '" . $_POST["bgcolor_empty"] . "',
-					grid_count = '" . $_POST["grid_count"] . "',
-					grid_columns = '" . $_POST["grid_columns"] . "',
-					grid_rows = '" . $_POST["grid_rows"] . "',
-					grid_trays = '" . ( empty($_POST["grid_trays"]) ? null : $_POST["grid_trays"] ) . "',
-					disk_tray_direction = '" . $_POST["disk_tray_direction"] . "',
-					tray_width = '" . $_POST["tray_width"] . "',
-					tray_height = '" . $_POST["tray_height"] . "',
-					warranty_field = '" . $_POST["warranty_field"] . "',
-					tempunit = '" . $_POST["tempunit"] . "',
-					displayinfo = '" . $post_info . "'
+				REPLACE INTO
+					settings(
+						smart_exec_delay,
+						bgcolor_unraid,
+						bgcolor_others,
+						bgcolor_empty,
+						grid_count,
+						grid_columns,
+						grid_rows,
+						grid_trays,
+						disk_tray_direction,
+						tray_width,
+						tray_height,
+						warranty_field,
+						tempunit,
+						displayinfo
+					)
+					VALUES(
+						'" . $_POST["smart_exec_delay"] . "',
+						'" . $_POST["bgcolor_unraid"] . "',
+						'" . $_POST["bgcolor_others"] . "',
+						'" . $_POST["bgcolor_empty"] . "',
+						'" . $_POST["grid_count"] . "',
+						'" . $_POST["grid_columns"] . "',
+						'" . $_POST["grid_rows"] . "',
+						'" . ( empty($_POST["grid_trays"]) ? null : $_POST["grid_trays"] ) . "',
+						'" . $_POST["disk_tray_direction"] . "',
+						'" . $_POST["tray_width"] . "',
+						'" . $_POST["tray_height"] . "',
+						'" . $_POST["warranty_field"] . "',
+						'" . $_POST["tempunit"] . "',
+						'" . $post_info . "'
+					)
 				;
 			";
 			
