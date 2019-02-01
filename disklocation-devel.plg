@@ -1,9 +1,9 @@
 <?xml version='1.0' standalone='yes'?>
 
 <!DOCTYPE PLUGIN [
-<!ENTITY name             "disklocation">
+<!ENTITY name             "disklocation-devel">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.02.02">
+<!ENTITY version          "2019.02.01a">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/master/&name;.plg">
 <!ENTITY packagefile      "&name;.&version;.tar.bz2">
@@ -30,57 +30,8 @@
 </FILE>
 
 <CHANGES>
-###2019.02.02
-- Commit #33 - BUG: Settings not saved for fresh installs, fixed database query.
-- Changed installer to use git clone instead of a prebuilt archive. Current archive will be made for installation after reboots.
-
-###2019.02.01
-- Commit #31 - Improvement: Created a new SHA256 string of static device model name and serial number instead of using LUN. Should now remember devices regardless of controllers. Require a database upgrade (v2).
-- Commit #29 - BUG: Javascript: Added delay between kill and start/stop to the Locate button, should be more stable now. Thanks to TeeNoodle for debugging and testing.
-
-###2019.01.31
-- Commit #29 - BUG: Locate button acting weirdly, especially under Windows(?). Added escape and encode. Also modified the bash script.
-- Commit #28 - Minor issue: break-variable missing from the Unraid LEDs.
-- Commit #27 - BUG: added variables for new users so they don't see an empty page.
-
-###2019.01.30b
-- Devices shows no contents unless the selection is saved. By default show all.
-
-###2019.01.30
-- Commit #21 - FEATURE: Added options to select what to show at Devices page
-- Commit #20 - FEATURE: Added temperature unit selection, C/F/K
-- Commit #19 - BUG: Fixed HDD reported as SSD if rotation was 0
-- FEATURE: You can now choose between Unraid version (select months: 12/24/36...) or Manual ISO dates (YYYY-MM-DD) in the warranty section, a config switch is required before this is accessible.
-- Updated Help for new features.
-- Database will be backed up during install because it will be upgraded.
-
-###2019.01.28
-- Commit #17 - Added slightly better support for 36 tray servers and in general override tray optimization.
-
-###2019.01.23f
-- Commit #15 - Empty horizontal trays not aligned correctly due to missing break.
-
-###2019.01.23e
-- Commit #13 - Use version from the installer in system.php
-- Commit #12 - Plugin installer now removes older packages.
-- Commit #11 - Warning message for Unraid 6.7+ due to empty array, now checking for content before issuing array_values()
-
-###2019.01.23d
-- Commit #9 - Minor issue, wrong version number stored in system.php.
-
-###2019.01.23c
-- Commit #7 - Fixed a minor design issue with the trays from the Device page nor showing correctly.
-
-###2019.01.23b
-- Commit #4 - Fixed a bug where PATH name didn't show on the Device page.
-- Commit #3 - Added devicenode for unassigned devices where it exists.
-
-###2019.01.23
-- Commit #1 - Fixed a bug where device name and model became the same for all drives.
-- Corrected minor fault in Help
-
-###2019.01.22
-- Initial Release
+###Development builds
+- This package is for development only, get changes from the master branch.
 </CHANGES>
 
 <!--
@@ -140,7 +91,7 @@ if [ "$DOWNLOAD_PKG" == "true" ]; then
     INSTALL_PKG="false"
   else
     mkdir -p /tmp/&name;-git
-    git clone &packageGIT; /tmp/&name;-git
+    git clone --single-branch --branch devel &packageGIT; /tmp/&name;-git
     tar -C /tmp/&name;-git jcf &packagefile; &name;
     mv /tmp/&name;-git/&packagefile; &pluginLOC;
     rm -rf /tmp/&name;-git
