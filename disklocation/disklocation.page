@@ -1,6 +1,5 @@
 Menu="Utilities"
 Icon="disklocation.png"
 Author="Ole-Henrik Jakobsen"
-Title="Disk Location"
 Type="xmenu"
 Tabs="true"
