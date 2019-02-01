@@ -5,9 +5,10 @@
 <!ENTITY author           "Ole-Henrik Jakobsen">
 <!ENTITY version          "2019.02.02">
 <!ENTITY launch           "Settings/&name;">
-<!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/master/&name;.plg">
-<!ENTITY packagefile      "&name;.&version;.tar.bz2">
 <!ENTITY packageGIT       "https://github.com/olehj/disklocation.git">
+<!ENTITY branch           "master">
+<!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/&branch;/&name;.plg">
+<!ENTITY packagefile      "&name;.&version;.tar.bz2">
 <!ENTITY pluginLOC        "/boot/config/plugins/&name;">
 <!ENTITY emplugLOC        "/usr/local/emhttp/plugins">
 <!ENTITY emhttpLOC        "&emplugLOC;/&name;">
@@ -133,17 +134,17 @@ if [ "$DOWNLOAD_PKG" == "true" ]; then
   TEMP="&pluginLOC;/&name;.*.tar.bz2"
   mv -f $TEMP "/tmp/&name;-packages"
 
-  logit "Attempting to download plugin package &packageURL;..."
+  logit "Attempting to download plugin package &packageGIT;..."
   wget --quiet --spider --no-check-certificate --timeout=10 &packageGIT;
   if [ ! $? == "0" ] ; then
     logit "Package server down &packageGIT; - Plugin cannot install"
     INSTALL_PKG="false"
   else
-    mkdir -p /tmp/&name;-git
-    git clone &packageGIT; /tmp/&name;-git
-    tar -C /tmp/&name;-git jcf &packagefile; &name;
-    mv /tmp/&name;-git/&packagefile; &pluginLOC;
-    rm -rf /tmp/&name;-git
+    mkdir -p "/tmp/&name;-git"
+    git clone --single-branch --branch &branch; &packageGIT; "/tmp/&name;-git"
+    tar jcf "/tmp/&name;-git/&packagefile;" -C "/tmp/&name;-git" &name;
+    mv "/tmp/&name;-git/&packagefile;" &pluginLOC;
+    rm -rf "/tmp/&name;-git"
     if [ ! -f "&pluginLOC;/&packagefile;" ] ; then
       logit "Package download failed &packageGIT; - Plugin cannot install"
       INSTALL_PKG="false"
@@ -161,8 +162,9 @@ if [ "$INSTALL_PKG" == "true" ] ; then
   <!--# Extract files -->
   tar -jxf "&pluginLOC;/&packagefile;" -C "&emplugLOC;"
   <!--# Edit PAGE file  - Dynamically add version number -->
-  echo "Version=\"&version;\"" &gt;&gt; "&emhttpLOC;/&name;.page"
-  
+  if [ -f "&emhttpLOC;/&name;.page" ] ; then
+    echo "Version=\"&version;\"" &gt;&gt; "&emhttpLOC;/&mastername;.page"
+  fi
   <!--# Add locate bash script -->
   cat &gt;/usr/local/bin/smartlocate &lt;&lt;EOL
 #!/bin/bash
