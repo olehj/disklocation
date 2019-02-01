@@ -84,7 +84,7 @@ if [ "$DOWNLOAD_PKG" == "true" ]; then
   TEMP="&pluginLOC;/&name;.*.tar.bz2"
   mv -f $TEMP "/tmp/&name;-packages"
 
-  logit "Attempting to download plugin package &packageURL;..."
+  logit "Attempting to download plugin package &packageGIT;..."
   wget --quiet --spider --no-check-certificate --timeout=10 &packageGIT;
   if [ ! $? == "0" ] ; then
     logit "Package server down &packageGIT; - Plugin cannot install"
@@ -99,9 +99,8 @@ if [ "$DOWNLOAD_PKG" == "true" ]; then
       logit "Package download failed &packageGIT; - Plugin cannot install"
       INSTALL_PKG="false"
     else
-        logit "Package &packagefile; downloaded to &pluginLOC;"
-        INSTALL_PKG="true"
-      fi
+      logit "Package &packagefile; downloaded to &pluginLOC;"
+      INSTALL_PKG="true"
     fi
   fi
 fi

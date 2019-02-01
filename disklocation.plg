@@ -148,9 +148,8 @@ if [ "$DOWNLOAD_PKG" == "true" ]; then
       logit "Package download failed &packageGIT; - Plugin cannot install"
       INSTALL_PKG="false"
     else
-        logit "Package &packagefile; downloaded to &pluginLOC;"
-        INSTALL_PKG="true"
-      fi
+      logit "Package &packagefile; downloaded to &pluginLOC;"
+      INSTALL_PKG="true"
     fi
   fi
 fi
