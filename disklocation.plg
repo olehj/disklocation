@@ -3,12 +3,12 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.02.01">
+<!ENTITY version          "2019.02.01l">
 <!ENTITY launch           "Settings/&name;">
-<!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/master/&name;.plg">
-<!ENTITY packageSHA256    "668e395d279d1c164efbb0d3128fd2b3cd7c72e374c5be254236277233a99844">
+<!ENTITY packageGIT       "https://github.com/olehj/disklocation.git">
+<!ENTITY branch           "devel">
+<!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/&branch;/&name;.plg">
 <!ENTITY packagefile      "&name;.&version;.tar.bz2">
-<!ENTITY packageURL       "https://raw.githubusercontent.com/olehj/&name;/master/&packagefile;">
 <!ENTITY pluginLOC        "/boot/config/plugins/&name;">
 <!ENTITY emplugLOC        "/usr/local/emhttp/plugins">
 <!ENTITY emhttpLOC        "&emplugLOC;/&name;">
@@ -31,6 +31,10 @@
 </FILE>
 
 <CHANGES>
+###2019.02.02
+- Commit #33 - BUG: Settings not saved for fresh installs, fixed database query.
+- Changed installer to use git clone instead of a prebuilt archive. Current archive will be made for installation after reboots.
+
 ###2019.02.01
 - Commit #31 - Improvement: Created a new SHA256 string of static device model name and serial number instead of using LUN. Should now remember devices regardless of controllers. Require a database upgrade (v2).
 - Commit #29 - BUG: Javascript: Added delay between kill and start/stop to the Locate button, should be more stable now. Thanks to TeeNoodle for debugging and testing.
@@ -115,14 +119,7 @@ fi
 <!--# Check local package file -->
 logit "Checking existing package &pluginLOC;/&packagefile;..."
 if [ -f "&pluginLOC;/&packagefile;" ] ; then
-  PKG_LOCAL_SHA256=$(/usr/bin/sha256sum &pluginLOC;/&packagefile; | cut -d' ' -f1)
-  if [ "$PKG_LOCAL_SHA256" == "&packageSHA256;" ] ; then
-    logit "Latest package already exists &pluginLOC;/&packagefile;"
-    INSTALL_PKG="true"
-  else
-    logit "Local/Online package SHA256 mismatch ($PKG_LOCAL_SHA256/&packageSHA256;) on &pluginLOC;/&packagefile; - deleting local package"
-    DOWNLOAD_PKG="true"
-  fi
+  INSTALL_PKG="true"
 else
   logit "Latest package does not exist &pluginLOC;/&packagefile;"
   DOWNLOAD_PKG="true"
@@ -137,25 +134,23 @@ if [ "$DOWNLOAD_PKG" == "true" ]; then
   TEMP="&pluginLOC;/&name;.*.tar.bz2"
   mv -f $TEMP "/tmp/&name;-packages"
 
-  logit "Attempting to download plugin package &packageURL;..."
-  wget --quiet --spider --no-check-certificate --timeout=10 &packageURL;
+  logit "Attempting to download plugin package &packageGIT;..."
+  wget --quiet --spider --no-check-certificate --timeout=10 &packageGIT;
   if [ ! $? == "0" ] ; then
-    logit "Package server down &packageURL; - Plugin cannot install"
+    logit "Package server down &packageGIT; - Plugin cannot install"
     INSTALL_PKG="false"
   else
-    wget --quiet --no-check-certificate --timeout=10 -O &pluginLOC;/&packagefile; &packageURL;
+    mkdir -p "/tmp/&name;-git"
+    git clone --single-branch --branch &branch; &packageGIT; "/tmp/&name;-git"
+    tar jcf "/tmp/&name;-git/&packagefile;" -C "/tmp/&name;-git" &name;
+    mv "/tmp/&name;-git/&packagefile;" &pluginLOC;
+    rm -rf "/tmp/&name;-git"
     if [ ! -f "&pluginLOC;/&packagefile;" ] ; then
-      logit "Package download failed &packageURL; - Plugin cannot install"
+      logit "Package download failed &packageGIT; - Plugin cannot install"
       INSTALL_PKG="false"
     else
-      PKG_LOCAL_SHA256=$(/usr/bin/sha256sum &pluginLOC;/&packagefile; | cut -d' ' -f1)
-      if [ "$PKG_LOCAL_SHA256" != "&packageSHA256;" ] ; then
-        logit "Package SHA256 mismatch ($PKG_LOCAL_SHA256/&packageSHA256;) on &pluginLOC;/&packagefile; - Plugin cannot install"
-        INSTALL_PKG="false"
-      else
-        logit "Package &packagefile; downloaded to &pluginLOC; - SHA256 match "$PKG_LOCAL_SHA256""
-        INSTALL_PKG="true"
-      fi
+      logit "Package &packagefile; downloaded to &pluginLOC;"
+      INSTALL_PKG="true"
     fi
   fi
 fi
@@ -167,8 +162,9 @@ if [ "$INSTALL_PKG" == "true" ] ; then
   <!--# Extract files -->
   tar -jxf "&pluginLOC;/&packagefile;" -C "&emplugLOC;"
   <!--# Edit PAGE file  - Dynamically add version number -->
-  echo "Version=\"&version;\"" &gt;&gt; "&emhttpLOC;/&name;.page"
-  
+  if [ -f "&emhttpLOC;/&name;.page" ] ; then
+    echo "Version=\"&version;\"" &gt;&gt; "&emhttpLOC;/&name;.page"
+  fi
   <!--# Add locate bash script -->
   cat &gt;/usr/local/bin/smartlocate &lt;&lt;EOL
 #!/bin/bash
