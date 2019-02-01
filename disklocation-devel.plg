@@ -5,7 +5,7 @@
 <!ENTITY mastername       "disklocation">
 <!ENTITY name             "disklocation-devel">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.02.01b">
+<!ENTITY version          "2019.02.01c">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/devel/&name;.plg">
 <!ENTITY packagefile      "&name;.&version;.tar.bz2">
