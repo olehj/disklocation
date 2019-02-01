@@ -163,7 +163,7 @@ if [ "$INSTALL_PKG" == "true" ] ; then
   tar -jxf "&pluginLOC;/&packagefile;" -C "&emplugLOC;"
   <!--# Edit PAGE file  - Dynamically add version number -->
   if [ -f "&emhttpLOC;/&name;.page" ] ; then
-    echo "Version=\"&version;\"" &gt;&gt; "&emhttpLOC;/&mastername;.page"
+    echo "Version=\"&version;\"" &gt;&gt; "&emhttpLOC;/&name;.page"
   fi
   <!--# Add locate bash script -->
   cat &gt;/usr/local/bin/smartlocate &lt;&lt;EOL

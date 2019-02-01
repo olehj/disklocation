@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.02.01f">
+<!ENTITY version          "2019.02.01g">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY packageGIT       "https://github.com/olehj/disklocation.git">
 <!ENTITY branch           "devel">
@@ -163,7 +163,7 @@ if [ "$INSTALL_PKG" == "true" ] ; then
   tar -jxf "&pluginLOC;/&packagefile;" -C "&emplugLOC;"
   <!--# Edit PAGE file  - Dynamically add version number -->
   if [ -f "&emhttpLOC;/&name;.page" ] ; then
-    echo "Version=\"&version;\"" &gt;&gt; "&emhttpLOC;/&mastername;.page"
+    echo "Version=\"&version;\"" &gt;&gt; "&emhttpLOC;/&name;.page"
   fi
   <!--# Add locate bash script -->
   cat &gt;/usr/local/bin/smartlocate &lt;&lt;EOL
