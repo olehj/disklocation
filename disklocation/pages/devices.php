@@ -251,7 +251,7 @@
 <style type="text/css">
 	<?php require_once("styles/disk_" . $disk_tray_direction . ".css.php"); ?>
 </style>
-<link type="text/css" rel="stylesheet" href="/plugins/disklocation/pages/styles/signals.css">
+<link type="text/css" rel="stylesheet" href="<?php echo DISKLOCATION_PATH ?>/pages/styles/signals.css">
 <script>
 function locateStart(locateDisk){
 	if(locateDisk) {
@@ -261,7 +261,7 @@ function locateStart(locateDisk){
 		locateDisk.value = "Stop";
 		locateDisk.style.backgroundColor = '#000000';
 		var diskpath = encodeURI(locateDisk.id);
-		$.get('/plugins/disklocation/pages/locate.php',{ disklocation:diskpath, cmd:"start"},function(data) {
+		$.get('<?php echo DISKLOCATION_PATH ?>/pages/locate.php',{ disklocation:diskpath, cmd:"start"},function(data) {
 			// script is handled in the background, nothing to do here
 		});
 	}
@@ -274,7 +274,7 @@ function locateStop(locateDisk){
 	locateDisk.value = "Locate";
 	locateDisk.style.backgroundColor = '#FFFFFF';
 	var diskpath = encodeURI(locateDisk.id);
-	$.get('/plugins/disklocation/pages/locate.php',{ disklocation:diskpath, cmd:"stop"},function(data) {
+	$.get('<?php echo DISKLOCATION_PATH ?>/pages/locate.php',{ disklocation:diskpath, cmd:"stop"},function(data) {
 		// script is handled in the background, nothing to do here
 	});
 }
@@ -290,7 +290,7 @@ function locateKillAll(locateDisk){
 		//console.log("Locating killed: " + y[i].id);
 	}
 	
-	$.get('/plugins/disklocation/pages/locate.php',{ cmd:"killall"},function(data) {
+	$.get('<?php echo DISKLOCATION_PATH ?>/pages/locate.php',{ cmd:"killall"},function(data) {
 		// script is handled in the background, nothing to do here
 	});
 }
