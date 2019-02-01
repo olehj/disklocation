@@ -2,7 +2,7 @@
 
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation-devel">
-<!ENTITY origname         "disklocation">
+<!ENTITY mastername       "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
 <!ENTITY version          "2019.02.01a">
 <!ENTITY launch           "Settings/&name;">
@@ -93,7 +93,9 @@ if [ "$DOWNLOAD_PKG" == "true" ]; then
   else
     mkdir -p "/tmp/&name;-git"
     git clone --single-branch --branch devel &packageGIT; "/tmp/&name;-git"
-    mv "/tmp/&name;-git/&origname;" "/tmp/&name;-git/&name;"
+    if [ ! -d "/tmp/&name;-git/&name;" ] ; then
+      mv "/tmp/&name;-git/&mastername;" "/tmp/&name;-git/&name;"
+    fi
     tar jcf "/tmp/&name;-git/&packagefile;" -C "/tmp/&name;-git" &name;
     <!--#mv "/tmp/&name;-git/&packagefile;" &pluginLOC;-->
     <!--#rm -rf "/tmp/&name;-git"-->
