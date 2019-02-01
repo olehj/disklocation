@@ -2,17 +2,15 @@
 	// Set warning level
 	error_reporting(E_ERROR | E_WARNING | E_PARSE);
 	
-	$get_page_info = parse_ini_file("/usr/local/emhttp/plugins/disklocation/disklocation.page");
-	
-	$devbuild = ( preg_match("/devel/i", $get_page_info["Title"]) ? "-devel" : null );
+	$get_page_info = parse_ini_file("disklocation.page");
 	
 	// define constants
-	define('DISKLOCATION_DB', "/boot/config/plugins/disklocation" . $devbuild . "/disklocation.sqlite");
+	define('DISKLOCATION_DB', "/boot/config/plugins/disklocation/disklocation.sqlite");
 	define('DISKINFORMATION', '/var/local/emhttp/disks.ini');
 	define('DISKLOGFILE', '/boot/config/disk.log');
 	define('DISKLOCATION_VERSION', $get_page_info["Version"]);
-	define('DISKLOCATION_URL', "/Settings/disklocation" . $devbuild);
-	define('DISKLOCATION_PATH', "/plugins/disklocation" . $devbuild);
+	define('DISKLOCATION_URL', "/Settings/disklocation");
+	define('DISKLOCATION_PATH', "/plugins/disklocation");
 	
 	$disklocation_error = array();
 	
