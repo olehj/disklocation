@@ -6,5 +6,5 @@ Install the plugin from:
   https://raw.githubusercontent.com/olehj/disklocation/master/disklocation-master.plg
 
 
-For bleeding edge development build: NB! NOT RECOMMENDED!!!
+For bleeding edge development build, NB! NOT RECOMMENDED!!!:
   https://raw.githubusercontent.com/olehj/disklocation/devel/disklocation-devel.plg
