@@ -2,7 +2,7 @@
 	// Set warning level
 	error_reporting(E_ERROR | E_WARNING | E_PARSE);
 	
-	$get_page_info = parse_ini_file("disklocation.page");
+	$get_page_info = parse_ini_file("/plugins/disklocation/disklocation.page");
 	
 	// define constants
 	define('DISKLOCATION_DB', "/boot/config/plugins/disklocation/disklocation.sqlite");
