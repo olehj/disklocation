@@ -1,4 +1,4 @@
 Menu="disklocation:3"
 Title="Configuration"
 ---
-<?php include "pages/config.php"; ?>
+<?php include "/plugins/disklocation/pages/config.php"; ?>

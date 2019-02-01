@@ -1,4 +1,4 @@
 Menu="disklocation:2"
 Title="Information"
 ---
-<?php include "pages/info.php"; ?>
+<?php include "/plugins/disklocation/pages/info.php"; ?>
