@@ -135,7 +135,7 @@
 		
 		$print_removed_drives .= "
 			<tr style=\"background: #" . $color_array[$data["hash"]] . ";\">
-				<td style=\"padding: 0 10px 0 10px;\"><form action=\"/plugins/disklocation/pages/system.php\" method=\"post\"><input type=\"image\" name=\"delete\" src=\"/plugins/disklocation/icons/delete.png\"  /><input type=\"hidden\" name=\"hash\" value=\"" . $data["hash"] . "\"  /></form></td>
+				<td style=\"padding: 0 10px 0 10px;\"><form action=\"" . DISKLOCATION_PATH . "/pages/system.php\" method=\"post\"><input type=\"image\" name=\"delete\" src=\"" . DISKLOCATION_PATH . "/icons/delete.png\"  /><input type=\"hidden\" name=\"hash\" value=\"" . $data["hash"] . "\"  /></form></td>
 				<td style=\"padding: 0 10px 0 10px;\">" . $data["device"] . "</td>
 				<td style=\"padding: 0 10px 0 10px;\">" . $data["luname"] . "</td>
 				<td style=\"padding: 0 10px 0 10px;\">" . $data["model_family"] . "</td>

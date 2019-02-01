@@ -4,12 +4,15 @@
 	
 	$get_page_info = parse_ini_file("/usr/local/emhttp/plugins/disklocation/disklocation.page");
 	
+	$devbuild = ( preg_match("/devel/i", $get_page_info["Title"]) ? "-devel" : null );
+	
 	// define constants
-	define('DISKLOCATION_DB', '/boot/config/plugins/disklocation/disklocation.sqlite');
+	define('DISKLOCATION_DB', "/boot/config/plugins/disklocation" . $devbuild . "/disklocation.sqlite");
 	define('DISKINFORMATION', '/var/local/emhttp/disks.ini');
 	define('DISKLOGFILE', '/boot/config/disk.log');
 	define('DISKLOCATION_VERSION', $get_page_info["Version"]);
-	define('DISKLOCATION_URL', '/Settings/disklocation');
+	define('DISKLOCATION_URL', "/Settings/disklocation" . $devbuild);
+	define('DISKLOCATION_PATH', "/plugins/disklocation" . $devbuild);
 	
 	$disklocation_error = array();
 	
@@ -41,7 +44,8 @@
 		
 		$db->close();
 		
-		header("Location: /Settings/disklocation");
+		//header("Location: " . DISKLOCATION_URL);
+		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
 	
