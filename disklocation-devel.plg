@@ -1,10 +1,11 @@
 <?xml version='1.0' standalone='yes'?>
 
 <!DOCTYPE PLUGIN [
-<!ENTITY name             "disklocation-devel">
+<!ENTITY nicetitle        "Disk Location Development">
 <!ENTITY mastername       "disklocation">
+<!ENTITY name             "disklocation-devel">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.02.01a">
+<!ENTITY version          "2019.02.01b">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/devel/&name;.plg">
 <!ENTITY packagefile      "&name;.&version;.tar.bz2">
@@ -116,7 +117,13 @@ if [ "$INSTALL_PKG" == "true" ] ; then
   <!--# Extract files -->
   tar -jxf "&pluginLOC;/&packagefile;" -C "&emplugLOC;"
   <!--# Edit PAGE file  - Dynamically add version number -->
-  echo "Version=\"&version;\"" &gt;&gt; "&emhttpLOC;/&name;.page"
+  if [ -f "&emhttpLOC;/&mastername;.page" ] ; then
+    echo "Title=\"&nicetitle;\"" &gt;&gt; "&emhttpLOC;/&mastername;.page"
+    echo "Version=\"&version;\"" &gt;&gt; "&emhttpLOC;/&mastername;.page"
+  else
+    echo "Title=\"&nicetitle;\"" &gt;&gt; "&emhttpLOC;/&name;.page"
+    echo "Version=\"&version;\"" &gt;&gt; "&emhttpLOC;/&name;.page"
+  fi
   
   <!--# Add locate bash script -->
   cat &gt;/usr/local/bin/smartlocate &lt;&lt;EOL
