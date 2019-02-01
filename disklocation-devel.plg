@@ -120,11 +120,13 @@ if [ "$INSTALL_PKG" == "true" ] ; then
   if [ -f "&emhttpLOC;/&mastername;.page" ] ; then
     echo "Title=\"&nicetitle;\"" &gt;&gt; "&emhttpLOC;/&mastername;.page"
     echo "Version=\"&version;\"" &gt;&gt; "&emhttpLOC;/&mastername;.page"
-  else
-    echo "Title=\"&nicetitle;\"" &gt;&gt; "&emhttpLOC;/&name;.page"
-    echo "Version=\"&version;\"" &gt;&gt; "&emhttpLOC;/&name;.page"
   fi
   
+  cat &gt;"&emhttpLOC;/README.md" &lt;&lt;EOL
+**&nicetitle;**
+
+Locate your drives and assign them to a graphical tray map to get full overview of installed hard drives in your system.
+EOL
   <!--# Add locate bash script -->
   cat &gt;/usr/local/bin/smartlocate &lt;&lt;EOL
 #!/bin/bash
