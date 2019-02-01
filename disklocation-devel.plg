@@ -97,8 +97,8 @@ if [ "$DOWNLOAD_PKG" == "true" ]; then
       mv "/tmp/&name;-git/&mastername;" "/tmp/&name;-git/&name;"
     fi
     tar jcf "/tmp/&name;-git/&packagefile;" -C "/tmp/&name;-git" &name;
-    <!--#mv "/tmp/&name;-git/&packagefile;" &pluginLOC;-->
-    <!--#rm -rf "/tmp/&name;-git"-->
+    mv "/tmp/&name;-git/&packagefile;" &pluginLOC;
+    rm -rf "/tmp/&name;-git"
     if [ ! -f "&pluginLOC;/&packagefile;" ] ; then
       logit "Package download failed &packageGIT; - Plugin cannot install"
       INSTALL_PKG="false"
