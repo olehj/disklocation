@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.02.02d-dev">
+<!ENTITY version          "2019.02.02e-dev">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY packageGIT       "https://github.com/olehj/disklocation.git">
 <!ENTITY branch           "devel">
@@ -149,9 +149,9 @@ EOL
   
   rm -Rf "/tmp/&name;-packages"
   rm -f "/tmp/&name;-install"
-  if [[ -f "&pluginLOC;/disklocation.sqlite" &amp;&amp; ! -f "&pluginLOC;/disklocation_db_v1.sqlite.tar.bz2" ]]; then
-    tar jcf &pluginLOC;/disklocation_db_v1.sqlite.tar.bz2 &pluginLOC;/disklocation.sqlite
-    logit "Made backup of database (&pluginLOC;/disklocation_db_v1.sqlite.tar.bz2) before it will be upgraded to version 2"
+  if [[ -f "&pluginLOC;/disklocation.sqlite" &amp;&amp; ! -f "&pluginLOC;/disklocation_db_v2.sqlite.tar.bz2" ]]; then
+    tar jcf &pluginLOC;/disklocation_db_v2.sqlite.tar.bz2 &pluginLOC;/disklocation.sqlite
+    logit "Made backup of database (&pluginLOC;/disklocation_db_v2.sqlite.tar.bz2) before it will be upgraded to version 3"
   fi
   logit "Plugin and Package file &packagefile; extracted and installed successfully"
   exit 0
