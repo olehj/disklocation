@@ -74,6 +74,13 @@
 		}
 	}
 	
+	function count_table_rows($db, $table) {
+		$sql = "SELECT COUNT(*) FROM " . $table . ";";
+		$results = $db->query($sql);
+		$data = $results->fetchArray(SQLITE3_NUM);
+		return ( isset($data[0]) ? $data[0] : 0 );
+	}
+	
 	function human_filesize($bytes, $decimals = 2, $unit = '') {
 		if(!$unit) {
 			$size = array('iB','kiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB');
@@ -628,7 +635,7 @@
 		$grid_columns_override_styles = str_repeat(" auto", $total_rows_override_trays);
 	}
 	
-	if(!is_array($get_empty_trays)) {
+	if(!is_array($get_empty_trays) && !count_table_rows($db, "disks")) {
 		$sql = "SELECT * FROM disks WHERE status IS NULL;";
 	}
 	else {
