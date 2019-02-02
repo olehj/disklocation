@@ -38,7 +38,15 @@
 	<dd>The "Save" button will store all information entered.</dd>
 	
 	<dt>Change background colors</dt>
-	<dd>Select the color(s) you want, defaults are: #ef6441 for "Unraid array", #41b5ef for "Unassigned devices", #aaaaaa for "Empty/available trays"</dd>
+	<dd>Select the color(s) you want, defaults are:
+	<ul>
+		<li>#eb4f41 "Parity"</li>
+		<li>#ef6441 "Data"</li>
+		<li>#ff884c "Cache"</li>
+		<li>#41b5ef "Unassigned devices"</li>
+		<li>#aaaaaa "Empty/available trays"</li>
+	</ul>
+	</dd>
 	
 	<dt>Set sizes for trays</dt>
 	<dd>This is the HTML/CSS pixel size for a single harddisk tray, default sizes are: 400px longest side, and 70px shortest side.</dd>
