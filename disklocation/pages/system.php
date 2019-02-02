@@ -500,7 +500,7 @@
 	$empty_tray_order = ( empty(get_tray_location($db, "empty", 1)) ? null : array_values(get_tray_location($db, "empty", 1)) );
 	
 	$color_array = array();
-	$color_array['empty'] = $bgcolor_empty;
+	$color_array["empty"] = $bgcolor_empty;
 	
 	// add and update disk info
 	
@@ -595,11 +595,18 @@
 				echo $db->lastErrorMsg();
 			}
 			
-			if($unraid_array[$lsscsi_devicenode[$i]]["color"] && $unraid_array[$lsscsi_devicenode[$i]]["status"]) {
-				$color_array[$deviceid[$i]] = $bgcolor_unraid;
-			}
-			else {
-				$color_array[$deviceid[$i]] = $bgcolor_others;
+			switch(strtolower($unraid_array[$lsscsi_devicenode[$i]]["type"])) {
+				case "parity":
+					$color_array[$deviceid[$i]] = $bgcolor_parity;
+					break;
+				case "data":
+					$color_array[$deviceid[$i]] = $bgcolor_unraid;
+					break;
+				case "cache":
+					$color_array[$deviceid[$i]] = $bgcolor_cache;
+					break;	
+				default:
+					$color_array[$deviceid[$i]] = $bgcolor_others;
 			}
 			
 			unset($smart_array);
