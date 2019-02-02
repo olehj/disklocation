@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.02.02">
+<!ENTITY version          "2019.02.02b">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY packageGIT       "https://github.com/olehj/disklocation.git">
 <!ENTITY branch           "master">
@@ -14,6 +14,8 @@
 <!ENTITY emhttpLOC        "&emplugLOC;/&name;">
 <!ENTITY smartmontools    "smartmontools-7.0-x86_64-1.txz">
 <!ENTITY smartmontoolsMD5 "c5c852915332cd0984b040eeb545c43c">
+<!ENTITY gittools         "git-2.14.5-x86_64-1_slack14.2.txz">
+<!ENTITY gittoolsMD5      "99ab6ab1d4685a81252893db01d63c5a">
 <!ENTITY pluginsupportURL "https://forums.unraid.net/topic/77302-plugin-disk-location/">
 ]>
 
@@ -30,7 +32,15 @@
 <MD5>&smartmontoolsMD5;</MD5>
 </FILE>
 
+<FILE Name="/boot/packages/&gittools;" Run="upgradepkg --install-new">
+<URL>http://mirrors.slackware.com/slackware/slackware64-14.2/patches/packages/&gittools;</URL>
+<MD5>&gittoolsMD5;</MD5>
+</FILE>
+
 <CHANGES>
+###2019.02.02b
+ - Installer script will automagically install or upgrade git packages for installation.
+
 ###2019.02.02
 - Commit #33 - BUG: Settings not saved for fresh installs, fixed database query.
 - Changed installer to use git clone instead of a prebuilt archive. Current archive will be made for installation after reboots.
@@ -127,7 +137,6 @@ fi
 
 <!--# Download plugin files -->
 if [ "$DOWNLOAD_PKG" == "true" ]; then
-
   <!--# Save existing packages until new package is downloaded OK -->
   logit "Saving any previous packages from &pluginLOC;"
   mkdir -p "/tmp/&name;-packages"
