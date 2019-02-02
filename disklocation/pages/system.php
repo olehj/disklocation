@@ -74,6 +74,13 @@
 		}
 	}
 	
+	function count_table_rows($db, $table) {
+		$sql = "SELECT COUNT(*) FROM " . $table . ";";
+		$results = $db->query($sql);
+		$data = $results->fetchArray(SQLITE3_NUM);
+		return ( isset($data[0]) ? $data[0] : 0 );
+	}
+	
 	function human_filesize($bytes, $decimals = 2, $unit = '') {
 		if(!$unit) {
 			$size = array('iB','kiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB');
@@ -500,7 +507,7 @@
 	$empty_tray_order = ( empty(get_tray_location($db, "empty", 1)) ? null : array_values(get_tray_location($db, "empty", 1)) );
 	
 	$color_array = array();
-	$color_array['empty'] = $bgcolor_empty;
+	$color_array["empty"] = $bgcolor_empty;
 	
 	// add and update disk info
 	
@@ -520,12 +527,14 @@
 			
 			$smart_i=0;
 			$smart_loadcycle_find = "";
-			while($smart_i < count($smart_array["ata_smart_attributes"]["table"])) {
-				if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Load_Cycle_Count") {
-					$smart_loadcycle_find = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"];
-					$smart_i = count($smart_array["ata_smart_attributes"]["table"]);
+			if(is_array($smart_array["ata_smart_attributes"]["table"])) {
+				while($smart_i < count($smart_array["ata_smart_attributes"]["table"])) {
+					if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Load_Cycle_Count") {
+						$smart_loadcycle_find = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"];
+						$smart_i = count($smart_array["ata_smart_attributes"]["table"]);
+					}
+					$smart_i++;
 				}
-				$smart_i++;
 			}
 			
 			$rotation_rate = ( recursive_array_search("Solid State Device Statistics", $smart_array) ? -1 : $smart_array["rotation_rate"] );
@@ -595,11 +604,18 @@
 				echo $db->lastErrorMsg();
 			}
 			
-			if($unraid_array[$lsscsi_devicenode[$i]]["color"] && $unraid_array[$lsscsi_devicenode[$i]]["status"]) {
-				$color_array[$deviceid[$i]] = $bgcolor_unraid;
-			}
-			else {
-				$color_array[$deviceid[$i]] = $bgcolor_others;
+			switch(strtolower($unraid_array[$lsscsi_devicenode[$i]]["type"])) {
+				case "parity":
+					$color_array[$deviceid[$i]] = $bgcolor_parity;
+					break;
+				case "data":
+					$color_array[$deviceid[$i]] = $bgcolor_unraid;
+					break;
+				case "cache":
+					$color_array[$deviceid[$i]] = $bgcolor_cache;
+					break;	
+				default:
+					$color_array[$deviceid[$i]] = $bgcolor_others;
 			}
 			
 			unset($smart_array);
@@ -621,7 +637,7 @@
 		$grid_columns_override_styles = str_repeat(" auto", $total_rows_override_trays);
 	}
 	
-	if(!is_array($get_empty_trays)) {
+	if(!is_array($get_empty_trays) && !count_table_rows($db, "disks")) {
 		$sql = "SELECT * FROM disks WHERE status IS NULL;";
 	}
 	else {

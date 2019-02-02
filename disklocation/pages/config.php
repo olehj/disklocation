@@ -169,11 +169,50 @@
 					<?php print($disklocation_layout); ?>
 				</div>
 				<p>
-					<b>Change background colors:</b><br />
-					<input type="color" required name="bgcolor_unraid" value="#<?php print($bgcolor_unraid); ?>" /> Unraid array<br />
-					<input type="color" required name="bgcolor_others" value="#<?php print($bgcolor_others); ?>" /> Unassigned devices<br />
-					<input type="color" required name="bgcolor_empty" value="#<?php print($bgcolor_empty); ?>" /> Empty trays
+					<b>Change background colors:</b>
 				</p>
+				<div style="padding-top: 20px;">
+					<table>
+						<tr>
+							<td style="padding: 0;">
+								Parity
+							</td>
+							<td style="padding: 0;">
+								Data
+							</td>
+							<td style="padding: 0;">
+								Cache
+							</td>
+						</tr>
+						<tr>
+							<td style="padding: 0;">
+								<input type="color" required name="bgcolor_parity" value="#<?php print($bgcolor_parity); ?>" />
+							</td>
+							<td style="padding: 0;">
+								<input type="color" required name="bgcolor_unraid" value="#<?php print($bgcolor_unraid); ?>" />
+							</td>
+							<td style="padding: 0;">
+								<input type="color" required name="bgcolor_cache" value="#<?php print($bgcolor_cache); ?>" />
+							</td>
+						</tr>
+						<tr>
+							<td style="padding: 0;">
+								<input type="color" required name="bgcolor_others" value="#<?php print($bgcolor_others); ?>" />
+							</td>
+							<td style="padding: 0;" colspan="2">
+								Unassigned devices
+							</td>
+						</tr>
+						<tr>
+							<td style="padding: 0;">
+								<input type="color" required name="bgcolor_empty" value="#<?php print($bgcolor_empty); ?>" />
+							</td>
+							<td style="padding: 0;" colspan="2">
+								Empty trays
+							</td>
+						</tr>
+					</table>
+				</div>
 				<p>
 					<b>Set sizes for trays:</b><br />
 					<input type="number" required min="100" max="2000" name="tray_width" value="<?php print($tray_width); ?>" style="width: 50px;" /> px longest side<br />
@@ -266,40 +305,40 @@
 					?>
 				</table>
 				<h2 style="padding-bottom: 25px;">Visible Information</h2>
-				<table style="width: 0;">
+				<table style="width: auto;">
 					<tr>
-						<td style="width: <?php echo $vi_width ?>px;">
+						<td style="width: <?php echo $vi_width ?>px;" coslpan="3">
 							<input type="checkbox" name="displayinfo[tray]" value="1" <?php if($displayinfo["tray"]) echo "checked"; ?> />Tray number
 						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
+						<td style="width: <?php echo $vi_width ?>px;" coslpan="3">
 							<input type="checkbox" name="displayinfo[leddiskop]" value="1" <?php if($displayinfo["leddiskop"]) echo "checked"; ?> />Disk Operation LED
 						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
+						<td style="width: <?php echo $vi_width ?>px;" coslpan="3">
 							<input type="checkbox" name="displayinfo[ledsmart]" value="1" <?php if($displayinfo["ledsmart"]) echo "checked"; ?> />SMART Status LED
 						</td>
 					</tr>
 					<tr>
-						<td style="width: <?php echo $vi_width ?>px;">
+						<td style="width: <?php echo $vi_width ?>px;" coslpan="2">
 							<input type="checkbox" name="displayinfo[unraidinfo]" value="1" <?php if($displayinfo["unraidinfo"]) echo "checked"; ?> />Unraid info
 						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
+						<td style="width: <?php echo $vi_width ?>px;" coslpan="2">
 							<input type="checkbox" name="displayinfo[path]" value="1" <?php if($displayinfo["path"]) echo "checked"; ?> />Path
 						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
+						<td style="width: <?php echo $vi_width ?>px;" coslpan="2">
 							<input type="checkbox" name="displayinfo[devicenode]" value="1" <?php if($displayinfo["devicenode"]) echo "checked"; ?> />Device Node
 						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
+						<td style="width: <?php echo $vi_width ?>px;" coslpan="2">
 							<input type="checkbox" name="displayinfo[luname]" value="1" <?php if($displayinfo["luname"]) echo "checked"; ?> />Logical Unit Name
 						</td>
 					</tr>
 					<tr>
-						<td style="width: <?php echo $vi_width ?>px;">
+						<td style="width: <?php echo $vi_width ?>px;" coslpan="3">
 							<input type="checkbox" name="displayinfo[manufacturer]" value="1" <?php if($displayinfo["manufacturer"]) echo "checked"; ?> />Manufacturer
 						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
+						<td style="width: <?php echo $vi_width ?>px;" coslpan="3">
 							<input type="checkbox" name="displayinfo[devicemodel]" value="1" <?php if($displayinfo["devicemodel"]) echo "checked"; ?> />Device Model
 						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
+						<td style="width: <?php echo $vi_width ?>px;" coslpan="3">
 							<input type="checkbox" name="displayinfo[serialnumber]" value="1" <?php if($displayinfo["serialnumber"]) echo "checked"; ?> />Serial Number
 						</td>
 					</tr>

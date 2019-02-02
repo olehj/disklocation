@@ -6,7 +6,9 @@
 //	Variable name		Default value	Description
 //	--------------------------------------------------------------------------------
 	$smart_exec_delay =	'200';		// set milliseconds for next execution for SMART shell_exec - needed to actually grab all the information for unassigned devices. Default: 200
-	$bgcolor_unraid =	'ef6441';	// background color for Unraid array disks
+	$bgcolor_parity =	'eb4f41';	// background color for Unraid parity disks
+	$bgcolor_unraid =	'ef6441';	// background color for Unraid data disks
+	$bgcolor_cache =	'ff884c';	// background color for Unraid cache disks
 	$bgcolor_others =	'41b5ef';	// background color for unassigned/other disks
 	$bgcolor_empty =	'aaaaaa';	// background color for empty trays
 	$grid_count =		'column';	// how to count the trays: [column]: trays ordered from top to bottom from left to right | [row]: ..from left to right from top to bottom
@@ -95,7 +97,9 @@
 	";
 	$sql_create_settings = "
 		smart_exec_delay INT NOT NULL DEFAULT '200',
+		bgcolor_parity CHAR(6) NOT NULL DEFAULT 'eb4f41',
 		bgcolor_unraid CHAR(6) NOT NULL DEFAULT 'ef6441',
+		bgcolor_cache CHAR(6) NOT NULL DEFAULT 'ff884c',
 		bgcolor_others CHAR(6) NOT NULL DEFAULT '41b5ef',
 		bgcolor_empty CHAR(6) NOT NULL DEFAULT 'aaaaaa',
 		grid_groups SMALLINT,
@@ -111,6 +115,29 @@
 		displayinfo VARCHAR(1023)
 	";
 	$sql_tables_settings = "
+		smart_exec_delay,
+		bgcolor_parity,
+		bgcolor_unraid,
+		bgcolor_cache,
+		bgcolor_others,
+		bgcolor_empty,
+		grid_count,
+		grid_columns,
+		grid_rows,
+		grid_trays,
+		disk_tray_direction,
+		tray_width,
+		tray_height,
+		warranty_field,
+		tempunit,
+		displayinfo
+	";
+	
+	/*
+		Database Version: 2
+	*/
+	
+	$sql_tables_settings_v2 = "
 		smart_exec_delay,
 		bgcolor_unraid,
 		bgcolor_others,
@@ -216,7 +243,7 @@
 			CREATE TABLE settings(
 				$sql_create_settings
 			);
-			PRAGMA user_version = '2';
+			PRAGMA user_version = '3';
 		";
 		$ret = $db->exec($sql);
 		if(!$ret) {
@@ -312,6 +339,35 @@
 				";
 			}
 			$ret = $db->exec($sql_update_v2);
+			if(!$ret) {
+				$db_update = 0;
+				echo $db->lastErrorMsg();
+			}
+		}
+		
+		if($database_version < 3) {
+			$db_update = 1;
+			$sql = "
+				PRAGMA foreign_keys = off;
+				
+				BEGIN TRANSACTION;
+				
+				ALTER TABLE settings RENAME TO old_settings;
+				
+				CREATE TABLE settings($sql_create_settings);
+				
+				INSERT INTO settings ($sql_tables_settings_v2) SELECT $sql_tables_settings_v2 FROM old_settings;
+				
+				DROP TABLE old_settings;
+				
+				COMMIT;
+				
+				PRAGMA foreign_keys = on;
+				PRAGMA user_version = '3';
+				
+				VACUUM;
+			";
+			$ret = $db->exec($sql);
 			if(!$ret) {
 				$db_update = 0;
 				echo $db->lastErrorMsg();

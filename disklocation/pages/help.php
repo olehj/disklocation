@@ -19,11 +19,14 @@
 	<dt>Why does this plugin require smartmontools 7.0+?</dt>
 	<dd>During installation, smartmontools 7.0 will be installed. This is required for JSON-output for the smartctl command.</dd>
 	
+	<dt>Why does this plugin require GIT tools?</dt>
+	<dd>During installation the package is cloned from a git repository and archived for later use locally, this simplifies the install updates a bit.</dd>
+	
 	<dt>What else does it install in the system?</dt>
 	<dd>It will install a smartlocate script in /usr/local/bin/, this is needed for the "Locate" function.</dd>
 	
 	<dt>How is the versioning working?</dt>
-	<dd>The digits are as following: the first is the year, second the month, and third the day. Technically an ISO date. First version released was 2019.01.22</dd>
+	<dd>The digits are as following: the first is the year, second the month, and third the day. Technically an ISO date. Multiple updates at the same day will get a letter behind the date increasing from [a]. First version released was 2019.01.22</dd>
 	
 	<dt>What's the requirements?</dt>
 	<dd>A newer browser supporting HTML5, tested with Chrome-based browsers and Firefox.</dd>
@@ -35,7 +38,15 @@
 	<dd>The "Save" button will store all information entered.</dd>
 	
 	<dt>Change background colors</dt>
-	<dd>Select the color(s) you want, defaults are: #ef6441 for "Unraid array", #41b5ef for "Unassigned devices", #aaaaaa for "Empty/available trays"</dd>
+	<dd>Select the color(s) you want, defaults are:
+	<ul>
+		<li>#eb4f41 "Parity"</li>
+		<li>#ef6441 "Data"</li>
+		<li>#ff884c "Cache"</li>
+		<li>#41b5ef "Unassigned devices"</li>
+		<li>#aaaaaa "Empty/available trays"</li>
+	</ul>
+	</dd>
 	
 	<dt>Set sizes for trays</dt>
 	<dd>This is the HTML/CSS pixel size for a single harddisk tray, default sizes are: 400px longest side, and 70px shortest side.</dd>
