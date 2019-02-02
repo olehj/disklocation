@@ -527,12 +527,14 @@
 			
 			$smart_i=0;
 			$smart_loadcycle_find = "";
-			while($smart_i < count($smart_array["ata_smart_attributes"]["table"])) {
-				if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Load_Cycle_Count") {
-					$smart_loadcycle_find = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"];
-					$smart_i = count($smart_array["ata_smart_attributes"]["table"]);
+			if(is_array($smart_array["ata_smart_attributes"]["table"])) {
+				while($smart_i < count($smart_array["ata_smart_attributes"]["table"])) {
+					if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Load_Cycle_Count") {
+						$smart_loadcycle_find = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"];
+						$smart_i = count($smart_array["ata_smart_attributes"]["table"]);
+					}
+					$smart_i++;
 				}
-				$smart_i++;
 			}
 			
 			$rotation_rate = ( recursive_array_search("Solid State Device Statistics", $smart_array) ? -1 : $smart_array["rotation_rate"] );
