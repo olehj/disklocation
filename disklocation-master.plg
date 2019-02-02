@@ -39,6 +39,7 @@
 
 <CHANGES>
 ###2019.02.03
+ - Commut #37 - BUG: Disk allocations in config and info tab sorted by ID and not tray when "empty = 0"
  - Commit #36 - FEATURE: Added color choice for parity and cache devices.
 
 ###2019.02.02b
