@@ -41,6 +41,7 @@
 ###2019.02.03
  - Commut #37 - BUG: Disk allocations in config and info tab sorted by ID and not tray when "empty = 0"
  - Commit #36 - FEATURE: Added color choice for parity and cache devices.
+ - Updated the Help page a bit with some new information.
 
 ###2019.02.02b
  - BUG: Installer script will automagically install or upgrade git packages for installation.
