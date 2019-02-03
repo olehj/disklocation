@@ -1,18 +1,4 @@
-<style type="text/css">
-	dt {
-		float: none;
-		width: auto;
-		font-weight: bold;
-		white-space: normal;
-	}
-	dl {
-		line-height: 2.2rem;
-		white-space: normal;
-	}
-	dd {
-		white-space: normal;
-	}
-</style>
+<link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/help.css")?>">
 <h2 style="margin-top: -10px; padding: 0 0 10px 0;">Help for Disk Location <?php echo DISKLOCATION_VERSION ?></h2>
 <h3>Installation</h3>
 <dl>
