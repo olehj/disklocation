@@ -375,7 +375,7 @@
 				REPLACE INTO
 					settings(
 						smart_exec_delay,
-						bgcolor_parity
+						bgcolor_parity,
 						bgcolor_unraid,
 						bgcolor_cache,
 						bgcolor_others,
