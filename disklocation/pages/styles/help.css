@@ -1,0 +1,13 @@
+	dt {
+		float: none;
+		width: auto;
+		font-weight: bold;
+		white-space: normal;
+	}
+	dl {
+		line-height: 2.2rem;
+		white-space: normal;
+	}
+	dd {
+		white-space: normal;
+	}
