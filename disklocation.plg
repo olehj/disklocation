@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.02.03">
+<!ENTITY version          "2019.02.04">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY packageGIT       "https://github.com/olehj/disklocation.git">
 <!ENTITY branch           "master">
@@ -38,6 +38,10 @@
 </FILE>
 
 <CHANGES>
+###2019.02.04
+ - Commit #41 - BUG: Parity and cache did not save values into the database.
+ - Commit #40 - IMPROVEMENT: Javascript and style sources now wrapped with autov()
+
 ###2019.02.03
  - Commit #38 - BUG: Array checked before count()
  - Commit #37 - BUG: Disk allocations in config and info tab sorted by ID and not tray when "empty = 0"
