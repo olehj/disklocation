@@ -362,6 +362,11 @@
 							<input type="checkbox" name="displayinfo[formfactor]" value="1" <?php if($displayinfo["formfactor"]) echo "checked"; ?> />Form Factor
 						</td>
 					</tr>
+					<tr>
+						<td style="width: <?php echo $vi_width ?>px;" colspan="6">
+							<input type="checkbox" name="displayinfo[hiddentraycontents]" value="1" <?php if($displayinfo["hiddentraycontents"]) echo "checked"; ?> />Visible empty tray contents
+						</td>
+					</tr>
 				</table>
 			</td>
 		</tr>

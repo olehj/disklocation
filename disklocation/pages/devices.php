@@ -16,16 +16,18 @@
 		$tray_assign = ( empty($data["tray"]) ? $i : $data["tray"] );
 		
 		if(!$data) {
-			if($displayinfo["tray"]) {
+			if($displayinfo["tray"] && $displayinfo["hiddentraycontents"]) {
 				$empty_tray = "<b>" . $tray_assign . "</b>" . $insert_break . "";
 			}
-			if($displayinfo["leddiskop"]) {
+			if($displayinfo["leddiskop"] && $displayinfo["hiddentraycontents"]) {
 				$empty_leddiskop = "<span class=\"grey-off\" alt=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" title=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" />&#11044;</span>" . $insert_break . "";
 			}
-			if($displayinfo["ledsmart"]) {
+			if($displayinfo["ledsmart"] && $displayinfo["hiddentraycontents"]) {
 				$empty_ledsmart = "<span class=\"grey-off\" alt=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" title=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" />&#11044;</span>";
 			}
-		
+			if($displayinfo["hiddentraycontents"]) {
+				$empty_traytext = "<b>Available disk slot</b>";
+			}
 			$disklocation_page .= "
 				<div style=\"order: " . $tray_assign . "\">
 					<div class=\"flex-container\">
@@ -36,7 +38,7 @@
 								$empty_ledsmart
 							</div>
 							<div class=\"flex-container-middle\">
-								<b>Available disk slot</b>
+								$empty_traytext
 							</div>
 							<div class=\"flex-container-end\">
 								&nbsp;
