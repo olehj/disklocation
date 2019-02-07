@@ -16,16 +16,16 @@
 		$tray_assign = ( empty($data["tray"]) ? $i : $data["tray"] );
 		
 		if(!$data) {
-			if($displayinfo["tray"] && $displayinfo["hiddentraycontents"]) {
+			if($displayinfo["tray"] && !$displayinfo["hideemptycontents"]) {
 				$empty_tray = "<b>" . $tray_assign . "</b>" . $insert_break . "";
 			}
-			if($displayinfo["leddiskop"] && $displayinfo["hiddentraycontents"]) {
+			if($displayinfo["leddiskop"] && !$displayinfo["hideemptycontents"]) {
 				$empty_leddiskop = "<span class=\"grey-off\" alt=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" title=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" />&#11044;</span>" . $insert_break . "";
 			}
-			if($displayinfo["ledsmart"] && $displayinfo["hiddentraycontents"]) {
+			if($displayinfo["ledsmart"] && !$displayinfo["hideemptycontents"]) {
 				$empty_ledsmart = "<span class=\"grey-off\" alt=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" title=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" />&#11044;</span>";
 			}
-			if($displayinfo["hiddentraycontents"]) {
+			if(!$displayinfo["hideemptycontents"]) {
 				$empty_traytext = "<b>Available disk slot</b>";
 			}
 			$disklocation_page .= "
