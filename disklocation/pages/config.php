@@ -364,7 +364,7 @@
 					</tr>
 					<tr>
 						<td style="width: <?php echo $vi_width ?>px;" colspan="6">
-							<input type="checkbox" name="displayinfo[hiddentraycontents]" value="1" <?php if($displayinfo["hiddentraycontents"]) echo "checked"; ?> />Visible empty tray contents
+							<input type="checkbox" name="displayinfo[hideemptycontents]" value="1" <?php if($displayinfo["hideemptycontents"]) echo "checked"; ?> />Hide empty tray contents
 						</td>
 					</tr>
 				</table>
