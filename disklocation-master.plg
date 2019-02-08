@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.02.08">
+<!ENTITY version          "2019.02.09">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY packageGIT       "https://github.com/olehj/disklocation.git">
 <!ENTITY branch           "master">
@@ -38,7 +38,8 @@
 </FILE>
 
 <CHANGES>
-###2019.02.08
+###2019.02.09
+ - Commit #46 - MINOR ISSUE: Warnings related to empty variables, will now check before parsing them.
  - Commit #44 - BUG: Looses allocations when pulling out a drive, probably caused because it still existed in the "location" table. Now it gets deleted. Also checks for an older reinserted device and modifies the status in the "disks" table.
  - Commit #43 - FEATURE: Added a checkbox for hiding contents of the "empty" trays.
 
