@@ -84,24 +84,29 @@
 				$smart_serialnumber = ( isset($data["smart_serialnumber"]) ? "<span style=\"white-space: nowrap;\">(" . $data["smart_serialnumber"] . ")</span>" : null );
 			}
 			if($displayinfo["powerontime"]) {
-				$smart_powerontime = ( isset($data["smart_powerontime"]) ? "<span style=\"cursor: help;\" title=\"" . seconds_to_time($data["smart_powerontime"] * 60 * 60) . "\">" . $data["smart_powerontime"] . "h</span>" : null );
+				$smart_powerontime = ( empty($data["smart_powerontime"]) ? null : "<span style=\"cursor: help;\" title=\"" . seconds_to_time($data["smart_powerontime"] * 60 * 60) . "\">" . $data["smart_powerontime"] . "h</span>" );
 			}
 			if($displayinfo["loadcyclecount"]) {
 				$smart_loadcycle = ( empty($data["smart_loadcycle"]) ? null : $data["smart_loadcycle"] . "c" );
 			}
 			if($displayinfo["capacity"]) {
-				$smart_capacity = human_filesize($data["smart_capacity"], 1, true);
+				$smart_capacity = ( empty($data["smart_capacity"]) ? null : human_filesize($data["smart_capacity"], 1, true) );
 			}
 			if($displayinfo["temperature"]) {
-				switch($tempunit) {
-					case 'F':
-						$smart_temperature = round(temperature_conv($data["smart_temperature"], 'C', 'F')) . "°F";
-						break;
-					case 'K':
-						$smart_temperature = round(temperature_conv($data["smart_temperature"], 'C', 'K')) . "K";
-						break;
-					default:
-						$smart_temperature = $data["smart_temperature"] . "°C";
+				if($data["smart_temperature"]) {
+					switch($tempunit) {
+						case 'F':
+							$smart_temperature = round(temperature_conv($data["smart_temperature"], 'C', 'F')) . "°F";
+							break;
+						case 'K':
+							$smart_temperature = round(temperature_conv($data["smart_temperature"], 'C', 'K')) . "K";
+							break;
+						default:
+							$smart_temperature = $data["smart_temperature"] . "°C";
+					}
+				}
+				else {
+					$smart_temperature = '';
 				}
 			}
 			if($displayinfo["rotation"]) {

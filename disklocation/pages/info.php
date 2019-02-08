@@ -23,7 +23,8 @@
 		}
 		else {
 			$hash = $data["hash"];
-			$smart_powerontime = seconds_to_time($data["smart_powerontime"] * 60 * 60);
+			$smart_powerontime = ( empty($data["smart_powerontime"]) ? null : seconds_to_time($data["smart_powerontime"] * 60 * 60) );
+			$smart_capacity = ( empty($data["smart_capacity"]) ? null : human_filesize($data["smart_capacity"], 1, true) );
 			
 			switch($data["smart_rotation"]) {
 				case -1:
@@ -69,7 +70,7 @@
 					<td style=\"padding: 0 10px 0 10px;\">" . $data["model_family"] . "</td>
 					<td style=\"padding: 0 10px 0 10px;\">" . $data["model_name"] . "</td>
 					<td style=\"padding: 0 10px 0 10px;\">" . $data["smart_serialnumber"] . "</td>
-					<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . human_filesize($data["smart_capacity"], 1, true) . "</td>
+					<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $smart_capacity . "</td>
 					<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $smart_rotation . "</td>
 					<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $data["smart_formfactor"] . "</td>
 					<td style=\"padding: 0 10px 0 10px; text-align: center;\">" . ( empty($data["smart_status"]) ? "FAILED" : "PASSED" ) . "</td>
