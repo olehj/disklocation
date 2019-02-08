@@ -36,7 +36,8 @@
 		'loadcyclecount' => 1,
 		'capacity' => 1,
 		'rotation' => 1,
-		'formfactor' => 1
+		'formfactor' => 1,
+		'hideemptycontents' => 0
 	));
 
 	$sql_create_disks = "

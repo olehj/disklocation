@@ -16,16 +16,18 @@
 		$tray_assign = ( empty($data["tray"]) ? $i : $data["tray"] );
 		
 		if(!$data) {
-			if($displayinfo["tray"]) {
+			if($displayinfo["tray"] && !$displayinfo["hideemptycontents"]) {
 				$empty_tray = "<b>" . $tray_assign . "</b>" . $insert_break . "";
 			}
-			if($displayinfo["leddiskop"]) {
+			if($displayinfo["leddiskop"] && !$displayinfo["hideemptycontents"]) {
 				$empty_leddiskop = "<span class=\"grey-off\" alt=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" title=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" />&#11044;</span>" . $insert_break . "";
 			}
-			if($displayinfo["ledsmart"]) {
+			if($displayinfo["ledsmart"] && !$displayinfo["hideemptycontents"]) {
 				$empty_ledsmart = "<span class=\"grey-off\" alt=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" title=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" />&#11044;</span>";
 			}
-		
+			if(!$displayinfo["hideemptycontents"]) {
+				$empty_traytext = "<b>Available disk slot</b>";
+			}
 			$disklocation_page .= "
 				<div style=\"order: " . $tray_assign . "\">
 					<div class=\"flex-container\">
@@ -36,7 +38,7 @@
 								$empty_ledsmart
 							</div>
 							<div class=\"flex-container-middle\">
-								<b>Available disk slot</b>
+								$empty_traytext
 							</div>
 							<div class=\"flex-container-end\">
 								&nbsp;
@@ -82,24 +84,29 @@
 				$smart_serialnumber = ( isset($data["smart_serialnumber"]) ? "<span style=\"white-space: nowrap;\">(" . $data["smart_serialnumber"] . ")</span>" : null );
 			}
 			if($displayinfo["powerontime"]) {
-				$smart_powerontime = ( isset($data["smart_powerontime"]) ? "<span style=\"cursor: help;\" title=\"" . seconds_to_time($data["smart_powerontime"] * 60 * 60) . "\">" . $data["smart_powerontime"] . "h</span>" : null );
+				$smart_powerontime = ( empty($data["smart_powerontime"]) ? null : "<span style=\"cursor: help;\" title=\"" . seconds_to_time($data["smart_powerontime"] * 60 * 60) . "\">" . $data["smart_powerontime"] . "h</span>" );
 			}
 			if($displayinfo["loadcyclecount"]) {
 				$smart_loadcycle = ( empty($data["smart_loadcycle"]) ? null : $data["smart_loadcycle"] . "c" );
 			}
 			if($displayinfo["capacity"]) {
-				$smart_capacity = human_filesize($data["smart_capacity"], 1, true);
+				$smart_capacity = ( empty($data["smart_capacity"]) ? null : human_filesize($data["smart_capacity"], 1, true) );
 			}
 			if($displayinfo["temperature"]) {
-				switch($tempunit) {
-					case 'F':
-						$smart_temperature = round(temperature_conv($data["smart_temperature"], 'C', 'F')) . "°F";
-						break;
-					case 'K':
-						$smart_temperature = round(temperature_conv($data["smart_temperature"], 'C', 'K')) . "K";
-						break;
-					default:
-						$smart_temperature = $data["smart_temperature"] . "°C";
+				if($data["smart_temperature"]) {
+					switch($tempunit) {
+						case 'F':
+							$smart_temperature = round(temperature_conv($data["smart_temperature"], 'C', 'F')) . "°F";
+							break;
+						case 'K':
+							$smart_temperature = round(temperature_conv($data["smart_temperature"], 'C', 'K')) . "K";
+							break;
+						default:
+							$smart_temperature = $data["smart_temperature"] . "°C";
+					}
+				}
+				else {
+					$smart_temperature = '';
 				}
 			}
 			if($displayinfo["rotation"]) {

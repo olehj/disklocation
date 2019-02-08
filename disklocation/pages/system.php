@@ -253,7 +253,45 @@
 					status = 'r'
 				WHERE hash = '" . $old_hash[$i] . "'
 				;
+				DELETE FROM location WHERE hash = '" . $old_hash[$i] . "';
 			";
+		}
+		
+		$ret = $db->exec($sql_status);
+		if(!$ret) {
+			return $db->lastErrorMsg();
+		}
+		else {
+			return $old_hash;
+		}
+	}
+	
+	function find_and_unset_reinserted_devices_status($db, $arr_hash) {
+		$sql = "SELECT hash FROM disks WHERE status = 'r' OR status = 'd';";
+		$results = $db->query($sql);
+		$sql_hash = array();
+		while($res = $results->fetchArray(1)) {
+			$sql_hash[] = $res["hash"];
+		}
+		
+		$arr_hash = array_filter($arr_hash);
+		$sql_hash = array_filter($sql_hash);
+		
+		sort($arr_hash);
+		sort($sql_hash);
+		
+		$results = array_diff($sql_hash, $arr_hash);
+		$old_hash = array_values($results);
+		
+		for($i=0; $i < count($old_hash); ++$i) {
+			$sql_status .= "
+				UPDATE disks SET
+					status = NULL
+				WHERE hash = '" . $old_hash[$i] . "'
+				;
+				DELETE FROM location WHERE hash = '" . $old_hash[$i] . "';
+			";
+			// we run delete again for location just in case it exists old traces of early devices
 		}
 		
 		$ret = $db->exec($sql_status);
@@ -629,9 +667,11 @@
 		$i++;
 	}
 	
-	// get disk info for "Information" and "Configuration"
+	// check the existens of devices
+	find_and_set_removed_devices_status($db, $deviceid); 		// tags removed devices 'r', delete device from location
+	find_and_unset_reinserted_devices_status($db, $deviceid);	// tags old existing devices with 'null', delete device from location just in case it for whatever reason it already exists.
 	
-	find_and_set_removed_devices_status($db, $deviceid);
+	// get disk info for "Information" and "Configuration"
 	
 	$total_trays = ( empty($grid_trays) ? $grid_columns * $grid_rows : $grid_trays );
 	$get_empty_trays = get_tray_location($db, "empty", 1);
