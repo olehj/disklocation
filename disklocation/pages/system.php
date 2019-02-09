@@ -585,7 +585,7 @@
 			$deviceid[$i] = hash('sha256', $smart_array["model_name"] . $smart_array["serial_number"]);
 			
 			$sql = "
-				INSERT INTO 
+				INSERT INTO
 					disks(
 						device,
 						devicenode,
@@ -630,7 +630,7 @@
 						smart_powerontime='" . $smart_array["power_on_time"]["hours"] . "',
 						smart_loadcycle='" . $smart_loadcycle_find . "',
 						smart_rotation='" . $rotation_rate . "'
-				;
+					WHERE hash='" . $deviceid[$i] . "';
 			";
 			
 			if(is_array($unraid_disklog["" . str_replace(" ", "_", $smart_array["model_name"]) . "_" . str_replace(" ", "_", $smart_array["serial_number"]) . ""])) {
