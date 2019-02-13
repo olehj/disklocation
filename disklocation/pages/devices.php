@@ -92,6 +92,28 @@
 			if($displayinfo["capacity"]) {
 				$smart_capacity = ( empty($data["smart_capacity"]) ? null : human_filesize($data["smart_capacity"], 1, true) );
 			}
+			if($displayinfo["warranty"] && ($data["purchased"] && ($data["warranty"] || $data["warranty_date"]))) {
+				$warranty_start = strtotime($data["purchased"]);
+				
+				if($warranty_field == "u") {
+					$warranty_end = strtotime("" . $data["purchased"] . " + " . $data["warranty"] . " month");
+				}
+				else {
+					$warranty_end = strtotime($data["warranty_date"]);
+				}
+				$warranty_left = "";
+				$warranty_expire_left = $warranty_end-date("U");
+				if($warranty_expire_left > 0) {
+					$warranty_left = seconds_to_time($warranty_expire_left);
+				}
+				else {
+					$warranty_left = "EXPIRED!";
+				}
+			}
+			}
+			if($displayinfo["comment"]) {
+				$device_comment = ( empty($data["comment"]) ? null : stripslashes(htmlspecialchars($data["comment"])), 1, true );
+			}
 			if($displayinfo["temperature"]) {
 				if($data["smart_temperature"]) {
 					switch($tempunit) {
@@ -199,11 +221,15 @@
 			
 			$add_break_1 = "";
 			$add_break_2 = "";
+			$add_break_3 = "";
 			if($unraid_dev || $device_page || $devicenode_page || $luname_page) {
 				$add_break_1 = "<br />";
 			}
 			if($smart_modelfamily || $smart_modelname || $smart_serialnumber) {
 				$add_break_2 = "<br />";
+			}
+			if($smart_temperature || $smart_powerontime || $smart_loadcycle || $smart_capacity || $smart_rotation || $smart_formfactor) {
+				$add_break_3 = "<br />";
 			}
 			
 			$disklocation_page .= "
@@ -219,7 +245,8 @@
 							<div class=\"flex-container-middle\">
 								$unraid_dev $device_page $devicenode_page $luname_page $add_break_1
 								$smart_modelfamily $smart_modelname $smart_serialnumber $add_break_2
-								$smart_temperature $smart_powerontime $smart_loadcycle $smart_capacity $smart_rotation $smart_formfactor
+								$smart_temperature $smart_powerontime $smart_loadcycle $smart_capacity $smart_rotation $smart_formfactor $add_break_3
+								$warranty_left $device_comment
 							</div>
 							<!--
 							<div class=\"flex-container-end\">
