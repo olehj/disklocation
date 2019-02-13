@@ -112,7 +112,7 @@
 			}
 			}
 			if($displayinfo["comment"]) {
-				$device_comment = ( empty($data["comment"]) ? null : stripslashes(htmlspecialchars($data["comment"])), 1, true );
+				$device_comment = ( empty($data["comment"]) ? null : stripslashes(htmlspecialchars($data["comment"])) );
 			}
 			if($displayinfo["temperature"]) {
 				if($data["smart_temperature"]) {
