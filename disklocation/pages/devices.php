@@ -110,7 +110,6 @@
 					$warranty_left = "EXPIRED!";
 				}
 			}
-			}
 			if($displayinfo["comment"]) {
 				$device_comment = ( empty($data["comment"]) ? null : stripslashes(htmlspecialchars($data["comment"])) );
 			}
