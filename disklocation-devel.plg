@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.02.14-dev">
+<!ENTITY version          "2019.02.14f-dev">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY packageGIT       "https://github.com/olehj/disklocation.git">
 <!ENTITY branch           "devel">
@@ -27,12 +27,12 @@
 	 support="&pluginsupportURL;"
 >
 
-<FILE Name="/boot/packages/&smartmontools;" Run="upgradepkg --install-new" Max="6.6.6">
+<FILE Name="/boot/packages/&smartmontools;" Run="upgradepkg --install-new" Max="6.6.9">
 <URL>https://mirrors.slackware.com/slackware/slackware64-current/slackware64/a/&smartmontools;</URL>
 <MD5>&smartmontoolsMD5;</MD5>
 </FILE>
 
-<FILE Name="/boot/packages/&gittools;" Run="upgradepkg --install-new" Max="6.6.6">
+<FILE Name="/boot/packages/&gittools;" Run="upgradepkg --install-new" Max="6.6.9">
 <URL>http://mirrors.slackware.com/slackware/slackware64-14.2/patches/packages/&gittools;</URL>
 <MD5>&gittoolsMD5;</MD5>
 </FILE>

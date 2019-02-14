@@ -105,14 +105,15 @@
 				$warranty_expire_left = $warranty_end-date("U");
 				if($warranty_expire_left > 0) {
 					$warranty_left = seconds_to_time($warranty_expire_left);
+					$warranty_left_days = floor($warranty_expire_left / 60 / 60 / 24);
+					$warranty_page = "<span style=\"cursor: help;\" title=\"Warranty left: " . $warranty_left . "\">WTY:" . $warranty_left_days . "d</span>";
 				}
 				else {
-					$warranty_left = "EXPIRED!";
+					$warranty_page = "<span style=\"cursor: help;\" title=\"Warranty has expired\">WTY:expired</span>";
 				}
 			}
-			}
 			if($displayinfo["comment"]) {
-				$device_comment = ( empty($data["comment"]) ? null : stripslashes(htmlspecialchars($data["comment"])), 1, true );
+				$device_comment = ( empty($data["comment"]) ? null : stripslashes(htmlspecialchars($data["comment"])) );
 			}
 			if($displayinfo["temperature"]) {
 				if($data["smart_temperature"]) {
@@ -228,7 +229,7 @@
 			if($smart_modelfamily || $smart_modelname || $smart_serialnumber) {
 				$add_break_2 = "<br />";
 			}
-			if($smart_temperature || $smart_powerontime || $smart_loadcycle || $smart_capacity || $smart_rotation || $smart_formfactor) {
+			if($smart_temperature || $smart_powerontime || $smart_loadcycle || $smart_capacity || $smart_rotation || $smart_formfactor || $warranty_page) {
 				$add_break_3 = "<br />";
 			}
 			
@@ -245,8 +246,8 @@
 							<div class=\"flex-container-middle\">
 								$unraid_dev $device_page $devicenode_page $luname_page $add_break_1
 								$smart_modelfamily $smart_modelname $smart_serialnumber $add_break_2
-								$smart_temperature $smart_powerontime $smart_loadcycle $smart_capacity $smart_rotation $smart_formfactor $add_break_3
-								$warranty_left $device_comment
+								$smart_temperature $smart_powerontime $smart_loadcycle $smart_capacity $smart_rotation $smart_formfactor $warranty_page $add_break_3
+								$device_comment
 							</div>
 							<!--
 							<div class=\"flex-container-end\">
