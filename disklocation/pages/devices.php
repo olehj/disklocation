@@ -106,10 +106,10 @@
 				if($warranty_expire_left > 0) {
 					$warranty_left = seconds_to_time($warranty_expire_left);
 					$warranty_left_days = floor($warranty_expire_left / 60 / 60 / 24);
-					$warranty_page = "WTY:<span style=\"cursor: help;\" title=\"Warranty left: " . $warranty_left . "\">" . $warranty_left_days . "</span>d";
+					$warranty_page = "<span style=\"cursor: help;\" title=\"Warranty left: " . $warranty_left . "\">WTY:" . $warranty_left_days . "d</span>";
 				}
 				else {
-					$warranty_page = "WTY:expired";
+					$warranty_page = "<span style=\"cursor: help;\" title=\"Warranty has expired\">WTY:expired</span>";
 				}
 			}
 			if($displayinfo["comment"]) {
