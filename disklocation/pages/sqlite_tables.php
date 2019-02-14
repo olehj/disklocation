@@ -37,7 +37,7 @@
 		'capacity' => 1,
 		'rotation' => 1,
 		'formfactor' => 1,
-		'warranty' => 0,
+		'warranty' => 1,
 		'comment' => 0,
 		'hideemptycontents' => 0
 	));
