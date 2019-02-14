@@ -361,11 +361,11 @@
 						<td style="width: <?php echo $vi_width ?>px;">
 							<input type="checkbox" name="displayinfo[formfactor]" value="1" <?php if($displayinfo["formfactor"]) echo "checked"; ?> />Form Factor
 						</td>
-					</tr>
-					<tr>
 						<td style="width: <?php echo $vi_width ?>px;">
 							<input type="checkbox" name="displayinfo[warranty]" value="1" <?php if($displayinfo["warranty"]) echo "checked"; ?> />Warranty Left
 						</td>
+					</tr>
+					<tr>
 						<td style="width: <?php echo $vi_width ?>px;">
 							<input type="checkbox" name="displayinfo[comment]" value="1" <?php if($displayinfo["comment"]) echo "checked"; ?> />Comment
 						</td>
