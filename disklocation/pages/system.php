@@ -82,17 +82,22 @@
 	}
 	
 	function human_filesize($bytes, $decimals = 2, $unit = '') {
-		if(!$unit) {
-			$size = array('iB','kiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB');
-			$bytefactor = 1024;
+		if($bytes) {
+			if(!$unit) {
+				$size = array('iB','kiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB');
+				$bytefactor = 1024;
+			}
+			else{ 
+				$size = array('B','kB','MB','GB','TB','PB','EB','ZB','YB');
+				$bytefactor = 1000;
+			}
+			
+			$factor = floor((strlen($bytes) - 1) / 3);
+			return sprintf("%.{$decimals}f", $bytes / pow($bytefactor, $factor)) . @$size[$factor];
 		}
-		else{ 
-			$size = array('B','kB','MB','GB','TB','PB','EB','ZB','YB');
-			$bytefactor = 1000;
+		else {
+			return false;
 		}
-		
-		$factor = floor((strlen($bytes) - 1) / 3);
-		return sprintf("%.{$decimals}f", $bytes / pow($bytefactor, $factor)) . @$size[$factor];
 	}
 	
 	function temperature_conv($float, $input, $output) {
