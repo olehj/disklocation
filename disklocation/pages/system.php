@@ -5,12 +5,12 @@
 	$get_page_info = parse_ini_file("/usr/local/emhttp/plugins/disklocation/disklocation.page");
 	
 	// define constants
-	define('DISKLOCATION_DB', "/boot/config/plugins/disklocation/disklocation.sqlite");
-	define('DISKINFORMATION', '/var/local/emhttp/disks.ini');
-	define('DISKLOGFILE', '/boot/config/disk.log');
-	define('DISKLOCATION_VERSION', $get_page_info["Version"]);
-	define('DISKLOCATION_URL', "/Settings/disklocation");
-	define('DISKLOCATION_PATH', "/plugins/disklocation");
+	define("DISKLOCATION_DB", "/boot/config/plugins/disklocation/disklocation.sqlite");
+	define("DISKINFORMATION", "/var/local/emhttp/disks.ini");
+	define("DISKLOGFILE", "/boot/config/disk.log");
+	define("DISKLOCATION_VERSION", $get_page_info["Version"]);
+	define("DISKLOCATION_URL", "/Settings/disklocation");
+	define("DISKLOCATION_PATH", "/plugins/disklocation");
 	
 	$disklocation_error = array();
 	
