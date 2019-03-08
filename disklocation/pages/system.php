@@ -313,11 +313,13 @@
 	}
 	
 	function recursive_array_search($needle,$haystack) {
-		/* from php.net: buddel */
-		foreach($haystack as $key=>$value) {
-			$current_key=$key;
-			if($needle===$value OR (is_array($value) && recursive_array_search($needle,$value) !== false)) {
-				return $current_key;
+		if(is_array($haystack)) {
+			/* from php.net: buddel */
+			foreach($haystack as $key=>$value) {
+				$current_key=$key;
+				if($needle===$value OR (is_array($value) && recursive_array_search($needle,$value) !== false)) {
+					return $current_key;
+				}
 			}
 		}
 		return false;
