@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.03.05">
+<!ENTITY version          "2019.03.08">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY packageGIT       "https://github.com/olehj/disklocation.git">
 <!ENTITY branch           "master">
@@ -39,6 +39,9 @@
 </FILE>
 
 <CHANGES>
+###2019.03.08
+ - Commit #58 - BUG: Invalid argument supplied for foreach(). Check if it is an array before searching in it, else default to false.
+
 ###2019.03.05
  - Updated the installer script to accept installations for Unraid 6.6.0 and above as earlier version does not support UPSERT in SQLite.
 
