@@ -64,6 +64,7 @@
 			$devicenode = $data["devicenode"];
 			$luname = $data["luname"];
 			$hash = $data["hash"];
+			$warranty_page = "";
 			
 			if($displayinfo["path"]) {
 				$device_page = $device;
@@ -94,6 +95,7 @@
 			}
 			if($displayinfo["warranty"] && ($data["purchased"] && ($data["warranty"] || $data["warranty_date"]))) {
 				$warranty_start = strtotime($data["purchased"]);
+				$warranty_end = "";
 				
 				if($warranty_field == "u") {
 					$warranty_end = strtotime("" . $data["purchased"] . " + " . $data["warranty"] . " month");
