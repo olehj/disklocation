@@ -102,7 +102,7 @@
 					$warranty_end = strtotime($data["warranty_date"]);
 				}
 				$warranty_left = "";
-				$warranty_left_days = "";
+				$warranty_page = "";
 				$warranty_expire_left = $warranty_end-date("U");
 				if($warranty_expire_left > 0) {
 					$warranty_left = seconds_to_time($warranty_expire_left);
