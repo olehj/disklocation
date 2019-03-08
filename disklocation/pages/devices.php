@@ -64,6 +64,7 @@
 			$devicenode = $data["devicenode"];
 			$luname = $data["luname"];
 			$hash = $data["hash"];
+			$warranty_page = "";
 			
 			if($displayinfo["path"]) {
 				$device_page = $device;
@@ -94,6 +95,7 @@
 			}
 			if($displayinfo["warranty"] && ($data["purchased"] && ($data["warranty"] || $data["warranty_date"]))) {
 				$warranty_start = strtotime($data["purchased"]);
+				$warranty_end = "";
 				
 				if($warranty_field == "u") {
 					$warranty_end = strtotime("" . $data["purchased"] . " + " . $data["warranty"] . " month");
@@ -102,7 +104,6 @@
 					$warranty_end = strtotime($data["warranty_date"]);
 				}
 				$warranty_left = "";
-				$warranty_page = "";
 				$warranty_expire_left = $warranty_end-date("U");
 				if($warranty_expire_left > 0) {
 					$warranty_left = seconds_to_time($warranty_expire_left);
