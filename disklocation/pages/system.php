@@ -582,6 +582,7 @@
 		$tok = strtok(" \t");
 		$lsscsi_devicenodefp[$i] = str_replace("-", "", $tok);		// get full path to device: "/dev/sda"
 		$lsscsi_devicenode[$i] = trim(str_replace("/dev/", "", $tok));	// get only the node name: "sda"
+		tok = strtok(" \t");
 		$lsscsi_devicenodesg[$i] = trim($tok);			// get the full path to SCSI Generic device node: "/dev/sg1"
 
 
