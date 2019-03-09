@@ -271,40 +271,32 @@
 		}
 	}
 	
-	function find_and_unset_reinserted_devices_status($db, $arr_hash) {
-		$sql = "SELECT hash FROM disks WHERE status = 'r' OR status = 'd';";
+	function find_and_unset_reinserted_devices_status($db, $hash) {
+		$sql = "SELECT hash FROM location WHERE hash = '" . $hash . "';";
 		$results = $db->query($sql);
-		$sql_hash = array();
+		
 		while($res = $results->fetchArray(1)) {
-			$sql_hash[] = $res["hash"];
+			$location = $res["hash"];
 		}
 		
-		$arr_hash = array_filter($arr_hash);
-		$sql_hash = array_filter($sql_hash);
-		
-		sort($arr_hash);
-		sort($sql_hash);
-		
-		$results = array_diff($sql_hash, $arr_hash);
-		$old_hash = array_values($results);
-		
-		for($i=0; $i < count($old_hash); ++$i) {
+		if(empty($location)) {
 			$sql_status .= "
 				UPDATE disks SET
-					status = NULL
-				WHERE hash = '" . $old_hash[$i] . "'
+					status = 'h'
+				WHERE hash = '" . $hash . "'
 				;
-				DELETE FROM location WHERE hash = '" . $old_hash[$i] . "';
 			";
-			// we run delete again for location just in case it exists old traces of early devices
-		}
-		
-		$ret = $db->exec($sql_status);
-		if(!$ret) {
-			return $db->lastErrorMsg();
+			
+			$ret = $db->exec($sql_status);
+			if(!$ret) {
+				return $db->lastErrorMsg();
+			}
+			else {
+				return $hash;
+			}
 		}
 		else {
-			return $old_hash;
+			return false;
 		}
 	}
 	
@@ -564,6 +556,7 @@
 	
 	$i=0;
 	while($i < count($lsscsi_arr)) {
+		/*
 		list($device[], $type[], $luname[], $devicenodefp[], $scsigenericdevicenode[]) = preg_split('/\s+/', $lsscsi_arr[$i]);
 		$lsscsi_device[$i] = preg_replace("/^\[(.*)\]$/", "$1", $device[$i]);		// get the device address: "1:0:0:0"
 		$lsscsi_type[$i] = trim($type[$i]);						// get the type: "disk" / "process" (not in use for this script)
@@ -571,6 +564,21 @@
 		$lsscsi_devicenodefp[$i] = str_replace("-", "", $devicenodefp[$i]);		// get full path to device: "/dev/sda"
 		$lsscsi_devicenode[$i] = trim(str_replace("/dev/", "", $devicenodefp[$i]));	// get only the node name: "sda"
 		$lsscsi_devicenodesg[$i] = trim($scsigenericdevicenode[$i]);			// get the full path to SCSI Generic device node: "/dev/sg1"
+		*/
+		$pattern_device = "\[(.*)\]";					// $1
+		$pattern_type = "\s+(\w+)";					// $2
+		$pattern_luname = "\s+(.*?)[-|\/]";				// $3
+		$pattern_devicenodefp = "(dev[\/]([h|s]d[a-z]{1,}))?";		// $5
+		$pattern_scsigenericdevicenode = "\s+([sg[0-9]{1,})?";		// $7
+		
+		list($device[], $type[], $luname[], $devicenodefp[], $scsigenericdevicenode[]) = 
+			explode("|", preg_replace("/^" . $pattern_device . "" . $pattern_type . "" . $pattern_luname . "" . $pattern_devicenodefp . "" . $pattern_scsigenericdevicenode . "/iu", "$1|$2|$3|$5|$7", $lsscsi_arr[$i]));
+		
+		$lsscsi_device[$i] = trim($device[$i]);
+		$lsscsi_type[$i] = trim($type[$i]);
+		$lsscsi_luname[$i] = str_replace(" ", "", str_replace("none", "", trim($luname[$i])));
+		$lsscsi_devicenode[$i] = str_replace("-", "", trim($devicenodefp[$i]));
+		$lsscsi_devicenodesg[$i] = trim($scsigenericdevicenode[$i]);
 		
 		if($lsscsi_device[$i] && $lsscsi_luname[$i]) { // only care about real hard drives
 			$smart_cmd[$i] = shell_exec("smartctl -x --json /dev/bsg/$lsscsi_device[$i]");	// get all SMART data for this device, we grab it ourselves to get all drives also attached to hardware raid cards.
@@ -590,6 +598,8 @@
 			
 			$rotation_rate = ( recursive_array_search("Solid State Device Statistics", $smart_array) ? -1 : $smart_array["rotation_rate"] );
 			$deviceid[$i] = hash('sha256', $smart_array["model_name"] . $smart_array["serial_number"]);
+			
+			find_and_unset_reinserted_devices_status($db, $deviceid[$i]);	// tags old existing devices with 'null', delete device from location just in case it for whatever reason it already exists.
 			
 			$sql = "
 				INSERT INTO
@@ -676,7 +686,6 @@
 	
 	// check the existens of devices
 	find_and_set_removed_devices_status($db, $deviceid); 		// tags removed devices 'r', delete device from location
-	find_and_unset_reinserted_devices_status($db, $deviceid);	// tags old existing devices with 'null', delete device from location just in case it for whatever reason it already exists.
 	
 	// get disk info for "Information" and "Configuration"
 	
