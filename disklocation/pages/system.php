@@ -1,9 +1,9 @@
 <?php
 	// Set warning level
 	error_reporting(E_ERROR | E_WARNING | E_PARSE);
-	
+
 	$get_page_info = parse_ini_file("/usr/local/emhttp/plugins/disklocation/disklocation.page");
-	
+
 	// define constants
 	define("DISKLOCATION_DB", "/boot/config/plugins/disklocation/disklocation.sqlite");
 	define("DISKINFORMATION", "/var/local/emhttp/disks.ini");
@@ -11,22 +11,22 @@
 	define("DISKLOCATION_VERSION", $get_page_info["Version"]);
 	define("DISKLOCATION_URL", "/Settings/disklocation");
 	define("DISKLOCATION_PATH", "/plugins/disklocation");
-	
+
 	$disklocation_error = array();
-	
+
 	// open and/or create database
 	class DLDB extends SQLite3 {
 		function __construct() {
 			$this->open(DISKLOCATION_DB);
 		}
 	}
-	
+
 	$db = new DLDB();
-	
+
 	if(!$db) {
 		echo $db->lastErrorMsg();
 	}
-	
+
 	if($_POST["delete_x"] && $_POST["delete_y"]) {
 		$sql = "
 			UPDATE disks SET
@@ -34,21 +34,21 @@
 			WHERE luname = '" . $_POST["luname"] . "'
 			;
 		";
-		
+
 		$ret = $db->exec($sql);
 		if(!$ret) {
 			echo $db->lastErrorMsg();
 		}
-		
+
 		$db->close();
-		
+
 		//header("Location: " . DISKLOCATION_URL);
 		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
-	
+
 	require_once("sqlite_tables.php");
-	
+
 	function is_tray_allocated($db, $tray) {
 		$sql = "SELECT hash FROM location WHERE tray = '" . $tray . "'";
 		$results = $db->query($sql);
@@ -56,7 +56,7 @@
 			return ( isset($data["hash"]) ? $data["hash"] : false);
 		}
 	}
-	
+
 	function get_tray_location($db, $hash, $empty = '') {
 		$sql = "SELECT * FROM location WHERE hash = '" . $hash . "'";
 		$results = $db->query($sql);
@@ -73,25 +73,25 @@
 			}
 		}
 	}
-	
+
 	function count_table_rows($db, $table) {
 		$sql = "SELECT COUNT(*) FROM " . $table . ";";
 		$results = $db->query($sql);
 		$data = $results->fetchArray(SQLITE3_NUM);
 		return ( isset($data[0]) ? $data[0] : 0 );
 	}
-	
+
 	function human_filesize($bytes, $decimals = 2, $unit = '') {
 		if($bytes) {
 			if(!$unit) {
 				$size = array('iB','kiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB');
 				$bytefactor = 1024;
 			}
-			else{ 
+			else{
 				$size = array('B','kB','MB','GB','TB','PB','EB','ZB','YB');
 				$bytefactor = 1000;
 			}
-			
+
 			$factor = floor((strlen($bytes) - 1) / 3);
 			return sprintf("%.{$decimals}f", $bytes / pow($bytefactor, $factor)) . @$size[$factor];
 		}
@@ -99,13 +99,13 @@
 			return false;
 		}
 	}
-	
+
 	function temperature_conv($float, $input, $output) {
 		// temperature_conv(floatnumber, F, C) : from F to C
-		
+
 		// Celcius to Farenheit, [F]=[C]*9/5+32 | [C]=5/9*([F]-32)
 		// Celcius to Kelvin, 0C = 273.15K
-			
+
 		$result = 0;
 		if($input != $output) {
 			if($output == "C") {
@@ -136,7 +136,7 @@
 		else {
 			$result = $float;
 		}
-		
+
 		if($result) {
 			return $result;
 		}
@@ -144,7 +144,7 @@
 			return false;
 		}
 	}
-	
+
 	function get_unraid_disk_status($color, $status, $type = '') {
 		if($type == "cache") {
 			$type = 1; // Cache drive(s)
@@ -152,7 +152,7 @@
 		else {
 			$type = '';
 		}
-		
+
 		$arr_color = array(
 			// color	=> first digit
 			"grey-off"	=> 0,
@@ -166,7 +166,7 @@
 			"blue-on"	=> 8,
 			"blue-blink"	=> 9
 		);
-		
+
 		$arr_status = array(
 			// color	=> second digit
 			"DISK_NP"		=> 0,
@@ -180,7 +180,7 @@
 			"DISK_NEW"		=> 8,
 			"DISK_OK_NP"		=> 9
 		);
-		
+
 		$arr_messages = array(
 			"00" => "Disk unavailable or unconfigured",
 			"11" => "Disk valid: Active or idle",
@@ -204,10 +204,10 @@
 			"188" => "New disk: Active or idle",
 			"198" => "New disk: Standby"
 		);
-		
+
 		return ( isset($arr_messages["" . $type . "" . $arr_color[$color] . "" . $arr_status[$status] . ""]) ? $arr_messages["" . $type . "" . $arr_color[$color] . "" . $arr_status[$status] . ""] : false );
 	}
-	
+
 	function seconds_to_time($seconds, $array = '') {
 		$seconds = (int)$seconds;
 		$dateTime = new DateTime();
@@ -234,7 +234,7 @@
 			return implode(', ', $result);
 		}
 	}
-	
+
 	function find_and_set_removed_devices_status($db, $arr_hash) {
 		$sql = "SELECT hash FROM disks WHERE status IS NULL;";
 		$results = $db->query($sql);
@@ -242,16 +242,16 @@
 		while($res = $results->fetchArray(1)) {
 			$sql_hash[] = $res["hash"];
 		}
-		
+
 		$arr_hash = array_filter($arr_hash);
 		$sql_hash = array_filter($sql_hash);
-		
+
 		sort($arr_hash);
 		sort($sql_hash);
-		
+
 		$results = array_diff($sql_hash, $arr_hash);
 		$old_hash = array_values($results);
-		
+
 		for($i=0; $i < count($old_hash); ++$i) {
 			$sql_status .= "
 				UPDATE disks SET
@@ -261,7 +261,7 @@
 				DELETE FROM location WHERE hash = '" . $old_hash[$i] . "';
 			";
 		}
-		
+
 		$ret = $db->exec($sql_status);
 		if(!$ret) {
 			return $db->lastErrorMsg();
@@ -270,7 +270,7 @@
 			return $old_hash;
 		}
 	}
-	
+
 	function find_and_unset_reinserted_devices_status($db, $arr_hash) {
 		$sql = "SELECT hash FROM disks WHERE status = 'r' OR status = 'd';";
 		$results = $db->query($sql);
@@ -278,16 +278,16 @@
 		while($res = $results->fetchArray(1)) {
 			$sql_hash[] = $res["hash"];
 		}
-		
+
 		$arr_hash = array_filter($arr_hash);
 		$sql_hash = array_filter($sql_hash);
-		
+
 		sort($arr_hash);
 		sort($sql_hash);
-		
+
 		$results = array_diff($sql_hash, $arr_hash);
 		$old_hash = array_values($results);
-		
+
 		for($i=0; $i < count($old_hash); ++$i) {
 			$sql_status .= "
 				UPDATE disks SET
@@ -298,7 +298,7 @@
 			";
 			// we run delete again for location just in case it exists old traces of early devices
 		}
-		
+
 		$ret = $db->exec($sql_status);
 		if(!$ret) {
 			return $db->lastErrorMsg();
@@ -307,11 +307,11 @@
 			return $old_hash;
 		}
 	}
-	
+
 	function array_duplicates($array) {
 		return count(array_filter($array)) !== count(array_unique(array_filter($array)));
 	}
-	
+
 	function recursive_array_search($needle,$haystack) {
 		if(is_array($haystack)) {
 			/* from php.net: buddel */
@@ -324,16 +324,16 @@
 		}
 		return false;
 	}
-	
+
 	if($_POST["save_settings"]) {
 		// trays
 		$sql = "";
 		$post_drives = $_POST["drives"];
 		$post_empty = $_POST["empty"];
 		$post_info = json_encode($_POST["displayinfo"]);
-		
+
 		if(array_duplicates($post_drives)) { $disklocation_error[] = "Duplicate tray assignment found, be sure to assign trays in a unique order."; }
-		
+
 		// settings
 		if(!preg_match("/[0-9]{1,5}/", $_POST["smart_exec_delay"])) { $disklocation_error[] = "SMART execution delay missing or invalid number."; }
 		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_parity"])) { $disklocation_error[] = "Background color for \"Parity\" invalid."; } else { $_POST["bgcolor_parity"] = str_replace("#", "", $_POST["bgcolor_parity"]); }
@@ -350,7 +350,7 @@
 		if(!preg_match("/[0-9]{1,3}/", $_POST["tray_height"])) { $disklocation_error[] = "Tray's smallest side outside limits or invalid number entered."; }
 		if(!preg_match("/(u|m)/", $_POST["warranty_field"])) { $disklocation_error[] = "Warranty field is invalid."; }
 		if(!preg_match("/(C|F|K)/", $_POST["tempunit"])) { $disklocation_error[] = "Temperature unit is invalid."; }
-		
+
 		if(empty($disklocation_error)) {
 			$keys_drives = array_keys($post_drives);
 			for($i=0; $i < count($keys_drives); ++$i) {
@@ -384,18 +384,18 @@
 					";
 				}
 			}
-			
+
 			$ret = $db->exec($sql);
 			if(!$ret) {
 				echo $db->lastErrorMsg();
 			}
-			
+
 			$sql = "";
-			
+
 			$sql .= "DELETE FROM location WHERE hash = 'empty';";
-			
+
 			for($i=0; $i < count($post_empty); ++$i) {
-				if($post_empty[$i] > $_POST["grid_trays"]) { 
+				if($post_empty[$i] > $_POST["grid_trays"]) {
 					$i = count($post_empty);
 				}
 				else {
@@ -405,7 +405,7 @@
 				}
 			}
 			$sql .= "
-				INSERT INTO 
+				INSERT INTO
 					location(
 						hash,
 						empty
@@ -456,7 +456,7 @@
 					)
 				;
 			";
-			
+
 			for($i=0; $i < count($keys_drives); ++$i) {
 				$sql .= "
 					UPDATE disks SET
@@ -474,68 +474,68 @@
 					;
 				";
 			}
-			
+
 			$ret = $db->exec($sql);
 			if(!$ret) {
 				echo $db->lastErrorMsg();
 			}
-			
+
 			//$post_empty_arr = explode(",", $post_empty_sql);
-			
+
 			//$sql = "SELECT MIN(NULLIF(CAST(tray as INTEGER),0)) AS tray_min , MAX(CAST(tray as INTEGER)) AS tray_max FROM location;";
 			$sql = "SELECT MIN(CAST(tray as INTEGER)) AS tray_min , MAX(CAST(tray as INTEGER)) AS tray_max FROM location;";
 			$results = $db->query($sql);
-			
+
 			while($data = $results->fetchArray(1)) {
 				extract($data);
 			}
-			
+
 			for($i = $tray_min; $i <= $tray_max; ++$i) {
 				if(!is_tray_allocated($db, $i)) {
 					$empty_results .= "" . $i . ",";
 				}
 			}
-			
+
 			$sql = "
 				UPDATE location SET
 					empty = '" . $empty_results . "'
 				WHERE hash = 'empty'
 				;
 			";
-			
+
 			$ret = $db->exec($sql);
 			if(!$ret) {
 				echo $db->lastErrorMsg();
 			}
 		}
 	}
-	
+
 	// get settings from DB as $var
-	
+
 	$sql = "SELECT * FROM settings";
 	$results = $db->query($sql);
-	
+
 	while($data = $results->fetchArray(1)) {
 		extract($data);
 	}
-	
+
 	$displayinfo = json_decode($displayinfo, true);
-	
+
 	// get all attached SCSI drives - usually should grab all local drives available
 	$lsscsi_cmd = shell_exec("lsscsi -u -g");
 	$lsscsi_arr = explode(PHP_EOL, $lsscsi_cmd);
-	
+
 	// get configured Unraid disks
 	if(is_file(DISKINFORMATION)) {
 		$unraid_disks_import = parse_ini_file(DISKINFORMATION, true);
 		$unraid_disks = array_values($unraid_disks_import);
 	}
-	
+
 	// get disk logs
 	if(is_file(DISKLOGFILE)) {
 		$unraid_disklog = parse_ini_file(DISKLOGFILE, true);
 	}
-	
+
 	// modify the array to suit our needs
 	$unraid_array = array();
 	$i=0;
@@ -554,28 +554,48 @@
 		}
 		$i++;
 	}
-	
+
 	$empty_tray_order = ( empty(get_tray_location($db, "empty", 1)) ? null : array_values(get_tray_location($db, "empty", 1)) );
-	
+
 	$color_array = array();
 	$color_array["empty"] = $bgcolor_empty;
-	
+
 	// add and update disk info
-	
+
 	$i=0;
 	while($i < count($lsscsi_arr)) {
-		list($device[], $type[], $luname[], $devicenodefp[], $scsigenericdevicenode[]) = preg_split('/\s+/', $lsscsi_arr[$i]);
-		$lsscsi_device[$i] = preg_replace("/^\[(.*)\]$/", "$1", $device[$i]);		// get the device address: "1:0:0:0"
-		$lsscsi_type[$i] = trim($type[$i]);						// get the type: "disk" / "process" (not in use for this script)
-		$lsscsi_luname[$i] = str_replace("none", "", $luname[$i]);			// get the logical unit name of the drive
-		$lsscsi_devicenodefp[$i] = str_replace("-", "", $devicenodefp[$i]);		// get full path to device: "/dev/sda"
-		$lsscsi_devicenode[$i] = trim(str_replace("/dev/", "", $devicenodefp[$i]));	// get only the node name: "sda"
-		$lsscsi_devicenodesg[$i] = trim($scsigenericdevicenode[$i]);			// get the full path to SCSI Generic device node: "/dev/sg1"
-		
+		// list($device[], $type[], $luname[], $devicenodefp[], $scsigenericdevicenode[]) = preg_split('/\s+/', $lsscsi_arr[$i]);
+		$tok = strtok($lsscsi_arr[$i], " \t");
+		$lsscsi_device[$i] = preg_replace("/^\[(.*)\]$/", "$1", $tok);// get the device address
+		$tok = strtok(" \t"); 																				// get the next token
+ 		$lsscsi_type[$i] = trim($tok);																// get the type: "disk" / "process" (not in use for this script)
+		$tok = strtok(" \t");
+		$temp = "";
+		while (!strpos($tok, "/dev/")) {
+			//assemble logical unit name
+			$temp =  $temp . $tok;
+			temp .= " ";
+			$tok = strtok(" \t");
+		}
+		$temp = substr($temp, 0, -1);
+		$lsscsi_luname[$i] = str_replace("none", "", $temp);			// get the logical unit name of the drive
+		$tok = strtok(" \t");
+		$lsscsi_devicenodefp[$i] = str_replace("-", "", $tok);		// get full path to device: "/dev/sda"
+		$lsscsi_devicenode[$i] = trim(str_replace("/dev/", "", $tok));	// get only the node name: "sda"
+		$lsscsi_devicenodesg[$i] = trim($tok);			// get the full path to SCSI Generic device node: "/dev/sg1"
+
+
+		// $lsscsi_device[$i] = preg_replace("/^\[(.*)\]$/", "$1", $device[$i]);		// get the device address: "1:0:0:0"
+		// $lsscsi_type[$i] = trim($type[$i]);						// get the type: "disk" / "process" (not in use for this script)
+		// $lsscsi_luname[$i] = str_replace("none", "", $luname[$i]);			// get the logical unit name of the drive
+		// $lsscsi_devicenodefp[$i] = str_replace("-", "", $devicenodefp[$i]);		// get full path to device: "/dev/sda"
+		// $lsscsi_devicenode[$i] = trim(str_replace("/dev/", "", $devicenodefp[$i]));	// get only the node name: "sda"
+		// $lsscsi_devicenodesg[$i] = trim($scsigenericdevicenode[$i]);			// get the full path to SCSI Generic device node: "/dev/sg1"
+
 		if($lsscsi_device[$i] && $lsscsi_luname[$i]) { // only care about real hard drives
 			$smart_cmd[$i] = shell_exec("smartctl -x --json /dev/bsg/$lsscsi_device[$i]");	// get all SMART data for this device, we grab it ourselves to get all drives also attached to hardware raid cards.
 			$smart_array = json_decode($smart_cmd[$i], true);
-			
+
 			$smart_i=0;
 			$smart_loadcycle_find = "";
 			if(is_array($smart_array["ata_smart_attributes"]["table"])) {
@@ -587,10 +607,10 @@
 					$smart_i++;
 				}
 			}
-			
+
 			$rotation_rate = ( recursive_array_search("Solid State Device Statistics", $smart_array) ? -1 : $smart_array["rotation_rate"] );
 			$deviceid[$i] = hash('sha256', $smart_array["model_name"] . $smart_array["serial_number"]);
-			
+
 			$sql = "
 				INSERT INTO
 					disks(
@@ -639,7 +659,7 @@
 						smart_rotation='" . $rotation_rate . "'
 					WHERE hash='" . $deviceid[$i] . "';
 			";
-			
+
 			if(is_array($unraid_disklog["" . str_replace(" ", "_", $smart_array["model_name"]) . "_" . str_replace(" ", "_", $smart_array["serial_number"]) . ""])) {
 				$sql .= "
 					UPDATE disks SET
@@ -649,12 +669,12 @@
 					;
 				";
 			}
-			
+
 			$ret = $db->exec($sql);
 			if(!$ret) {
 				echo $db->lastErrorMsg();
 			}
-			
+
 			switch(strtolower($unraid_array[$lsscsi_devicenode[$i]]["type"])) {
 				case "parity":
 					$color_array[$deviceid[$i]] = $bgcolor_parity;
@@ -664,41 +684,41 @@
 					break;
 				case "cache":
 					$color_array[$deviceid[$i]] = $bgcolor_cache;
-					break;	
+					break;
 				default:
 					$color_array[$deviceid[$i]] = $bgcolor_others;
 			}
-			
+
 			unset($smart_array);
 		}
 		$i++;
 	}
-	
+
 	// check the existens of devices
 	find_and_set_removed_devices_status($db, $deviceid); 		// tags removed devices 'r', delete device from location
 	find_and_unset_reinserted_devices_status($db, $deviceid);	// tags old existing devices with 'null', delete device from location just in case it for whatever reason it already exists.
-	
+
 	// get disk info for "Information" and "Configuration"
-	
+
 	$total_trays = ( empty($grid_trays) ? $grid_columns * $grid_rows : $grid_trays );
 	$get_empty_trays = get_tray_location($db, "empty", 1);
-	
+
 	$total_main_trays = 0;
 	if($total_trays > ($grid_columns * $grid_rows)) {
 		$total_main_trays = $grid_columns * $grid_rows;
 		$total_rows_override_trays = ($total_trays - $total_main_trays) / $grid_columns;
 		$grid_columns_override_styles = str_repeat(" auto", $total_rows_override_trays);
 	}
-	
+
 	if(!is_array($get_empty_trays) && !count_table_rows($db, "disks")) {
 		$sql = "SELECT * FROM disks WHERE status IS NULL;";
 	}
 	else {
 		$sql = "SELECT * FROM disks JOIN location ON disks.hash=location.hash WHERE status IS NULL ORDER BY tray ASC;";
 	}
-	
+
 	$results = $db->query($sql);
-	
+
 	$datasql = array();
 	while($res = $results->fetchArray(1)) {
 		array_push($datasql, $res);
