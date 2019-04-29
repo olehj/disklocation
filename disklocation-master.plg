@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.03.10">
+<!ENTITY version          "2019.04.29">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY packageGIT       "https://github.com/olehj/disklocation.git">
 <!ENTITY branch           "master">
@@ -39,6 +39,10 @@
 </FILE>
 
 <CHANGES>
+###2019.04.29
+ - Commit #65 - MINOR ISSUE: Checks an array before counting it.
+ - Removed disklocation.plg file: use disklocation-master.plg instead.
+
 ###2019.03.10
  - Commit #63 - BUG: Removed harddrives did not show up in the Information list but got invisible instead.
  - Commit #62 - MINOR ISSUE: Fix broken harddrive information. Parsing of lsscsi is redone.

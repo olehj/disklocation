@@ -386,15 +386,20 @@
 			
 			$sql .= "DELETE FROM location WHERE hash = 'empty';";
 			
-			for($i=0; $i < count($post_empty); ++$i) {
-				if($post_empty[$i] > $_POST["grid_trays"]) { 
-					$i = count($post_empty);
-				}
-				else {
-					if(!is_tray_allocated($db, (int)$post_empty[$i])) {
-						$post_empty_sql .= "" . $post_empty[$i] . ",";
+			if(is_array($post_empty)) { // Future reference: from php 7.3 and later, use is_countable instead.
+				for($i=0; $i < count($post_empty); ++$i) {
+					if($post_empty[$i] > $_POST["grid_trays"]) { 
+						$i = count($post_empty);
+					}
+					else {
+						if(!is_tray_allocated($db, (int)$post_empty[$i])) {
+							$post_empty_sql .= "" . $post_empty[$i] . ",";
+						}
 					}
 				}
+			}
+			else {
+				$post_empty_sql = "";
 			}
 			$sql .= "
 				INSERT INTO 
