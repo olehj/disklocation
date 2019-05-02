@@ -3,6 +3,11 @@
 	$i_empty=1;
 	$i_drive=1;
 	unset($print_drives);
+	
+	if(!count_table_rows($db, "location")) {
+		$add_empty_tray_disabled = "disabled";
+	}
+	
 	while($i <= $total_trays) {
 		if(is_array($get_empty_trays)) {
 			if($datasql[$i_drive-1]["tray"] == $i) { $data = $datasql[$i_drive-1]; } else { $data = ""; }
@@ -14,13 +19,14 @@
 		
 		if(!$data) {
 			$tray_options = "";
+			
 			for($tray_i = 1; $tray_i <= $total_trays; ++$tray_i) {
 				if($tray_assign == $tray_i) { $selected="selected"; } else { $selected=""; }
 				$tray_options .= "<option value=\"$tray_i\" " . $selected . " style=\"text-align: right;\">$tray_i</option>";
 			}
 			$print_drives[$tray_assign] = "
 				<tr style=\"background: #" . $color_array["empty"] . ";\">
-					<td style=\"padding: 0 10px 0 10px; text-align: right;\"><select name=\"empty[]\" dir=\"rtl\" style=\"min-width: 0; max-width: 50px; width: 40px;\"><option value=\"\" style=\"text-align: right;\">--</option>" . $tray_options . "</select></td>
+					<td style=\"padding: 0 10px 0 10px; text-align: right;\"><select $add_empty_tray_disabled name=\"empty[]\" dir=\"rtl\" style=\"min-width: 0; max-width: 50px; width: 40px;\"><option value=\"\" style=\"text-align: right;\">--</option>" . $tray_options . "</select></td>
 					<td colspan=\"12\"></td>
 				</tr>
 			";
