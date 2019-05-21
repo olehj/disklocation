@@ -40,7 +40,7 @@
 
 <CHANGES>
 ###2019.05.21
- - Commit #69 - IMPROVEMENT: Cleared up some UI issues. Made sure that trays can't be written over each other, the newest assigned device will overwrite the existing tray and put the device (if it exists) back in the unassigned table. Also my favourite commit number.
+ - Commit #69 - IMPROVEMENT: Cleared up some UI issues. Made sure that trays can't be written over each other, the newest assigned device will overwrite the existing tray and put the device (if it exists) back in the unassigned table. Also my favorite commit number.
 
 ###2019.05.02
  - Commit #67 - MINOR ISSUE/FEATURE: Disk slot assignments dont save properly - removed some confusion for empty tables. Disabled the empty slots when the locations table is empty.
