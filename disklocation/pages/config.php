@@ -65,7 +65,7 @@
 			
 			$print_drives[$tray_assign] = "
 				<tr style=\"background: #" . $color_array[$data["hash"]] . ";\">
-					<td style=\"padding: 0 10px 0 10px; text-align: right;\"><select name=\"drives[" . $data["hash"] . "]\" dir=\"rtl\" style=\"min-width: 0; max-width: 50px; width: 40px;\"><!--<option value=\"\" style=\"text-align: right;\">--</option>-->" . $tray_options . "</select></td>
+					<td style=\"padding: 0 10px 0 10px; text-align: right;\"><select name=\"drives[" . $data["hash"] . "]\" dir=\"rtl\" style=\"min-width: 0; max-width: 50px; width: 40px;\"><option value=\"\" style=\"text-align: right;\">--</option>" . $tray_options . "</select></td>
 					<td style=\"padding: 0 10px 0 10px; text-align: center;\"><input type=\"button\" class=\"diskLocation\" style=\"transform: none;\" onclick=\"locateStart()\" value=\"Locate\" id=\"" . $data["device"] . "\" name=\"" . $data["device"] . "\" /></td>
 					<td style=\"padding: 0 10px 0 10px;\">" . $data["device"] . "</td>
 					<td style=\"padding: 0 10px 0 10px;\">" . $data["luname"] . "</td>
