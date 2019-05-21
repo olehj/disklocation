@@ -26,7 +26,7 @@
 			}
 			$print_drives[$tray_assign] = "
 				<tr style=\"background: #" . $color_array["empty"] . ";\">
-					<td style=\"padding: 0 10px 0 10px; text-align: right;\"><select $add_empty_tray_disabled name=\"empty[]\" dir=\"rtl\" style=\"min-width: 0; max-width: 50px; width: 40px;\"><option value=\"\" style=\"text-align: right;\">--</option>" . $tray_options . "</select></td>
+					<td style=\"padding: 0 10px 0 10px; text-align: right;\"><select $add_empty_tray_disabled name=\"empty[]\" dir=\"rtl\" style=\"min-width: 0; max-width: 50px; width: 40px;\"><!--<option value=\"\" style=\"text-align: right;\">--</option>-->" . $tray_options . "</select></td>
 					<td colspan=\"12\"></td>
 				</tr>
 			";

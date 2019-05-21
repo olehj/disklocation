@@ -324,7 +324,7 @@
 		$post_empty = $_POST["empty"];
 		$post_info = json_encode($_POST["displayinfo"]);
 		
-		if(array_duplicates($post_drives)) { $disklocation_error[] = "Duplicate tray assignment found, be sure to assign trays in a unique order."; }
+		//if(array_duplicates($post_drives)) { $disklocation_error[] = "Duplicate tray assignment found, be sure to assign trays in a unique order."; }
 		
 		// settings
 		if(!preg_match("/[0-9]{1,5}/", $_POST["smart_exec_delay"])) { $disklocation_error[] = "SMART execution delay missing or invalid number."; }
@@ -347,11 +347,15 @@
 			$keys_drives = array_keys($post_drives);
 			for($i=0; $i < count($keys_drives); ++$i) {
 				$tray_assign = ( empty($post_drives[$keys_drives[$i]]) ? null : $post_drives[$keys_drives[$i]] );
+				
 				if(!$tray_assign) {
 					$sql .= "
 						UPDATE disks SET
 							status = 'h'
 						WHERE hash = '" . $keys_drives[$i] . "'
+						;
+						DELETE FROM location
+							WHERE tray = '" . $tray_assign . "'
 						;
 					";
 				}
@@ -382,6 +386,19 @@
 				echo $db->lastErrorMsg();
 			}
 			
+			$sql = "";
+			
+			// Remove conflicting tray allocations, use only the newest assigned tray
+			$sql = "SELECT id FROM location GROUP BY tray HAVING COUNT(*) > 1;";
+			$results = $db->query($sql);
+			
+			while($res = $results->fetchArray(1)) {
+				$sql_del = "DELETE FROM location WHERE id = '" . $res["id"] . "';";
+				$ret = $db->exec($sql_del);
+				if(!$ret) {
+					return $db->lastErrorMsg();
+				}
+			}
 			$sql = "";
 			
 			$sql .= "DELETE FROM location WHERE hash = 'empty';";
