@@ -1,4 +1,7 @@
 <?php
+	// Comment out to enable debugging:
+	//$debugging_active = 1;
+	
 	// Set warning level
 	error_reporting(E_ERROR | E_WARNING | E_PARSE);
 	
@@ -48,6 +51,22 @@
 	}
 	
 	require_once("sqlite_tables.php");
+	
+	function debug_print($act = 0, $line, $section, $message) {
+		if($act && $section && $message) {
+			// write out directly and flush out the results asap
+			$out = "<span style=\"color: red;\">[" . date("His") . "] <b>" . basename(__FILE__) . ":<i>" . $line . "</i></b> @ " . $section . ": " . $message . "</span><br />\n";
+			print($out);
+			file_put_contents("/boot/config/" . DISKLOCATION_PATH . "/debugging.html", $out, FILE_APPEND);
+			flush();
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	debug_print($debugging_active, __LINE__, "functions", "Debug function active.");
 	
 	function is_tray_allocated($db, $tray) {
 		$sql = "SELECT hash FROM location WHERE tray = '" . $tray . "'";
@@ -318,6 +337,7 @@
 	}
 	
 	if($_POST["save_settings"]) {
+		debug_print($debugging_active, __LINE__, "POST", "Button: SAVE has been pressed.");
 		// trays
 		$sql = "";
 		$post_drives = $_POST["drives"];
@@ -380,6 +400,8 @@
 					";
 				}
 			}
+			
+			debug_print($debugging_active, __LINE__, "SQL", "EMPTY: <pre>" . $sql . "</pre>");
 			
 			$ret = $db->exec($sql);
 			if(!$ret) {
@@ -489,6 +511,8 @@
 				";
 			}
 			
+			debug_print($debugging_active, __LINE__, "SQL", "POPULATED: <pre>" . $sql . "</pre>");
+			
 			$ret = $db->exec($sql);
 			if(!$ret) {
 				echo $db->lastErrorMsg();
@@ -577,6 +601,7 @@
 	// add and update disk info
 	
 	$i=0;
+	debug_print($debugging_active, __LINE__, "array", "LSSCSI:" . count($lsscsi_arr) . "");
 	while($i < count($lsscsi_arr)) {
 		/*
 		list($device[], $type[], $luname[], $devicenodefp[], $scsigenericdevicenode[]) = preg_split('/\s+/', $lsscsi_arr[$i]);
@@ -602,9 +627,12 @@
 		$lsscsi_devicenode[$i] = str_replace("-", "", trim($devicenodefp[$i]));
 		$lsscsi_devicenodesg[$i] = trim($scsigenericdevicenode[$i]);
 		
+		debug_print($debugging_active, __LINE__, "loop", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "|TYPE:" . $lsscsi_type[$i] . "|LUN:" . $lsscsi_luname[$i] . "|SCSIGEN:" . $lsscsi_devicenodesg[$i] . "");
+		
 		if($lsscsi_device[$i] && $lsscsi_luname[$i]) { // only care about real hard drives
 			$smart_cmd[$i] = shell_exec("smartctl -x --json /dev/bsg/$lsscsi_device[$i]");	// get all SMART data for this device, we grab it ourselves to get all drives also attached to hardware raid cards.
 			$smart_array = json_decode($smart_cmd[$i], true);
+			debug_print($debugging_active, __LINE__, "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "=" . is_array($smart_array) . " (1=array available)");
 			
 			$smart_i=0;
 			$smart_loadcycle_find = "";
@@ -620,6 +648,8 @@
 			
 			$rotation_rate = ( recursive_array_search("Solid State Device Statistics", $smart_array) ? -1 : $smart_array["rotation_rate"] );
 			$deviceid[$i] = hash('sha256', $smart_array["model_name"] . $smart_array["serial_number"]);
+			
+			debug_print($debugging_active, __LINE__, "HASH", "#:" . $i . ":" . $deviceid[$i] . "");
 			
 			find_and_unset_reinserted_devices_status($db, $deviceid[$i]);	// tags old existing devices with 'null', delete device from location just in case it for whatever reason it already exists.
 			
@@ -681,6 +711,8 @@
 					;
 				";
 			}
+			
+			debug_print($debugging_active, __LINE__, "SQL", "#:" . $i . ":<pre>" . $sql . "</pre>");
 			
 			$ret = $db->exec($sql);
 			if(!$ret) {

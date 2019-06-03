@@ -6,6 +6,8 @@
 	
 	if($disk_tray_direction == "h") { $insert_break = "<br />"; } else { $insert_break = ""; }
 	
+	debug_print($debugging_active, __LINE__, "var", "Total trays: " . $total_trays . "");
+	
 	while($i <= $total_trays) {
 		if(is_array($get_empty_trays)) {
 			if($datasql[$i_drive-1]["tray"] == $i) { $data = $datasql[$i_drive-1]; } else { $data = ""; }
@@ -16,6 +18,8 @@
 		$tray_assign = ( empty($data["tray"]) ? $i : $data["tray"] );
 		
 		if(!$data) {
+			debug_print($debugging_active, __LINE__, "loop", "Empty tray: " . $tray_assign . "");
+			
 			if($displayinfo["tray"] && !$displayinfo["hideemptycontents"]) {
 				$empty_tray = "<b>" . $tray_assign . "</b>" . $insert_break . "";
 			}
@@ -60,6 +64,8 @@
 			$i_empty++;
 		}
 		else {
+			debug_print($debugging_active, __LINE__, "loop", "Populated tray: " . $tray_assign . "");
+			
 			$device = $data["device"];
 			$devicenode = $data["devicenode"];
 			$luname = $data["luname"];
