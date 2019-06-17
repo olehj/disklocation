@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.06.03">
+<!ENTITY version          "2019.06.17">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY packageGIT       "https://github.com/olehj/disklocation.git">
 <!ENTITY branch           "master">
@@ -34,12 +34,15 @@
 <MD5>99ab6ab1d4685a81252893db01d63c5a</MD5>
 </FILE>
 
-<FILE Name="/boot/packages/git-2.21.0-x86_64-1.txz" Run="upgradepkg --install-new" Min="6.7.0" Max="6.7.1">
-<URL>https://mirrors.slackware.com/slackware/slackware64-current/slackware64/d/git-2.21.0-x86_64-1.txz</URL>
-<MD5>2f581b9d083b2a4e9c92255b5ea2eb26</MD5>
+<FILE Name="/boot/packages/git-2.22.0-x86_64-2.txz" Run="upgradepkg --install-new" Min="6.7.0" Max="6.7.9">
+<URL>https://mirrors.slackware.com/slackware/slackware64-current/slackware64/d/git-2.22.0-x86_64-2.txz</URL>
+<MD5>fd43ed41cce35cdecdd9c3a9860c87f4</MD5>
 </FILE>
 
 <CHANGES>
+###2019.06.17
+ - Commit #76 - BUG: slackware64-current updated git to version 2.22.0 from 2.21.0.
+
 ###2019.06.03
  - Commit #74 - IMPROVEMENT: Add debugging tools. Edit system.php and enable debugging: set "$debugging_active = 1;" The output will be shown directly and stored appended in /boot/config/plugins/disklocation/debugging.html
 
