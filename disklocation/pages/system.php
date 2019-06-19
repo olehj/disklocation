@@ -762,8 +762,10 @@
 			}
 			$i++;
 		}
-		// check the existens of devices
-		find_and_set_removed_devices_status($db, $deviceid); 		// tags removed devices 'r', delete device from location
+		// check the existens of devices, must be run during force smart scan.
+		if($_POST["force_smart_scan"]) {
+			find_and_set_removed_devices_status($db, $deviceid); 		// tags removed devices 'r', delete device from location
+		}
 	}
 	
 	// get disk info for "Information" and "Configuration"
