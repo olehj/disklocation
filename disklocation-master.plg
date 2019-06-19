@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.06.17">
+<!ENTITY version          "2019.06.19">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY packageGIT       "https://github.com/olehj/disklocation.git">
 <!ENTITY branch           "master">
@@ -34,12 +34,14 @@
 <MD5>99ab6ab1d4685a81252893db01d63c5a</MD5>
 </FILE>
 
-<FILE Name="/boot/packages/git-2.22.0-x86_64-2.txz" Run="upgradepkg --install-new" Min="6.7.0" Max="6.7.9">
-<URL>https://mirrors.slackware.com/slackware/slackware64-current/slackware64/d/git-2.22.0-x86_64-2.txz</URL>
-<MD5>fd43ed41cce35cdecdd9c3a9860c87f4</MD5>
-</FILE>
-
 <CHANGES>
+###2019.06.19
+ - Commit #78 - IMPROVMENT: Major change on how this plugin behaves has been implemented. The drives will now be inserted in the database at install time, and updated hourly via cronjob for the active drives.
+		            Force SMART scan button is also available at "Configuration".
+		            The temperature unit is now configured globally from Unraid itself (Display Settings).
+
+ - NB!!! Plugin does NOT install git automatically anymore, this is still required and must be installed manually or via "Nerd Pack" plugin.
+ 
 ###2019.06.17
  - Commit #76 - BUG: slackware64-current updated git to version 2.22.0 from 2.21.0.
 
