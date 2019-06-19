@@ -662,7 +662,10 @@
 				usleep($smart_exec_delay . 000); // delay script to get the output of the next shell_exec()
 				
 				if(!empty($smart_check_operation) || $_POST["force_smart_scan"]) { // only get SMART data if the disk is spinning, if it is a new install/empty database, or if scan is forced.
-					$smart_cmd[$i] = shell_exec("smartctl -x --json /dev/bsg/$lsscsi_device[$i]");	// get all SMART data for this device, we grab it ourselves to get all drives also attached to hardware raid cards.
+					if(!$_POST["force_smart_scan"]) {
+						$smart_standby_cmd = "-n standby";
+					}
+					$smart_cmd[$i] = shell_exec("smartctl $smart_standby_cmd -x --json /dev/bsg/$lsscsi_device[$i]");	// get all SMART data for this device, we grab it ourselves to get all drives also attached to hardware raid cards.
 					$smart_array = json_decode($smart_cmd[$i], true);
 					debug_print($debugging_active, __LINE__, "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "=" . is_array($smart_array) . " (1=array available)");
 					
