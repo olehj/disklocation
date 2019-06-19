@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.06.19p-dev">
+<!ENTITY version          "2019.06.20-dev">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -195,7 +195,7 @@ else
   else
     logit "No previous packages to restored"
   fi
-  #rm -Rf "/tmp/&name;-packages"
+  rm -Rf "/tmp/&name;-packages"
   rm -f "/tmp/&name;-install"
   logit "Plugin install failed"
   exit 1
