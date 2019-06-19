@@ -3,19 +3,22 @@
 <h3>Installation</h3>
 <dl>
 	<dt>Why does this plugin require smartmontools 7.0+?</dt>
-	<dd>During installation, smartmontools 7.0 will be installed. This is required for JSON-output for the smartctl command.</dd>
+	<dd>During installation, smartmontools 7.0 will be installed for Unraid 6.6.x. This is required for JSON-output for the smartctl command.</dd>
 	
 	<dt>Why does this plugin require GIT tools?</dt>
-	<dd>During installation the package is cloned from a git repository and archived for later use locally, this simplifies the install updates a bit.</dd>
+	<dd>This needs to be installed via the Nerd Pack plugin or other methods. During installation the package is cloned from a git repository and archived for later use locally, this simplifies the install updates a bit.</dd>
 	
 	<dt>What else does it install in the system?</dt>
-	<dd>It will install a smartlocate script in /usr/local/bin/, this is needed for the "Locate" function.</dd>
+	<dd>It will install a smartlocate script in /usr/local/bin/, this is needed for the "Locate" function. It will also add a script for cronjob in /etc/cron.hourly/</dd>
 	
 	<dt>How is the versioning working?</dt>
 	<dd>The digits are as following: the first is the year, second the month, and third the day. Technically an ISO date. Multiple updates at the same day will get a letter behind the date increasing from [a]. First version released was 2019.01.22</dd>
 	
 	<dt>What's the requirements?</dt>
 	<dd>A newer browser supporting HTML5, tested with Chrome-based browsers and Firefox.</dd>
+	
+	<dt>It takes a long time to open the page!</dt>
+	<dd>The first install will wake up all the drives and force scan SMART data to insert into a database, this might take a while. You can redo this later by clicking the "Force SMART scan" button. The automagic cronjob will only scan drives which is already spinning (hopefully).</dd>
 </dl>
 
 <h3>Configuration</h3>
@@ -46,8 +49,8 @@
 	<dt>Set physical tray assignment direction</dt>
 	<dd>Select how to count the tray, from "top to bottom" or from "left to right"</dd>
 	
-	<dt>Set temperature unit</dt>
-	<dd>Select desired temperature unit, even Kelvin!</dd>
+	<dt>Where is the temperature unit option?</dt>
+	<dd>It's GONE! Use Unraids own "Display Settings" variable instead.</dd>
 	
 	<dt>Set warranty date entry</dt>
 	<dd>Select how you want to enter the warranty date: the Unraid way of selecting amount of months, or manual ISO date for specific dates. Both values can be stored, but only one can be visible at a time.</dd>

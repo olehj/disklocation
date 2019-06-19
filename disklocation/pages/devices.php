@@ -125,7 +125,7 @@
 			}
 			if($displayinfo["temperature"]) {
 				if($data["smart_temperature"]) {
-					switch($tempunit) {
+					switch($display["unit"]) {
 						case 'F':
 							$smart_temperature = round(temperature_conv($data["smart_temperature"], 'C', 'F')) . "°F";
 							break;
@@ -239,6 +239,22 @@
 			}
 			if($smart_temperature || $smart_powerontime || $smart_loadcycle || $smart_capacity || $smart_rotation || $smart_formfactor || $warranty_page) {
 				$add_break_3 = "<br />";
+			}
+			
+			$deviceid = hash('sha256', $data["model_name"] . $data["smart_serialnumber"]);
+			
+			switch(strtolower($unraid_array[$devicenode]["type"])) {
+				case "parity":
+					$color_array[$deviceid] = $bgcolor_parity;
+					break;
+				case "data":
+					$color_array[$deviceid] = $bgcolor_unraid;
+					break;
+				case "cache":
+					$color_array[$deviceid] = $bgcolor_cache;
+					break;	
+				default:
+					$color_array[$deviceid] = $bgcolor_others;
 			}
 			
 			$disklocation_page .= "
