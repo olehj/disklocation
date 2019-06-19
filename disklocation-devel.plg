@@ -3,12 +3,12 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.06.19e-dev">
+<!ENTITY version          "2019.06.19f-dev">
 <!ENTITY launch           "Settings/&name;">
-<!ENTITY packageGIT       "https://github.com/olehj/disklocation.git">
 <!ENTITY branch           "devel">
+<!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
 <!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/&branch;/&name;-&branch;.plg">
-<!ENTITY packagefile      "&name;.&version;.tar.bz2">
+<!ENTITY packagefile      "&name;.&version;.zip">
 <!ENTITY pluginLOC        "/boot/config/plugins/&name;">
 <!ENTITY emplugLOC        "/usr/local/emhttp/plugins">
 <!ENTITY emhttpLOC        "&emplugLOC;/&name;">
@@ -76,22 +76,25 @@ if [ "$DOWNLOAD_PKG" == "true" ]; then
   <!--# Save existing packages until new package is downloaded OK -->
   logit "Saving any previous packages from &pluginLOC;"
   mkdir -p "/tmp/&name;-packages"
-  TEMP="&pluginLOC;/&name;.*.tar.bz2"
-  mv -f $TEMP "/tmp/&name;-packages"
+  TEMPOLD="&pluginLOC;/&name;.*.tar.bz2"
+  TEMP="&pluginLOC;/&name;.*.zip"
+  mv -f $TEMPOLD $TEMP "/tmp/&name;-packages"
 
-  logit "Attempting to download plugin package &packageGIT;..."
-  wget --quiet --spider --no-check-certificate --timeout=10 &packageGIT;
+  logit "Attempting to download plugin package &packageURL;..."
+  wget -O &pluginLOC;/&packagefile; --quiet --spider --no-check-certificate --timeout=10 &packageURL;
   if [ ! $? == "0" ] ; then
-    logit "Package server down &packageGIT; - Plugin cannot install"
+    logit "Package server down &packageURL; - Plugin cannot install"
     INSTALL_PKG="false"
   else
+  <!--# Do not use git anymore, we download the generated zip file instead.
     mkdir -p "/tmp/&name;-git"
     git clone --single-branch --branch &branch; &packageGIT; "/tmp/&name;-git"
     tar jcf "/tmp/&name;-git/&packagefile;" -C "/tmp/&name;-git" &name;
     mv "/tmp/&name;-git/&packagefile;" &pluginLOC;
     rm -rf "/tmp/&name;-git"
+  -->
     if [ ! -f "&pluginLOC;/&packagefile;" ] ; then
-      logit "Package download failed &packageGIT; - Plugin cannot install"
+      logit "Package download failed &packageURL; - Plugin cannot install"
       INSTALL_PKG="false"
     else
       logit "Package &packagefile; downloaded to &pluginLOC;"
@@ -104,8 +107,10 @@ if [ "$INSTALL_PKG" == "true" ] ; then
   logit "Extracting plugin package..."
   <!--# Remove current existing files -->
   [ -d "&emhttpLOC;" ] &amp;&amp; rm -fR "&emhttpLOC;"
-  <!--# Extract files -->
-  tar -jxf "&pluginLOC;/&packagefile;" -C "&emplugLOC;"
+  <!--# Extract files and move correct directory -->
+  unzip "&pluginLOC;/&packagefile;" -d /tmp/&name;-packages
+  mv "/tmp/&name;-packages/&name;-&branch;/&name;" &emplugLOC;/
+  <!--tar -jxf "&pluginLOC;/&packagefile;" -C "&emplugLOC;"-->
   <!--# Edit PAGE file  - Dynamically add version number -->
   if [ -f "&emhttpLOC;/&name;.page" ] ; then
     echo "Version=\"&version;\"" &gt;&gt; "&emhttpLOC;/&name;.page"
