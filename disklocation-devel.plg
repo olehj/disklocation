@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.06.19i-dev">
+<!ENTITY version          "2019.06.19j-dev">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -218,7 +218,9 @@ logit "Removing plugin..."
 [ -f "/tmp/&name;-install" ] &amp;&amp; rm -f "/tmp/&name;-install"
 [ -d "&emhttpLOC;" ] &amp;&amp; rm -fR "&emhttpLOC;"
 [ -f "/usr/local/bin/smartlocate" ] &amp;&amp; rm -f "/usr/local/bin/smartlocate"
+[ -f "/etc/cron.hourly/disklocation.sh" ] &amp;&amp; rm -f "/etc/etc.hourly/disklocation.sh"
 rm -f &pluginLOC;/disklocation.*.tar.bz2
+rm -f &pluginLOC;/disklocation.*.zip
 logit "Plugin stopped and removed, package files removed from &pluginLOC;, database is not removed."
 </INLINE>
 </FILE>
