@@ -19,7 +19,7 @@
 	$tray_width =		'400';		// the pixel width of the hard drive tray: in the horizontal direction ===
 	$tray_height =		'70';		// the pixel height of the hard drive tray: in the horizontal direction ===
 	$warranty_field =	'u';		// choose [u]nraid's way of entering warranty date (12/24/36... months) or enter [m]anual ISO dates.
-	$tempunit =		'C';		// choose default temperature unit to display, default is [C]elsius (as reported from harddisks), other options: [F]arenheit | [K]elvin.
+	$tempunit =		'C';		// DEPRECATED! Use settings from "Display Settings" instead. choose default temperature unit to display, default is [C]elsius (as reported from harddisks), other options: [F]arenheit | [K]elvin.
 	$displayinfo =	json_encode(array(	// this will store an json_encoded array of display settings for the "Device" page.
 		'tray' => 1,
 		'leddiskop' => 1,

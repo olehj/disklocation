@@ -239,12 +239,14 @@
 					<input type="radio" name="grid_count" value="column" <?php if($grid_count == "column") echo "checked"; ?> />top to bottom
 					<input type="radio" name="grid_count" value="row" <?php if($grid_count == "row") echo "checked"; ?>/>left to right
 				</p>
+				<!-- Will use system variable instead configured under "Display Settings"
 				<p>
 					<b>Set temperature unit:</b><br />
 					<input type="radio" name="tempunit" value="C" <?php if($tempunit == "C") echo "checked"; ?> />°C
 					<input type="radio" name="tempunit" value="F" <?php if($tempunit == "F") echo "checked"; ?>/>°F
 					<input type="radio" name="tempunit" value="K" <?php if($tempunit == "K") echo "checked"; ?>/>K
 				</p>
+				-->
 				<p>
 					<b>Set warranty date entry:</b><br />
 					<input type="radio" name="warranty_field" value="u" <?php if($warranty_field == "u") echo "checked"; ?> />Unraid
@@ -257,6 +259,8 @@
 				<p style="text-align: center;">
 					<input type="hidden" name="current_warranty_field" value="<?php echo $warranty_field ?>" />
 					<input type="submit" name="save_settings" value="Save" /><input type="reset" value="Reset" />
+					<br />
+					<input type="submit" name="force_smart_scan" value="Force SMART reload" />
 				</p>
 			</td>
 			<td style="vertical-align: top; padding-left: 20px;">
