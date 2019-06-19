@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.06.19n-dev">
+<!ENTITY version          "2019.06.19p-dev">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -152,15 +152,8 @@ EOL
   rm -f "/tmp/&name;-install"
   
   <!--# Add crontab script -->
-  cat &gt;/etc/cron.hourly/disklocation.sh &lt;&lt;EOL
-#!/bin/bash
-if [[ &quot;&#x00060;pidof -x &#36;(basename &#36;0) -o &#37;PPID&#x00060;&quot; ]]; then
-  while [ &quot;&#x00060;pidof -x &#36;(basename &#36;0) -o &#37;PPID&#x00060;&quot; ]; do
-    sleep 5
-  done
-fi
-php -f /usr/local/emhttp/plugins/disklocation/pages/system.php cronjob silent
-EOL
+  mv &emhttpLOC;/&name;.cron /etc/cron.hourly/disklocation.sh
+  
   if [[ "`pidof -x disklocation.sh`" ]]; then
     logit "Cronjob is already running... retrying every 5 seconds until it finish..."
     while [ "`pidof -x disklocation.sh`" ];
