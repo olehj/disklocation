@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.06.19l-dev">
+<!ENTITY version          "2019.06.19m-dev">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -81,7 +81,7 @@ if [ "$DOWNLOAD_PKG" == "true" ]; then
   mv -f $TEMPOLD $TEMP "/tmp/&name;-packages/"
 
   logit "Attempting to download plugin package &packageURL;..."
-  wget -O &pluginLOC;/&packagefile; --quiet --spider --no-check-certificate --timeout=10 &packageURL;
+  wget -O &pluginLOC;/&packagefile; --quiet --no-check-certificate --timeout=30 &packageURL;
   if [ ! $? == "0" ] ; then
     logit "Package server down &packageURL; - Plugin cannot install"
     INSTALL_PKG="false"
@@ -205,7 +205,7 @@ else
     logit "No previous packages to restored"
   fi
   #rm -Rf "/tmp/&name;-packages"
-  #rm -f "/tmp/&name;-install"
+  rm -f "/tmp/&name;-install"
   logit "Plugin install failed"
   exit 1
 fi
