@@ -3,12 +3,12 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.06.19">
+<!ENTITY version          "2019.06.20-dev">
 <!ENTITY launch           "Settings/&name;">
-<!ENTITY packageGIT       "https://github.com/olehj/disklocation.git">
 <!ENTITY branch           "master">
+<!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
 <!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/&branch;/&name;-&branch;.plg">
-<!ENTITY packagefile      "&name;.&version;.tar.bz2">
+<!ENTITY packagefile      "&name;.&version;.zip">
 <!ENTITY pluginLOC        "/boot/config/plugins/&name;">
 <!ENTITY emplugLOC        "/usr/local/emhttp/plugins">
 <!ENTITY emhttpLOC        "&emplugLOC;/&name;">
@@ -29,16 +29,17 @@
 <MD5>c5c852915332cd0984b040eeb545c43c</MD5>
 </FILE>
 
-<FILE Name="/boot/packages/git-2.14.5-x86_64-1_slack14.2.txz" Run="upgradepkg --install-new" Max="6.6.9">
-<URL>http://mirrors.slackware.com/slackware/slackware64-14.2/patches/packages/git-2.14.5-x86_64-1_slack14.2.txz</URL>
-<MD5>99ab6ab1d4685a81252893db01d63c5a</MD5>
-</FILE>
-
 <CHANGES>
+###2019.06.20
+ - Commit #82 - IMPROVEMENT: Installer and cron script now checks for running instances before executing them.
+ - Commit #81 - BUG: Forgot to add standby flag to smartctl. Disks should now be able to go back to standby/sleep/off mode again. Also made sure to not accidentally move drives to "lost" when they where just standby.
+ 
+ - git requirement removed!
+
 ###2019.06.19
  - Commit #78 - IMPROVEMENT: Major change on how this plugin behaves has been implemented. The drives will now be inserted in the database at install time, and updated hourly via cronjob for the active drives.
-		            Force SMART scan button is also available at "Configuration".
-		            The temperature unit is now configured globally from Unraid itself (Display Settings).
+		             Force SMART scan button is also available at "Configuration".
+		             The temperature unit is now configured globally from Unraid itself (Display Settings).
 
  - NB!!! Plugin does NOT install git automatically anymore, this is still required and must be installed manually or via "Nerd Pack" plugin.
  
@@ -203,25 +204,29 @@ fi
 
 <!--# Download plugin files -->
 if [ "$DOWNLOAD_PKG" == "true" ]; then
+
   <!--# Save existing packages until new package is downloaded OK -->
   logit "Saving any previous packages from &pluginLOC;"
   mkdir -p "/tmp/&name;-packages"
-  TEMP="&pluginLOC;/&name;.*.tar.bz2"
-  mv -f $TEMP "/tmp/&name;-packages"
+  TEMPOLD="&pluginLOC;/&name;.*.tar.bz2"
+  TEMP="&pluginLOC;/&name;.*.zip"
+  mv -f $TEMPOLD $TEMP "/tmp/&name;-packages/"
 
-  logit "Attempting to download plugin package &packageGIT;..."
-  wget --quiet --spider --no-check-certificate --timeout=10 &packageGIT;
+  logit "Attempting to download plugin package &packageURL;..."
+  wget -O &pluginLOC;/&packagefile; --quiet --no-check-certificate --timeout=30 &packageURL;
   if [ ! $? == "0" ] ; then
-    logit "Package server down &packageGIT; - Plugin cannot install"
+    logit "Package server down &packageURL; - Plugin cannot install"
     INSTALL_PKG="false"
   else
+  <!--# Do not use git anymore, we download the generated zip file instead. (Double hyphens are splitted)
     mkdir -p "/tmp/&name;-git"
-    git clone --single-branch --branch &branch; &packageGIT; "/tmp/&name;-git"
+    git clone - -single-branch - -branch &branch; &packageGIT; "/tmp/&name;-git"
     tar jcf "/tmp/&name;-git/&packagefile;" -C "/tmp/&name;-git" &name;
     mv "/tmp/&name;-git/&packagefile;" &pluginLOC;
     rm -rf "/tmp/&name;-git"
+  -->
     if [ ! -f "&pluginLOC;/&packagefile;" ] ; then
-      logit "Package download failed &packageGIT; - Plugin cannot install"
+      logit "Package download failed &packageURL; - Plugin cannot install"
       INSTALL_PKG="false"
     else
       logit "Package &packagefile; downloaded to &pluginLOC;"
@@ -234,12 +239,22 @@ if [ "$INSTALL_PKG" == "true" ] ; then
   logit "Extracting plugin package..."
   <!--# Remove current existing files -->
   [ -d "&emhttpLOC;" ] &amp;&amp; rm -fR "&emhttpLOC;"
-  <!--# Extract files -->
-  tar -jxf "&pluginLOC;/&packagefile;" -C "&emplugLOC;"
+  <!--# Extract files and move correct directory -->
+  unzip "&pluginLOC;/&packagefile;" -d /tmp/&name;-packages/
+  mv "/tmp/&name;-packages/&name;-&branch;/&name;" "&emplugLOC;/"
+  <!--tar -jxf "&pluginLOC;/&packagefile;" -C "&emplugLOC;"-->
   <!--# Edit PAGE file  - Dynamically add version number -->
   if [ -f "&emhttpLOC;/&name;.page" ] ; then
     echo "Version=\"&version;\"" &gt;&gt; "&emhttpLOC;/&name;.page"
+    logit "Extraction done."
+    EXTRACT_PKG="true"
+  else
+    logit "Extraction failed."
+    EXTRACT_PKG="false"
   fi
+fi
+
+if [ "$EXTRACT_PKG" == "true" ] ; then
   <!--# Add locate bash script -->
   cat &gt;/usr/local/bin/smartlocate &lt;&lt;EOL
 #!/bin/bash
@@ -263,22 +278,33 @@ while sleep 0.5; do
 done
 EOL
   chmod +x /usr/local/bin/smartlocate
-  
+  <!-- prevent cron from running during install -->
+  rm "/etc/cron.hourly/disklocation.sh"
   rm -Rf "/tmp/&name;-packages"
   rm -f "/tmp/&name;-install"
+  
+  <!--# Add crontab script -->
+  mv &emhttpLOC;/&name;.cron /etc/cron.hourly/disklocation.sh
+  
+  if [[ "`pidof -x disklocation.sh`" ]]; then
+    logit "Cronjob is already running... retrying every 5 seconds until it finish..."
+    while [ "`pidof -x disklocation.sh`" ];
+    do
+      sleep 5
+      logit "retrying..."
+    done
+    logit "done and continue..."
+  fi
+  
   if [[ -f "&pluginLOC;/disklocation.sqlite" &amp;&amp; ! -f "&pluginLOC;/disklocation_db_v2.sqlite.tar.bz2" ]]; then
     tar jcf &pluginLOC;/disklocation_db_v2.sqlite.tar.bz2 &pluginLOC;/disklocation.sqlite
     logit "Made backup of database (&pluginLOC;/disklocation_db_v2.sqlite.tar.bz2) before it will be upgraded to version 3"
   fi
   logit "Package file &packagefile; extracted."
+  
   logit "Adding disks into database, please wait... this might take a while..."
   php -f /usr/local/emhttp/plugins/disklocation/pages/system.php cronjob
-
-  <!--# Add crontab script -->
-  cat &gt;/etc/cron.hourly/disklocation.sh &lt;&lt;EOL
-#!/bin/bash
-php -f /usr/local/emhttp/plugins/disklocation/pages/system.php cronjob silent
-EOL
+  
   chmod +x /etc/cron.hourly/disklocation.sh
   logit "Added cronjob script in cron.hourly."
   logit "Plugin installed successfully!"
@@ -293,7 +319,9 @@ else
   TEMP1="/tmp/&name;-packages"
   TEMP2=$(ls $TEMP1)
   if [ "$TEMP2" != "" ] ; then
-    TEMP="/tmp/&name;-packages/&name;.*.tar.bz2"
+    OLDTEMP="/tmp/&name;-packages/&name;.*.tar.bz2"
+    TEMP="/tmp/&name;-packages/&name;.*.zip"
+    mv -f $OLDTEMP "&pluginLOC;"
     mv -f $TEMP "&pluginLOC;"
     logit "Previous packages restored"
   else
@@ -325,7 +353,9 @@ logit "Removing plugin..."
 [ -f "/tmp/&name;-install" ] &amp;&amp; rm -f "/tmp/&name;-install"
 [ -d "&emhttpLOC;" ] &amp;&amp; rm -fR "&emhttpLOC;"
 [ -f "/usr/local/bin/smartlocate" ] &amp;&amp; rm -f "/usr/local/bin/smartlocate"
+[ -f "/etc/cron.hourly/disklocation.sh" ] &amp;&amp; rm -f "/etc/etc.hourly/disklocation.sh"
 rm -f &pluginLOC;/disklocation.*.tar.bz2
+rm -f &pluginLOC;/disklocation.*.zip
 logit "Plugin stopped and removed, package files removed from &pluginLOC;, database is not removed."
 </INLINE>
 </FILE>

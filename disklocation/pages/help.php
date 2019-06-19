@@ -5,8 +5,10 @@
 	<dt>Why does this plugin require smartmontools 7.0+?</dt>
 	<dd>During installation, smartmontools 7.0 will be installed for Unraid 6.6.x. This is required for JSON-output for the smartctl command.</dd>
 	
+	<!--
 	<dt>Why does this plugin require GIT tools?</dt>
 	<dd>This needs to be installed via the Nerd Pack plugin or other methods. During installation the package is cloned from a git repository and archived for later use locally, this simplifies the install updates a bit.</dd>
+	-->
 	
 	<dt>What else does it install in the system?</dt>
 	<dd>It will install a smartlocate script in /usr/local/bin/, this is needed for the "Locate" function. It will also add a script for cronjob in /etc/cron.hourly/</dd>

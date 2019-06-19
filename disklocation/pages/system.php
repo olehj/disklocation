@@ -77,8 +77,11 @@
 	
 	require_once("sqlite_tables.php");
 	
-	if($argv[1] == "cronjob" && !$argv[2]) {
-		$debugging_active = 2;
+	if($argv[1] == "cronjob") {
+		if(!$argv[2]) { 
+			$debugging_active = 2;
+		}
+		set_time_limit(600); // set to 10 minutes.
 	}
 	
 	function debug_print($act = 0, $line, $section, $message) {
@@ -662,7 +665,10 @@
 				usleep($smart_exec_delay . 000); // delay script to get the output of the next shell_exec()
 				
 				if(!empty($smart_check_operation) || $_POST["force_smart_scan"]) { // only get SMART data if the disk is spinning, if it is a new install/empty database, or if scan is forced.
-					$smart_cmd[$i] = shell_exec("smartctl -x --json /dev/bsg/$lsscsi_device[$i]");	// get all SMART data for this device, we grab it ourselves to get all drives also attached to hardware raid cards.
+					if(!$_POST["force_smart_scan"]) {
+						$smart_standby_cmd = "-n standby";
+					}
+					$smart_cmd[$i] = shell_exec("smartctl $smart_standby_cmd -x --json /dev/bsg/$lsscsi_device[$i]");	// get all SMART data for this device, we grab it ourselves to get all drives also attached to hardware raid cards.
 					$smart_array = json_decode($smart_cmd[$i], true);
 					debug_print($debugging_active, __LINE__, "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "=" . is_array($smart_array) . " (1=array available)");
 					
@@ -756,8 +762,10 @@
 			}
 			$i++;
 		}
-		// check the existens of devices
-		find_and_set_removed_devices_status($db, $deviceid); 		// tags removed devices 'r', delete device from location
+		// check the existens of devices, must be run during force smart scan.
+		if($_POST["force_smart_scan"]) {
+			find_and_set_removed_devices_status($db, $deviceid); 		// tags removed devices 'r', delete device from location
+		}
 	}
 	
 	// get disk info for "Information" and "Configuration"

@@ -1,0 +1,8 @@
+#!/bin/bash
+if [[ "`pidof -x $(basename $0) -o %PPID`" ]]; then
+  while [ "`pidof -x $(basename $0) -o %PPID`" ]; do
+    sleep 5
+  done
+fi
+
+php -f /usr/local/emhttp/plugins/disklocation/pages/system.php cronjob silent
