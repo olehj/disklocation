@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.06.17-dev">
+<!ENTITY version          "2019.06.18-dev">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY packageGIT       "https://github.com/olehj/disklocation.git">
 <!ENTITY branch           "devel">
@@ -23,11 +23,6 @@
 	 min="6.7.0"
 	 support="&pluginsupportURL;"
 >
-
-<FILE Name="/boot/packages/git-2.22.0-x86_64-2.txz" Run="upgradepkg --install-new" Min="6.7.0" Max="6.7.9">
-<URL>https://mirrors.slackware.com/slackware/slackware64-current/slackware64/d/git-2.22.0-x86_64-2.txz</URL>
-<MD5>fd43ed41cce35cdecdd9c3a9860c87f4</MD5>
-</FILE>
 
 <CHANGES>
 ###Development releases
@@ -145,7 +140,18 @@ EOL
     tar jcf &pluginLOC;/disklocation_db_v2.sqlite.tar.bz2 &pluginLOC;/disklocation.sqlite
     logit "Made backup of database (&pluginLOC;/disklocation_db_v2.sqlite.tar.bz2) before it will be upgraded to version 3"
   fi
-  logit "Plugin and Package file &packagefile; extracted and installed successfully"
+  logit "Package file &packagefile; extracted."
+  logit "Adding disks into database, please wait... this might take a while..."
+  php -f /usr/local/emhttp/plugins/disklocation/pages/system.php cronjob
+
+  <!--# Add crontab script -->
+  cat &gt;/etc/cron.hourly/disklocation.sh &lt;&lt;EOL
+#!/bin/bash
+php -f /usr/local/emhttp/plugins/disklocation/pages/system.php cronjob silent
+EOL
+  chmod +x /etc/cron.hourly/disklocation.sh
+  logit "Added cronjob script in cron.hourly."
+  logit "Plugin installed successfully!"
   exit 0
 else
   <!-- Revert back to previous packages -->
