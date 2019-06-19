@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.06.19-dev">
+<!ENTITY version          "2019.06.19b-dev">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY packageGIT       "https://github.com/olehj/disklocation.git">
 <!ENTITY branch           "devel">
@@ -133,22 +133,40 @@ while sleep 0.5; do
 done
 EOL
   chmod +x /usr/local/bin/smartlocate
-  
+  <!-- prevent cron from running during install -->
+  rm "/etc/cron.hourly/disklocation.sh"
   rm -Rf "/tmp/&name;-packages"
   rm -f "/tmp/&name;-install"
+  
+  <!--# Add crontab script -->
+  cat &gt;/etc/cron.hourly/disklocation.sh &lt;&lt;EOL
+#!/bin/bash
+if [[ &quot;`pidof -x &#36;(basename &#36;0) -o %PPID`&quot; ]]; then
+  while [ &quot;`pidof -x &#36;(basename &#36;0) -o %PPID`&quot; ]; do
+    sleep 5
+  done
+fi
+php -f /usr/local/emhttp/plugins/disklocation/pages/system.php cronjob silent
+EOL
+  if [[ "`pidof -x disklocation.sh`" ]]; then
+    logit "Cronjob is already running... retrying every 5 seconds until it finish..."
+    while [ "`pidof -x disklocation.sh`" ];
+    do
+      sleep 5
+      logit "retrying..."
+    done
+  fi
+  logit "done and continue..."
+  
   if [[ -f "&pluginLOC;/disklocation.sqlite" &amp;&amp; ! -f "&pluginLOC;/disklocation_db_v2.sqlite.tar.bz2" ]]; then
     tar jcf &pluginLOC;/disklocation_db_v2.sqlite.tar.bz2 &pluginLOC;/disklocation.sqlite
     logit "Made backup of database (&pluginLOC;/disklocation_db_v2.sqlite.tar.bz2) before it will be upgraded to version 3"
   fi
   logit "Package file &packagefile; extracted."
+  
   logit "Adding disks into database, please wait... this might take a while..."
   php -f /usr/local/emhttp/plugins/disklocation/pages/system.php cronjob
-
-  <!--# Add crontab script -->
-  cat &gt;/etc/cron.hourly/disklocation.sh &lt;&lt;EOL
-#!/bin/bash
-php -f /usr/local/emhttp/plugins/disklocation/pages/system.php cronjob silent
-EOL
+  
   chmod +x /etc/cron.hourly/disklocation.sh
   logit "Added cronjob script in cron.hourly."
   logit "Plugin installed successfully!"
