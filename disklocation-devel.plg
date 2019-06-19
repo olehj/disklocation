@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.06.19g-dev">
+<!ENTITY version          "2019.06.19h-dev">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -88,7 +88,7 @@ if [ "$DOWNLOAD_PKG" == "true" ]; then
   else
   <!--# Do not use git anymore, we download the generated zip file instead.
     mkdir -p "/tmp/&name;-git"
-    git clone --single-branch --branch &branch; &packageGIT; "/tmp/&name;-git"
+    git clone - -single-branch - -branch &branch; &packageGIT; "/tmp/&name;-git"
     tar jcf "/tmp/&name;-git/&packagefile;" -C "/tmp/&name;-git" &name;
     mv "/tmp/&name;-git/&packagefile;" &pluginLOC;
     rm -rf "/tmp/&name;-git"
