@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.06.19j-dev">
+<!ENTITY version          "2019.06.19k-dev">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -78,7 +78,7 @@ if [ "$DOWNLOAD_PKG" == "true" ]; then
   mkdir -p "/tmp/&name;-packages"
   TEMPOLD="&pluginLOC;/&name;.*.tar.bz2"
   TEMP="&pluginLOC;/&name;.*.zip"
-  mv -f $TEMPOLD $TEMP "/tmp/&name;-packages"
+  mv -f $TEMPOLD $TEMP "/tmp/&name;-packages/"
 
   logit "Attempting to download plugin package &packageURL;..."
   wget -O &pluginLOC;/&packagefile; --quiet --spider --no-check-certificate --timeout=10 &packageURL;
@@ -108,7 +108,7 @@ if [ "$INSTALL_PKG" == "true" ] ; then
   <!--# Remove current existing files -->
   [ -d "&emhttpLOC;" ] &amp;&amp; rm -fR "&emhttpLOC;"
   <!--# Extract files and move correct directory -->
-  unzip "&pluginLOC;/&packagefile;" -d /tmp/&name;-packages
+  unzip "&pluginLOC;/&packagefile;" -d /tmp/&name;-packages/
   mv "/tmp/&name;-packages/&name;-&branch;/&name;" &emplugLOC;/
   <!--tar -jxf "&pluginLOC;/&packagefile;" -C "&emplugLOC;"-->
   <!--# Edit PAGE file  - Dynamically add version number -->
@@ -148,6 +148,8 @@ EOL
 #!/bin/bash
 if [[ &quot;&#96;pidof -x &#36;(basename &#36;0) -o %PPID&#96;&quot; ]]; then
   while [ &quot;&#96;pidof -x &#36;(basename &#36;0) -o %PPID&#96;&quot; ]; do
+  # test &#96; test
+  # test2 &#96; test &#96; test
     sleep 5
   done
 fi
