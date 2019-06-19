@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.06.19f-dev">
+<!ENTITY version          "2019.06.19g-dev">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -146,8 +146,8 @@ EOL
   <!--# Add crontab script -->
   cat &gt;/etc/cron.hourly/disklocation.sh &lt;&lt;EOL
 #!/bin/bash
-if [[ &quot;&grave;pidof -x &#36;(basename &#36;0) -o %PPID&grave;&quot; ]]; then
-  while [ &quot;&grave;pidof -x &#36;(basename &#36;0) -o %PPID&grave;&quot; ]; do
+if [[ &quot;&#96;pidof -x &#36;(basename &#36;0) -o %PPID&#96;&quot; ]]; then
+  while [ &quot;&#96;pidof -x &#36;(basename &#36;0) -o %PPID&#96;&quot; ]; do
     sleep 5
   done
 fi
