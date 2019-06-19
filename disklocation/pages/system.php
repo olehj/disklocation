@@ -77,8 +77,11 @@
 	
 	require_once("sqlite_tables.php");
 	
-	if($argv[1] == "cronjob" && !$argv[2]) {
-		$debugging_active = 2;
+	if($argv[1] == "cronjob") {
+		if(!$argv[2]) { 
+			$debugging_active = 2;
+		}
+		set_time_limit(600); // set to 10 minutes.
 	}
 	
 	function debug_print($act = 0, $line, $section, $message) {
