@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.06.19b-dev">
+<!ENTITY version          "2019.06.19c-dev">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY packageGIT       "https://github.com/olehj/disklocation.git">
 <!ENTITY branch           "devel">
@@ -141,8 +141,8 @@ EOL
   <!--# Add crontab script -->
   cat &gt;/etc/cron.hourly/disklocation.sh &lt;&lt;EOL
 #!/bin/bash
-if [[ &quot;`pidof -x &#36;(basename &#36;0) -o %PPID`&quot; ]]; then
-  while [ &quot;`pidof -x &#36;(basename &#36;0) -o %PPID`&quot; ]; do
+if [[ &quot;&#768;pidof -x &#36;(basename &#36;0) -o %PPID&#768;&quot; ]]; then
+  while [ &quot;&#768;pidof -x &#36;(basename &#36;0) -o %PPID&#768;&quot; ]; do
     sleep 5
   done
 fi
@@ -155,8 +155,8 @@ EOL
       sleep 5
       logit "retrying..."
     done
+    logit "done and continue..."
   fi
-  logit "done and continue..."
   
   if [[ -f "&pluginLOC;/disklocation.sqlite" &amp;&amp; ! -f "&pluginLOC;/disklocation_db_v2.sqlite.tar.bz2" ]]; then
     tar jcf &pluginLOC;/disklocation_db_v2.sqlite.tar.bz2 &pluginLOC;/disklocation.sqlite
