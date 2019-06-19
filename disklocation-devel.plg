@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.06.19k-dev">
+<!ENTITY version          "2019.06.19l-dev">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -109,12 +109,20 @@ if [ "$INSTALL_PKG" == "true" ] ; then
   [ -d "&emhttpLOC;" ] &amp;&amp; rm -fR "&emhttpLOC;"
   <!--# Extract files and move correct directory -->
   unzip "&pluginLOC;/&packagefile;" -d /tmp/&name;-packages/
-  mv "/tmp/&name;-packages/&name;-&branch;/&name;" &emplugLOC;/
+  mv "/tmp/&name;-packages/&name;-&branch;/&name;" "&emplugLOC;/"
   <!--tar -jxf "&pluginLOC;/&packagefile;" -C "&emplugLOC;"-->
   <!--# Edit PAGE file  - Dynamically add version number -->
   if [ -f "&emhttpLOC;/&name;.page" ] ; then
     echo "Version=\"&version;\"" &gt;&gt; "&emhttpLOC;/&name;.page"
+    logit "Extraction done."
+    EXTRACT_PKG="true"
+  else
+    logit "Extraction failed."
+    EXTRACT_PKG="false"
   fi
+fi
+
+if [ "$EXTRACT_PKG" == "true" ] ; then
   <!--# Add locate bash script -->
   cat &gt;/usr/local/bin/smartlocate &lt;&lt;EOL
 #!/bin/bash
@@ -188,14 +196,16 @@ else
   TEMP1="/tmp/&name;-packages"
   TEMP2=$(ls $TEMP1)
   if [ "$TEMP2" != "" ] ; then
-    TEMP="/tmp/&name;-packages/&name;.*.tar.bz2"
+    OLDTEMP="/tmp/&name;-packages/&name;.*.tar.bz2"
+    TEMP="/tmp/&name;-packages/&name;.*.zip"
+    mv -f $OLDTEMP "&pluginLOC;"
     mv -f $TEMP "&pluginLOC;"
     logit "Previous packages restored"
   else
     logit "No previous packages to restored"
   fi
-  rm -Rf "/tmp/&name;-packages"
-  rm -f "/tmp/&name;-install"
+  #rm -Rf "/tmp/&name;-packages"
+  #rm -f "/tmp/&name;-install"
   logit "Plugin install failed"
   exit 1
 fi
