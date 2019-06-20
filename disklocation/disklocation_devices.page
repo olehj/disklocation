@@ -6,3 +6,41 @@ Title="Devices"
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/locate.php");
 	include "/usr/local/emhttp/plugins/disklocation/pages/devices.php";
 ?>
+<style type="text/css">
+	<?php require_once("/usr/local/emhttp/plugins/disklocation/pages/styles/disk_" . $disk_tray_direction . ".css.php"); ?>
+</style>
+<link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/signals.css")?>">
+<link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/help.css")?>">
+<script type="text/javascript" src="<?autov("" . DISKLOCATION_PATH . "/pages/script/locate_script_top.js.php")?><?php print("&amp;path=" . DISKLOCATION_PATH . ""); ?>"></script>
+<blockquote class='inline_help'>
+	<h3><b><?php echo $get_page_info["Title"] ?> ver. <?php echo DISKLOCATION_VERSION ?></b></h3>
+	<p>
+		Made by <?php echo $get_page_info["Author"] ?>. Copyright ©2018-2019. All rights reserved.
+	</p>
+	<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+		<input type="hidden" name="cmd" value="_donations" />
+		<input type="hidden" name="business" value="RDPSXLQQX266E" />
+		<input type="hidden" name="currency_code" value="EUR" />
+		<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" title="PayPal - The safer, easier way to pay online!" alt="Donate with PayPal button" />
+		<img alt="" border="0" src="https://www.paypal.com/en_NO/i/scr/pixel.gif" width="1" height="1" />
+	</form>
+	<p>
+	</p>
+	<hr />
+	<dt>The tray lights</dt>
+	<dd>Hover your cursor above the lights to display a tooltip to see what's going on. The color and if it flashes will indicate various scenarios. Ex:</dd>
+	<ul>
+		<li><b>Upper LED</b> indicates the validity set by Unraid array and the current activity, like active/idle (green) or standby (green blink).</li>
+		<li><b>Lower LED</b> indicates the SMART check, failed (red) or passed (green).</li>
+	</ul>
+	<br /><br />
+</blockquote>
+<table>
+	<tr>
+		<td style="padding: 25px 0 0 0;">
+			<div class="grid-container">
+				<?php print($disklocation_page); ?>
+			</div>
+		</td>
+	</tr>
+</table>
