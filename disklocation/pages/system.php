@@ -14,6 +14,7 @@
 	define("DISKLOCATION_VERSION", $get_page_info["Version"]);
 	define("DISKLOCATION_URL", "/Settings/disklocation");
 	define("DISKLOCATION_PATH", "/plugins/disklocation");
+	define("EMHTTP_ROOT", "/usr/local/emhttp");
 	
 	$disklocation_error = array();
 	$disklocation_new_install = 0;
@@ -77,7 +78,7 @@
 	
 	require_once("sqlite_tables.php");
 	
-	if($argv[1] == "cronjob") {
+	if($argv[1] == "cronjob" || $argv[1] == "force") {
 		if(!$argv[2]) { 
 			$debugging_active = 2;
 		}
@@ -372,6 +373,72 @@
 		return false;
 	}
 	
+	function dashboard_toggle($widget, $pos = 0) {
+		$path = "" . EMHTTP_ROOT . "" . DISKLOCATION_PATH . "";
+		
+		if(file_exists("" . $path . "/disklocation_dashboard.page")) { 
+			$widget_status = "on";
+		}
+		else {
+			$widget_status = "off";
+		}
+		
+		if($widget_status == "on" && $widget == "off") {
+			rename($path . "/disklocation_dashboard.page", $path . "/disklocation_dashboard.page.off");
+			$widget_status = "off";
+		}
+		if($widget_status == "off" && $widget == "on") {
+			rename($path . "/disklocation_dashboard.page.off", $path . "/disklocation_dashboard.page");
+			$widget_status = "on";
+		}
+		
+		if($widget == "on" && file_exists("" . $path . "/disklocation_dashboard.page")) {
+			$insert_pos = "";
+			if($pos) {
+				$insert_pos = ":" . $pos;
+			}
+			
+			$reading = fopen("" . $path . "/disklocation_dashboard.page", "r");
+			$writing = fopen("" . $path . "/disklocation_dashboard.page.new", "w");
+			
+			$replaced = false;
+			
+			while (!feof($reading)) {
+				$line = fgets($reading);
+				if(stristr($line,"Menu=\"Dashboard")) {
+					$line = "Menu=\"Dashboard" . $insert_pos . "\"\n";
+					$replaced = true;
+				}
+				fputs($writing, $line);
+			}
+			fclose($reading);
+			fclose($writing);
+			
+			if($replaced) {
+				rename("" . $path . "/disklocation_dashboard.page.new", "" . $path . "/disklocation_dashboard.page");
+			} else {
+				unlink("" . $path . "/disklocation_dashboard.page.new");
+			}
+		}
+		
+		if($widget == "info") {
+			$reading = fopen("" . $path . "/disklocation_dashboard.page","r");
+			$results = fgets($reading);
+			list($foo, $pos) = explode(":", $results);
+			if(!$pos) {
+				$pos = 0;
+			}
+			
+			fclose($reading);
+		}
+		//"Widget: " . $widget . ", changed to: " . $widget_status . ", position: " . $pos . "";
+		return array(
+			"input"		=> $widget,
+			"current"	=> $widget_status,
+			"position"	=> $pos
+		);
+	}
+	
 	if($_POST["save_settings"]) {
 		debug_print($debugging_active, __LINE__, "POST", "Button: SAVE has been pressed.");
 		// trays
@@ -398,6 +465,11 @@
 		if(!preg_match("/[0-9]{1,3}/", $_POST["tray_height"])) { $disklocation_error[] = "Tray's smallest side outside limits or invalid number entered."; }
 		if(!preg_match("/(u|m)/", $_POST["warranty_field"])) { $disklocation_error[] = "Warranty field is invalid."; }
 		//if(!preg_match("/(C|F|K)/", $_POST["tempunit"])) { $disklocation_error[] = "Temperature unit is invalid."; }
+		if(!preg_match("/[0-9]{1,4}/", $_POST["dashboard_widget_pos"])) { $disklocation_error[] = "Dashboard widget position number invalid."; }
+		
+		$dashboard_widget_array = dashboard_toggle($_POST["dashboard_widget"], $_POST["dashboard_widget_pos"]);
+		$dashboard_widget = $dashboard_widget_array["current"];
+		$dashboard_widget_pos = $dashboard_widget_array["position"];
 		
 		if(empty($disklocation_error)) {
 			$keys_drives = array_keys($post_drives);
@@ -635,11 +707,19 @@
 	$color_array["empty"] = $bgcolor_empty;
 	
 	// add and update disk info
-	if($disklocation_new_install) {
-		$_POST["force_smart_scan"] = 1; // trigger force_smart_scan post if it is a new install
+	if($_POST["force_smart_scan"] || $disklocation_new_install || $argv[1] == "force") {
+		$force_scan = 1; // trigger force_smart_scan post if it is a new install or if it is forced at CLI
 	}
 	
-	if($_POST["force_smart_scan"] || $argv[1] == "cronjob") {
+	if($force_scan || $argv[1] == "cronjob") {
+		// wait until the cronjob has finished.
+		$pid_cron_script = trim(shell_exec("pgrep -f disklocation.sh"));
+		while(!empty(trim(shell_exec("pgrep -f disklocation.sh"))) && $force_scan) {
+			$retry_delay = 5;
+			debug_print($debugging_active, __LINE__, "delay", "PGREP: Cronjob (PID:$pid_cron_script) running, retrying every $retry_delay secs...");
+			sleep($retry_delay);
+		}
+		
 		$i=0;
 		debug_print($debugging_active, __LINE__, "array", "LSSCSI:" . count($lsscsi_arr) . "");
 		while($i < count($lsscsi_arr)) {
@@ -664,8 +744,8 @@
 				$smart_check_operation = shell_exec("smartctl -n standby /dev/bsg/$lsscsi_device[$i] | egrep 'ACTIVE|IDLE'");
 				usleep($smart_exec_delay . 000); // delay script to get the output of the next shell_exec()
 				
-				if(!empty($smart_check_operation) || $_POST["force_smart_scan"]) { // only get SMART data if the disk is spinning, if it is a new install/empty database, or if scan is forced.
-					if(!$_POST["force_smart_scan"]) {
+				if(!empty($smart_check_operation) || $force_scan) { // only get SMART data if the disk is spinning, if it is a new install/empty database, or if scan is forced.
+					if(!$force_scan) {
 						$smart_standby_cmd = "-n standby";
 					}
 					$smart_cmd[$i] = shell_exec("smartctl $smart_standby_cmd -x --json /dev/bsg/$lsscsi_device[$i]");	// get all SMART data for this device, we grab it ourselves to get all drives also attached to hardware raid cards.
@@ -763,7 +843,7 @@
 			$i++;
 		}
 		// check the existens of devices, must be run during force smart scan.
-		if($_POST["force_smart_scan"]) {
+		if($force_scan) {
 			find_and_set_removed_devices_status($db, $deviceid); 		// tags removed devices 'r', delete device from location
 		}
 	}

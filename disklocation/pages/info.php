@@ -162,6 +162,11 @@
 	}
 ?>
 <h2 style="margin-top: -10px; padding: 0 0 25px 0;">Disk Information</h2>
+<blockquote class='inline_help'>
+	<dt>"Power On Hours" and "Warranty" hover</dt>
+	<dd>Hover over text to get additional information or simpler readout.</dd>
+	<br />
+</blockquote>
 <table>
 	<tr style="border: solid 1px #000000;">
 		<td style="padding: 0 10px 0 10px;"><b>Tray</b></td>
@@ -194,7 +199,7 @@
 					</td>
 				</tr>
 				<tr style=\"border: solid 1px #000000;\">
-					<td style=\"padding: 0 10px 0 10px;\"><b>Delete</b></td>
+					<td style=\"padding: 0 10px 0 10px;\"><b>Operation</b></td>
 					<td style=\"padding: 0 10px 0 10px;\"><b>Path</b></td>
 					<td style=\"padding: 0 10px 0 10px;\"><b>Logical Unit Name</b></td>
 					<td style=\"padding: 0 10px 0 10px;\"><b>Manufacturer</b></td>
@@ -215,3 +220,10 @@
 		}
 	?>
 </table>
+<blockquote class='inline_help'>
+	<dt>"Operation"</dt>
+	<ul>
+		<li>Delete, this will flag the drive hidden in the database.</li>
+		<li>Add, will revert to &quot;not found list&quot; if the drive does not exists, but will reappear in the configuration if it really does. Usually it shouldn't be any need for this.</li>
+	</ul>
+</blockquote>

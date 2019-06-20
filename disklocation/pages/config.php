@@ -4,6 +4,10 @@
 	$i_drive=1;
 	unset($print_drives);
 	
+	$dashboard_widget_array = dashboard_toggle("info");
+	$dashboard_widget = $dashboard_widget_array["current"];
+	$dashboard_widget_pos = $dashboard_widget_array["position"];
+	
 	if(!count_table_rows($db, "location")) {
 		$add_empty_tray_disabled = "disabled";
 	}
@@ -174,6 +178,9 @@
 				<div class="grid-container">
 					<?php print($disklocation_layout); ?>
 				</div>
+				<blockquote class='inline_help'>
+					This shows you an overview of your configured tray layout
+				</blockquote>
 				<p>
 					<b>Change background colors:</b>
 				</p>
@@ -219,26 +226,49 @@
 						</tr>
 					</table>
 				</div>
+				<blockquote class='inline_help'>
+					<dt>Select the color(s) you want, defaults are:</dt>
+					<ul>
+						<li>#eb4f41 "Parity"</li>
+						<li>#ef6441 "Data"</li>
+						<li>#ff884c "Cache"</li>
+						<li>#41b5ef "Unassigned devices"</li>
+						<li>#aaaaaa "Empty/available trays"</li>
+					</ul>
+				</blockquote>
 				<p>
 					<b>Set sizes for trays:</b><br />
 					<input type="number" required min="100" max="2000" name="tray_width" value="<?php print($tray_width); ?>" style="width: 50px;" /> px longest side<br />
 					<input type="number" required min="30" max="700" name="tray_height" value="<?php print($tray_height); ?>" style="width: 50px;" /> px shortest side
 				</p>
+				<blockquote class='inline_help'>
+					This is the HTML/CSS pixel size for a single harddisk tray, default sizes are: 400px longest side, and 70px shortest side.
+				</blockquote>
+				<p>
 					<b>Set grid size:</b><br />
 					<input type="number" required min="1" max="255" name="grid_columns" value="<?php print($grid_columns); ?>" style="width: 50px;" /> columns<br />
 					<input type="number" required min="1" max="255" name="grid_rows" value="<?php print($grid_rows); ?>" style="width: 50px;" /> rows<br />
 					<input type="number" min="<?php print($grid_columns * $grid_rows); ?>" max="255" name="grid_trays" value="<?php print(empty($grid_trays) ? null : $grid_trays ); ?>" style="width: 50px;" /> total trays, override
 				</p>
+				<blockquote class='inline_help'>
+					Set columns and rows to simulate the looks of your trays, ex. 4 columns * 6 rows = 24 total trays. However, you can override the total amount for additional drives you might have which you don't want to include in the main setup. The total trays will always scale unless you enter a larger value yourself. This value can be left blank for saving.
+				</blockquote>
 				<p>
 					<b>Set physical tray direction:</b><br />
 					<input type="radio" name="disk_tray_direction" value="h" <?php if($disk_tray_direction == "h") echo "checked"; ?> />horizontal
 					<input type="radio" name="disk_tray_direction" value="v" <?php if($disk_tray_direction == "v") echo "checked"; ?> />vertical
 				</p>
+				<blockquote class='inline_help'>
+					This is the direction of the tray itself. Is it laying flat/horizontal, or is it vertical?
+				</blockquote>
 				<p>
 					<b>Set physical tray assignment direction:</b><br />
 					<input type="radio" name="grid_count" value="column" <?php if($grid_count == "column") echo "checked"; ?> />top to bottom
 					<input type="radio" name="grid_count" value="row" <?php if($grid_count == "row") echo "checked"; ?>/>left to right
 				</p>
+				<blockquote class='inline_help'>
+					Select how to count the tray, from "top to bottom" or from "left to right"
+				</blockquote>
 				<!-- Will use system variable instead configured under "Display Settings"
 				<p>
 					<b>Set temperature unit:</b><br />
@@ -246,22 +276,54 @@
 					<input type="radio" name="tempunit" value="F" <?php if($tempunit == "F") echo "checked"; ?>/>°F
 					<input type="radio" name="tempunit" value="K" <?php if($tempunit == "K") echo "checked"; ?>/>K
 				</p>
+				<blockquote class='inline_help'>
+					It's GONE! Use Unraids own "Display Settings" variable instead.
+				</blockquote>
 				-->
 				<p>
 					<b>Set warranty date entry:</b><br />
 					<input type="radio" name="warranty_field" value="u" <?php if($warranty_field == "u") echo "checked"; ?> />Unraid
 					<input type="radio" name="warranty_field" value="m" <?php if($warranty_field == "m") echo "checked"; ?>/>Manual ISO
 				</p>
+				<blockquote class='inline_help'>
+					Select how you want to enter the warranty date: the Unraid way of selecting amount of months, or manual ISO date for specific dates. Both values can be stored, but only one can be visible at a time.
+				</blockquote>
+				<p>
+					<b>Display plugin at Dashboard?</b><br />
+					Position: <input type="number" required min="0" max="1000" name="dashboard_widget_pos" value="<?php print($dashboard_widget_pos); ?>" style="width: 50px;" />
+					<input type="radio" name="dashboard_widget" value="on" <?php if($dashboard_widget == "on") echo "checked"; ?>/>Yes
+					<input type="radio" name="dashboard_widget" value="off" <?php if($dashboard_widget == "off") echo "checked"; ?> />No
+				</p>
+				<blockquote class='inline_help'>
+					Choose if you want to display this plugin in the Unraid Dashboard, "Enable" or "Disable"<br />
+					Enter a number in the location box to decide where to put the dashboard widget, this is a bit experimental.
+					Enter 0 and it will position itself automatically, usually at the bottom. Enter a number, like 10, and it will stay at the top of the page. 
+					If the number you wrote has the same number as another plugin, it will stay above or underneath it, so change the number and try again.
+					This feature is rather experimental and the behaviour might be unexpected, there's no real documentation for creating dashboard widgets with current Unraid Dashboard design.
+					And the positioning isn't easy to customize by just adding it into the page.
+				</blockquote>
 				<p>
 					<b>SMART execution delay:</b><br />
 					<input type="number" required min="0" max="5000" name="smart_exec_delay" value="<?php print($smart_exec_delay); ?>" style="width: 50px;" />ms
 				</p>
+				<blockquote class='inline_help'>
+					This is a delay for execution of the next smartctl command in a loop, this might be necessary to be able to read all the SMART data from all the drives. Default value is 200ms, and seems to work very well. If you realize it won't detect all the data you can increase this value, but hardly any point decreasing it.
+				</blockquote>
 				<p style="text-align: center;">
 					<input type="hidden" name="current_warranty_field" value="<?php echo $warranty_field ?>" />
 					<input type="submit" name="save_settings" value="Save" /><input type="reset" value="Reset" />
 					<br />
-					<input type="submit" name="force_smart_scan" value="Force SMART reload" />
+					<input type="submit" name="force_smart_scan" value="Force Scan All" />
 				</p>
+				<blockquote class='inline_help'>
+					<ul>
+						<li>"Save" button will store all information entered.</li>
+						<li>"Reset" will just revert changes if you changed any values before you saved them, it will not undo the last save.</li>
+						<li>"Force Scan All" button will force scan all drives for updated SMART data and move removed disks into the "lost" table under the "Information" tab. This button will and must wake up all drives into a spinning state and does so one by one. It might take a while to complete depending on your configuration.</li>
+					</ul>
+					You can also run "Force Scan All" from the shell and get direct output which might be useful for debugging:<br />
+					<code style="white-space: nowrap;">php -f /usr/local/emhttp/plugins/disklocation/pages/system.php force</code>
+				</blockquote>
 			</td>
 			<td style="vertical-align: top; padding-left: 20px;">
 				<h2 style="padding-bottom: 25px;">Allocations</h2>
@@ -314,6 +376,25 @@
 						}
 					?>
 				</table>
+				<blockquote class='inline_help'>
+					<dt>Tray allocations</dt>
+					<dd>Select where to assign the drives and the empty trays, be sure to select a unique tray slot number. It will detect failure and none of the new settings will be saved.</dd>
+					
+					<dt>Purchased and Warranty</dt>
+					<dd>For Unraid array drives which already got the date set, this will be detected (and eventually overwrite) by the main configuration. This plugin will not touch that, unless if those does not exists in the first place. For unassigned devices, you can enter a date of purchase and warranty.</dd>
+					
+					<dt>Comment</dt>
+					<dd>Enter a comment, like where you bought the drive or anything else you'd like.</dd>
+					
+					<dt>"Locate" button</dt>
+					<dd>The "Locate" button will make your harddisk blink on the LED, this is mainly useful for typical hotswap trays with a LED per tray.</dd>
+					
+					<dt>"Locate" button does not work</dt>
+					<dd>This might not work on all devices, like SSD's. <!--Also check the "Devices" page if the button is really active or not if you started it from the "Configuration" page. The button on the "Configuration" page will not change when pressed, but it will activate it.--></dd>
+					
+					<dt>LED is blinking continously after using "Locate"</dt>
+					<dd>Just enter the plugin from the Unraid settings page and it should automatically shut down the locate script. Else it will run continously until stopped or rebooted.</dd>
+				</blockquote>
 				<h2 style="padding-bottom: 25px;">Visible Information</h2>
 				<table style="width: auto;">
 					<tr>
@@ -386,6 +467,55 @@
 						</td>
 					</tr>
 				</table>
+				<blockquote class='inline_help'>
+					<dt>Visible Information</dt>
+					<dd>Select the information you want to display on the "Devices" page. Each row is based upon the layout.</dd>
+				</blockquote>
+				
+				<blockquote class='inline_help'>
+					<h1>Additional help</h1>
+					
+					<h3>Installation</h3>
+					<dl>
+						<dt>Why does this plugin require smartmontools 7.0+?</dt>
+						<dd>During installation, smartmontools 7.0 will be installed for Unraid 6.6.x (it is included in Unraid 6.7+ as default). This is required for JSON-output for the smartctl command.</dd>
+						
+						<!--
+						<dt>Why does this plugin require GIT tools?</dt>
+						<dd>This needs to be installed via the Nerd Pack plugin or other methods. During installation the package is cloned from a git repository and archived for later use locally, this simplifies the install updates a bit.</dd>
+						-->
+						
+						<dt>What else does it install in the system?</dt>
+						<dd>It will install a smartlocate script in /usr/local/bin/, this is needed for the "Locate" function. It will also add a script for cronjob in /etc/cron.hourly/</dd>
+						
+						<dt>How is the versioning working?</dt>
+						<dd>The digits are as following: the first is the year, second the month, and third the day. Technically an ISO date. Multiple updates at the same day will get a letter behind the date increasing from [a]. First version released was 2019.01.22</dd>
+						
+						<dt>What's the requirements?</dt>
+						<dd>A newer browser supporting HTML5, tested with Chrome-based browsers and Firefox.</dd>
+						
+						<dt>It takes a long time to open the page!</dt>
+						<dd>The first install will wake up all the drives and force scan SMART data to insert into a database, this might take a while. You can redo this later by clicking the "Force Scan All" button. The automagic cronjob will only scan drives which is already spinning (hopefully).</dd>
+					</dl>
+					
+					<h3>Configuration</h3>
+					<dl>
+						<dt>Removed devices shows up in the "Configuration" area, it didn't before.</dt>
+						<dd>The new system runs in the background and therefore does not run a function to remove these disks, but you can use the "Force Scan All" button to run it. NB! It will wake up all disks!</dd>
+					</dl>
+					
+					<h3>Other</h3>
+					<dl>
+						<dt>Why did you make this when it already exists something similar?</dt>
+						<dd>The other script which inspired me creating this one, does not support drives not directly attached to Unraid. And since I have several attached to a hardware raid card, I found it useful to be able to list all the drives regardless.</dd>
+						
+						<dt>How and where is the configuration file stored?</dt>
+						<dd>The configration is stored in a SQLite database and is located at: /boot/config/plugins/disklocation/disklocation.sqlite</dd>
+						
+						<dt>I want to reset everything to "Factory defaults", how?</dt>
+						<dd>For now, delete the SQLite database manually from the location above. This will be recreated with blank defaults when you enter the plugin page next. Remember, all settings and tray allocations will be deleted for this plugin.</dd>
+					</dl>
+				</blockquote>
 			</td>
 		</tr>
 	</table>
