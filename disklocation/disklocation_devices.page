@@ -25,6 +25,9 @@ Title="Devices"
 		<img alt="" border="0" src="https://www.paypal.com/en_NO/i/scr/pixel.gif" width="1" height="1" />
 	</form>
 	<p>
+		Bug reports at <a href="https://github.com/olehj/disklocation">GitHub</a>, plugin support at <a href="https://forums.unraid.net/topic/77302-plugin-disk-location/">Unraid Forum</a>
+	</p>
+	<p>
 	</p>
 	<hr />
 	<dt>The tray lights</dt>
