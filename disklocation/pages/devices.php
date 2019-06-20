@@ -61,6 +61,24 @@
 					</div>
 				</div>
 			";
+			
+			$disklocation_dash .= "
+				<div style=\"order: " . $tray_assign . "\">
+					<div class=\"flex-container-layout\">
+						<div style=\"background-color: #" . $color_array["empty"] . ";\">
+							<div class=\"flex-container-start\">
+								<span class=\"grey-off\" alt=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" title=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" />&#11044;</span>
+							</div>
+							<div class=\"flex-container-middle\">
+							</div>
+							<div class=\"flex-container-end\">
+								<b>" . $tray_assign . "</b>
+							</div>
+						</div>
+					</div>
+				</div>
+			";
+			
 			$i_empty++;
 		}
 		else {
@@ -293,12 +311,39 @@
 				</div>
 			";
 			
+			if($smart_status == 1) {
+				$dashboard_led = $unraid_array_icon;
+				$dashboard_info = "<span style=\"color: green;\"><b>Disks OK!</b></span>";
+			}
+			else {
+				$dashboard_led = $smart_status_icon;
+				$dashboard_info = "<span style=\"color: red;\"><b>Failed disk!</b></span>";
+			}
+			
+			$disklocation_dash .= "
+				<div style=\"order: " . $drive_tray_order[$hash] . "\">
+					<div class=\"flex-container-layout\">
+						<div style=\"background-color: #" . $color_array[$hash] . ";\">
+							<div class=\"flex-container-start\">
+								$dashboard_led
+							</div>
+							<div class=\"flex-container-middle\">
+							</div>
+							<div class=\"flex-container-end\">
+								<b>$drive_tray_order[$hash]</b>
+							</div>
+						</div>
+					</div>
+				</div>
+			";
+			$installed_drives = $i_drive;
 			$i_drive++;
 		}
 		
 		if($total_main_trays == $i) {
 			$disklocation_page .= "</div><div class=\"grid-container\" style=\"grid-template-rows: " . $grid_columns_override_styles . "; margin: " . $tray_height . "px;\">";
 			$disklocation_layout .= "</div><div class=\"grid-container\" style=\"grid-template-rows: " . $grid_columns_override_styles . "; margin: " . $tray_height / 10 . "px;\">";
+			$disklocation_dash .= "</div><div class=\"grid-container\" style=\"grid-template-rows: " . $grid_columns_override_styles . "; margin: " . $tray_height / 10 . "px;\">";
 		}
 		
 		$i++;
@@ -307,17 +352,3 @@
 	$grid_columns_styles = str_repeat(" auto", $grid_columns);
 	$grid_rows_styles = str_repeat(" auto", $grid_rows);
 ?>
-<style type="text/css">
-	<?php require_once("styles/disk_" . $disk_tray_direction . ".css.php"); ?>
-</style>
-<link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/signals.css")?>">
-<script type="text/javascript" src="<?autov("" . DISKLOCATION_PATH . "/pages/script/locate_script_top.js.php")?><?php print("&amp;path=" . DISKLOCATION_PATH . ""); ?>"></script>
-<table>
-	<tr>
-		<td style="padding: 25px 0 0 0;">
-			<div class="grid-container">
-				<?php print($disklocation_page); ?>
-			</div>
-		</td>
-	</tr>
-</table>

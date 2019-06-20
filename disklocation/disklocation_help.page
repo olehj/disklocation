@@ -1,4 +1,0 @@
-Menu="disklocation:4"
-Title="Help"
----
-<?php include "/usr/local/emhttp/plugins/disklocation/pages/help.php"; ?>

@@ -1,0 +1,42 @@
+Menu="Dashboard"
+---
+<?php
+	require_once("/usr/local/emhttp/plugins/disklocation/pages/system.php");
+	require_once("/usr/local/emhttp/plugins/disklocation/pages/devices.php");
+?>
+<style type="text/css">
+	.dash_disklocation{display:none}
+</style>
+<table class='share_status dashboard box1'>
+	<thead>
+	<tr><td></td><td style="white-space: no-wrap;">Disk Location</td><td style="width: 100%;">
+		<i class='fa fa-fw chevron mt0' id='dash_disklocation' onclick='toggleChevron("dash_disklocation",0)'></i>
+		<a href='/Settings/disklocation' title='Go to Disk Location page'><i class='fa fa-fw fa-cog chevron mt0'></i></a>
+		<span class='info'><?php print($installed_drives); ?> of <?php print($total_trays); ?> drives installed. <?php print($dashboard_info); ?></span>
+	</td><td></td></tr>
+	</thead>
+	<tbody class='dash_disklocation'>
+		<tr><td></td><td colspan='3' class='top'>
+			<br />
+			<style type="text/css">
+				<?php require_once("/usr/local/emhttp/plugins/disklocation/pages/styles/disk_" . $disk_tray_direction . ".css.php"); ?>
+			</style>
+			<link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/signals.css")?>">
+			<script type="text/javascript" src="<?autov("" . DISKLOCATION_PATH . "/pages/script/locate_script_top.js.php")?><?php print("&amp;path=" . DISKLOCATION_PATH . ""); ?>"></script>
+			<table>
+				<tr>
+					<td style="padding: 0 0 0 0;">
+						<div class="grid-container" style="justify-content: center;">
+							<?php print($disklocation_dash); ?>
+						</div>
+					</td>
+				</tr>
+			</table>
+		</td></tr>
+	</tbody>
+</table>
+<script>
+$(function() {
+  toggleView('dash_disklocation',true);
+});
+</script>
