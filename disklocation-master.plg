@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.06.20-dev">
+<!ENTITY version          "2019.06.21">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -30,6 +30,10 @@
 </FILE>
 
 <CHANGES>
+###2019.06.21
+ - Commit #84 - IMPROVEMENT: Help page has been removed and replaced by the standard Unraid inline help function.
+ - Commit #54 - FEATURE: Added a Dashboard widget.
+
 ###2019.06.20
  - Commit #82 - IMPROVEMENT: Installer and cron script now checks for running instances before executing them.
  - Commit #81 - BUG: Forgot to add standby flag to smartctl. Disks should now be able to go back to standby/sleep/off mode again. Also made sure to not accidentally move drives to "lost" when they where just standby.
