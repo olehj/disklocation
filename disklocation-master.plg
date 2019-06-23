@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.06.21">
+<!ENTITY version          "2019.06.23">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -21,6 +21,7 @@
          launch="&launch;"
          pluginURL="&pluginURL;"
 	 min="6.6.0"
+	 max="6.7.0"
 	 support="&pluginsupportURL;"
 >
 
@@ -30,6 +31,9 @@
 </FILE>
 
 <CHANGES>
+###2019.06.23
+ - PFFT¤#"!%" - Currently need to stop support at Unraid 6.7.0 because lack of SQLite support in PHP from and including Unraid 6.7.1. Follow the forums for more information of the future.
+
 ###2019.06.21
  - Commit #84 - IMPROVEMENT: Help page has been removed and replaced by the standard Unraid inline help function.
  - Commit #54 - FEATURE: Added a Dashboard widget.
@@ -40,7 +44,7 @@
  
  - git requirement removed!
 
-###2019.06.19
+###2019.06.19https://forums.unraid.net/topic/81169-unraid-os-version-671-available/?tab=comments#comment-753703
  - Commit #78 - IMPROVEMENT: Major change on how this plugin behaves has been implemented. The drives will now be inserted in the database at install time, and updated hourly via cronjob for the active drives.
 		             Force SMART scan button is also available at "Configuration".
 		             The temperature unit is now configured globally from Unraid itself (Display Settings).
