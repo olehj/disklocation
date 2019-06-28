@@ -1,4 +1,5 @@
 Menu="disklocation:2"
+Icon="fa-info"
 Title="Information"
 ---
-<?php include "/usr/local/emhttp/plugins/disklocation/pages/info.php"; ?>
+<?php require_once("/usr/local/emhttp/plugins/disklocation/pages/info.php"); ?>

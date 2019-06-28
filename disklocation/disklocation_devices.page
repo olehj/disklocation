@@ -1,17 +1,48 @@
 Menu="disklocation:1"
+Icon="fa-server"
 Title="Devices"
 ---
 <?php
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/system.php");
-	require_once("/usr/local/emhttp/plugins/disklocation/pages/locate.php");
-	include "/usr/local/emhttp/plugins/disklocation/pages/devices.php";
+	require_once("/usr/local/emhttp/plugins/disklocation/pages/devices.php");
+	
+	$sql = "SELECT * FROM settings_group ORDER BY id ASC";
+	$results = $db->query($sql);
+	
+	while($data = $results->fetchArray(1)) {
+		extract($data);
+		$gid = $id;
+		
+		$css_grid_group = "
+			grid-template-columns: " . $grid_columns_styles[$gid] . ";
+			grid-template-rows: " . $grid_rows_styles[$gid] . ";
+			grid-auto-flow: " . $grid_count . ";
+		";
+		
+		$disklocation_page_out .= "
+			<td style=\"vertical-align: top; padding: 25px 50px 0 0;\">
+				<h2 style=\"text-align: center;\">$group_name</h2>
+				<div class=\"grid-container\" style=\"$css_grid_group\">
+					$disklocation_page[$gid]
+				</div>
+			</td>
+		";
+		$i++;
+	}
+	
+	if(!count_table_rows($db, "location")) {
+		$disklocation_page_out = "
+			<h1>Please configure Disk Location</h1>
+			Go to <a href=\"" . DISKLOCATIONCONF_URL . "\">Disk Location Configuration</a>
+		";
+	}
 ?>
-<style type="text/css">
-	<?php require_once("/usr/local/emhttp/plugins/disklocation/pages/styles/disk_" . $disk_tray_direction . ".css.php"); ?>
-</style>
 <link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/signals.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/help.css")?>">
 <script type="text/javascript" src="<?autov("" . DISKLOCATION_PATH . "/pages/script/locate_script_top.js.php")?><?php print("&amp;path=" . DISKLOCATION_PATH . ""); ?>"></script>
+<style type="text/css">
+	<?php include "/usr/local/emhttp/plugins/disklocation/pages/styles/disk.css.php"; ?>
+</style>
 <blockquote class='inline_help'>
 	<h3><b><?php echo $get_page_info["Title"] ?> ver. <?php echo DISKLOCATION_VERSION ?></b></h3>
 	<p>
@@ -38,12 +69,8 @@ Title="Devices"
 	</ul>
 	<br /><br />
 </blockquote>
-<table>
+<table style="width: 0;">
 	<tr>
-		<td style="padding: 25px 0 0 0;">
-			<div class="grid-container">
-				<?php print($disklocation_page); ?>
-			</div>
-		</td>
+		<?php print($disklocation_page_out); ?>
 	</tr>
 </table>
