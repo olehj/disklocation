@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.06.23">
+<!ENTITY version          "2019.06.28">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -20,17 +20,17 @@
          version="&version;"
          launch="&launch;"
          pluginURL="&pluginURL;"
-	 min="6.6.0"
-	 max="6.7.0"
+	 min="6.7.2"
 	 support="&pluginsupportURL;"
 >
 
-<FILE Name="/boot/packages/smartmontools-7.0-x86_64-1.txz" Run="upgradepkg --install-new" Max="6.6.9">
-<URL>https://mirrors.slackware.com/slackware/slackware64-current/slackware64/a/smartmontools-7.0-x86_64-1.txz</URL>
-<MD5>c5c852915332cd0984b040eeb545c43c</MD5>
-</FILE>
-
 <CHANGES>
+###2019.06.28
+ - Commit #45 - REQUEST: Different tray count (from FrackinFrog)
+ - Commit #22 - REQUEST: Multiple cases (from tarchive). Add a bunch of cases made available including a bunch of other configuration possibilities.
+ - Removed a bunch of bugs, rewrote a lot of code, and has in general made "Design v2.0". Too much to document, most forgotten anyway! But a lot of work has gone into this release.
+ - NB! Due to weird Unraid releases and versioning, this plugin will only work from 6.7.2 and onwards! 6.7.1 is broken (missing SQLite support). And I can't bothered
+	
 ###2019.06.23
  - PFFT¤#"!%" - Currently need to stop support at Unraid 6.7.0 because lack of SQLite support in PHP from and including Unraid 6.7.1. Follow the forums for more information of the future.
 
@@ -304,9 +304,9 @@ EOL
     logit "done and continue..."
   fi
   
-  if [[ -f "&pluginLOC;/disklocation.sqlite" &amp;&amp; ! -f "&pluginLOC;/disklocation_db_v2.sqlite.tar.bz2" ]]; then
-    tar jcf &pluginLOC;/disklocation_db_v2.sqlite.tar.bz2 &pluginLOC;/disklocation.sqlite
-    logit "Made backup of database (&pluginLOC;/disklocation_db_v2.sqlite.tar.bz2) before it will be upgraded to version 3"
+  if [[ -f "&pluginLOC;/disklocation.sqlite" &amp;&amp; ! -f "&pluginLOC;/disklocation_db_v3.sqlite.tar.bz2" ]]; then
+    tar jcf &pluginLOC;/disklocation_db_v3.sqlite.tar.bz2 &pluginLOC;/disklocation.sqlite
+    logit "Made backup of database (&pluginLOC;/disklocation_db_v3.sqlite.tar.bz2) before it will be upgraded to version 4"
   fi
   logit "Package file &packagefile; extracted."
   
