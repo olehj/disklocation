@@ -559,7 +559,7 @@
 		
 		if($db_update) {
 			$db->close();
-			print("<h3>Database successfully updated, refreshing...</h3><meta http-equiv=\"refresh\" content=\"3;url=" . DISKLOCATION_URL . "\" />");
+			print("<h3>Database successfully updated</h3><!-- ', refreshing...'+ <meta http-equiv=\"refresh\" content=\"3;url=" . DISKLOCATION_URL . "\" />-->");
 			exit;
 		}
 	}
