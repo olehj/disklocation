@@ -20,7 +20,6 @@
          version="&version;"
          launch="&launch;"
          pluginURL="&pluginURL;"
-	 min="6.7.2"
 	 support="&pluginsupportURL;"
 >
 
