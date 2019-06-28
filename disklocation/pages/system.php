@@ -8,16 +8,20 @@
 	$get_page_info = parse_ini_file("/usr/local/emhttp/plugins/disklocation/disklocation.page");
 	
 	// define constants
+	define("UNRAID_CONFIG_PATH", "/boot/config");
 	define("DISKLOCATION_DB", "/boot/config/plugins/disklocation/disklocation.sqlite");
 	define("DISKINFORMATION", "/var/local/emhttp/disks.ini");
 	define("DISKLOGFILE", "/boot/config/disk.log");
 	define("DISKLOCATION_VERSION", $get_page_info["Version"]);
-	define("DISKLOCATION_URL", "/Settings/disklocation");
+	define("DISKLOCATION_URL", "/Tools/disklocation");
+	define("DISKLOCATIONCONF_URL", "/Settings/disklocationConfig");
 	define("DISKLOCATION_PATH", "/plugins/disklocation");
 	define("EMHTTP_ROOT", "/usr/local/emhttp");
 	
 	$disklocation_error = array();
 	$disklocation_new_install = 0;
+	$group = array();
+	$tray_reduction_factor = 10;
 	
 	if(!is_file(DISKLOCATION_DB)) {
 		$disklocation_new_install = 1;
@@ -36,46 +40,6 @@
 		echo $db->lastErrorMsg();
 	}
 	
-	if($_POST["delete_x"] && $_POST["delete_y"]) {
-		$sql = "
-			UPDATE disks SET
-				status = 'd'
-			WHERE luname = '" . $_POST["luname"] . "'
-			;
-		";
-		
-		$ret = $db->exec($sql);
-		if(!$ret) {
-			echo $db->lastErrorMsg();
-		}
-		
-		$db->close();
-		
-		//header("Location: " . DISKLOCATION_URL);
-		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-		exit;
-	}
-	
-	if($_POST["add_x"] && $_POST["add_y"]) {
-		$sql = "
-			UPDATE disks SET
-				status = ''
-			WHERE luname = '" . $_POST["luname"] . "'
-			;
-		";
-		
-		$ret = $db->exec($sql);
-		if(!$ret) {
-			echo $db->lastErrorMsg();
-		}
-		
-		$db->close();
-		
-		//header("Location: " . DISKLOCATION_URL);
-		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-		exit;
-	}
-	
 	require_once("sqlite_tables.php");
 	
 	if($argv[1] == "cronjob" || $argv[1] == "force") {
@@ -90,7 +54,7 @@
 			// write out directly and flush out the results asap
 			$out = "<span style=\"color: red;\">[" . date("His") . "] <b>" . basename(__FILE__) . ":<i>" . $line . "</i></b> @ " . $section . ": " . $message . "</span><br />\n";
 			print($out);
-			file_put_contents("/boot/config/" . DISKLOCATION_PATH . "/debugging.html", $out, FILE_APPEND);
+			file_put_contents("" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/debugging.html", $out, FILE_APPEND);
 			flush();
 			return true;
 		}
@@ -105,27 +69,20 @@
 	
 	debug_print($debugging_active, __LINE__, "functions", "Debug function active.");
 	
-	function is_tray_allocated($db, $tray) {
-		$sql = "SELECT hash FROM location WHERE tray = '" . $tray . "'";
+	function is_tray_allocated($db, $tray, $gid) {
+		$sql = "SELECT hash FROM location WHERE tray = '" . $tray . "' AND groupid = '" . $gid . "'";
 		$results = $db->query($sql);
 		while($data = $results->fetchArray(1)) {
 			return ( isset($data["hash"]) ? $data["hash"] : false);
 		}
 	}
 	
-	function get_tray_location($db, $hash, $empty = '') {
-		$sql = "SELECT * FROM location WHERE hash = '" . $hash . "'";
+	function get_tray_location($db, $hash, $gid) {
+		$sql = "SELECT * FROM location WHERE hash = '" . $hash . "' AND groupid = '" . $gid . "'";
 		$results = $db->query($sql);
-		if(!$empty) {
-			while($data = $results->fetchArray(1)) {
-				if(!$data["empty"]) { return ( empty($data["tray"]) ? false : $data["tray"] ); }
-			}
-		}
-		else {
-			while($data = $results->fetchArray(1)) {
-				$exp_arr = explode(",", $data["empty"]);
-				$trim_arr=array_filter($exp_arr);
-				return ( empty($trim_arr) ? false : $trim_arr );
+		while($data = $results->fetchArray(1)) {
+			if(!$data["empty"]) { 
+				return ( empty($data["tray"]) ? false : $data["tray"] );
 			}
 		}
 	}
@@ -238,7 +195,7 @@
 		);
 		
 		$arr_messages = array(
-			"00" => "Disk unavailable or unconfigured",
+			"00" => "Disk unavailable or no information",
 			"11" => "Disk valid: Active or idle",
 			"21" => "Disk valid: Standby",
 			"32" => "Disk invalid: Active or idle",
@@ -373,6 +330,161 @@
 		return false;
 	}
 	
+	function tray_number_assign($col, $row, $dir, $grid) {
+		$total = $col * $row; // 6 = 3 * 2
+		
+		$data = array();
+		$tmp = array();
+		$results = array();
+		
+		switch($dir) {
+			case 1: // ok
+				if($grid) {
+					/* 1 = left->right|top->bottom:		verified ok	(row: left->right)
+						1-2-3
+						4-5-6
+					*/
+					/* 1 = top->bottom|left->right:		verified ok	(column: top->bottom)
+						1-3-5
+						2-4-6
+					*/
+					for($i=1; $i <= $total; ++$i) {
+						$data[] = $i;
+					}
+					array_unshift($data, $grid);
+					
+					$results = $data;
+				}
+				
+				return $results;
+				
+				break;
+				
+			case 2: // ok
+				if($grid == "row") {
+					/* 2 = left->right|bottom->top:		verified ok	(row: left->right)
+						4-5-6
+						1-2-3
+					*/
+					$i_col = 1;
+					for($i=1; $i <= $total; ++$i) {
+						$data[$i_col][$i] = $i;
+						if($i % $col == 0) {
+							$i_col++;
+						}
+					}
+					
+					for($i=count($data); $i >= 1; $i=$i-1) {
+						array_push($tmp, $data[$i]);
+					}
+					
+					$results = array_merge(... $tmp);
+					array_unshift($results, $grid);
+				}
+				else {
+					/* 2 = bottom->top|left->right:		verified ok	(column: top->bottom)
+						2-4-6
+						1-3-5
+					*/
+					
+					$i_row = 1;
+					for($i=1; $i <= $total; $i++) {
+						$data[$i_row][$i] = $i;
+						if($i % $row == 0) {
+							$i_row++;
+						}
+					}
+					
+					for($i=1; $i <= count($data); $i++) {
+						array_push($tmp, array_reverse($data[$i]));
+					}
+					
+					$results = array_merge(... $tmp);
+					array_unshift($results, $grid);
+					
+					return $results;
+				}
+				
+				return $results;
+				
+				break;
+				
+			case 3: // ok
+				if($grid == "row") {
+					/* 3 = right->left|top->bottom:		verified ok	(row: left->right)
+						3-2-1
+						6-5-4
+					*/
+					$i_col = 1;
+					for($i=1; $i <= $total; $i++) {
+						$data[$i_col][$i] = $i;
+						if($i % $col == 0) {
+							$i_col++;
+						}
+					}
+					
+					for($i=1; $i <= count($data); $i++) {
+						array_push($tmp, array_reverse($data[$i]));
+					}
+					
+					$results = array_merge(... $tmp);
+					array_unshift($results, $grid);
+				}
+				else {
+					/* 3 = top->bottom|right->left:		verified ok	(column: top->bottom)
+						5-3-1
+						6-4-2
+					*/
+					
+					$i_row = 1;
+					for($i=1; $i <= $total; ++$i) {
+						$data[$i_row][$i] = $i;
+						if($i % $row == 0) {
+							$i_row++;
+						}
+					}
+					
+					for($i=count($data); $i >= 1; $i=$i-1) {
+						array_push($tmp, $data[$i]);
+					}
+					
+					$results = array_merge(... $tmp);
+					array_unshift($results, $grid);
+				}
+				
+				return $results;
+				
+				break;
+				
+			case 4: // ok
+				if($grid) {
+					/* 4 = right->left|bottom->top:		verified ok	(row: left->right)
+						6-5-4
+						3-2-1
+					*/
+					/* 4 = bottom->top|right->left:		verified ok	(column: top->bottom)
+						6-4-2
+						5-3-1
+					*/
+
+					for($i=1; $i <= $total; ++$i) {
+						$data[] = $i;
+					}
+					rsort($data);
+					array_unshift($data, $grid);
+					
+					$results = $data;
+				}
+				
+				return $results;
+				
+				break;
+
+			default:
+				return false;
+		}
+	}
+	
 	function dashboard_toggle($widget, $pos = 0) {
 		$path = "" . EMHTTP_ROOT . "" . DISKLOCATION_PATH . "";
 		
@@ -421,7 +533,7 @@
 			}
 		}
 		
-		if($widget == "info") {
+		if($widget == "info" && $widget_status == "on") {
 			$reading = fopen("" . $path . "/disklocation_dashboard.page","r");
 			$results = fgets($reading);
 			list($foo, $pos) = explode(":", $results);
@@ -439,15 +551,105 @@
 		);
 	}
 	
-	if($_POST["save_settings"]) {
-		debug_print($debugging_active, __LINE__, "POST", "Button: SAVE has been pressed.");
-		// trays
-		$sql = "";
-		$post_drives = $_POST["drives"];
-		$post_empty = $_POST["empty"];
-		$post_info = json_encode($_POST["displayinfo"]);
+	function lsscsi_parser($input) {
+		// \[(.*)\]\s+(\w+)\s+([0-9a-z]{1,})\s+(.*)\s+(-|(\/dev\/(h|s)d[a-z]{1,})?)((\/dev\/(nvme|sg)[0-9]{1,})(n[0-9]{1,})?)
+		$pattern_device = "\[(.*)\]";						// $1
+		$pattern_type = "\s+(\w+)";						// $2
+		$pattern_luname = "\s+([0-9a-z]{1,})\s+(.*)\s+";			// $3
+		$pattern_devnode = "(-|(\/dev\/(h|s)d[a-z]{1,})?)";			// $4
+		$pattern_scsigendevnode = "((\/dev\/(nvme|sg)[0-9]{1,})(n[0-9]{1,})?)";	// $8
+			
+		list($device, $type, $luname, $devnode, $scsigendevnode) = 
+			explode("|", preg_replace("/" . $pattern_device . "" . $pattern_type . "" . $pattern_luname . "" . $pattern_devnode . "" . $pattern_scsigendevnode . "/iu", "$1|$2|$3|$4|$8", $input));
 		
-		//if(array_duplicates($post_drives)) { $disklocation_error[] = "Duplicate tray assignment found, be sure to assign trays in a unique order."; }
+		return array(
+			"device"	=> trim($device),
+			"type"		=> trim($type),
+			"luname"	=> str_replace(" ", "", str_replace("none", "", trim($luname))),
+			"devnode"	=> str_replace("-", "", trim($devnode)),
+			"sgnode"	=> trim($scsigendevnode)
+		);
+	}
+	
+	if($_POST["delete_x"] && $_POST["delete_y"]) {
+		$sql = "
+			UPDATE disks SET
+				status = 'd'
+			WHERE luname = '" . $_POST["luname"] . "'
+			;
+		";
+		
+		$ret = $db->exec($sql);
+		if(!$ret) {
+			echo $db->lastErrorMsg();
+		}
+		
+		$db->close();
+		
+		//header("Location: " . DISKLOCATION_URL);
+		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+		exit;
+	}
+	
+	if($_POST["add_x"] && $_POST["add_y"]) {
+		$sql = "
+			UPDATE disks SET
+				status = ''
+			WHERE luname = '" . $_POST["luname"] . "'
+			;
+		";
+		
+		$ret = $db->exec($sql);
+		if(!$ret) {
+			echo $db->lastErrorMsg();
+		}
+		
+		$db->close();
+		
+		//header("Location: " . DISKLOCATION_URL);
+		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+		exit;
+	}
+	
+	if($_POST["group_add_x"] && $_POST["group_add_y"]) {
+		$sql = "
+			INSERT INTO settings_group(group_name) VALUES('');
+		";
+		
+		$ret = $db->exec($sql);
+		if(!$ret) {
+			echo $db->lastErrorMsg();
+		}
+		
+		$db->close();
+		
+		//header("Location: " . DISKLOCATIONCONF_URL);
+		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
+		exit;
+	}
+	if($_POST["group_del_x"] && $_POST["group_del_y"]) {
+		$sql = "
+			DELETE FROM settings_group WHERE id = (SELECT MAX(id) FROM settings_group);
+			DELETE FROM location WHERE groupid = '" . $_POST["last_group_id"] . "';
+		";
+		
+		$ret = $db->exec($sql);
+		if(!$ret) {
+			echo $db->lastErrorMsg();
+		}
+		
+		$db->close();
+		
+		//header("Location: " . DISKLOCATION_URL);
+		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
+		exit;
+	}
+	
+	if($_POST["save_settings"]) {
+		debug_print($debugging_active, __LINE__, "POST", "Button: SAVE SETTINGS has been pressed.");
+		$sql = "";
+		
+		$post_info = json_encode($_POST["displayinfo"]);
 		
 		// settings
 		if(!preg_match("/[0-9]{1,5}/", $_POST["smart_exec_delay"])) { $disklocation_error[] = "SMART execution delay missing or invalid number."; }
@@ -456,15 +658,7 @@
 		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_cache"])) { $disklocation_error[] = "Background color for \"Cache\" invalid."; } else { $_POST["bgcolor_cache"] = str_replace("#", "", $_POST["bgcolor_cache"]); }
 		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_others"])) { $disklocation_error[] = "Background color for \"Unassigned devices\" invalid."; } else { $_POST["bgcolor_others"] = str_replace("#", "", $_POST["bgcolor_others"]); }
 		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_empty"])) { $disklocation_error[] = "Background color for \"Empty trays\" invalid."; } else { $_POST["bgcolor_empty"] = str_replace("#", "", $_POST["bgcolor_empty"]); }
-		if(!preg_match("/\b(column|row)\b/", $_POST["grid_count"])) { $disklocation_error[] = "Physical tray assignment invalid."; }
-		if(!preg_match("/[0-9]{1,3}/", $_POST["grid_columns"])) { $disklocation_error[] = "Grid columns missing or number invalid."; }
-		if(!preg_match("/[0-9]{1,3}/", $_POST["grid_rows"])) { $disklocation_error[] = "Grid rows missing or number invalid."; }
-		if($_POST["grid_trays"] && !preg_match("/[0-9]{1,3}/", $_POST["grid_trays"])) { $disklocation_error[] = "Grid trays number invalid."; }
-		if(!preg_match("/(h|v)/", $_POST["disk_tray_direction"])) { $disklocation_error[] = "Physical tray direction invalid."; }
-		if(!preg_match("/[0-9]{1,4}/", $_POST["tray_width"])) { $disklocation_error[] = "Tray's longest side outside limits or invalid number entered."; }
-		if(!preg_match("/[0-9]{1,3}/", $_POST["tray_height"])) { $disklocation_error[] = "Tray's smallest side outside limits or invalid number entered."; }
 		if(!preg_match("/(u|m)/", $_POST["warranty_field"])) { $disklocation_error[] = "Warranty field is invalid."; }
-		//if(!preg_match("/(C|F|K)/", $_POST["tempunit"])) { $disklocation_error[] = "Temperature unit is invalid."; }
 		if(!preg_match("/[0-9]{1,4}/", $_POST["dashboard_widget_pos"])) { $disklocation_error[] = "Dashboard widget position number invalid."; }
 		
 		$dashboard_widget_array = dashboard_toggle($_POST["dashboard_widget"], $_POST["dashboard_widget_pos"]);
@@ -472,18 +666,107 @@
 		$dashboard_widget_pos = $dashboard_widget_array["position"];
 		
 		if(empty($disklocation_error)) {
+			$sql .= "
+				REPLACE INTO
+					settings(
+						id,
+						smart_exec_delay,
+						bgcolor_parity,
+						bgcolor_unraid,
+						bgcolor_cache,
+						bgcolor_others,
+						bgcolor_empty,
+						warranty_field,
+						dashboard_widget,
+						dashboard_widget_pos,
+						displayinfo
+					)
+					VALUES(
+						'1',
+						'" . $_POST["smart_exec_delay"] . "',
+						'" . $_POST["bgcolor_parity"] . "',
+						'" . $_POST["bgcolor_unraid"] . "',
+						'" . $_POST["bgcolor_cache"] . "',
+						'" . $_POST["bgcolor_others"] . "',
+						'" . $_POST["bgcolor_empty"] . "',
+						'" . $_POST["warranty_field"] . "',
+						'" . $_POST["dashboard_widget"] . "',
+						'" . $_POST["dashboard_widget_pos"] . "',
+						'" . $post_info . "'
+					)
+				;
+			";
+			
+			debug_print($debugging_active, __LINE__, "SQL", "SETTINGS: <pre>" . $sql . "</pre>");
+			
+			$ret = $db->exec($sql);
+			if(!$ret) {
+				echo $db->lastErrorMsg();
+			}
+		}
+	}
+	
+	if($_POST["save_groupsettings"] && $_POST["groupid"]) {
+		debug_print($debugging_active, __LINE__, "POST", "Button: SAVE GROUP SETTINGS has been pressed.");
+		$sql = "";
+		
+		// settings
+		if(!preg_match("/\b(column|row)\b/", $_POST["grid_count"])) { $disklocation_error[] = "Physical tray assignment invalid."; }
+		if(!preg_match("/[0-9]{1,3}/", $_POST["grid_columns"])) { $disklocation_error[] = "Grid columns missing or number invalid."; }
+		if(!preg_match("/[0-9]{1,3}/", $_POST["grid_rows"])) { $disklocation_error[] = "Grid rows missing or number invalid."; }
+		if($_POST["grid_trays"] && !preg_match("/[0-9]{1,3}/", $_POST["grid_trays"])) { $disklocation_error[] = "Grid trays number invalid."; }
+		if(!preg_match("/(h|v)/", $_POST["disk_tray_direction"])) { $disklocation_error[] = "Physical tray direction invalid."; }
+		if(!preg_match("/[0-9]{1}/", $_POST["tray_direction"])) { $disklocation_error[] = "Tray number direction invalid."; }
+		if(!preg_match("/[0-9]{1,4}/", $_POST["tray_width"])) { $disklocation_error[] = "Tray's longest side outside limits or invalid number entered."; }
+		if(!preg_match("/[0-9]{1,3}/", $_POST["tray_height"])) { $disklocation_error[] = "Tray's smallest side outside limits or invalid number entered."; }
+		
+		if(empty($disklocation_error)) {
+			$sql .= "
+				UPDATE settings_group SET
+					group_name = '" . $_POST["group_name"] . "',
+					grid_count = '" . $_POST["grid_count"] . "',
+					grid_columns = '" . $_POST["grid_columns"] . "',
+					grid_rows = '" . $_POST["grid_rows"] . "',
+					grid_trays = '" . ( empty($_POST["grid_trays"]) ? null : $_POST["grid_trays"] ) . "',
+					disk_tray_direction = '" . $_POST["disk_tray_direction"] . "',
+					tray_direction = '" . $_POST["tray_direction"] . "',
+					tray_width = '" . $_POST["tray_width"] . "',
+					tray_height = '" . $_POST["tray_height"] . "'
+				WHERE id = '" . $_POST["groupid"] . "';
+				;
+			";
+			
+			debug_print($debugging_active, __LINE__, "SQL", "GROUP SETTINGS: <pre>" . $sql . "</pre>");
+			
+			$ret = $db->exec($sql);
+			if(!$ret) {
+				echo $db->lastErrorMsg();
+			}
+		}
+	}
+
+	if($_POST["save_allocations"]) {
+		debug_print($debugging_active, __LINE__, "POST", "Button: SAVE ALLOCATIONS has been pressed.");
+		// trays
+		$sql = "";
+		$post_drives = $_POST["drives"];
+		$post_groups = $_POST["groups"];
+		$post_empty = $_POST["empty"];
+		
+		if(empty($disklocation_error)) {
 			$keys_drives = array_keys($post_drives);
 			for($i=0; $i < count($keys_drives); ++$i) {
 				$tray_assign = ( empty($post_drives[$keys_drives[$i]]) ? null : $post_drives[$keys_drives[$i]] );
+				$group_assign = ( empty($post_groups[$keys_drives[$i]]) ? null : $post_groups[$keys_drives[$i]] );
 				
-				if(!$tray_assign) {
+				if(!$tray_assign || !$group_assign) {
 					$sql .= "
 						UPDATE disks SET
 							status = 'h'
 						WHERE hash = '" . $keys_drives[$i] . "'
 						;
 						DELETE FROM location
-							WHERE tray = '" . $tray_assign . "'
+							WHERE tray = '" . $tray_assign . "' AND groupid = '" . $group_assign . "'
 						;
 					";
 				}
@@ -492,14 +775,17 @@
 						INSERT INTO
 							location(
 								hash,
-								tray
+								tray,
+								groupid
 							)
 							VALUES(
 								'" . $keys_drives[$i] . "',
-								'" . $tray_assign . "'
+								'" . $tray_assign . "',
+								'" . $group_assign . "'
 							)
 							ON CONFLICT(hash) DO UPDATE SET
-								tray='" . $tray_assign . "'
+								tray='" . $tray_assign . "',
+								groupid='" . $group_assign . "'
 						;
 						UPDATE disks SET
 							status = NULL
@@ -509,7 +795,7 @@
 				}
 			}
 			
-			debug_print($debugging_active, __LINE__, "SQL", "EMPTY: <pre>" . $sql . "</pre>");
+			debug_print($debugging_active, __LINE__, "SQL", "ALLOC: <pre>" . $sql . "</pre>");
 			
 			$ret = $db->exec($sql);
 			if(!$ret) {
@@ -519,7 +805,7 @@
 			$sql = "";
 			
 			// Remove conflicting tray allocations, use only the newest assigned tray
-			$sql = "SELECT id FROM location GROUP BY tray HAVING COUNT(*) > 1;";
+			$sql = "SELECT id FROM location GROUP BY groupid,tray HAVING COUNT(*) > 1;";
 			$results = $db->query($sql);
 			
 			while($res = $results->fetchArray(1)) {
@@ -530,76 +816,6 @@
 				}
 			}
 			$sql = "";
-			
-			$sql .= "DELETE FROM location WHERE hash = 'empty';";
-			
-			if(is_array($post_empty)) { // Future reference: from php 7.3 and later, use is_countable instead.
-				for($i=0; $i < count($post_empty); ++$i) {
-					if($post_empty[$i] > $_POST["grid_trays"]) { 
-						$i = count($post_empty);
-					}
-					else {
-						if(!is_tray_allocated($db, (int)$post_empty[$i])) {
-							$post_empty_sql .= "" . $post_empty[$i] . ",";
-						}
-					}
-				}
-			}
-			else {
-				$post_empty_sql = "";
-			}
-			$sql .= "
-				INSERT INTO 
-					location(
-						hash,
-						empty
-					)
-					VALUES(
-						'empty',
-						'" . $post_empty_sql . "'
-					)
-				;
-			";
-			$sql .= "
-				REPLACE INTO
-					settings(
-						smart_exec_delay,
-						bgcolor_parity,
-						bgcolor_unraid,
-						bgcolor_cache,
-						bgcolor_others,
-						bgcolor_empty,
-						grid_count,
-						grid_columns,
-						grid_rows,
-						grid_trays,
-						disk_tray_direction,
-						tray_width,
-						tray_height,
-						warranty_field,
-						tempunit,
-						displayinfo
-					)
-					VALUES(
-						'" . $_POST["smart_exec_delay"] . "',
-						'" . $_POST["bgcolor_parity"] . "',
-						'" . $_POST["bgcolor_unraid"] . "',
-						'" . $_POST["bgcolor_cache"] . "',
-						'" . $_POST["bgcolor_others"] . "',
-						'" . $_POST["bgcolor_empty"] . "',
-						'" . $_POST["grid_count"] . "',
-						'" . $_POST["grid_columns"] . "',
-						'" . $_POST["grid_rows"] . "',
-						'" . ( empty($_POST["grid_trays"]) ? null : $_POST["grid_trays"] ) . "',
-						'" . $_POST["disk_tray_direction"] . "',
-						'" . $_POST["tray_width"] . "',
-						'" . $_POST["tray_height"] . "',
-						'" . $_POST["warranty_field"] . "',
-						'" . $_POST["tempunit"] . "',
-						'" . $post_info . "'
-					)
-				;
-			";
 			
 			for($i=0; $i < count($keys_drives); ++$i) {
 				$sql .= "
@@ -614,6 +830,14 @@
 				}
 				$sql .= "
 						comment = '" . $_POST["comment"][$keys_drives[$i]] . "'
+					";
+				if(!in_array(str_replace("#", "", $_POST["bgcolor_custom"][$keys_drives[$i]]), array($bgcolor_parity, $bgcolor_unraid, $bgcolor_cache, $bgcolor_others, $bgcolor_empty))) {
+					$sql .= ", color = '" . str_replace("#", "", $_POST["bgcolor_custom"][$keys_drives[$i]]) . "'";
+				}
+				else {
+					$sql .= ", color = ''";
+				}
+				$sql .= "
 					WHERE hash = '" . $keys_drives[$i] . "'
 					;
 				";
@@ -625,86 +849,12 @@
 			if(!$ret) {
 				echo $db->lastErrorMsg();
 			}
-			
-			//$post_empty_arr = explode(",", $post_empty_sql);
-			
-			//$sql = "SELECT MIN(NULLIF(CAST(tray as INTEGER),0)) AS tray_min , MAX(CAST(tray as INTEGER)) AS tray_max FROM location;";
-			$sql = "SELECT MIN(CAST(tray as INTEGER)) AS tray_min , MAX(CAST(tray as INTEGER)) AS tray_max FROM location;";
-			$results = $db->query($sql);
-			
-			while($data = $results->fetchArray(1)) {
-				extract($data);
-			}
-			
-			for($i = $tray_min; $i <= $tray_max; ++$i) {
-				if(!is_tray_allocated($db, $i)) {
-					$empty_results .= "" . $i . ",";
-				}
-			}
-			
-			$sql = "
-				UPDATE location SET
-					empty = '" . $empty_results . "'
-				WHERE hash = 'empty'
-				;
-			";
-			
-			$ret = $db->exec($sql);
-			if(!$ret) {
-				echo $db->lastErrorMsg();
-			}
 		}
 	}
-	
-	// get settings from DB as $var
-	
-	$sql = "SELECT * FROM settings";
-	$results = $db->query($sql);
-	
-	while($data = $results->fetchArray(1)) {
-		extract($data);
-	}
-	
-	$displayinfo = json_decode($displayinfo, true);
 	
 	// get all attached SCSI drives - usually should grab all local drives available
 	$lsscsi_cmd = shell_exec("lsscsi -u -g");
 	$lsscsi_arr = explode(PHP_EOL, $lsscsi_cmd);
-	
-	// get configured Unraid disks
-	if(is_file(DISKINFORMATION)) {
-		$unraid_disks_import = parse_ini_file(DISKINFORMATION, true);
-		$unraid_disks = array_values($unraid_disks_import);
-	}
-	
-	// get disk logs
-	if(is_file(DISKLOGFILE)) {
-		$unraid_disklog = parse_ini_file(DISKLOGFILE, true);
-	}
-	
-	// modify the array to suit our needs
-	$unraid_array = array();
-	$i=0;
-	while($i < count($unraid_disks)) {
-		$getdevicenode = $unraid_disks[$i]["device"];
-		if($getdevicenode) {
-			$unraid_array[$getdevicenode] = array(
-				"name" => $unraid_disks[$i]["name"],
-				"device" => $unraid_disks[$i]["device"],
-				"status" => $unraid_disks[$i]["status"],
-				"type" => $unraid_disks[$i]["type"],
-				"temp" => $unraid_disks[$i]["temp"],
-				"color" => $unraid_disks[$i]["color"],
-				"fscolor" => $unraid_disks[$i]["fsColor"]
-			);
-		}
-		$i++;
-	}
-	
-	$empty_tray_order = ( empty(get_tray_location($db, "empty", 1)) ? null : array_values(get_tray_location($db, "empty", 1)) );
-	
-	$color_array = array();
-	$color_array["empty"] = $bgcolor_empty;
 	
 	// add and update disk info
 	if($_POST["force_smart_scan"] || $disklocation_new_install || $argv[1] == "force") {
@@ -723,34 +873,46 @@
 		$i=0;
 		debug_print($debugging_active, __LINE__, "array", "LSSCSI:" . count($lsscsi_arr) . "");
 		while($i < count($lsscsi_arr)) {
-			$pattern_device = "\[(.*)\]";					// $1
-			$pattern_type = "\s+(\w+)";					// $2
-			$pattern_luname = "\s+(.*?)[-|\/]";				// $3
-			$pattern_devicenodefp = "(dev[\/]([h|s]d[a-z]{1,}))?";		// $5
-			$pattern_scsigenericdevicenode = "\s+([sg[0-9]{1,})?";		// $7
+			$lsscsi_parser_array = lsscsi_parser($lsscsi_arr[$i]);
+			
+			$lsscsi_device[$i] = $lsscsi_parser_array["device"];					// get the device address: "1:0:0:0"
+			$lsscsi_type[$i] = $lsscsi_parser_array["type"];					// get the type: "disk" / "process" (not in use for this script)
+			$lsscsi_luname[$i] = $lsscsi_parser_array["luname"];					// get the logical unit name of the drive
+			$lsscsi_devicenode[$i] = str_replace("/dev/", "", $lsscsi_parser_array["devnode"]);	// get only the node name: "sda"
+			$lsscsi_devicenodesg[$i] = $lsscsi_parser_array["sgnode"];				// get the full path to SCSI Generic device node: "/dev/sg1|/dev/nvme*"
+			
+			// \[(.*)\]\s+(\w+)\s+([0-9a-z]{1,})\s+(.*)\s+(-|(\/dev\/(h|s)d[a-z]{1,})?)((\/dev\/(nvme|sg)[0-9]{1,})(n[0-9]{1,})?)
+			/*
+			$pattern_device = "\[(.*)\]";							// $1
+			$pattern_type = "\s+(\w+)";							// $2
+			$pattern_luname = "\s+([0-9a-z]{1,})\s+(.*)\s+";				// $3
+			$pattern_devicenodefp = "(-|(\/dev\/(h|s)d[a-z]{1,})?)";			// $4
+			//$pattern_scsigenericdevicenode = "\s+([sg[0-9]{1,})?";	// $7
+			$pattern_scsigenericdevicenode = "((\/dev\/(nvme|sg)[0-9]{1,})(n[0-9]{1,})?)";	// $8
 			
 			list($device[], $type[], $luname[], $devicenodefp[], $scsigenericdevicenode[]) = 
-				explode("|", preg_replace("/^" . $pattern_device . "" . $pattern_type . "" . $pattern_luname . "" . $pattern_devicenodefp . "" . $pattern_scsigenericdevicenode . "/iu", "$1|$2|$3|$5|$7", $lsscsi_arr[$i]));
+				explode("|", preg_replace("/" . $pattern_device . "" . $pattern_type . "" . $pattern_luname . "" . $pattern_devicenodefp . "" . $pattern_scsigenericdevicenode . "/iu", "$1|$2|$3|$4|$8", $lsscsi_arr[$i]));
 			
-			$lsscsi_device[$i] = trim($device[$i]);							// get the device address: "1:0:0:0"
-			$lsscsi_type[$i] = trim($type[$i]);							// get the type: "disk" / "process" (not in use for this script)
-			$lsscsi_luname[$i] = str_replace(" ", "", str_replace("none", "", trim($luname[$i])));	// get the logical unit name of the drive
-			$lsscsi_devicenode[$i] = str_replace("-", "", trim($devicenodefp[$i]));			// get only the node name: "sda"
-			$lsscsi_devicenodesg[$i] = trim($scsigenericdevicenode[$i]);				// get the full path to SCSI Generic device node: "/dev/sg1"
+			$lsscsi_device[$i] = trim($device[$i]);									// get the device address: "1:0:0:0"
+			$lsscsi_type[$i] = trim($type[$i]);									// get the type: "disk" / "process" (not in use for this script)
+			$lsscsi_luname[$i] = str_replace(" ", "", str_replace("none", "", trim($luname[$i])));			// get the logical unit name of the drive
+			$lsscsi_devicenode[$i] = str_replace("/dev/", "", str_replace("-", "", trim($devicenodefp[$i])));	// get only the node name: "sda"
+			$lsscsi_devicenodesg[$i] = trim($scsigenericdevicenode[$i]);						// get the full path to SCSI Generic device node: "/dev/sg1|/dev/nvme*"
+			*/
 			
 			debug_print($debugging_active, __LINE__, "loop", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "|TYPE:" . $lsscsi_type[$i] . "|LUN:" . $lsscsi_luname[$i] . "|SCSIGEN:" . $lsscsi_devicenodesg[$i] . "");
 			
 			if($lsscsi_device[$i] && $lsscsi_luname[$i]) { // only care about real hard drives
-				$smart_check_operation = shell_exec("smartctl -n standby /dev/bsg/$lsscsi_device[$i] | egrep 'ACTIVE|IDLE'");
+				$smart_check_operation = shell_exec("smartctl -n standby $lsscsi_devicenodesg[$i] | egrep 'ACTIVE|IDLE'");
 				usleep($smart_exec_delay . 000); // delay script to get the output of the next shell_exec()
 				
 				if(!empty($smart_check_operation) || $force_scan) { // only get SMART data if the disk is spinning, if it is a new install/empty database, or if scan is forced.
 					if(!$force_scan) {
 						$smart_standby_cmd = "-n standby";
 					}
-					$smart_cmd[$i] = shell_exec("smartctl $smart_standby_cmd -x --json /dev/bsg/$lsscsi_device[$i]");	// get all SMART data for this device, we grab it ourselves to get all drives also attached to hardware raid cards.
+					$smart_cmd[$i] = shell_exec("smartctl $smart_standby_cmd -x --json $lsscsi_devicenodesg[$i]");	// get all SMART data for this device, we grab it ourselves to get all drives also attached to hardware raid cards.
 					$smart_array = json_decode($smart_cmd[$i], true);
-					debug_print($debugging_active, __LINE__, "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "=" . is_array($smart_array) . " (1=array available)");
+					debug_print($debugging_active, __LINE__, "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "=" . ( is_array($smart_array) ? "array" : "empty" ) . "");
 					
 					$smart_i=0;
 					$smart_loadcycle_find = "";
@@ -848,29 +1010,79 @@
 		}
 	}
 	
-	// get disk info for "Information" and "Configuration"
-	
-	$total_trays = ( empty($grid_trays) ? $grid_columns * $grid_rows : $grid_trays );
-	$get_empty_trays = get_tray_location($db, "empty", 1);
-	
-	$total_main_trays = 0;
-	if($total_trays > ($grid_columns * $grid_rows)) {
-		$total_main_trays = $grid_columns * $grid_rows;
-		$total_rows_override_trays = ($total_trays - $total_main_trays) / $grid_columns;
-		$grid_columns_override_styles = str_repeat(" auto", $total_rows_override_trays);
+// Common config
+	// get configured Unraid disks
+	if(is_file(DISKINFORMATION)) {
+		$unraid_disks_import = parse_ini_file(DISKINFORMATION, true);
+		$unraid_disks = array_values($unraid_disks_import);
+	}
+
+	// modify the array to suit our needs
+	$unraid_array = array();
+	$i=0;
+	while($i < count($unraid_disks)) {
+		$getdevicenode = $unraid_disks[$i]["device"];
+		if($getdevicenode) {
+			$unraid_array[$getdevicenode] = array(
+				"name" => $unraid_disks[$i]["name"],
+				"device" => $unraid_disks[$i]["device"],
+				"status" => $unraid_disks[$i]["status"],
+				"type" => $unraid_disks[$i]["type"],
+				"temp" => $unraid_disks[$i]["temp"],
+				"color" => $unraid_disks[$i]["color"],
+				"fscolor" => $unraid_disks[$i]["fsColor"]
+			);
+		}
+		$i++;
 	}
 	
-	if(!is_array($get_empty_trays) && !count_table_rows($db, "disks")) {
-		$sql = "SELECT * FROM disks WHERE status IS NULL;";
-	}
-	else {
-		$sql = "SELECT * FROM disks JOIN location ON disks.hash=location.hash WHERE status IS NULL ORDER BY tray ASC;";
+	// get disk logs
+	if(is_file(DISKLOGFILE)) {
+		$unraid_disklog = parse_ini_file(DISKLOGFILE, true);
 	}
 	
+	// get settings from DB as $var
+	
+	$sql = "SELECT * FROM settings";
 	$results = $db->query($sql);
 	
-	$datasql = array();
-	while($res = $results->fetchArray(1)) {
-		array_push($datasql, $res);
+	while($data = $results->fetchArray(1)) {
+		extract($data);
 	}
+	
+	$displayinfo = json_decode($displayinfo, true);
+	
+	dashboard_toggle($dashboard_widget, $dashboard_widget_pos);
+	
+	$color_array = array();
+	$color_array["empty"] = $bgcolor_empty;
+	
+// Group config
+	$sql = "SELECT * FROM settings_group ORDER BY id ASC";
+	$results = $db->query($sql);
+	
+	while($data_group = $results->fetchArray(1)) {
+		foreach($data_group as $key=>$value) {
+			$group[$data_group["id"]][$key] = "".$value."";
+		}
+	}
+	
+	$sql = "SELECT id FROM settings_group GROUP BY id;";
+	$results = $db->query($sql);
+	while($data = $results->fetchArray(1)) {
+		 $count_groups[] = $data["id"];
+	}
+	$total_groups = ( is_array($count_groups) ? count($count_groups) : 0 );
+	
+	$sql = "SELECT id FROM settings_group ORDER BY id DESC limit 1;";
+	$results = $db->query($sql);
+	while($data = $results->fetchArray(1)) {
+		 $last_group_id = $data["id"];
+	}
+	
+	/*
+	print_r($group);
+	print(count($group));
+	die();
+	*/
 ?>
