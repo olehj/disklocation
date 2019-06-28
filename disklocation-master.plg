@@ -29,7 +29,7 @@
  - Commit #45 - REQUEST: Different tray count (from FrackinFrog)
  - Commit #22 - REQUEST: Multiple cases (from tarchive). Add a bunch of cases made available including a bunch of other configuration possibilities.
  - Removed a bunch of bugs, rewrote a lot of code, and has in general made "Design v2.0". Too much to document, most forgotten anyway! But a lot of work has gone into this release.
- - NB! Due to weird Unraid releases and versioning, this plugin will only work from 6.7.2 and onwards! 6.7.1 is broken (missing SQLite support). And I can't bothered
+ - NB! Due to weird Unraid releases and versioning, this plugin will only work from 6.7.2 and onwards! 6.7.1 is broken (missing SQLite support). And I can't bothered keeping an eye with older versions as well.
 	
 ###2019.06.23
  - PFFT¤#"!%" - Currently need to stop support at Unraid 6.7.0 because lack of SQLite support in PHP from and including Unraid 6.7.1. Follow the forums for more information of the future.
