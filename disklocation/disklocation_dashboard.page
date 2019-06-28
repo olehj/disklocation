@@ -1,8 +1,39 @@
 Menu="Dashboard"
+Icon="fa-server"
 ---
 <?php
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/system.php");
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/devices.php");
+	
+	$sql = "SELECT * FROM settings_group ORDER BY id ASC";
+	$results = $db->query($sql);
+	
+	while($data = $results->fetchArray(1)) {
+		extract($data);
+		$gid = $id;
+		
+		$css_grid_group = "
+			grid-template-columns: " . $grid_columns_styles[$gid] . ";
+			grid-template-rows: " . $grid_rows_styles[$gid] . ";
+			grid-auto-flow: " . $grid_count . ";
+		";
+		
+		$disklocation_dash_out .= "
+			<td style=\"vertical-align: top; padding: 25px 5px 0 0;\">
+				<div style=\"text-align: center;\"><b>$group_name</b></div>
+				<div class=\"grid-container\" style=\"$css_grid_group\">
+					$disklocation_dash[$gid]
+				</div>
+			</td>
+		";
+		$i++;
+	}
+	if(is_array($installed_drives)) {
+		$installed_drives = array_sum($installed_drives);
+	}
+	else {
+		$installed_drives = 0;
+	}
 ?>
 <style type="text/css">
 	.dash_disklocation{display:none}
@@ -11,25 +42,23 @@ Menu="Dashboard"
 	<thead>
 	<tr><td></td><td style="white-space: no-wrap;">Disk Location</td><td style="width: 100%;">
 		<i class='fa fa-fw chevron mt0' id='dash_disklocation' onclick='toggleChevron("dash_disklocation",0)'></i>
-		<a href='/Settings/disklocation' title='Go to Disk Location page'><i class='fa fa-fw fa-cog chevron mt0'></i></a>
-		<span class='info'><?php print($installed_drives); ?> of <?php print($total_trays); ?> drives installed. <?php print($dashboard_info); ?></span>
+		<a href='/Settings/disklocationConfig' title='Go to Disk Location Configuration page'><i class='fa fa-fw fa-cog chevron mt0'></i></a>
+		<a href='/Tools/disklocation' title='Go to Disk Location page'><i class='fa fa-fw fa-server chevron mt0'></i></a>
+		<span class='info'><?php print($installed_drives); ?> of <?php print($total_trays_group); ?> drives assigned. <?php print($dashboard_info); ?></span>
 	</td><td></td></tr>
 	</thead>
 	<tbody class='dash_disklocation'>
 		<tr><td></td><td colspan='3' class='top'>
 			<br />
 			<style type="text/css">
-				<?php require_once("/usr/local/emhttp/plugins/disklocation/pages/styles/disk_" . $disk_tray_direction . ".css.php"); ?>
+				<?php require_once("/usr/local/emhttp/plugins/disklocation/pages/styles/disk.css.php"); ?>
 			</style>
 			<link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/signals.css")?>">
 			<script type="text/javascript" src="<?autov("" . DISKLOCATION_PATH . "/pages/script/locate_script_top.js.php")?><?php print("&amp;path=" . DISKLOCATION_PATH . ""); ?>"></script>
-			<table>
+			<table style="width: 0;">
 				<tr>
-					<td style="padding: 0 0 0 0;">
-						<div class="grid-container" style="justify-content: center;">
-							<?php print($disklocation_dash); ?>
-						</div>
-					</td>
+					<?php print($disklocation_dash_out); ?>
+					<td style="width: 100%;"></td>
 				</tr>
 			</table>
 		</td></tr>

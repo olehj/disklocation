@@ -1,0 +1,20 @@
+Menu="disklocationConfig:1"
+Icon="fa-server"
+Type="xmenu"
+Tabs="true"
+Title="Configuration"
+---
+<?php 
+	require_once("/usr/local/emhttp/plugins/disklocation/pages/system.php");
+	require_once("/usr/local/emhttp/plugins/disklocation/pages/devices.php");
+	require_once("/usr/local/emhttp/plugins/disklocation/pages/locate.php");
+?>
+<style type="text/css">
+	<?php require_once("/usr/local/emhttp/plugins/disklocation/pages/styles/disk.css.php"); ?>
+</style>
+<link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/signals.css")?>">
+<link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/help.css")?>">
+<script type="text/javascript" src="<?autov("" . DISKLOCATION_PATH . "/pages/script/locate_script_top.js.php")?><?php print("&amp;path=" . DISKLOCATION_PATH . ""); ?>"></script>
+<?php 
+	require_once("/usr/local/emhttp/plugins/disklocation/pages/config.php");
+?>

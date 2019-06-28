@@ -1,0 +1,8 @@
+Menu="disklocationConfig:3"
+Icon="fa-file-alt"
+Title="System Files"
+---
+<?php
+	require_once("/usr/local/emhttp/plugins/disklocation/pages/system.php");
+	require_once("/usr/local/emhttp/plugins/disklocation/pages/config_system.php");
+?>
