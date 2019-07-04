@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.06.29-dev">
+<!ENTITY version          "2019.07.05-dev">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -146,7 +146,9 @@ done
 EOL
   chmod +x /usr/local/bin/smartlocate
   <!-- prevent cron from running during install -->
-  rm "/etc/cron.hourly/disklocation.sh"
+  if [ -f "/etc/cron.hourly/disklocation.sh" ] ; then
+    rm "/etc/cron.hourly/disklocation.sh"
+  fi
   rm -Rf "/tmp/&name;-packages"
   rm -f "/tmp/&name;-install"
   

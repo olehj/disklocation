@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.06.29">
+<!ENTITY version          "2019.07.05">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -25,6 +25,9 @@
 >
 
 <CHANGES>
+###2019.07.05
+ IMPROVEMENT: Checks for excisting cron file before deleting it during install, nothing important but it looks nicer.
+
 ###2019.06.28
  - Commit #45 - REQUEST: Different tray count (from FrackinFrog)
  - Commit #22 - REQUEST: Multiple cases (from tarchive). Add a bunch of cases made available including a bunch of other configuration possibilities.
@@ -287,7 +290,9 @@ done
 EOL
   chmod +x /usr/local/bin/smartlocate
   <!-- prevent cron from running during install -->
-  rm "/etc/cron.hourly/disklocation.sh"
+  if [ -f "/etc/cron.hourly/disklocation.sh" ] ; then
+    rm "/etc/cron.hourly/disklocation.sh"
+  fi
   rm -Rf "/tmp/&name;-packages"
   rm -f "/tmp/&name;-install"
   
