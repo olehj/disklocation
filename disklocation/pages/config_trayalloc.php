@@ -317,7 +317,8 @@
 				<input type="hidden" name="current_warranty_field" value="<?php echo $warranty_field ?>" />
 				<input type="submit" name="save_allocations" value="Save" /><input type="reset" value="Reset" />
 				<br />
-				<input type="submit" name="force_smart_scan" value="Force Scan All" />
+				<!--<input type="submit" name="force_smart_scan" value="Force Scan All" />-->
+				<input type='button' value='Force Scan All' onclick='openBox("/plugins/disklocation/pages/system.php?force_smart_scan=1","Force Scanning",600,1000,true,"loadlist",":return")'>
 				<blockquote class='inline_help'>
 					<ul>
 						<li>"Save" button will store all information entered.</li>
