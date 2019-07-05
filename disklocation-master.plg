@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.07.05">
+<!ENTITY version          "2019.07.06">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -25,6 +25,9 @@
 >
 
 <CHANGES>
+###2019.07.06
+ - Commit #89 - BUG: Cache drive get unassigned color if it is an nvme drive. Use SCSI generic device node name instead if device node name is null.
+
 ###2019.07.05
  IMPROVEMENT: Checks for excisting cron file before deleting it during install, nothing important but it looks nicer.
 
