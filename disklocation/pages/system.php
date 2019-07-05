@@ -62,6 +62,10 @@
 			print("[" . date("His") . "] " . basename(__FILE__) . ":" . $line . " @ " . $section . ": " . $message . "\n");
 			flush();
 		}
+		if($act == 3 && $section == "loop") {
+			print("[" . date("H:i:s") . "] " . $message . "<br />\n");
+			flush();
+		}
 		else {
 			return false;
 		}
@@ -857,11 +861,64 @@
 	$lsscsi_arr = explode(PHP_EOL, $lsscsi_cmd);
 	
 	// add and update disk info
-	if($_POST["force_smart_scan"] || $disklocation_new_install || $argv[1] == "force") {
+	if($_POST["force_smart_scan"] || $_GET["force_smart_scan"] || $disklocation_new_install || $argv[1] == "force") {
 		$force_scan = 1; // trigger force_smart_scan post if it is a new install or if it is forced at CLI
 	}
 	
+	if($_GET["force_smart_scan"]) {
+		$debugging_active = 3;
+	}
+	
 	if($force_scan || $argv[1] == "cronjob") {
+		if($_GET["force_smart_scan"]) {
+			print("
+				<!DOCTYPE HTML>
+				<html>
+				<head>
+				<meta name=\"robots\" content=\"noindex, nofollow\">
+				<style>
+					@font-face{
+					font-family:'clear-sans';font-weight:normal;font-style:normal;
+					src:url('/webGui/styles/clear-sans.eot');src:url('/webGui/styles/clear-sans.eot?#iefix') format('embedded-opentype'),url('/webGui/styles/clear-sans.woff') format('woff'),url('/webGui/styles/clear-sans.ttf') format('truetype'),url('/webGui/styles/clear-sans.svg#clear-sans') format('svg');
+					}
+					@font-face{
+					font-family:'clear-sans';font-weight:bold;font-style:normal;
+					src:url('/webGui/styles/clear-sans-bold.eot');src:url('/webGui/styles/clear-sans-bold.eot?#iefix') format('embedded-opentype'),url('/webGui/styles/clear-sans-bold.woff') format('woff'),url('/webGui/styles/clear-sans-bold.ttf') format('truetype'),url('/webGui/styles/clear-sans-bold.svg#clear-sans-bold') format('svg');
+					}
+					@font-face{
+					font-family:'clear-sans';font-weight:normal;font-style:italic;
+					src:url('/webGui/styles/clear-sans-italic.eot');src:url('/webGui/styles/clear-sans-italic.eot?#iefix') format('embedded-opentype'),url('/webGui/styles/clear-sans-italic.woff') format('woff'),url('/webGui/styles/clear-sans-italic.ttf') format('truetype'),url('/webGui/styles/clear-sans-italic.svg#clear-sans-italic') format('svg');
+					}
+					@font-face{
+					font-family:'clear-sans';font-weight:bold;font-style:italic;
+					src:url('/webGui/styles/clear-sans-bold-italic.eot');src:url('/webGui/styles/clear-sans-bold-italic.eot?#iefix') format('embedded-opentype'),url('/webGui/styles/clear-sans-bold-italic.woff') format('woff'),url('/webGui/styles/clear-sans-bold-italic.ttf') format('truetype'),url('/webGui/styles/clear-sans-bold-italic.svg#clear-sans-bold-italic') format('svg');
+					}
+					@font-face{
+					font-family:'bitstream';font-weight:normal;font-style:normal;
+					src:url('/webGui/styles/bitstream.eot');src:url('/webGui/styles/bitstream.eot?#iefix') format('embedded-opentype'),url('/webGui/styles/bitstream.woff') format('woff'),url('/webGui/styles/bitstream.ttf') format('truetype'),url('/webGui/styles/bitstream.svg#bitstream') format('svg');
+					}
+					html{font-family:clear-sans;font-size:62.5%;height:100%}
+					body{font-size:1.2rem;color:#1c1c1c;background:#f2f2f2;padding:0;margin:0;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+					.mono {font: small 'lucida console', Monaco, monospace;}
+					input[type=button],input[type=reset],input[type=submit],button,button[type=button],a.button { 
+						font-family:clear-sans;font-size:1.1rem;font-weight:bold;letter-spacing:2px;text-transform:uppercase;margin:10px 12px 10px 0;padding:9px 18px;text-decoration:none;white-space:nowrap;cursor:pointer;outline:none;border-radius:4px;border:0;color:#ff8c2f;background:-webkit-gradient(linear,left top,right top,from(#e22828),to(#ff8c2f)) 0 0 no-repeat,-webkit-gradient(linear,left top,right top,from(#e22828),to(#ff8c2f)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#e22828),to(#e22828)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#ff8c2f),to(#ff8c2f)) 100% 100% no-repeat;background:linear-gradient(90deg,#e22828 0,#ff8c2f) 0 0 no-repeat,linear-gradient(90deg,#e22828 0,#ff8c2f) 0 100% no-repeat,linear-gradient(0deg,#e22828 0,#e22828) 0 100% no-repeat,linear-gradient(0deg,#ff8c2f 0,#ff8c2f) 100% 100% no-repeat;background-size:100% 2px,100% 2px,2px 100%,2px 100%
+					}
+					input:hover[type=button],input:hover[type=reset],input:hover[type=submit],button:hover,button:hover[type=button],a.button:hover { 
+						color:#f2f2f2;background:-webkit-gradient(linear,left top,right top,from(#e22828),to(#ff8c2f));background:linear-gradient(90deg,#e22828 0,#ff8c2f)
+					}
+					input[type=button][disabled],input[type=reset][disabled],input[type=submit][disabled],button[disabled],button[type=button][disabled],a.button[disabled]
+					input:hover[type=button][disabled],input:hover[type=reset][disabled],input:hover[type=submit][disabled],button:hover[disabled],button:hover[type=button][disabled],a.button:hover[disabled]
+					input:active[type=button][disabled],input:active[type=reset][disabled],input:active[type=submit][disabled],button:active[disabled],button:active[type=button][disabled],a.button:active[disabled] {
+						cursor:default;color:#808080;background:-webkit-gradient(linear,left top,right top,from(#404040),to(#808080)) 0 0 no-repeat,-webkit-gradient(linear,left top,right top,from(#404040),to(#808080)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#404040),to(#404040)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#808080),to(#808080)) 100% 100% no-repeat;background:linear-gradient(90deg,#404040 0,#808080) 0 0 no-repeat,linear-gradient(90deg,#404040 0,#808080) 0 100% no-repeat,linear-gradient(0deg,#404040 0,#404040) 0 100% no-repeat,linear-gradient(0deg,#808080 0,#808080) 100% 100% no-repeat;background-size:100% 2px,100% 2px,2px 100%,2px 100%
+					}
+				</style>
+				<p>
+					<b>Scanning drives, please wait until it is completed...</b>
+				</p>
+				<p class=\"mono\">
+			");
+		}
+		
 		// wait until the cronjob has finished.
 		$pid_cron_script = trim(shell_exec("pgrep -f disklocation.sh"));
 		while(!empty(trim(shell_exec("pgrep -f disklocation.sh"))) && $force_scan) {
@@ -886,9 +943,8 @@
 			}
 			$lsscsi_devicenodesg[$i] = $lsscsi_parser_array["sgnode"];				// get the full path to SCSI Generic device node: "/dev/sg1|/dev/nvme*"
 			
-			debug_print($debugging_active, __LINE__, "loop", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "|TYPE:" . $lsscsi_type[$i] . "|LUN:" . $lsscsi_luname[$i] . "|SCSIGEN:" . $lsscsi_devicenodesg[$i] . "");
-			
 			if($lsscsi_device[$i] && $lsscsi_luname[$i]) { // only care about real hard drives
+				debug_print($debugging_active, __LINE__, "loop", "Scanning " . $lsscsi_type[$i] . ": " . $lsscsi_device[$i] . " LUN: " . $lsscsi_luname[$i] . " Node: " . $lsscsi_devicenodesg[$i] . "");
 				$smart_check_operation = shell_exec("smartctl -n standby $lsscsi_devicenodesg[$i] | egrep 'ACTIVE|IDLE'");
 				usleep($smart_exec_delay . 000); // delay script to get the output of the next shell_exec()
 				
@@ -993,6 +1049,29 @@
 		// check the existens of devices, must be run during force smart scan.
 		if($force_scan) {
 			find_and_set_removed_devices_status($db, $deviceid); 		// tags removed devices 'r', delete device from location
+		}
+		
+		if($_GET["force_smart_scan"]) {
+			print("
+				</p>
+				<p>
+					<b>Scanning has completed, refreshing within 3 seconds...
+<!-- press \"Done\" and refresh the page.</b>
+</p>
+<p style=\"text-align: center;\">
+	<button type=\"button\" onclick=\"top.Shadowbox.close()\">Done</button>
+</p>
+-->
+				</p>
+				<script type=\"text/javascript\">
+					function sleep (time) {
+						return new Promise((resolve) => setTimeout(resolve, time));
+					}
+					sleep(3000).then(() => {
+						window.top.location = '" . DISKLOCATIONCONF_URL . "';
+					})
+				</script>
+			");
 		}
 	}
 	
