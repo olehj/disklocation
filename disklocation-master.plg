@@ -26,7 +26,7 @@
 
 <CHANGES>
 ###2019.07.06
- - Commit #90 - IMPROVEMENT: Adding a console window for "Force Scan" button.
+ - Commit #90 - IMPROVEMENT: Adding a console window for "Force Scan" button, making it easier to see what's going on in the background.
  - Commit #89 - BUG: Cache drive get unassigned color if it is an nvme drive. Use SCSI generic device node name instead if device node name is null.
 
 ###2019.07.05
