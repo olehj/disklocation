@@ -878,27 +878,13 @@
 			$lsscsi_device[$i] = $lsscsi_parser_array["device"];					// get the device address: "1:0:0:0"
 			$lsscsi_type[$i] = $lsscsi_parser_array["type"];					// get the type: "disk" / "process" (not in use for this script)
 			$lsscsi_luname[$i] = $lsscsi_parser_array["luname"];					// get the logical unit name of the drive
-			$lsscsi_devicenode[$i] = str_replace("/dev/", "", $lsscsi_parser_array["devnode"]);	// get only the node name: "sda"
+			if($lsscsi_parser_array["devnode"]) {
+				$lsscsi_devicenode[$i] = str_replace("/dev/", "", $lsscsi_parser_array["devnode"]);	// get only the node name: "sda"
+			}
+			else {
+				$lsscsi_devicenode[$i] = str_replace("/dev/", "", $lsscsi_parser_array["sgnode"]);	// if no node name available, use sgnode instead (for nvme drives).
+			}
 			$lsscsi_devicenodesg[$i] = $lsscsi_parser_array["sgnode"];				// get the full path to SCSI Generic device node: "/dev/sg1|/dev/nvme*"
-			
-			// \[(.*)\]\s+(\w+)\s+([0-9a-z]{1,})\s+(.*)\s+(-|(\/dev\/(h|s)d[a-z]{1,})?)((\/dev\/(nvme|sg)[0-9]{1,})(n[0-9]{1,})?)
-			/*
-			$pattern_device = "\[(.*)\]";							// $1
-			$pattern_type = "\s+(\w+)";							// $2
-			$pattern_luname = "\s+([0-9a-z]{1,})\s+(.*)\s+";				// $3
-			$pattern_devicenodefp = "(-|(\/dev\/(h|s)d[a-z]{1,})?)";			// $4
-			//$pattern_scsigenericdevicenode = "\s+([sg[0-9]{1,})?";	// $7
-			$pattern_scsigenericdevicenode = "((\/dev\/(nvme|sg)[0-9]{1,})(n[0-9]{1,})?)";	// $8
-			
-			list($device[], $type[], $luname[], $devicenodefp[], $scsigenericdevicenode[]) = 
-				explode("|", preg_replace("/" . $pattern_device . "" . $pattern_type . "" . $pattern_luname . "" . $pattern_devicenodefp . "" . $pattern_scsigenericdevicenode . "/iu", "$1|$2|$3|$4|$8", $lsscsi_arr[$i]));
-			
-			$lsscsi_device[$i] = trim($device[$i]);									// get the device address: "1:0:0:0"
-			$lsscsi_type[$i] = trim($type[$i]);									// get the type: "disk" / "process" (not in use for this script)
-			$lsscsi_luname[$i] = str_replace(" ", "", str_replace("none", "", trim($luname[$i])));			// get the logical unit name of the drive
-			$lsscsi_devicenode[$i] = str_replace("/dev/", "", str_replace("-", "", trim($devicenodefp[$i])));	// get only the node name: "sda"
-			$lsscsi_devicenodesg[$i] = trim($scsigenericdevicenode[$i]);						// get the full path to SCSI Generic device node: "/dev/sg1|/dev/nvme*"
-			*/
 			
 			debug_print($debugging_active, __LINE__, "loop", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "|TYPE:" . $lsscsi_type[$i] . "|LUN:" . $lsscsi_luname[$i] . "|SCSIGEN:" . $lsscsi_devicenodesg[$i] . "");
 			
