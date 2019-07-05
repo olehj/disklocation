@@ -1076,6 +1076,8 @@
 	}
 	
 // Common config
+	$unraid_disks = array();
+	
 	// get configured Unraid disks
 	if(is_file(DISKINFORMATION)) {
 		$unraid_disks_import = parse_ini_file(DISKINFORMATION, true);
