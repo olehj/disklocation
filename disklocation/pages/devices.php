@@ -255,7 +255,7 @@
 						$unraid_array_icon = "<span class=\"" . $unraid_array[$devicenode]["color"] . "\" alt=\"" . $unraid_disk_status_message . "\" title=\"" . $unraid_disk_status_message . "\" />&#11044;</span>" . $insert_break . "";
 					}
 					else {
-						$device_lsscsi = lsscsi_parser(shell_exec("lsscsi -u -g " . $device . ""));
+						$device_lsscsi = lsscsi_parser(shell_exec("lsscsi -b -g " . $device . ""));
 						usleep($smart_exec_delay . 000); // delay script to get the output of the next shell_exec()
 						$smart_powermode = trim(shell_exec("smartctl -n standby " . $device_lsscsi["sgnode"] . " | grep Device"));
 						
