@@ -20,6 +20,7 @@
          version="&version;"
          launch="&launch;"
          pluginURL="&pluginURL;"
+	 icon="server"
 	 support="&pluginsupportURL;"
 >
 

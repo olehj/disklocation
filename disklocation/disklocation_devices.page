@@ -1,5 +1,5 @@
 Menu="disklocation:1"
-Icon="fa-server"
+Icon="server"
 Title="Devices"
 ---
 <?php

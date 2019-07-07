@@ -1,5 +1,5 @@
 Menu="disklocationConfig:2"
-Icon="fa-server"
+Icon="server"
 Title="Tray Allocations"
 ---
 <?php 
