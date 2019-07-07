@@ -555,6 +555,7 @@
 		);
 	}
 	
+	/* lsscsi -ug
 	function lsscsi_parser($input) {
 		// \[(.*)\]\s+(\w+)\s+([0-9a-z]{1,})\s+(.*)\s+(-|(\/dev\/(h|s)d[a-z]{1,})?)((\/dev\/(nvme|sg)[0-9]{1,})(n[0-9]{1,})?)
 		$pattern_device = "\[(.*)\]";						// $1
@@ -570,6 +571,24 @@
 			"device"	=> trim($device),
 			"type"		=> trim($type),
 			"luname"	=> str_replace(" ", "", str_replace("none", "", trim($luname))),
+			"devnode"	=> str_replace("-", "", trim($devnode)),
+			"sgnode"	=> trim($scsigendevnode)
+		);
+	}
+	*/
+	
+	// lsscsi -bg
+	function lsscsi_parser($input) {
+		// \[(.+:.+:.+:.+)\]\s+(-|(\/dev\/(h|s)d[a-z]{1,})?)\s+((\/dev\/(nvme|sg)[0-9]{1,})(n[0-9]{1,})?)
+		$pattern_device = "\[(.+:.+:.+:.+)\]\s+";					// $1
+		$pattern_devnode = "(-|(\/dev\/(h|s)d[a-z]{1,})?)\s+";			// $3
+		$pattern_scsigendevnode = "((\/dev\/(nvme|sg)[0-9]{1,})(n[0-9]{1,})?)";	// $5
+			
+		list($device, $devnode, $scsigendevnode) = 
+			explode("|", preg_replace("/" . $pattern_device . "" . $pattern_devnode . "" . $pattern_scsigendevnode . "/iu", "$1|$3|$5", $input));
+		
+		return array(
+			"device"	=> trim($device),
 			"devnode"	=> str_replace("-", "", trim($devnode)),
 			"sgnode"	=> trim($scsigendevnode)
 		);
@@ -857,7 +876,8 @@
 	}
 	
 	// get all attached SCSI drives - usually should grab all local drives available
-	$lsscsi_cmd = shell_exec("lsscsi -u -g");
+	//$lsscsi_cmd = shell_exec("lsscsi -u -g");
+	$lsscsi_cmd = shell_exec("lsscsi -b -g");
 	$lsscsi_arr = explode(PHP_EOL, $lsscsi_cmd);
 	
 	// add and update disk info
@@ -933,8 +953,8 @@
 			$lsscsi_parser_array = lsscsi_parser($lsscsi_arr[$i]);
 			
 			$lsscsi_device[$i] = $lsscsi_parser_array["device"];					// get the device address: "1:0:0:0"
-			$lsscsi_type[$i] = $lsscsi_parser_array["type"];					// get the type: "disk" / "process" (not in use for this script)
-			$lsscsi_luname[$i] = $lsscsi_parser_array["luname"];					// get the logical unit name of the drive
+			//$lsscsi_type[$i] = $lsscsi_parser_array["type"];					// get the type: "disk" / "process" (not in use for this script)
+			//$lsscsi_luname[$i] = $lsscsi_parser_array["luname"];					// get the logical unit name of the drive
 			if($lsscsi_parser_array["devnode"]) {
 				$lsscsi_devicenode[$i] = str_replace("/dev/", "", $lsscsi_parser_array["devnode"]);	// get only the node name: "sda"
 			}
@@ -943,8 +963,9 @@
 			}
 			$lsscsi_devicenodesg[$i] = $lsscsi_parser_array["sgnode"];				// get the full path to SCSI Generic device node: "/dev/sg1|/dev/nvme*"
 			
-			if($lsscsi_device[$i] && $lsscsi_luname[$i]) { // only care about real hard drives
-				debug_print($debugging_active, __LINE__, "loop", "Scanning " . $lsscsi_type[$i] . ": " . $lsscsi_device[$i] . " LUN: " . $lsscsi_luname[$i] . " Node: " . $lsscsi_devicenodesg[$i] . "");
+			if($lsscsi_device[$i] && $lsscsi_devicenodesg[$i]) {
+				//debug_print($debugging_active, __LINE__, "loop", "Scanning " . $lsscsi_type[$i] . ": " . $lsscsi_device[$i] . " LUN: " . $lsscsi_luname[$i] . " Node: " . $lsscsi_devicenodesg[$i] . "");
+				debug_print($debugging_active, __LINE__, "loop", "Scanning: " . $lsscsi_device[$i] . " Node: " . $lsscsi_devicenodesg[$i] . "");
 				$smart_check_operation = shell_exec("smartctl -n standby $lsscsi_devicenodesg[$i] | egrep 'ACTIVE|IDLE'");
 				usleep($smart_exec_delay . 000); // delay script to get the output of the next shell_exec()
 				
@@ -975,70 +996,75 @@
 					
 					find_and_unset_reinserted_devices_status($db, $deviceid[$i]);	// tags old existing devices with 'null', delete device from location just in case it for whatever reason it already exists.
 					
-					$sql = "
-						INSERT INTO
-							disks(
-								device,
-								devicenode,
-								luname,
-								model_family,
-								model_name,
-								smart_status,
-								smart_serialnumber,
-								smart_temperature,
-								smart_powerontime,
-								smart_loadcycle,
-								smart_capacity,
-								smart_rotation,
-								smart_formfactor,
-								status,
-								hash
-							)
-							VALUES(
-								'" . $lsscsi_device[$i] . "',
-								'" . $lsscsi_devicenode[$i] . "',
-								'" . $lsscsi_luname[$i] . "',
-								'" . $smart_array["model_family"] . "',
-								'" . $smart_array["model_name"] . "',
-								'" . $smart_array["smart_status"]["passed"] . "',
-								'" . $smart_array["serial_number"] . "',
-								'" . $smart_array["temperature"]["current"] . "',
-								'" . $smart_array["power_on_time"]["hours"] . "',
-								'" . $smart_loadcycle_find . "',
-								'" . $smart_array["user_capacity"]["bytes"] . "',
-								'" . $rotation_rate . "',
-								'" . $smart_array["form_factor"]["name"] . "',
-								'h',
-								'" . $deviceid[$i] . "'
-							)
-							ON CONFLICT(hash) DO UPDATE SET
-								device='" . $lsscsi_device[$i] . "',
-								devicenode='" . $lsscsi_devicenode[$i] . "',
-								luname='" . $lsscsi_luname[$i] . "',
-								model_family='" . $smart_array["model_family"] . "',
-								smart_status='" . $smart_array["smart_status"]["passed"] . "',
-								smart_temperature='" . $smart_array["temperature"]["current"] . "',
-								smart_powerontime='" . $smart_array["power_on_time"]["hours"] . "',
-								smart_loadcycle='" . $smart_loadcycle_find . "',
-								smart_rotation='" . $rotation_rate . "'
-							WHERE hash='" . $deviceid[$i] . "';
-					";
-					
-					if(is_array($unraid_disklog["" . str_replace(" ", "_", $smart_array["model_name"]) . "_" . str_replace(" ", "_", $smart_array["serial_number"]) . ""])) {
-						$sql .= "
-							UPDATE disks SET
-								purchased='" . $unraid_disklog["" . str_replace(" ", "_", $smart_array["model_name"]) . "_" . str_replace(" ", "_", $smart_array["serial_number"]) . ""]["purchase"] . "',
-								warranty='" . $unraid_disklog["" . str_replace(" ", "_", $smart_array["model_name"]) . "_" . str_replace(" ", "_", $smart_array["serial_number"]) . ""]["warranty"] . "'
-							WHERE hash = '" . $deviceid[$i] . "'
-							;
+					if($smart_array["serial_number"] && $smart_array["model_name"]) {
+						$sql = "
+							INSERT INTO
+								disks(
+									device,
+									devicenode,
+									luname,
+									model_family,
+									model_name,
+									smart_status,
+									smart_serialnumber,
+									smart_temperature,
+									smart_powerontime,
+									smart_loadcycle,
+									smart_capacity,
+									smart_rotation,
+									smart_formfactor,
+									status,
+									hash
+								)
+								VALUES(
+									'" . $lsscsi_device[$i] . "',
+									'" . $lsscsi_devicenode[$i] . "',
+									'" . $smart_array["wwn"]["naa"] . " " . $smart_array["wwn"]["oui"] . " " . $smart_array["wwn"]["id"] . "',
+									'" . $smart_array["model_family"] . "',
+									'" . $smart_array["model_name"] . "',
+									'" . $smart_array["smart_status"]["passed"] . "',
+									'" . $smart_array["serial_number"] . "',
+									'" . $smart_array["temperature"]["current"] . "',
+									'" . $smart_array["power_on_time"]["hours"] . "',
+									'" . $smart_loadcycle_find . "',
+									'" . $smart_array["user_capacity"]["bytes"] . "',
+									'" . $rotation_rate . "',
+									'" . $smart_array["form_factor"]["name"] . "',
+									'h',
+									'" . $deviceid[$i] . "'
+								)
+								ON CONFLICT(hash) DO UPDATE SET
+									device='" . $lsscsi_device[$i] . "',
+									devicenode='" . $lsscsi_devicenode[$i] . "',
+									luname='" . $smart_array["wwn"]["naa"] . " " . $smart_array["wwn"]["oui"] . " " . $smart_array["wwn"]["id"] . "',
+									model_family='" . $smart_array["model_family"] . "',
+									smart_status='" . $smart_array["smart_status"]["passed"] . "',
+									smart_temperature='" . $smart_array["temperature"]["current"] . "',
+									smart_powerontime='" . $smart_array["power_on_time"]["hours"] . "',
+									smart_loadcycle='" . $smart_loadcycle_find . "',
+									smart_rotation='" . $rotation_rate . "'
+								WHERE hash='" . $deviceid[$i] . "';
 						";
+						
+						if(is_array($unraid_disklog["" . str_replace(" ", "_", $smart_array["model_name"]) . "_" . str_replace(" ", "_", $smart_array["serial_number"]) . ""])) {
+							$sql .= "
+								UPDATE disks SET
+									purchased='" . $unraid_disklog["" . str_replace(" ", "_", $smart_array["model_name"]) . "_" . str_replace(" ", "_", $smart_array["serial_number"]) . ""]["purchase"] . "',
+									warranty='" . $unraid_disklog["" . str_replace(" ", "_", $smart_array["model_name"]) . "_" . str_replace(" ", "_", $smart_array["serial_number"]) . ""]["warranty"] . "'
+								WHERE hash = '" . $deviceid[$i] . "'
+								;
+							";
+						}
+						
+						debug_print($debugging_active, __LINE__, "SQL", "#:" . $i . ":<pre>" . $sql . "</pre>");
+						
+						$ret = $db->exec($sql);
+						if(!$ret) {
+							echo $db->lastErrorMsg();
+						}
 					}
-					
-					debug_print($debugging_active, __LINE__, "SQL", "#:" . $i . ":<pre>" . $sql . "</pre>");
-					
-					$ret = $db->exec($sql);
-					if(!$ret) {
-						echo $db->lastErrorMsg();
+					else {
+						debug_print($debugging_active, __LINE__, "SQL", "#:" . $i . ":<pre>Invalid SMART information, skipping...</pre>");
 					}
 				}
 				
