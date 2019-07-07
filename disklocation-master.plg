@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.07.06b">
+<!ENTITY version          "2019.07.07">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -25,6 +25,9 @@
 >
 
 <CHANGES>
+###2019.07.07
+ - Commit #94 - MINOR ISSUE: Some disks fail because of missing LUN. Skipping LUN during device validation, add LUN from SMART instead.
+
 ###2019.07.06b
  - Commit #92 - MINOR ISSUE: defined a variable as array(), caused a count() warning message.
 
