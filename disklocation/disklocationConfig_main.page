@@ -1,5 +1,5 @@
 Menu="disklocationConfig:1"
-Icon="fa-server"
+Icon="server"
 Type="xmenu"
 Tabs="true"
 Title="Configuration"

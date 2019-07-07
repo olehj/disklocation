@@ -1,5 +1,5 @@
 Menu="Utilities"
-Icon="fa-server"
+Icon="server"
 Author="Ole-Henrik Jakobsen"
 Type="xmenu"
 Tabs="true"

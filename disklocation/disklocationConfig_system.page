@@ -1,5 +1,5 @@
 Menu="disklocationConfig:3"
-Icon="fa-file-alt"
+Icon="file-alt"
 Title="System Files"
 ---
 <?php
