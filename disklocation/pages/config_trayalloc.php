@@ -217,7 +217,7 @@
 	}
 ?>
 <datalist id="disklocationColors">
-	<option>#<?php echo $bgcolor_parity ?></option>/>
+	<option>#<?php echo $bgcolor_parity ?></option>
 	<option>#<?php echo $bgcolor_unraid ?></option>
 	<option>#<?php echo $bgcolor_cache ?></option>
 	<option>#<?php echo $bgcolor_others ?></option>
