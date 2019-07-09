@@ -104,6 +104,18 @@
 		";
 	}
 ?>
+<datalist id="disklocationColorsDef">
+	<option>#<?php echo $bgcolor_parity ?></option>
+	<option>#<?php echo $bgcolor_unraid ?></option>
+	<option>#<?php echo $bgcolor_cache ?></option>
+	<option>#<?php echo $bgcolor_others ?></option>
+	<option>#<?php echo $bgcolor_empty ?></option>
+	<?php echo ( $bgcolor_parity != "eb4f41" ? "<option>#eb4f41</option>" : null ) ?>
+	<?php echo ( $bgcolor_unraid != "ef6441" ? "<option>#ef6441</option>" : null ) ?>
+	<?php echo ( $bgcolor_cache != "ff884c" ? "<option>#ff884c</option>" : null ) ?>
+	<?php echo ( $bgcolor_others != "41b5ef" ? "<option>#41b5ef</option>" : null ) ?>
+	<?php echo ( $bgcolor_empty != "aaaaaa" ? "<option>#aaaaaa</option>" : null ) ?>
+</datalist>
 <form action="" method="post">
 	<table>
 		<tr>
@@ -127,18 +139,18 @@
 						</tr>
 						<tr>
 							<td style="padding: 0;">
-								<input type="color" required name="bgcolor_parity" value="#<?php print($bgcolor_parity); ?>" />
+								<input type="color" required name="bgcolor_parity" list="disklocationColorsDef" value="#<?php print($bgcolor_parity); ?>" />
 							</td>
 							<td style="padding: 0;">
-								<input type="color" required name="bgcolor_unraid" value="#<?php print($bgcolor_unraid); ?>" />
+								<input type="color" required name="bgcolor_unraid" list="disklocationColorsDef" value="#<?php print($bgcolor_unraid); ?>" />
 							</td>
 							<td style="padding: 0;">
-								<input type="color" required name="bgcolor_cache" value="#<?php print($bgcolor_cache); ?>" />
+								<input type="color" required name="bgcolor_cache" list="disklocationColorsDef" value="#<?php print($bgcolor_cache); ?>" />
 							</td>
 						</tr>
 						<tr>
 							<td style="padding: 0;">
-								<input type="color" required name="bgcolor_others" value="#<?php print($bgcolor_others); ?>" />
+								<input type="color" required name="bgcolor_others" list="disklocationColorsDef" value="#<?php print($bgcolor_others); ?>" />
 							</td>
 							<td style="padding: 0;" colspan="2">
 								Unassigned devices
@@ -146,7 +158,7 @@
 						</tr>
 						<tr>
 							<td style="padding: 0;">
-								<input type="color" required name="bgcolor_empty" value="#<?php print($bgcolor_empty); ?>" />
+								<input type="color" required name="bgcolor_empty" list="disklocationColorsDef" value="#<?php print($bgcolor_empty); ?>" />
 							</td>
 							<td style="padding: 0;" colspan="2">
 								Empty trays
