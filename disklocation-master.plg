@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.07.10">
+<!ENTITY version          "2019.07.12">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -26,6 +26,9 @@
 >
 
 <CHANGES>
+###2019.07.12
+ - Commit #100 - MINOR ISSUE: Fixed a non-numeric value warning message.
+
 ###2019.07.10
  - Commit #98 - IMPROVEMENT: Added color list for color selection under the "Configuration" tab.
 
