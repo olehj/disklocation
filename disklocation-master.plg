@@ -28,6 +28,7 @@
 <CHANGES>
 ###2019.07.12
  - Commit #100 - MINOR ISSUE: Fixed a non-numeric value warning message.
+ - Fixed padding for empty trays.
 
 ###2019.07.10
  - Commit #98 - IMPROVEMENT: Added color list for color selection under the "Configuration" tab.
