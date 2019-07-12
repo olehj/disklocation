@@ -104,7 +104,7 @@
 	
 	while($data = $results->fetchArray(1)) {
 		$hash = $data["hash"];
-		$smart_powerontime = seconds_to_time($data["smart_powerontime"] * 60 * 60);
+		$smart_powerontime = ( empty($data["smart_powerontime"]) ? null : seconds_to_time($data["smart_powerontime"] * 60 * 60) );
 		
 		switch($data["smart_rotation"]) {
 			case -1:

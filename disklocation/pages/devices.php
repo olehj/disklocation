@@ -96,7 +96,7 @@
 									$empty_leddiskop
 									$empty_ledsmart
 								</div>
-								<div class=\"flex-container-middle_" . $disk_tray_direction . "\" style=\"padding: 0 0 10px 0;\">
+								<div class=\"flex-container-middle_" . $disk_tray_direction . "\">
 									$empty_traytext
 								</div>
 								<div class=\"flex-container-end\">
