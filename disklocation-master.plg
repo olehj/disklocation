@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.07.12">
+<!ENTITY version          "2019.08.23">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -26,6 +26,9 @@
 >
 
 <CHANGES>
+###2019.08.23
+ - Commit #102 - IMPROVEMENT: Hints provided by Squid to improve the dashboard integration. Further changes made to customize it and position it to your own liking.
+
 ###2019.07.12
  - Commit #100 - MINOR ISSUE: Fixed a non-numeric value warning message.
  - Fixed padding for empty trays.
