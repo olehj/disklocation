@@ -1,9 +1,11 @@
 <?php
 	$vi_width = 150;
 	
+	/*
 	$dashboard_widget_array = dashboard_toggle("info");
 	$dashboard_widget = $dashboard_widget_array["current"];
 	$dashboard_widget_pos = $dashboard_widget_array["position"];
+	*/
 	
 	if(!empty($disklocation_error)) {
 		$i=0;
@@ -196,10 +198,10 @@
 					Select how you want to enter the warranty date: the Unraid way of selecting amount of months, or manual ISO date for specific dates. Both values can be stored, but only one can be visible at a time.
 				</blockquote>
 				<p>
-					<b>Display plugin at Dashboard?</b><br />
-					Position: <input type="number" required min="0" max="1000" name="dashboard_widget_pos" value="<?php print($dashboard_widget_pos); ?>" style="width: 50px;" />
-					<input type="radio" name="dashboard_widget" value="on" <?php if($dashboard_widget == "on") echo "checked"; ?>/>Yes
-					<input type="radio" name="dashboard_widget" value="off" <?php if($dashboard_widget == "off") echo "checked"; ?> />No
+					<b>Dashboard plugin position:</b><br />
+					<input type="radio" name="dashboard_widget_pos" value="0" <?php if(!$dashboard_widget_pos) echo "checked"; ?> />Off
+					<input type="radio" name="dashboard_widget_pos" value="1" <?php if($dashboard_widget_pos == 1) echo "checked"; ?> />Hardware
+					<input type="radio" name="dashboard_widget_pos" value="2" <?php if($dashboard_widget_pos == 2) echo "checked"; ?> />Disk arrays
 				</p>
 				<blockquote class='inline_help'>
 					Choose if you want to display this plugin in the Unraid Dashboard, "Enable" or "Disable"<br />

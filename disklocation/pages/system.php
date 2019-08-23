@@ -489,7 +489,7 @@
 		}
 	}
 	
-	function dashboard_toggle($widget, $pos = 0) {
+	function dashboard_toggle($widget = 0) {
 		$path = "" . EMHTTP_ROOT . "" . DISKLOCATION_PATH . "";
 		
 		if(file_exists("" . $path . "/disklocation_dashboard.page")) { 
@@ -499,15 +499,16 @@
 			$widget_status = "off";
 		}
 		
-		if($widget_status == "on" && $widget == "off") {
+		if($widget_status == "on" && !$widget) {
 			rename($path . "/disklocation_dashboard.page", $path . "/disklocation_dashboard.page.off");
 			$widget_status = "off";
 		}
-		if($widget_status == "off" && $widget == "on") {
+		if($widget_status == "off" && $widget) {
 			rename($path . "/disklocation_dashboard.page.off", $path . "/disklocation_dashboard.page");
 			$widget_status = "on";
 		}
 		
+		/*
 		if($widget == "on" && file_exists("" . $path . "/disklocation_dashboard.page")) {
 			$insert_pos = "";
 			if($pos) {
@@ -553,6 +554,7 @@
 			"current"	=> $widget_status,
 			"position"	=> $pos
 		);
+		*/
 	}
 	
 	/* lsscsi -ug
@@ -682,11 +684,13 @@
 		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_others"])) { $disklocation_error[] = "Background color for \"Unassigned devices\" invalid."; } else { $_POST["bgcolor_others"] = str_replace("#", "", $_POST["bgcolor_others"]); }
 		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_empty"])) { $disklocation_error[] = "Background color for \"Empty trays\" invalid."; } else { $_POST["bgcolor_empty"] = str_replace("#", "", $_POST["bgcolor_empty"]); }
 		if(!preg_match("/(u|m)/", $_POST["warranty_field"])) { $disklocation_error[] = "Warranty field is invalid."; }
-		if(!preg_match("/[0-9]{1,4}/", $_POST["dashboard_widget_pos"])) { $disklocation_error[] = "Dashboard widget position number invalid."; }
+		if(!preg_match("/[0-9]{1,4}/", $_POST["dashboard_widget_pos"])) { $disklocation_error[] = "Dashboard widget position invalid."; }
 		
+		/*
 		$dashboard_widget_array = dashboard_toggle($_POST["dashboard_widget"], $_POST["dashboard_widget_pos"]);
 		$dashboard_widget = $dashboard_widget_array["current"];
 		$dashboard_widget_pos = $dashboard_widget_array["position"];
+		*/
 		
 		if(empty($disklocation_error)) {
 			$sql .= "
@@ -1145,7 +1149,7 @@
 	
 	$displayinfo = json_decode($displayinfo, true);
 	
-	dashboard_toggle($dashboard_widget, $dashboard_widget_pos);
+	dashboard_toggle($dashboard_widget_pos);
 	
 	$color_array = array();
 	$color_array["empty"] = $bgcolor_empty;
