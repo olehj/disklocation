@@ -34,38 +34,64 @@ Icon="server"
 	else {
 		$installed_drives = 0;
 	}
+	
+	if($dashboard_widget_pos == 1) {
+		$dashboard_widget_colspan = 3;
+	}
+	if($dashboard_widget_pos == 2) {
+		$dashboard_widget_colspan = 5;
+	}
 ?>
+
 <style type="text/css">
-	.dash_disklocation{display:none}
+	.dash_disklocation_toggle{display:none}
 </style>
-<table class='share_status dashboard box1'>
-	<thead>
-	<tr><td></td><td style="white-space: no-wrap;">Disk Location</td><td style="width: 100%;">
-		<i class='fa fa-fw chevron mt0' id='dash_disklocation' onclick='toggleChevron("dash_disklocation",0)'></i>
-		<a href='/Settings/disklocationConfig' title='Go to Disk Location Configuration page'><i class='fa fa-fw fa-cog chevron mt0'></i></a>
-		<a href='/Tools/disklocation' title='Go to Disk Location page'><i class='fa fa-fw fa-server chevron mt0'></i></a>
-		<span class='info'><?php print($installed_drives); ?> of <?php print($total_trays_group); ?> drives assigned. <?php print($dashboard_info); ?></span>
-	</td><td></td></tr>
+
+<table id="db-box<?php echo $dashboard_widget_pos ?>" class="dash_disklocation dashboard box<?php echo $dashboard_widget_pos ?>" style="display:none">
+	<thead sort="10" class="sortable">
+		<tr>
+			<td></td>
+			<td class="next" colspan="<?php echo $dashboard_widget_colspan ?>" style="white-space: no-wrap;">Disk Location
+				<i class="fa fa-fw chevron mt0" id="dash_disklocation_toggle" onclick="toggleChevron('dash_disklocation_toggle',0)"></i>
+				<a href="/Settings/disklocationConfig" title="Go to Disk Location Configuration page"><i class="fa fa-fw fa-cog chevron mt0"></i></a>
+				<a href="/Tools/disklocation" title="Go to Disk Location page"><i class="fa fa-fw fa-server chevron mt0"></i></a>
+				<span class="info"><?php print($installed_drives); ?> of <?php print($total_trays_group); ?> drives assigned. <?php print($dashboard_info); ?></span>
+			</td>
+			<td></td>
+		</tr>
 	</thead>
-	<tbody class='dash_disklocation'>
-		<tr><td></td><td colspan='3' class='top'>
-			<br />
-			<style type="text/css">
-				<?php require_once("/usr/local/emhttp/plugins/disklocation/pages/styles/disk.css.php"); ?>
-			</style>
-			<link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/signals.css")?>">
-			<script type="text/javascript" src="<?autov("" . DISKLOCATION_PATH . "/pages/script/locate_script_top.js.php")?><?php print("&amp;path=" . DISKLOCATION_PATH . ""); ?>"></script>
-			<table style="width: 0;">
-				<tr>
-					<?php print($disklocation_dash_out); ?>
-					<td style="width: 100%;"></td>
-				</tr>
-			</table>
-		</td></tr>
+	<tbody class="dash_disklocation_toggle sortable" sort="10">
+		<tr>
+			<td></td>
+			<td colspan="<?php echo $dashboard_widget_colspan ?>" class="top">
+				<br />
+				<style type="text/css">
+					<?php require_once("/usr/local/emhttp/plugins/disklocation/pages/styles/disk.css.php"); ?>
+				</style>
+				<link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/signals.css")?>">
+				<table style="width: 0;">
+					<tr>
+						<?php print($disklocation_dash_out); ?>
+						<td style="width: 100%;"></td>
+					</tr>
+				</table>
+			</td>
+			<td></td>
+		</tr>
 	</tbody>
 </table>
+
 <script>
 $(function() {
-  toggleView('dash_disklocation',true);
+  // append data from the table into the correct one
+  $("#db-box<?php echo $dashboard_widget_pos ?>").append($(".dash_disklocation").html());
+  
+  // reload toggle to get the correct state
+  toggleView('dash_disklocation_toggle',true);
+  
+  // reload sorting to get the stored data (cookie)
+  sortTable($('#db-box1'),$.cookie('db-box1'));
+  sortTable($('#db-box2'),$.cookie('db-box2'));
+  sortTable($('#db-box3'),$.cookie('db-box3'));
 });
 </script>
