@@ -317,6 +317,24 @@
 		}
 	}
 	
+	function force_set_removed_device_status($db, $hash) {
+		$sql_status .= "
+			UPDATE disks SET
+				status = 'r'
+			WHERE hash = '" . $hash . "'
+			;
+			DELETE FROM location WHERE hash = '" . $hash . "';
+		";
+		
+		$ret = $db->exec($sql_status);
+		if(!$ret) {
+			return $db->lastErrorMsg();
+		}
+		else {
+			return $hash;
+		}
+	}
+	
 	function array_duplicates($array) {
 		return count(array_filter($array)) !== count(array_unique(array_filter($array)));
 	}
@@ -582,7 +600,7 @@
 	// lsscsi -bg
 	function lsscsi_parser($input) {
 		// \[(.+:.+:.+:.+)\]\s+(-|(\/dev\/(h|s)d[a-z]{1,})?)\s+((\/dev\/(nvme|sg)[0-9]{1,})(n[0-9]{1,})?)
-		$pattern_device = "\[(.+:.+:.+:.+)\]\s+";					// $1
+		$pattern_device = "\[(.+:.+:.+:.+)\]\s+";				// $1
 		$pattern_devnode = "(-|(\/dev\/(h|s)d[a-z]{1,})?)\s+";			// $3
 		$pattern_scsigendevnode = "((\/dev\/(nvme|sg)[0-9]{1,})(n[0-9]{1,})?)";	// $5
 			
@@ -600,7 +618,7 @@
 		$sql = "
 			UPDATE disks SET
 				status = 'd'
-			WHERE luname = '" . $_POST["luname"] . "'
+			WHERE hash = '" . $_POST["hash"] . "'
 			;
 		";
 		
@@ -612,15 +630,22 @@
 		$db->close();
 		
 		//header("Location: " . DISKLOCATION_URL);
-		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
+		exit;
+	}
+	
+	if($_POST["remove_x"] && $_POST["remove_y"]) {
+		if(!force_set_removed_device_status($db, $_POST["hash"])) { die("<p style=\"color: red;\">ERROR: Could not set status for the drive with hash: " . $_POST["hash"] . "</p>"); }
+		
+		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
 		exit;
 	}
 	
 	if($_POST["add_x"] && $_POST["add_y"]) {
 		$sql = "
 			UPDATE disks SET
-				status = ''
-			WHERE luname = '" . $_POST["luname"] . "'
+				status = 'h'
+			WHERE hash = '" . $_POST["hash"] . "'
 			;
 		";
 		
@@ -632,7 +657,7 @@
 		$db->close();
 		
 		//header("Location: " . DISKLOCATION_URL);
-		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
 		exit;
 	}
 	
