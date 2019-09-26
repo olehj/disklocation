@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.08.23">
+<!ENTITY version          "2019.09.26">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -26,6 +26,10 @@
 >
 
 <CHANGES>
+###2019.09.26
+ - Commit #105 - FEATURE: Add force removal of drives stuck in database for any reason under a new tab called "Drives" under Configuration. This has slimmed down the "Information" page and leaves that with just the info without the controll/			         operation buttons. Some bugfixes applied to these buttons as well.
+ - Commit #104 - IMPROVEMENT: Unclear tray assigning because of TrayID assignment in some cases, made it more clear with added information.
+
 ###2019.08.23
  - Commit #102 - IMPROVEMENT: Hints provided by Squid to improve the dashboard integration. Further changes made to customize it and position it to your own liking.
 
