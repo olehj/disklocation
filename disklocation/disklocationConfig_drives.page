@@ -1,0 +1,7 @@
+Menu="disklocationConfig:3"
+Icon="server"
+Title="Drives"
+---
+<?php
+	require_once("/usr/local/emhttp/plugins/disklocation/pages/config_drives.php");
+?>

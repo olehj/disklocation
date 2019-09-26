@@ -229,9 +229,9 @@
 			<?php print($disk_layouts_alloc); ?>
 		</tr>
 	</table>
-	<blockquote class='inline_help'>
-		<p style="color: red;"><b>NB! TrayID is shown here, not the set count directions! Please make sure you have set it up before assigning drives!</b><br /><br /></p>
-	</blockquote>
+	<!--<blockquote class='inline_help'>-->
+		<p style="color: red;"><b>OBS! When allocating drives you must use the TrayID numbers shown in bold and not the physical tray assignment shown on the right/bottom (these are only shown if the numbers differ).</b><br /><br /></p>
+	<!--</blockquote>-->
 	<table style="width: 0;">
 		<tr>
 			<td style="vertical-align: top; padding-left: 20px;">
@@ -335,8 +335,10 @@
 					
 					<h3>Installation</h3>
 					<dl>
+						<!--
 						<dt>Why does this plugin require smartmontools 7.0+?</dt>
 						<dd>During installation, smartmontools 7.0 will be installed for Unraid 6.6.x (it is included in Unraid 6.7+ as default). This is required for JSON-output for the smartctl command.</dd>
+						-->
 						
 						<!--
 						<dt>Why does this plugin require GIT tools?</dt>
@@ -371,7 +373,7 @@
 						<dd>The configration is stored in a SQLite database and is located at: /boot/config/plugins/disklocation/disklocation.sqlite</dd>
 						
 						<dt>I want to reset everything to "Factory defaults", how?</dt>
-						<dd>For now, delete the SQLite database manually from the location above. This will be recreated with blank defaults when you enter the plugin page next. Remember, all settings and tray allocations will be deleted for this plugin.</dd>
+						<dd>You can delete the database under "System Files" tab. This will be recreated with blank defaults when you enter the plugin page next. Remember, all settings and tray allocations will be deleted for this plugin.</dd>
 					</dl>
 				</blockquote>
 			</td>
@@ -379,4 +381,3 @@
 	</table>
 </form>
 <script type="text/javascript" src="<?autov("" . DISKLOCATION_PATH . "/pages/script/locate_script_bottom.js")?>"></script>
-<?php $db->close(); ?>

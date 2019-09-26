@@ -117,11 +117,22 @@
 					</div>
 				";
 				
+				$add_empty_physical_tray_order = "";
+				if($tray_assign != $empty_tray_assign) {
+					$add_empty_physical_tray_order = $empty_tray_assign;
+				}
 				$disklocation_alloc[$gid] .= "
 					<div style=\"order: " . $tray_assign . "\">
 						<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
 							<div style=\"background-color: #" . $color_array["empty"] . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
-								<b>" . $tray_assign . "</b>
+								<div class=\"flex-container-start\" style=\"min-height: 0;\">
+									<b>" . $tray_assign . "</b>
+								</div>
+								<div class=\"flex-container-middle_" . $disk_tray_direction . "\">
+								</div>
+								<div class=\"flex-container-end\">
+									" . $add_empty_physical_tray_order . "
+								</div>
 							</div>
 						</div>
 					</div>
@@ -388,11 +399,22 @@
 					</div>
 				";
 				
+				$add_physical_tray_order = "";
+				if($drive_tray_order[$hash] != $drive_tray_order_assign) {
+					$add_physical_tray_order = $drive_tray_order_assign;
+				}
 				$disklocation_alloc[$gid] .= "
 					<div style=\"order: " . $drive_tray_order[$hash] . "\">
 						<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
 							<div style=\"background-color: #" . $color_array[$hash] . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
-								<b>" . $drive_tray_order[$hash] . "</b>
+								<div class=\"flex-container-start\" style=\"min-height: 0;\">
+									<b>" . $drive_tray_order[$hash] . "</b>
+								</div>
+								<div class=\"flex-container-middle_" . $disk_tray_direction . "\">
+								</div>
+								<div class=\"flex-container-end\">
+									" . $add_physical_tray_order . "
+								</div>
 							</div>
 						</div>
 					</div>
