@@ -1,4 +1,4 @@
-Menu="disklocationConfig:3"
+Menu="disklocationConfig:4"
 Icon="file-alt"
 Title="System Files"
 ---
@@ -6,3 +6,4 @@ Title="System Files"
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/system.php");
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/config_system.php");
 ?>
+<?php $db->close(); ?>
