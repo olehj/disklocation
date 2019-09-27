@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.09.26">
+<!ENTITY version          "2019.09.27">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -26,6 +26,9 @@
 >
 
 <CHANGES>
+###2019.09.27
+ - Commit #108 - BUG: Missing bracket in CSS file, caused color error for LEDs
+
 ###2019.09.26
  - Commit #105 - FEATURE: Add force removal of drives stuck in database for any reason under a new tab called "Drives" under Configuration. This has slimmed down the "Information" page and leaves that with just the info without the controll/			         operation buttons. Some bugfixes applied to these buttons as well.
  - Commit #104 - IMPROVEMENT: Unclear tray assigning because of TrayID assignment in some cases, made it more clear with added information.
