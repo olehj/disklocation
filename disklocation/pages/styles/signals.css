@@ -19,6 +19,7 @@
 		0% {color: #AAAAAA;}
 		50% {color: #00FF00;}
 		100% {color: #AAAAAA;}
+	}
 	
 	.yellow-on {
 		color: #FFFF00;
@@ -60,7 +61,7 @@
 	}
 	
 	.blue-on {
-		color: #0000FF;
+		color: #00CCFF;
 		font-size: 8pt;
 		cursor: help;
 	}
@@ -72,6 +73,6 @@
 	}
 	@keyframes blinker-blue {
 		0% {color: #AAAAAA;}
-		50% {color: #0000FF;}
+		50% {color: #00CCFF;}
 		100% {color: #AAAAAA;}
 	}
