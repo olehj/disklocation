@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.09.27">
+<!ENTITY version          "2019.11.19">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -26,6 +26,9 @@
 >
 
 <CHANGES>
+###2019.11.19
+ - Commit #110 - IMPROVEMENT: Centered the tray config on the Dashboard page because someone got an OCD attack :p
+
 ###2019.09.27
  - Commit #108 - BUG: Missing bracket in CSS file, caused color error for LEDs
 
