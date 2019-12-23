@@ -21,7 +21,7 @@ Title="Devices"
 		
 		$disklocation_page_out .= "
 			<td style=\"vertical-align: top; padding: 25px 50px 0 0;\">
-				<h2 style=\"text-align: center;\">$group_name</h2>
+				<h2 style=\"text-align: center;\">" . stripslashes(htmlspecialchars($group_name)) . "</h2>
 				<div class=\"grid-container\" style=\"$css_grid_group\">
 					$disklocation_page[$gid]
 				</div>

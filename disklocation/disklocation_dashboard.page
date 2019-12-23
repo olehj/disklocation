@@ -20,7 +20,7 @@ Icon="server"
 		
 		$disklocation_dash_out .= "
 			<td style=\"vertical-align: top; padding: 25px 5px 0 0;\">
-				<div style=\"text-align: center;\"><b>$group_name</b></div>
+				<div style=\"text-align: center;\"><b>" . stripslashes(htmlspecialchars($group_name)) . "</b></div>
 				<div class=\"grid-container\" style=\"$css_grid_group\">
 					$disklocation_dash[$gid]
 				</div>
