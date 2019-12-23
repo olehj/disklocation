@@ -125,7 +125,7 @@
 					<div style=\"order: " . $tray_assign . "\">
 						<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
 							<div style=\"background-color: #" . $color_array["empty"] . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
-								<div class=\"flex-container-start\" style=\"min-height: 0;\">
+								<div class=\"flex-container-start\" style=\"min-height: 15px;\">
 									<b>" . $tray_assign . "</b>
 								</div>
 								<div class=\"flex-container-middle_" . $disk_tray_direction . "\">
@@ -142,7 +142,7 @@
 					<div style=\"order: " . $tray_assign . "\">
 						<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
 							<div style=\"background-color: #" . $color_array["empty"] . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
-								<div class=\"flex-container-start\" style=\"min-height: 0;\">
+								<div class=\"flex-container-start\" style=\"min-height: 15px;\">
 									<span class=\"grey-off\" alt=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" title=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" />&#11044;</span>
 								</div>
 								<div class=\"flex-container-middle_" . $disk_tray_direction . "\">
@@ -407,7 +407,7 @@
 					<div style=\"order: " . $drive_tray_order[$hash] . "\">
 						<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
 							<div style=\"background-color: #" . $color_array[$hash] . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
-								<div class=\"flex-container-start\" style=\"min-height: 0;\">
+								<div class=\"flex-container-start\" style=\"min-height: 15px;\">
 									<b>" . $drive_tray_order[$hash] . "</b>
 								</div>
 								<div class=\"flex-container-middle_" . $disk_tray_direction . "\">
@@ -433,7 +433,7 @@
 					<div style=\"order: " . $drive_tray_order[$hash] . "\">
 						<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
 							<div style=\"background-color: #" . $color_array[$hash] . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
-								<div class=\"flex-container-start\" style=\"min-height: 0;\">
+								<div class=\"flex-container-start\" style=\"min-height: 15px;\">
 									$dashboard_led
 								</div>
 								<div class=\"flex-container-middle_" . $disk_tray_direction . "\" style=\"padding: 0 0 10px 0;\">

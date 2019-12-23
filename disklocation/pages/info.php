@@ -73,7 +73,7 @@
 		
 		$print_drives[$i_drive] = "
 			<tr style=\"background: #" . $color_array[$data["hash"]] . ";\">
-				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $group_assign . "</td>
+				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . stripslashes(htmlspecialchars($group_assign)) . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $tray_assign . "</td>
 				<td style=\"padding: 0 10px 0 10px;\">" . $data["device"] . "</td>
 				<td style=\"padding: 0 10px 0 10px;\">" . $data["luname"] . "</td>
