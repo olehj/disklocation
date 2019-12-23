@@ -28,6 +28,7 @@
 <CHANGES>
 ###2019.12.23
  - Happy holidays!
+ - Commit #114 - IMPROVEMENT: Changed the color to use the default Unraid class instead of regular "green" and "red"
  - Commit #113 - IMPROVEMENT: Added minor tweak to the LEDs, mouse over and design should work better in vertical mode.
  - Commit #112 - MINOR ISSUE: Added forgotten stripslashes and htmlspecialchars for the group name, quotes etc. should now work.
 
