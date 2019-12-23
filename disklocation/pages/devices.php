@@ -145,7 +145,7 @@
 								<div class=\"flex-container-start\" style=\"min-height: 15px;\">
 									<span class=\"grey-off\" alt=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" title=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" />&#11044;</span>
 								</div>
-								<div class=\"flex-container-middle_" . $disk_tray_direction . "\">
+								<div class=\"flex-container-middle_" . $disk_tray_direction . "\" style=\"padding: 0 0 10px 0;\">
 								</div>
 								<div class=\"flex-container-end\">
 									<b>" . $empty_tray_assign . "</b>
