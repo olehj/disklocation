@@ -422,11 +422,11 @@
 				
 				if($smart_status == 1) {
 					$dashboard_led = $unraid_array_icon;
-					$dashboard_info = "<span style=\"color: green;\"><b>Disks OK!</b></span>";
+					$dashboard_info = "<span class=\"green\"><b>Disks OK!</b></span>";
 				}
 				else {
 					$dashboard_led = $smart_status_icon;
-					$dashboard_info = "<span style=\"color: red;\"><b>Failed disk!</b></span>";
+					$dashboard_info = "<span class=\"red\"><b>Failed disk!</b></span>";
 				}
 				
 				$disklocation_dash[$gid] .= "
