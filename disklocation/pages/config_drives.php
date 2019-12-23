@@ -80,7 +80,7 @@
 						<input type=\"hidden\" name=\"hash\" value=\"" . $data["hash"] . "\"  />
 					</form>
 				</td>
-				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $group_assign . "</td>
+				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . stripslashes(htmlspecialchars($group_assign)) . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $tray_assign . "</td>
 				<td style=\"padding: 0 10px 0 10px;\">" . $data["device"] . "</td>
 				<td style=\"padding: 0 10px 0 10px;\">" . $data["luname"] . "</td>

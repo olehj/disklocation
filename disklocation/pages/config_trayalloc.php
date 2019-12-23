@@ -50,7 +50,7 @@
 			$gid = $group[$group_i]["id"];
 			$gid_name = ( empty($group[$group_i]["group_name"]) ? $gid : $group[$group_i]["group_name"] );
 			if($data["groupid"] == $gid) { $selected="selected"; } else { $selected=""; }
-			$group_options .= "<option value=\"$gid\" " . $selected . " style=\"text-align: right;\">$gid_name</option>";
+			$group_options .= "<option value=\"$gid\" " . $selected . " style=\"text-align: right;\">" . stripslashes(htmlspecialchars($gid_name)) . "</option>";
 		}
 		
 		$warr_input = "";
@@ -120,7 +120,7 @@
 		for($group_i = 1; $group_i <= $total_groups; ++$group_i) {
 			$gid = $group[$group_i]["id"];
 			$gid_name = ( empty($group[$group_i]["group_name"]) ? $gid : $group[$group_i]["group_name"] );
-			$group_options .= "<option value=\"$gid\" style=\"text-align: right;\">$gid_name</option>";
+			$group_options .= "<option value=\"$gid\" style=\"text-align: right;\">" . stripslashes(htmlspecialchars($gid_name)) . "</option>";
 			
 		}
 		
