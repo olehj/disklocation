@@ -210,17 +210,20 @@
 		$a++;
 	}
 	
-	$custom_colors_array_dedup = array_unique($custom_colors_array);
+	$custom_colors_array_dedup = array_values(array_unique($custom_colors_array));
 	
 	for($i=0; $i < count($custom_colors_array_dedup); ++$i) {
 		$bgcolor_custom_array .= "<option>#" . $custom_colors_array_dedup[$i] . "</option>\n";
 	}
 ?>
 <datalist id="disklocationColors">
+	<option>#<?php echo $bgcolor_empty ?></option>
+	<!--
 	<option>#<?php echo $bgcolor_parity ?></option>
 	<option>#<?php echo $bgcolor_unraid ?></option>
 	<option>#<?php echo $bgcolor_cache ?></option>
 	<option>#<?php echo $bgcolor_others ?></option>
+	-->
 	<?php echo $bgcolor_custom_array ?>
 </datalist>
 <form action="" method="post">
@@ -302,7 +305,7 @@
 					<dt>Custom Color</dt>
 					<dd>
 						Choosing a color here will store it for the specific disk and will override any other color properties.<br />
-						Reset/delete the color by choosing one of the default colors, eg.: #aaaaaa (default for empty).
+						Reset/delete the color by choosing the default color for empty (the first color available in the list).
 					</dd>
 					
 					<dt>"Locate" button</dt>
