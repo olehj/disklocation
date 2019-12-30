@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2019.12.24">
+<!ENTITY version          "2019.12.30">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -26,6 +26,10 @@
 >
 
 <CHANGES>
+###2019.12.30
+ - Happy new year!
+ - Commit #119 - MINOR ISSUE/BUG: Fixed dropdown list in "Tray Allocations" to show all custom colors. Only "Empty color" can be now chosen for resetting to default colors, for simplicity.
+
 ###2019.12.24
  - Happy holidays (for real this time)!
  - Commit #117 - MINOR ISSUE: Fixed LED for empty tray which was misaligned.
