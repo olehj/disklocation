@@ -1,5 +1,6 @@
 Menu="disklocationConfig:2"
 Icon="server"
+Tag="server"
 Title="Tray Allocations"
 ---
 <?php 

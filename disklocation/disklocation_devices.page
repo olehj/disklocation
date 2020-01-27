@@ -1,5 +1,6 @@
 Menu="disklocation:1"
 Icon="server"
+Tag="server"
 Title="Devices"
 ---
 <?php

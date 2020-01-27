@@ -1,5 +1,6 @@
 Menu="disklocationConfig:1"
-Icon="server"
+Icon="cogs"
+Tag="cogs"
 Type="xmenu"
 Tabs="true"
 Title="Configuration"
