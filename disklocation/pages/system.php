@@ -253,7 +253,7 @@
 	}
 	
 	function find_and_set_removed_devices_status($db, $arr_hash) {
-		$sql = "SELECT hash FROM disks WHERE status IS NULL;";
+		$sql = "SELECT hash FROM disks WHERE status IS NOT 'd';";
 		$results = $db->query($sql);
 		$sql_hash = array();
 		while($res = $results->fetchArray(1)) {
@@ -614,7 +614,7 @@
 		);
 	}
 	
-	if($_POST["delete_x"] && $_POST["delete_y"]) {
+	if(isset($_POST["delete"])) {
 		$sql = "
 			UPDATE disks SET
 				status = 'd'
@@ -634,14 +634,14 @@
 		exit;
 	}
 	
-	if($_POST["remove_x"] && $_POST["remove_y"]) {
+	if(isset($_POST["remove"])) {
 		if(!force_set_removed_device_status($db, $_POST["hash"])) { die("<p style=\"color: red;\">ERROR: Could not set status for the drive with hash: " . $_POST["hash"] . "</p>"); }
 		
 		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
 		exit;
 	}
 	
-	if($_POST["add_x"] && $_POST["add_y"]) {
+	if(isset($_POST["add"])) {
 		$sql = "
 			UPDATE disks SET
 				status = 'h'
@@ -661,7 +661,7 @@
 		exit;
 	}
 	
-	if($_POST["group_add_x"] && $_POST["group_add_y"]) {
+	if(isset($_POST["group_add"])) {
 		$sql = "
 			INSERT INTO settings_group(group_name) VALUES('');
 		";
@@ -677,7 +677,7 @@
 		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
 		exit;
 	}
-	if($_POST["group_del_x"] && $_POST["group_del_y"]) {
+	if(isset($_POST["group_del"])) {
 		$sql = "
 			DELETE FROM settings_group WHERE id = (SELECT MAX(id) FROM settings_group);
 			DELETE FROM location WHERE groupid = '" . $_POST["last_group_id"] . "';
@@ -1101,7 +1101,7 @@
 			}
 			$i++;
 		}
-		// check the existens of devices, must be run during force smart scan.
+		// check the existence of devices, must be run during force smart scan.
 		if($force_scan) {
 			find_and_set_removed_devices_status($db, $deviceid); 		// tags removed devices 'r', delete device from location
 		}

@@ -75,14 +75,14 @@
 					</td>
 				</tr>
 		";
-		for($i=0; $i < count($list_backup); ++$i) {
+		for($i=0; $i < count($list_backup)-1; ++$i) {
 			$print_list_backup .= "
 				<tr>
 					<td>
 						" . $list_backup[$i]["file"] . "
 					</td>
 					<td style=\"text-align: right; padding: 0 0 0 20px;\">
-						" . $list_backup[$i]["size"] . "
+						" . $list_backup[$i]["size"] . " bytes
 					</td>
 				</tr>
 			";
@@ -110,7 +110,7 @@
 	if($list_database) {
 		$print_list_database = "
 			<h3>Database file</h3>
-			<p>Database filesize: " . $list_database . ")</p>
+			<p>Database filesize: " . $list_database . " bytes</p>
 			<form action=\"\" method=\"post\">
 				<input type=\"submit\" name=\"del_database\" value=\"Delete the database\" />
 			</form>
