@@ -1,5 +1,6 @@
 Menu="disklocationConfig:3"
-Icon="server"
+Icon="icon-disk"
+Tag="icon-disk"
 Title="Drives"
 ---
 <?php

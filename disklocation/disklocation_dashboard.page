@@ -1,5 +1,6 @@
 Menu="Dashboard"
 Icon="server"
+Tag="server"
 ---
 <?php
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/system.php");

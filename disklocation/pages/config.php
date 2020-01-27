@@ -178,17 +178,6 @@
 						<li>#aaaaaa "Empty/available trays"</li>
 					</ul>
 				</blockquote>
-				<!-- Will use system variable instead configured under "Display Settings"
-				<p>
-					<b>Set temperature unit:</b><br />
-					<input type="radio" name="tempunit" value="C" <?php if($tempunit == "C") echo "checked"; ?> />°C
-					<input type="radio" name="tempunit" value="F" <?php if($tempunit == "F") echo "checked"; ?>/>°F
-					<input type="radio" name="tempunit" value="K" <?php if($tempunit == "K") echo "checked"; ?>/>K
-				</p>
-				<blockquote class='inline_help'>
-					It's GONE! Use Unraids own "Display Settings" variable instead.
-				</blockquote>
-				-->
 				<p>
 					<b>Set warranty date entry:</b><br />
 					<input type="radio" name="warranty_field" value="u" <?php if($warranty_field == "u") echo "checked"; ?> />Unraid
@@ -324,19 +313,17 @@
 			</table>
 		</td>
 		<td style="padding-left: 20px;">
-			<form action="" method="post">
-				<table style="width: 0;">
-					<tr>
-						<td>
-							<form action="<?php echo DISKLOCATION_PATH ?>/pages/system.php" method="post">
-								<input type="hidden" name="last_group_id" value="<?php echo $last_group_id ?>" />
-								<input type="image" name="group_add" src="<?php echo DISKLOCATION_PATH ?>/icons/add_big.png" title="Add a new group" style="padding-top: 20px;" /><br />
-								<?php if($total_groups > 1) { print("<input type=\"image\" name=\"group_del\" src=\"" . DISKLOCATION_PATH . "/icons/delete_big.png\" title=\"Remove last group\" />"); } ?>
-							</form>
-						</td>
-					</tr>
-				</table>
-			</form>
+			<table style="width: 0;">
+				<tr>
+					<td>
+						<form action="<?php echo DISKLOCATION_PATH ?>/pages/system.php" method="post">
+							<input type="hidden" name="last_group_id" value="<?php echo $last_group_id ?>" />
+							<button type="submit" name="group_add" title="Add a new group" style="background-size: 0;"><i style="font-size: 600%;" class="fa fa-plus-circle fa-lg"></i></button><br />
+							<?php if($total_groups > 1) { print("<button type=\"submit\" name=\"group_del\" title=\"Remove last group\" style=\"background-size: 0;\"><i style=\"font-size: 600%;\" class=\"fa fa-minus-circle fa-lg\"></i></button>"); } ?>
+						</form>
+					</td>
+				</tr>
+			</table>
 		</td>
 	</tr>
 </table>

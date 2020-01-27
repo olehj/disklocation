@@ -76,7 +76,7 @@
 			<tr style=\"background: #" . $color_array[$data["hash"]] . ";\">
 				<td style=\"padding: 0 10px 0 10px;\">
 					<form action=\"" . DISKLOCATION_PATH . "/pages/system.php\" method=\"post\">
-						<input type=\"image\" name=\"remove\" src=\"" . DISKLOCATION_PATH . "/icons/delete.png\" title=\"This will force move the drive to the &quot;Not found or removed&quot; section.\" />
+						<button type=\"submit\" name=\"remove\" title=\"This will force move the drive to the &quot;Not found or removed&quot; section.\" style=\"margin: 0; padding: 0; width: 20px; height: 20px; background-color: #FFFFFF;\"><i style=\"font-size: 15px;\" class=\"fa fa-minus-circle fa-lg\"></i></button>
 						<input type=\"hidden\" name=\"hash\" value=\"" . $data["hash"] . "\"  />
 					</form>
 				</td>
@@ -144,8 +144,8 @@
 			<tr style=\"background: #" . $color_array[$data["hash"]] . ";\">
 				<td style=\"padding: 0 10px 0 10px; white-space: nowrap;\">
 					<form action=\"" . DISKLOCATION_PATH . "/pages/system.php\" method=\"post\">
-						<input type=\"image\" name=\"delete\" src=\"" . DISKLOCATION_PATH . "/icons/delete.png\" title=\"Delete, this will flag the drive hidden in the database.\" />
-						<input type=\"image\" name=\"add\" src=\"" . DISKLOCATION_PATH . "/icons/add.png\" title=\"Add, will revert to &quot;not found list&quot; if the drive really does not exists.\" />
+						<button type=\"submit\" name=\"delete\" title=\"Delete, this will flag the drive hidden in the database.\" style=\"background-size: 0; margin: 0; padding: 0;\"><i style=\"font-size: 15px;\" class=\"fa fa-minus-circle fa-lg\"></i></button>
+						<button type=\"submit\" name=\"add\" title=\"Add, will revert to &quot;not found list&quot; if the drive really does not exists.\" style=\"background-size: 0; margin: 0; padding: 0;\"><i style=\"font-size: 15px;\" class=\"fa fa-plus-circle fa-lg\"></i></button>
 						<input type=\"hidden\" name=\"hash\" value=\"" . $data["hash"] . "\"  />
 					</form>
 				</td>
@@ -162,14 +162,15 @@
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $data["smart_loadcycle"] . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $data["purchased"] . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><span style=\"cursor: help;\" title=\"Warranty: " . $data["warranty"] . " months. Expires: " . $warranty_left . "\">" . $warranty_expire . "</span></td>
-				<td style=\"padding: 0 10px 0 10px;\">" . stripslashes(htmlspecialchars($data["comment"])) . "</td>
+				<td style=\"padding: 0 10px 0 10px;\" colspan=\"3\">" . stripslashes(htmlspecialchars($data["comment"])) . "</td>
 			</tr>
 		";
 	}
 ?>
 <h2 style="margin-top: -10px; padding: 0 0 10px 0;">Disk Information</h2>
-<p style="margin-top: -10px; padding: 0 0 25px 0;">
-	OBS! The <img src="<?php print(DISKLOCATION_PATH); ?>/icons/delete.png" alt="" /> button will force the drive to be moved to the "Devices not found or removed" section below. Use this if you have false drive(s) in your list.
+<p style="margin-top: -10px; padding: 0 0 30px 0;">
+	<b>Warning! Please use "Force scan all" button under "Tray Allocation" tab before manually deleting and/or re-adding devices manually.</b><br />
+	The <i class="fa fa-minus-circle fa-lg"></i> button will force the drive to be moved to the "Devices not found or removed" section below. Use this if you have false drive(s) in your list.
 	If you accidentally click the button on the wrong drive you have to do a "Force scan all" and reassign the drive.
 </p>
 <blockquote class='inline_help'>
@@ -181,7 +182,7 @@
 	<tr style="border: solid 1px #000000;">
 		<td style="padding: 0 10px 0 10px;"><b>#</b></td>
 		<td style="padding: 0 10px 0 10px;"><b>Group</b></td>
-		<td style="padding: 0 10px 0 10px;"><b>Tray</b></td>
+		<td style="padding: 0 10px 0 10px; width: 20px;"><b>Tray</b></td>
 		<td style="padding: 0 10px 0 10px;"><b>Path</b></td>
 		<td style="padding: 0 10px 0 10px;"><b>Logical Unit Name</b></td>
 		<td style="padding: 0 10px 0 10px;"><b>Manufacturer</b></td>
@@ -203,17 +204,17 @@
 			print($print_drives[$i]);
 			$i++;
 		}
-		if($print_removed_drives) {
-			print("
-				<tr>
-					<td style=\"padding: 10px 10px 0 10px;\" colspan=\"17\">
-						<h3>Devices not found or removed</h3>
-						<p>
-							OBS! The <img src=\"" . DISKLOCATION_PATH . "/icons/delete.png\" alt=\"\" /> button will hide the device permanently from this plugin and can only be reverted by manually changing the flag in the database file.<br />
-							While The <img src=\"" . DISKLOCATION_PATH . "/icons/add.png\" alt=\"\" /> button will to readd the drive to the main list for tray allocation, it will revert back to the not found list if the drive does actually not exists if it is assigned using \"Force scan all\".
-						</p>
-					</td>
-				</tr>
+	?>
+</table>
+<h3>Devices not found or removed</h3>
+<p style="padding: 0 0 30px 0;">
+	Warning! The <i class="fa fa-minus-circle fa-lg"></i> button will hide the device permanently from this plugin and can only be reverted by manually changing the flag in the database file ("Force scan all" button will not touch hidden devices).<br />
+	While the <i class="fa fa-plus-circle fa-lg"></i> button will re-add the drive to the main list for tray allocation, it will revert back to the not found list if the drive does actually not exists after using "Force scan all".
+</p>
+<?php
+	if($print_removed_drives) {
+		print("
+			<table>
 				<tr style=\"border: solid 1px #000000;\">
 					<td style=\"padding: 0 10px 0 10px;\"><b>#</b></td>
 					<td style=\"padding: 0 10px 0 10px;\"><b>Path</b></td>
@@ -229,13 +230,13 @@
 					<td style=\"padding: 0 10px 0 10px;\"><b>Load Cycle Count</b></td>
 					<td style=\"padding: 0 10px 0 10px;\"><b>Purchased</b></td>
 					<td style=\"padding: 0 10px 0 10px;\"><b>Warranty</b></td>
-					<td style=\"padding: 0 10px 0 10px;\" colspan=\"3\"><b>Comment</b></td>
+					<td style=\"padding: 0 10px 0 10px;\"><b>Comment</b></td>
 				</tr>
 				$print_removed_drives
-			");
-		}
-	?>
-</table>
+			</table>
+		");
+	}
+?>
 <blockquote class='inline_help'>
 	<dt>"Operation"</dt>
 	<ul>
