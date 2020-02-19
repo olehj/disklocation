@@ -335,6 +335,32 @@
 		}
 	}
 	
+	function force_reset_color($db, $hash) {
+		if($hash == '*' || $hash == 'all') {
+			$sql_status = "
+				UPDATE disks SET
+					color = ''
+				;
+			";
+		}
+		else {
+			$sql_status .= "
+				UPDATE disks SET
+					color = ''
+				;
+				WHERE hash = '" . $hash . "';
+			";
+		}
+		
+		$ret = $db->exec($sql_status);
+		if(!$ret) {
+			return $db->lastErrorMsg();
+		}
+		else {
+			return $hash;
+		}
+	}
+	
 	function array_duplicates($array) {
 		return count(array_filter($array)) !== count(array_unique(array_filter($array)));
 	}
@@ -1128,6 +1154,10 @@
 				</script>
 			");
 		}
+	}
+	
+	if($_POST["reset_all_colors"]) {
+		force_reset_color($db, "*");
 	}
 	
 // Common config
