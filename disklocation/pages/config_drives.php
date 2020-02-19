@@ -76,7 +76,7 @@
 			<tr style=\"background: #" . $color_array[$data["hash"]] . ";\">
 				<td style=\"padding: 0 10px 0 10px;\">
 					<form action=\"" . DISKLOCATION_PATH . "/pages/system.php\" method=\"post\">
-						<button type=\"submit\" name=\"remove\" title=\"This will force move the drive to the &quot;Not found or removed&quot; section.\" style=\"margin: 0; padding: 0; width: 20px; height: 20px; background-color: #FFFFFF;\"><i style=\"font-size: 15px;\" class=\"fa fa-minus-circle fa-lg\"></i></button>
+						<button type=\"submit\" name=\"remove\" title=\"This will force move the drive to the &quot;Not found or removed&quot; section.\" style=\"margin: 0; padding: 0; min-width: 0; width: 20px; height: 20px; background-color: #FFFFFF;\"><i style=\"font-size: 15px;\" class=\"fa fa-minus-circle fa-lg\"></i></button>
 						<input type=\"hidden\" name=\"hash\" value=\"" . $data["hash"] . "\"  />
 					</form>
 				</td>
@@ -144,8 +144,8 @@
 			<tr style=\"background: #" . $color_array[$data["hash"]] . ";\">
 				<td style=\"padding: 0 10px 0 10px; white-space: nowrap;\">
 					<form action=\"" . DISKLOCATION_PATH . "/pages/system.php\" method=\"post\">
-						<button type=\"submit\" name=\"delete\" title=\"Delete, this will flag the drive hidden in the database.\" style=\"background-size: 0; margin: 0; padding: 0;\"><i style=\"font-size: 15px;\" class=\"fa fa-minus-circle fa-lg\"></i></button>
-						<button type=\"submit\" name=\"add\" title=\"Add, will revert to &quot;not found list&quot; if the drive really does not exists.\" style=\"background-size: 0; margin: 0; padding: 0;\"><i style=\"font-size: 15px;\" class=\"fa fa-plus-circle fa-lg\"></i></button>
+						<button type=\"submit\" name=\"delete\" title=\"Delete, this will flag the drive hidden in the database.\" style=\"min-width: 0; background-size: 0; margin: 0; padding: 0;\"><i style=\"font-size: 15px;\" class=\"fa fa-minus-circle fa-lg\"></i></button>
+						<button type=\"submit\" name=\"add\" title=\"Add, will revert to &quot;not found list&quot; if the drive really does not exists.\" style=\"min-width: 0; background-size: 0; margin: 0; padding: 0;\"><i style=\"font-size: 15px;\" class=\"fa fa-plus-circle fa-lg\"></i></button>
 						<input type=\"hidden\" name=\"hash\" value=\"" . $data["hash"] . "\"  />
 					</form>
 				</td>
