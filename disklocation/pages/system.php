@@ -551,77 +551,66 @@
 			rename($path . "/disklocation_dashboard.page.off", $path . "/disklocation_dashboard.page");
 			$widget_status = "on";
 		}
-		
-		/*
-		if($widget == "on" && file_exists("" . $path . "/disklocation_dashboard.page")) {
-			$insert_pos = "";
-			if($pos) {
-				$insert_pos = ":" . $pos;
-			}
-			
-			$reading = fopen("" . $path . "/disklocation_dashboard.page", "r");
-			$writing = fopen("" . $path . "/disklocation_dashboard.page.new", "w");
-			
-			$replaced = false;
-			
-			while (!feof($reading)) {
-				$line = fgets($reading);
-				if(stristr($line,"Menu=\"Dashboard")) {
-					$line = "Menu=\"Dashboard" . $insert_pos . "\"\n";
-					$replaced = true;
-				}
-				fputs($writing, $line);
-			}
-			fclose($reading);
-			fclose($writing);
-			
-			if($replaced) {
-				rename("" . $path . "/disklocation_dashboard.page.new", "" . $path . "/disklocation_dashboard.page");
-			} else {
-				unlink("" . $path . "/disklocation_dashboard.page.new");
-			}
-		}
-		
-		if($widget == "info" && $widget_status == "on") {
-			$reading = fopen("" . $path . "/disklocation_dashboard.page","r");
-			$results = fgets($reading);
-			list($foo, $pos) = explode(":", $results);
-			if(!$pos) {
-				$pos = 0;
-			}
-			
-			fclose($reading);
-		}
-		//"Widget: " . $widget . ", changed to: " . $widget_status . ", position: " . $pos . "";
-		return array(
-			"input"		=> $widget,
-			"current"	=> $widget_status,
-			"position"	=> $pos
-		);
-		*/
 	}
 	
-	/* lsscsi -ug
-	function lsscsi_parser($input) {
-		// \[(.*)\]\s+(\w+)\s+([0-9a-z]{1,})\s+(.*)\s+(-|(\/dev\/(h|s)d[a-z]{1,})?)((\/dev\/(nvme|sg)[0-9]{1,})(n[0-9]{1,})?)
-		$pattern_device = "\[(.*)\]";						// $1
-		$pattern_type = "\s+(\w+)";						// $2
-		$pattern_luname = "\s+([0-9a-z]{1,})\s+(.*)\s+";			// $3
-		$pattern_devnode = "(-|(\/dev\/(h|s)d[a-z]{1,})?)";			// $4
-		$pattern_scsigendevnode = "((\/dev\/(nvme|sg)[0-9]{1,})(n[0-9]{1,})?)";	// $8
-			
-		list($device, $type, $luname, $devnode, $scsigendevnode) = 
-			explode("|", preg_replace("/" . $pattern_device . "" . $pattern_type . "" . $pattern_luname . "" . $pattern_devnode . "" . $pattern_scsigendevnode . "/iu", "$1|$2|$3|$4|$8", $input));
+	function cronjob_timer($time = "") {
+		$curpath = "";
+		$path = "/etc/cron.";
+		$filename = "disklocation.sh";
+		$md5sum = "59657e65fa67218b3447eee72d30ca3b";
 		
-		return array(
-			"device"	=> trim($device),
-			"type"		=> trim($type),
-			"luname"	=> str_replace(" ", "", str_replace("none", "", trim($luname))),
-			"devnode"	=> str_replace("-", "", trim($devnode)),
-			"sgnode"	=> trim($scsigendevnode)
-		);
+		define("DISKLOCATION_PATH", "/plugins/disklocation");
+		define("EMHTTP_ROOT", "/usr/local/emhttp");
+		
+		if(file_exists($path . "hourly/" . $filename) && md5_file($path . "hourly/" . $filename) == $md5sum) {
+			$curtime = "hourly";
+			if($time && $time != "disabled" && $time != $curtime) {
+				rename($path . "hourly/" . $filename, $path . "" . $time . "/" . $filename);
+			}
+			if($time == "disabled") {
+				unlink($path . "hourly/" . $filename);
+			}
+		}
+		if(file_exists($path . "daily/" . $filename) && md5_file($path . "daily/" . $filename) == $md5sum) {
+			$curtime = "daily";
+			if($time && $time != "disabled" && $time != $curtime) {
+				rename($path . "daily/" . $filename, $path . "" . $time . "/" . $filename);
+			}
+			if($time == "disabled") {
+				unlink($path . "daily/" . $filename);
+			}
+		}
+		if(file_exists($path . "weekly/" . $filename) && md5_file($path . "weekly/" . $filename) == $md5sum) {
+			$curtime = "weekly";
+			if($time && $time != "disabled" && $time != $curtime) {
+				rename($path . "weekly/" . $filename, $path . "" . $time . "/" . $filename);
+			}
+			if($time == "disabled") {
+				unlink($path . "weekly/" . $filename);
+			}
+		}
+		if(file_exists($path . "monthly/" . $filename) && md5_file($path . "monthly/" . $filename) == $md5sum) {
+			$curtime = "monthly";
+			if($time && $time != "disabled" && $time != $curtime) {
+				rename($path . "monthly/" . $filename, $path . "" . $time . "/" . $filename);
+			}
+			if($time == "disabled") {
+				unlink($path . "monthly/" . $filename);
+			}
+		}
+		
+		if(!$curtime && $time && $time != "disabled") {
+			copy(EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/disklocation.cron", $path . "" . $time . "/" . $filename);
+			chmod($path . "" . $time . "/" . $filename, 0777);
+			$curtime = $time;
+		}
+		
+		if(!$curtime) {
+			$curtime = "disabled";
+		}
+		
+		return ( $curtime ? $curtime : $time );
 	}
-	*/
 	
 	// lsscsi -bg
 	function lsscsi_parser($input) {
@@ -742,6 +731,10 @@
 		$dashboard_widget = $dashboard_widget_array["current"];
 		$dashboard_widget_pos = $dashboard_widget_array["position"];
 		*/
+		
+		if($_POST["cronjob"]) {
+			cronjob_timer($_POST["cronjob"]);
+		}
 		
 		if(empty($disklocation_error)) {
 			$sql .= "

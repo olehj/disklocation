@@ -105,6 +105,8 @@
 			</td>
 		";
 	}
+	
+	$cron_status = cronjob_timer();
 ?>
 <datalist id="disklocationColorsDef">
 	<option>#<?php echo $bgcolor_parity ?></option>
@@ -200,14 +202,31 @@
 					This feature is rather experimental and the behaviour might be unexpected, there's no real documentation for creating dashboard widgets with current Unraid Dashboard design.
 					And the positioning isn't easy to customize by just adding it into the page.
 				</blockquote>
+			</td>
+			<td style="padding-left: 25px; vertical-align: top;">
+				<h2>Updates</h2>
 				<p>
-					<b>SMART execution delay:</b><br />
+					<b>S.M.A.R.T updates:</b><br />
+					<input type="radio" name="cronjob" value="hourly" <?php if($cron_status == "hourly") echo "checked"; ?> />Hourly
+					<input type="radio" name="cronjob" value="daily" <?php if($cron_status == "daily") echo "checked"; ?> />Daily
+					<input type="radio" name="cronjob" value="weekly" <?php if($cron_status == "weekly") echo "checked"; ?> />Weekly
+					<input type="radio" name="cronjob" value="monthly" <?php if($cron_status == "monthly") echo "checked"; ?> />Monthly
+					<input type="radio" name="cronjob" value="disabled" <?php if($cron_status == "disabled") echo "checked"; ?> />Disabled
+				</p>
+				<blockquote class='inline_help'>
+					Choose how often you want the S.M.A.R.T data to be updated, or disable it.<br />
+					Recommended: daily or longer for flash devices, hourly can probably be safely used if Unraid is installed on a HDD, SSD, NVME device.<br />
+					Earlier it updated hourly, which caused some flash memories to wear out over time. The new default is "Disabled"<br />
+					Be aware that S.M.A.R.T status LED and other data will be less accurate the longer interval you set.<br />
+					If it's disabled, you have to run "Force Scan All" under "Tray Allocation" to update the information manually.
+				</blockquote>
+				<p>
+					<b>S.M.A.R.T execution delay:</b><br />
 					<input type="number" required min="0" max="5000" name="smart_exec_delay" value="<?php print($smart_exec_delay); ?>" style="width: 50px;" />ms
 				</p>
 				<blockquote class='inline_help'>
-					This is a delay for execution of the next smartctl command in a loop, this might be necessary to be able to read all the SMART data from all the drives. Default value is 200ms, and seems to work very well. If you realize it won't detect all the data you can increase this value, but hardly any point decreasing it.
+					This is a delay for execution of the next smartctl command in a loop, this might be necessary to be able to read all the S.M.A.R.T data from all the drives. Default value is 200ms, and seems to work very well. If you realize it won't detect all the data you can increase this value, but hardly any point decreasing it.
 				</blockquote>
-
 			</td>
 			<td style="padding-left: 25px; vertical-align: top;">
 				<h2 style="padding-bottom: 25px;">Visible Frontpage Information</h2>
@@ -288,15 +307,15 @@
 							</blockquote>
 						</td>
 					</tr>
-					<tr>
-						<td colspan="3">
-							<input type="submit" name="save_settings" value="Save" /><input type="reset" value="Reset" />
-							<blockquote class='inline_help'>
-								<p>Save or Reset the Common Configuration and the Visible Frontpage Information. This does not save the Disk Tray Layout.</p>
-							</blockquote>
-						</td>
-					</tr>
 				</table>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="3" style="padding-left: 25px; vertical-align: top;">
+				<input type="submit" name="save_settings" value="Save" /><input type="reset" value="Reset" />
+				<blockquote class='inline_help'>
+					<p>Save or Reset the Common Configuration and the Visible Frontpage Information. This does not save the Disk Tray Layout.</p>
+				</blockquote>
 			</td>
 		</tr>
 	</table>
