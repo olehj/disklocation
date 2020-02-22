@@ -7,6 +7,7 @@
 //	Variable name		Default value	Description
 //	--------------------------------------------------------------------------------
 	$smart_exec_delay =	'200';		// set milliseconds for next execution for SMART shell_exec - needed to actually grab all the information for unassigned devices. Default: 200
+	$smart_updates =	'disabled';	// set how often to update the cronjob [hourly|daily|weekly|monthly|disabled]
 	$bgcolor_parity =	'eb4f41';	// background color for Unraid parity disks
 	$bgcolor_unraid =	'ef6441';	// background color for Unraid data disks
 	$bgcolor_cache =	'ff884c';	// background color for Unraid cache disks
@@ -111,6 +112,7 @@
 	$sql_create_settings = "
 		id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 		smart_exec_delay INT NOT NULL DEFAULT '200',
+		smart_updates VARCHAR(8) NOT NULL DEFAULT 'disabled',
 		bgcolor_parity CHAR(6) NOT NULL DEFAULT 'eb4f41',
 		bgcolor_unraid CHAR(6) NOT NULL DEFAULT 'ef6441',
 		bgcolor_cache CHAR(6) NOT NULL DEFAULT 'ff884c',
@@ -124,6 +126,7 @@
 	$sql_tables_settings = "
 		id,
 		smart_exec_delay,
+		smart_updates,
 		bgcolor_parity,
 		bgcolor_unraid,
 		bgcolor_cache,
@@ -140,7 +143,9 @@
 		grid_count VARCHAR(6) NOT NULL DEFAULT 'column',
 		grid_columns TINYINT NOT NULL DEFAULT '4',
 		grid_rows TINYINT NOT NULL DEFAULT '6',
-		grid_trays SMALLINT,
+		grid_trays SMALLINT,/*
+		Database Version: 3
+	*/
 		disk_tray_direction CHAR(1) NOT NULL DEFAULT 'h',
 		tray_direction TINYINT NOT NULL DEFAULT '1',
 		tray_width SMALLINT NOT NULL DEFAULT '400',
@@ -157,6 +162,24 @@
 		tray_direction,
 		tray_width,
 		tray_height
+	";
+
+	/*
+		Database Version: 4
+	*/
+	
+	$sql_tables_settings_v4 = "
+		id,
+		smart_exec_delay,
+		bgcolor_parity,
+		bgcolor_unraid,
+		bgcolor_cache,
+		bgcolor_others,
+		bgcolor_empty,
+		warranty_field,
+		dashboard_widget,
+		dashboard_widget_pos,
+		displayinfo
 	";
 	
 	/*
@@ -324,7 +347,7 @@
 			CREATE TABLE settings_group(
 				$sql_create_settings_group
 			);
-			PRAGMA user_version = '4';
+			PRAGMA user_version = '5';
 		";
 		$ret = $db->exec($sql);
 		if(!$ret) {
@@ -457,7 +480,6 @@
 		
 		if($database_version < 4) {
 			$db_update = 1;
-			
 			$sql = "SELECT * FROM settings";
 			$results = $db->query($sql);
 	
@@ -483,6 +505,7 @@
 				settings(
 						id,
 						smart_exec_delay,
+						smart_updates,
 						bgcolor_parity,
 						bgcolor_unraid,
 						bgcolor_cache,
@@ -496,6 +519,7 @@
 					VALUES(
 						'1',
 						'" . $smart_exec_delay . "',
+						'" . $smart_updates . "',
 						'" . $bgcolor_parity . "',
 						'" . $bgcolor_unraid . "',
 						'" . $bgcolor_cache . "',
@@ -555,6 +579,35 @@
 				echo $db->lastErrorMsg();
 			}
 		
+		}
+		
+		if($database_version < 5) {
+			$db_update = 1;
+			$sql = "
+				PRAGMA foreign_keys = off;
+				
+				BEGIN TRANSACTION;
+				
+				ALTER TABLE settings RENAME TO old_settings;
+				
+				CREATE TABLE settings($sql_create_settings);
+				
+				INSERT INTO settings ($sql_tables_settings_v4) SELECT $sql_tables_settings_v4 FROM old_settings;
+				
+				DROP TABLE old_settings;
+				
+				COMMIT;
+				
+				PRAGMA foreign_keys = on;
+				PRAGMA user_version = '5';
+				
+				VACUUM;
+			";
+			$ret = $db->exec($sql);
+			if(!$ret) {
+				$db_update = 0;
+				echo $db->lastErrorMsg();
+			}
 		}
 		
 		if($db_update) {
