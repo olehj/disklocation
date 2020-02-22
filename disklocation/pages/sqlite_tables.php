@@ -7,7 +7,7 @@
 //	Variable name		Default value	Description
 //	--------------------------------------------------------------------------------
 	$smart_exec_delay =	'200';		// set milliseconds for next execution for SMART shell_exec - needed to actually grab all the information for unassigned devices. Default: 200
-	$smart_updates =	'disabled'	// set how often to update the cronjob [hourly|daily|weekly|monthly|disabled]
+	$smart_updates =	'disabled';	// set how often to update the cronjob [hourly|daily|weekly|monthly|disabled]
 	$bgcolor_parity =	'eb4f41';	// background color for Unraid parity disks
 	$bgcolor_unraid =	'ef6441';	// background color for Unraid data disks
 	$bgcolor_cache =	'ff884c';	// background color for Unraid cache disks
