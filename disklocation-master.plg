@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2020.02.22">
+<!ENTITY version          "2020.02.23">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -26,7 +26,7 @@
 >
 
 <CHANGES>
-###2020.02.22
+###2020.02.23
  - Commit #127 - MAJOR ISSUE: First major issue labeled. Disk Location uses a cronjob for storing data in a database file located at the flash device, and an hourly cronjob might have exhausted some flash devices. A new setting is available where the default is now set as "Disabled", however, "Daily" (and longer periods) should still be quite safe to use. It's stored on the flash device because the database contain information about old devices as well, which is neat in case of a major device failure and you just wanna know how long it lasted.
 
 ###2020.02.19
@@ -359,9 +359,9 @@ EOL
     logit "done and continue..."
   fi
   
-  if [[ -f "&pluginLOC;/disklocation.sqlite" &amp;&amp; ! -f "&pluginLOC;/disklocation_db_v3.sqlite.tar.bz2" ]]; then
-    tar jcf &pluginLOC;/disklocation_db_v3.sqlite.tar.bz2 &pluginLOC;/disklocation.sqlite
-    logit "Made backup of database (&pluginLOC;/disklocation_db_v3.sqlite.tar.bz2) before it will be upgraded to version 4"
+  if [[ -f "&pluginLOC;/disklocation.sqlite" &amp;&amp; ! -f "&pluginLOC;/disklocation_db_v4.sqlite.tar.bz2" ]]; then
+    tar jcf &pluginLOC;/disklocation_db_v4.sqlite.tar.bz2 &pluginLOC;/disklocation.sqlite
+    logit "Made backup of database (&pluginLOC;/disklocation_db_v4.sqlite.tar.bz2) before it will be upgraded to version 5"
   fi
   logit "Package file &packagefile; extracted."
   
