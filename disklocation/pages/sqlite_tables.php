@@ -347,7 +347,7 @@
 			CREATE TABLE settings_group(
 				$sql_create_settings_group
 			);
-			PRAGMA user_version = '4';
+			PRAGMA user_version = '5';
 		";
 		$ret = $db->exec($sql);
 		if(!$ret) {
@@ -480,36 +480,6 @@
 		
 		if($database_version < 4) {
 			$db_update = 1;
-			$sql = "
-				PRAGMA foreign_keys = off;
-				
-				BEGIN TRANSACTION;
-				
-				ALTER TABLE settings RENAME TO old_settings;
-				
-				CREATE TABLE settings($sql_create_settings);
-				
-				INSERT INTO settings ($sql_tables_settings_v3) SELECT $sql_tables_settings_v3 FROM old_settings;
-				
-				DROP TABLE old_settings;
-				
-				COMMIT;
-				
-				PRAGMA foreign_keys = on;
-				PRAGMA user_version = '4';
-				
-				VACUUM;
-			";
-			$ret = $db->exec($sql);
-			if(!$ret) {
-				$db_update = 0;
-				echo $db->lastErrorMsg();
-			}
-		}
-		
-		if($database_version < 5) {
-			$db_update = 1;
-			
 			$sql = "SELECT * FROM settings";
 			$results = $db->query($sql);
 	
@@ -585,8 +555,8 @@
 					)
 				;
 				
-				INSERT INTO location ($sql_tables_location_v4) SELECT $sql_tables_location_v4 FROM old_location;
-				INSERT INTO disks ($sql_tables_disks_v4) SELECT $sql_tables_disks_v4 FROM old_disks;
+				INSERT INTO location ($sql_tables_location_v3) SELECT $sql_tables_location_v3 FROM old_location;
+				INSERT INTO disks ($sql_tables_disks_v3) SELECT $sql_tables_disks_v3 FROM old_disks;
 				
 				UPDATE location SET groupid = '1' WHERE groupid IS NULL;
 				
@@ -595,6 +565,36 @@
 				DROP TABLE old_settings;
 				DROP TABLE old_location;
 				DROP TABLE old_disks;
+				
+				COMMIT;
+				
+				PRAGMA foreign_keys = on;
+				PRAGMA user_version = '4';
+				
+				VACUUM;
+			";
+			$ret = $db->exec($sql);
+			if(!$ret) {
+				$db_update = 0;
+				echo $db->lastErrorMsg();
+			}
+		
+		}
+		
+		if($database_version < 5) {
+			$db_update = 1;
+			$sql = "
+				PRAGMA foreign_keys = off;
+				
+				BEGIN TRANSACTION;
+				
+				ALTER TABLE settings RENAME TO old_settings;
+				
+				CREATE TABLE settings($sql_create_settings);
+				
+				INSERT INTO settings ($sql_tables_settings_v4) SELECT $sql_tables_settings_v4 FROM old_settings;
+				
+				DROP TABLE old_settings;
 				
 				COMMIT;
 				
@@ -608,7 +608,6 @@
 				$db_update = 0;
 				echo $db->lastErrorMsg();
 			}
-		
 		}
 		
 		if($db_update) {
