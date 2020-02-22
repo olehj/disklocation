@@ -1198,6 +1198,7 @@
 	$displayinfo = json_decode($displayinfo, true);
 	
 	dashboard_toggle($dashboard_widget_pos);
+	cronjob_timer($smart_updates);
 	
 	$color_array = array();
 	$color_array["empty"] = $bgcolor_empty;
@@ -1230,11 +1231,4 @@
 	print(count($group));
 	die();
 	*/
-
-// Installation / Upgrades
-	// Setup crontimer
-	if($argv[1] == "crontimer") {
-		cronjob_timer($smart_updates);
-		debug_print($debugging_active, __LINE__, "CRON RUN", cronjob_timer());
-	}
 ?>
