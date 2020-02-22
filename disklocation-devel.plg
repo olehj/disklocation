@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2020.02.19-dev">
+<!ENTITY version          "2020.02.22-dev">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -145,16 +145,12 @@ while sleep 0.5; do
   smartctl -x /dev/bsg/\&#36;1 &amp;&gt; /dev/null
 done
 EOL
-  chmod +x /usr/local/bin/smartlocate
-  <!-- prevent cron from running during install -->
-  if [ -f "/etc/cron.hourly/disklocation.sh" ] ; then
-    rm "/etc/cron.hourly/disklocation.sh"
-  fi
+   chmod +x /usr/local/bin/smartlocate
   rm -Rf "/tmp/&name;-packages"
   rm -f "/tmp/&name;-install"
   
-  <!--# Add crontab script -->
-  mv &emhttpLOC;/&name;.cron /etc/cron.hourly/disklocation.sh
+  <!--# Disabled: Add crontab script -->
+  <!--# cp &emhttpLOC;/&name;.cron /etc/cron.hourly/disklocation.sh -->
   
   if [[ "`pidof -x disklocation.sh`" ]]; then
     logit "Cronjob is already running... retrying every 5 seconds until it finish..."
@@ -175,8 +171,8 @@ EOL
   logit "Adding disks into database, please wait... this might take a while..."
   php -f /usr/local/emhttp/plugins/disklocation/pages/system.php cronjob
   
-  chmod +x /etc/cron.hourly/disklocation.sh
-  logit "Added cronjob script in cron.hourly."
+  <!--# chmod +x /etc/cron.hourly/disklocation.sh -->
+  <!--# logit "Added cronjob script in cron.hourly." -->
   logit "Plugin installed successfully!"
   exit 0
 else
@@ -224,6 +220,9 @@ logit "Removing plugin..."
 [ -d "&emhttpLOC;" ] &amp;&amp; rm -fR "&emhttpLOC;"
 [ -f "/usr/local/bin/smartlocate" ] &amp;&amp; rm -f "/usr/local/bin/smartlocate"
 [ -f "/etc/cron.hourly/disklocation.sh" ] &amp;&amp; rm -f "/etc/etc.hourly/disklocation.sh"
+[ -f "/etc/cron.daily/disklocation.sh" ] &amp;&amp; rm -f "/etc/etc.daily/disklocation.sh"
+[ -f "/etc/cron.weekly/disklocation.sh" ] &amp;&amp; rm -f "/etc/etc.weekly/disklocation.sh"
+[ -f "/etc/cron.monthly/disklocation.sh" ] &amp;&amp; rm -f "/etc/etc.monthly/disklocation.sh"
 rm -f &pluginLOC;/disklocation.*.tar.bz2
 rm -f &pluginLOC;/disklocation.*.zip
 logit "Plugin stopped and removed, package files removed from &pluginLOC;, database is not removed."
