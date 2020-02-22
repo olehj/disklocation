@@ -1230,4 +1230,11 @@
 	print(count($group));
 	die();
 	*/
+
+// Installation / Upgrades
+	// Setup crontimer
+	if($argv[1] == "crontimer") {
+		cronjob_timer($smart_updates);
+		debug_print($debugging_active, __LINE__, "CRON RUN", cronjob_timer());
+	}
 ?>
