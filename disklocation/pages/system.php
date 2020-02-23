@@ -731,10 +731,7 @@
 		$dashboard_widget = $dashboard_widget_array["current"];
 		$dashboard_widget_pos = $dashboard_widget_array["position"];
 		*/
-		
-		if($_POST["cronjob"]) {
-			cronjob_timer($_POST["cronjob"]);
-		}
+		cronjob_timer($_POST["smart_updates"]);
 		
 		if(empty($disklocation_error)) {
 			$sql .= "
@@ -742,6 +739,7 @@
 					settings(
 						id,
 						smart_exec_delay,
+						smart_updates,
 						bgcolor_parity,
 						bgcolor_unraid,
 						bgcolor_cache,
@@ -755,6 +753,7 @@
 					VALUES(
 						'1',
 						'" . $_POST["smart_exec_delay"] . "',
+						'" . $_POST["smart_updates"] . "',
 						'" . $_POST["bgcolor_parity"] . "',
 						'" . $_POST["bgcolor_unraid"] . "',
 						'" . $_POST["bgcolor_cache"] . "',

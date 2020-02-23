@@ -106,7 +106,7 @@
 		";
 	}
 	
-	$cron_status = cronjob_timer();
+	$smart_updates = cronjob_timer();
 ?>
 <datalist id="disklocationColorsDef">
 	<option>#<?php echo $bgcolor_parity ?></option>
@@ -207,11 +207,11 @@
 				<h2>Updates</h2>
 				<p>
 					<b>S.M.A.R.T updates:</b><br />
-					<input type="radio" name="cronjob" value="hourly" <?php if($cron_status == "hourly") echo "checked"; ?> />Hourly
-					<input type="radio" name="cronjob" value="daily" <?php if($cron_status == "daily") echo "checked"; ?> />Daily
-					<input type="radio" name="cronjob" value="weekly" <?php if($cron_status == "weekly") echo "checked"; ?> />Weekly
-					<input type="radio" name="cronjob" value="monthly" <?php if($cron_status == "monthly") echo "checked"; ?> />Monthly
-					<input type="radio" name="cronjob" value="disabled" <?php if($cron_status == "disabled") echo "checked"; ?> />Disabled
+					<input type="radio" name="smart_updates" value="hourly" <?php if($smart_updates == "hourly") echo "checked"; ?> />Hourly
+					<input type="radio" name="smart_updates" value="daily" <?php if($smart_updates == "daily") echo "checked"; ?> />Daily
+					<input type="radio" name="smart_updates" value="weekly" <?php if($smart_updates == "weekly") echo "checked"; ?> />Weekly
+					<input type="radio" name="smart_updates" value="monthly" <?php if($smart_updates == "monthly") echo "checked"; ?> />Monthly
+					<input type="radio" name="smart_updates" value="disabled" <?php if($smart_updates == "disabled") echo "checked"; ?> />Disabled
 				</p>
 				<blockquote class='inline_help'>
 					Choose how often you want the S.M.A.R.T data to be updated, or disable it.<br />
