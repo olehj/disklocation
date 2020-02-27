@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2020.02.23">
+<!ENTITY version          "2020.02.28">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -26,6 +26,9 @@
 >
 
 <CHANGES>
+###2020.02.28
+ - Commit #131 - BUG: A php comment section was accidentally pasted into an SQL creation variable, causing an update to fail (affected version: 2020.02.23).
+
 ###2020.02.23
  - Commit #127 - MAJOR ISSUE: Disk Location uses a cronjob for storing data in a database file located at the flash device, and an hourly cronjob might have exhausted some flash devices. A new setting is available where the default is now set as "Disabled", however, "Daily" (and longer periods) should still be quite safe to use. It's stored on the flash device because the database contain information about old devices as well, which is neat in case of a major device failure and you just wanna know how long it lasted.
 
