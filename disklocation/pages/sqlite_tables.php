@@ -143,9 +143,7 @@
 		grid_count VARCHAR(6) NOT NULL DEFAULT 'column',
 		grid_columns TINYINT NOT NULL DEFAULT '4',
 		grid_rows TINYINT NOT NULL DEFAULT '6',
-		grid_trays SMALLINT,/*
-		Database Version: 3
-	*/
+		grid_trays SMALLINT,
 		disk_tray_direction CHAR(1) NOT NULL DEFAULT 'h',
 		tray_direction TINYINT NOT NULL DEFAULT '1',
 		tray_width SMALLINT NOT NULL DEFAULT '400',
