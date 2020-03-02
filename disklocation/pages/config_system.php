@@ -60,6 +60,11 @@
 		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
+	if($_POST["undelete_devices"]) {
+		force_undelete_devices($db, 'm');
+		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
+		exit;
+	}
 	
 	$list_backup = disklocation_system("backup", "list");
 	if($list_backup) {
@@ -92,6 +97,9 @@
 			<form action=\"\" method=\"post\">
 				<input type=\"submit\" name=\"del_backup\" value=\"Delete all backup files\" />
 			</form>
+			<blockquote class='inline_help'>
+				This will delete all databases which were automatically backed up during an update when the database was changed.
+			</blockquote>
 		";
 	}
 	
@@ -103,6 +111,9 @@
 			<form action=\"\" method=\"post\">
 				<input type=\"submit\" name=\"del_debug\" value=\"Delete debug file\" />
 			</form>
+			<blockquote class='inline_help'>
+				This will delete the debug file, in general you don't want to have this enabled and running.
+			</blockquote>
 		";
 	}
 	
@@ -114,14 +125,33 @@
 			<form action=\"\" method=\"post\">
 				<input type=\"submit\" name=\"del_database\" value=\"Delete the database\" />
 			</form>
+			<blockquote class='inline_help'>
+				This will delete the current database file in case there's an unresolvable problem, it will not be backed up before deletion.
+			</blockquote>
 		";
 	}
+	
+	$list_undelete = force_undelete_devices($db, 'r');
+	if($list_undelete) {
+		$print_list_undelete = "
+			<h3>Undelete devices</h3>
+			<p>" . $list_undelete . " deleted devices found</p>
+			<form action=\"\" method=\"post\">
+				<input type=\"submit\" name=\"undelete_devices\" value=\"Undelete all devices\" />
+			</form>
+			<blockquote class='inline_help'>
+				This will undelete devices that has been manually marked for deletion. The drives will be assigned under \"Devices not found or removed\" under the \"Drives\" tab.
+			</blockquote>
+		";
+	}
+	
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/help.css")?>">
-<h2>System Files</h2>
+<h2>System</h2>
 <p style="color: red;">
 	<b>NB! Operations done on this page will execute without warning or confirmation and cannot be undone after execution!</b>
 </p>
 <?php echo $print_list_backup ?>
 <?php echo $print_list_debug ?>
 <?php echo $print_list_database ?>
+<?php echo $print_list_undelete ?>
