@@ -335,6 +335,32 @@
 		}
 	}
 	
+	function force_undelete_devices($db, $action) {
+		// r = read
+		// m = modify
+		
+		if($action == 'r') {
+			$sql_status = "SELECT COUNT(status) FROM disks where status='d';";
+			$ret = $db->querySingle($sql_status);
+		}
+		if($action == 'm') {
+			$sql_status = "
+				UPDATE disks SET
+					status='r'
+				WHERE status='d'
+				;
+			";
+			$ret = $db->exec($sql_status);
+		}
+		
+		if(!$ret && $action == 'm') {
+			return $db->lastErrorMsg();
+		}
+		else {
+			return $ret;
+		}
+	}
+	
 	function force_reset_color($db, $hash) {
 		if($hash == '*' || $hash == 'all') {
 			$sql_status = "
