@@ -319,7 +319,7 @@
 				</blockquote>
 				<hr />
 				<input type="hidden" name="current_warranty_field" value="<?php echo $warranty_field ?>" />
-				<input type="submit" name="save_allocations" value="Save" /><input type="reset" value="Reset" />
+				<input type="submit" name="save_allocations" value="Save" /><!--<input type="reset" value="Reset" />-->
 				<!--<input type="submit" name="force_smart_scan" value="Force Scan All" />-->
 				<span style="padding-left: 50px;"></span>
 				<input type='button' value='Force Scan All' onclick='openBox("/plugins/disklocation/pages/system.php?force_smart_scan=1","Force Scanning",600,1000,true,"loadlist",":return")'>
@@ -328,7 +328,7 @@
 				<blockquote class='inline_help'>
 					<ul>
 						<li>"Save" button will store all information entered.</li>
-						<li>"Reset" will just revert changes if you changed any values before you saved them, it will not undo the last save.</li>
+						<!--<li>"Reset" will just revert changes if you changed any values before you saved them, it will not undo the last save.</li>-->
 						<li>"Force Scan All" button will force scan all drives for updated SMART data and move removed disks into the "lost" table under the "Information" tab. This button will and must wake up all drives into a spinning state and does so one by one. It might take a while to complete depending on your configuration.</li>
 					</ul>
 					<!--You can also run "Force Scan All" from the shell and get direct output which might be useful for debugging:<br />
