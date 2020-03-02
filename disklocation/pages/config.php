@@ -89,10 +89,10 @@
 					</blockquote>
 					<p style=\"text-align: center;\">
 						<input type=\"hidden\" name=\"groupid\" value=\"$gid\" />
-						<input type=\"submit\" name=\"save_groupsettings\" value=\"Save\" /><input type=\"reset\" value=\"Reset\" />
+						<input type=\"submit\" name=\"save_groupsettings\" value=\"Save\" /><!--<input type=\"reset\" value=\"Reset\" />-->
 					</p>
 					<blockquote class=\"inline_help\">
-						<p>Save or Reset the Disk Tray Layout. This does not save the Common Configuration and the Visible Frontpage Information.</p>
+						<p>Save the Disk Tray Layout. This does not save the Common Configuration and the Visible Frontpage Information.</p>
 					</blockquote>
 					<hr style=\"border: 1px solid black; height: 0!important;\" />
 					<div class=\"grid-container\" style=\"" . $css_grid_group . "\">
@@ -312,9 +312,9 @@
 		</tr>
 		<tr>
 			<td colspan="3" style="padding-left: 25px; vertical-align: top;">
-				<input type="submit" name="save_settings" value="Save" /><input type="reset" value="Reset" />
+				<input type="submit" name="save_settings" value="Save" /><!--<input type="reset" value="Reset" />-->
 				<blockquote class='inline_help'>
-					<p>Save or Reset the Common Configuration and the Visible Frontpage Information. This does not save the Disk Tray Layout.</p>
+					<p>Save the Common Configuration and the Visible Frontpage Information. This does not save the Disk Tray Layout.</p>
 				</blockquote>
 			</td>
 		</tr>
