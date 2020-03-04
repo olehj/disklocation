@@ -21,7 +21,6 @@
 	$disklocation_error = array();
 	$disklocation_new_install = 0;
 	$group = array();
-	$tray_reduction_factor = 10;
 	
 	if(!is_file(DISKLOCATION_DB)) {
 		$disklocation_new_install = 1;
@@ -579,6 +578,27 @@
 		}
 	}
 	
+	function update_scan_toggle($set = 0, $get_status = 0) {
+		$path = "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "";
+		
+		if(file_exists("" . $path . "/disklocation.noscan")) { 
+			$status = 0;
+			if($set == 1 && !$get_status) {
+				unlink("" . $path . "/disklocation.noscan");
+				$status = 1;
+			}
+		}
+		else {
+			$status = 1;
+			if(!$set && !$get_status) {
+				touch("" . $path . "/disklocation.noscan");
+				$status = 0;
+			}
+		}
+		
+		return $status;
+	}
+	
 	function cronjob_timer($time = "") {
 		$curpath = "";
 		$path = "/etc/cron.";
@@ -758,6 +778,7 @@
 		$dashboard_widget_pos = $dashboard_widget_array["position"];
 		*/
 		cronjob_timer($_POST["smart_updates"]);
+		update_scan_toggle($_POST["plugin_update_scan"]);
 		
 		if(empty($disklocation_error)) {
 			$sql .= "
@@ -771,6 +792,7 @@
 						bgcolor_cache,
 						bgcolor_others,
 						bgcolor_empty,
+						tray_reduction_factor,
 						warranty_field,
 						dashboard_widget,
 						dashboard_widget_pos,
@@ -785,6 +807,7 @@
 						'" . $_POST["bgcolor_cache"] . "',
 						'" . $_POST["bgcolor_others"] . "',
 						'" . $_POST["bgcolor_empty"] . "',
+						'" . $_POST["tray_reduction_factor"] . "',
 						'" . $_POST["warranty_field"] . "',
 						'" . $_POST["dashboard_widget"] . "',
 						'" . $_POST["dashboard_widget_pos"] . "',

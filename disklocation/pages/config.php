@@ -107,6 +107,7 @@
 	}
 	
 	$smart_updates = cronjob_timer();
+	$plugin_update_scan = update_scan_toggle(0, 1);
 ?>
 <datalist id="disklocationColorsDef">
 	<option>#<?php echo $bgcolor_parity ?></option>
@@ -181,6 +182,13 @@
 					</ul>
 				</blockquote>
 				<p>
+					<b>Set the size divider for mini layout:</b><br />
+					<input type="number" required min="1" max="1000" step="0.1" name="tray_reduction_factor" value="<?php print($tray_reduction_factor); ?>" style="width: 50px;" />
+				</p>
+				<blockquote class='inline_help'>
+					This number will divide from the set height and width sizes defined per group, and display its divided size as a mini layout/dashboard device. Default: 10 [1.0-1000.0 stepping 0.1]. Larger number is smaller in size.
+				</blockquote>
+				<p>
 					<b>Set warranty date entry:</b><br />
 					<input type="radio" name="warranty_field" value="u" <?php if($warranty_field == "u") echo "checked"; ?> />Unraid
 					<input type="radio" name="warranty_field" value="m" <?php if($warranty_field == "m") echo "checked"; ?>/>Manual ISO
@@ -206,6 +214,14 @@
 			<td style="padding-left: 25px; vertical-align: top;">
 				<h2>Updates</h2>
 				<p>
+					<b>Disk Location plugin on update scan:</b><br />
+					<input type="radio" name="plugin_update_scan" value="1" <?php if($plugin_update_scan == 1) echo "checked"; ?> />Enabled
+					<input type="radio" name="plugin_update_scan" value="0" <?php if($plugin_update_scan == 0) echo "checked"; ?> />Disabled
+				</p>
+				<blockquote class='inline_help'>
+					Enable or disable the auto scan during a plugin update. If it's disabled it will rely on manual updates (Force Scan All) and S.M.A.R.T update schedules.
+				</blockquote>
+				<p>
 					<b>S.M.A.R.T updates:</b><br />
 					<input type="radio" name="smart_updates" value="hourly" <?php if($smart_updates == "hourly") echo "checked"; ?> />Hourly
 					<input type="radio" name="smart_updates" value="daily" <?php if($smart_updates == "daily") echo "checked"; ?> />Daily
@@ -227,6 +243,12 @@
 				<blockquote class='inline_help'>
 					This is a delay for execution of the next smartctl command in a loop, this might be necessary to be able to read all the S.M.A.R.T data from all the drives. Default value is 200ms, and seems to work very well. If you realize it won't detect all the data you can increase this value, but hardly any point decreasing it.
 				</blockquote>
+				<p style="position: relative; bottom: 0;">
+					<input type="submit" name="save_settings" value="Save" /><!--<input type="reset" value="Reset" />-->
+					<blockquote class='inline_help'>
+						<p>Save the Common Configuration and the Visible Frontpage Information. This does not save the Disk Tray Layout.</p>
+					</blockquote>
+				</p>
 			</td>
 			<td style="padding-left: 25px; vertical-align: top;">
 				<h2 style="padding-bottom: 25px;">Visible Frontpage Information</h2>
@@ -310,14 +332,15 @@
 				</table>
 			</td>
 		</tr>
-		<tr>
+		<!--<tr>
 			<td colspan="3" style="padding-left: 25px; vertical-align: top;">
-				<input type="submit" name="save_settings" value="Save" /><!--<input type="reset" value="Reset" />-->
+				<input type="submit" name="save_settings" value="Save" /><input type="reset" value="Reset" />
 				<blockquote class='inline_help'>
 					<p>Save the Common Configuration and the Visible Frontpage Information. This does not save the Disk Tray Layout.</p>
 				</blockquote>
 			</td>
 		</tr>
+		-->
 	</table>
 </form>
 <hr style="border: 1px solid black; height: 0!important;" />
