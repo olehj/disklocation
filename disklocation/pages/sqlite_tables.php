@@ -6,17 +6,18 @@
 //	Common settings
 //	Variable name		Default value	Description
 //	--------------------------------------------------------------------------------
-	$smart_exec_delay =	'200';		// set milliseconds for next execution for SMART shell_exec - needed to actually grab all the information for unassigned devices. Default: 200
-	$smart_updates =	'disabled';	// set how often to update the cronjob [hourly|daily|weekly|monthly|disabled]
-	$bgcolor_parity =	'eb4f41';	// background color for Unraid parity disks
-	$bgcolor_unraid =	'ef6441';	// background color for Unraid data disks
-	$bgcolor_cache =	'ff884c';	// background color for Unraid cache disks
-	$bgcolor_others =	'41b5ef';	// background color for unassigned/other disks
-	$bgcolor_empty =	'aaaaaa';	// background color for empty trays
-	$warranty_field =	'u';		// choose [u]nraid's way of entering warranty date (12/24/36... months) or enter [m]anual ISO dates.
-	$dashboard_widget =	'on';		// show dashboard widget [on|off]
-	$dashboard_widget_pos = '0';		// dashboard widgets position, 0 or 10 is usually fine. Fine tuning is currently not possible, Unraid issue.
-	$displayinfo =	json_encode(array(	// this will store an json_encoded array of display settings for the "Device" page.
+	$smart_exec_delay =		'200';		// set milliseconds for next execution for SMART shell_exec - needed to actually grab all the information for unassigned devices. Default: 200
+	$smart_updates =		'disabled';	// set how often to update the cronjob [hourly|daily|weekly|monthly|disabled]
+	$bgcolor_parity =		'eb4f41';	// background color for Unraid parity disks
+	$bgcolor_unraid =		'ef6441';	// background color for Unraid data disks
+	$bgcolor_cache =		'ff884c';	// background color for Unraid cache disks
+	$bgcolor_others =		'41b5ef';	// background color for unassigned/other disks
+	$bgcolor_empty =		'aaaaaa';	// background color for empty trays
+	$tray_reduction_factor =	'10';		// set the scale divider for the mini tray layout
+	$warranty_field =		'u';		// choose [u]nraid's way of entering warranty date (12/24/36... months) or enter [m]anual ISO dates.
+	$dashboard_widget =		'on';		// show dashboard widget [on|off]
+	$dashboard_widget_pos = 	'0';		// dashboard widgets position, 0 or 10 is usually fine. Fine tuning is currently not possible, Unraid issue.
+	$displayinfo =	json_encode(array(		// this will store an json_encoded array of display settings for the "Device" page.
 		'tray' => 1,
 		'leddiskop' => 1,
 		'ledsmart' => 1,
@@ -118,6 +119,7 @@
 		bgcolor_cache CHAR(6) NOT NULL DEFAULT 'ff884c',
 		bgcolor_others CHAR(6) NOT NULL DEFAULT '41b5ef',
 		bgcolor_empty CHAR(6) NOT NULL DEFAULT 'aaaaaa',
+		tray_reduction_factor FLOAT NOT NULL DEFAULT '10',
 		warranty_field CHAR(1) NOT NULL DEFAULT 'u',
 		dashboard_widget CHAR(3) NOT NULL DEFAULT 'on',
 		dashboard_widget_pos INT NULL,
@@ -132,6 +134,7 @@
 		bgcolor_cache,
 		bgcolor_others,
 		bgcolor_empty,
+		tray_reduction_factor,
 		warranty_field,
 		dashboard_widget,
 		dashboard_widget_pos,
@@ -140,6 +143,7 @@
 	$sql_create_settings_group = "
 		id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 		group_name VARCHAR(255) NULL,
+		group_color CHAR(6) NULL,
 		grid_count VARCHAR(6) NOT NULL DEFAULT 'column',
 		grid_columns TINYINT NOT NULL DEFAULT '4',
 		grid_rows TINYINT NOT NULL DEFAULT '6',
@@ -152,6 +156,7 @@
 	$sql_tables_settings_group = "
 		id,
 		group_name,
+		group_color,
 		grid_count,
 		grid_columns,
 		grid_rows,
@@ -162,6 +167,37 @@
 		tray_height
 	";
 
+	/*
+		Database Version: 5
+	*/
+	
+	$sql_tables_settings_v5 = "
+		id,
+		smart_exec_delay,
+		smart_updates,
+		bgcolor_parity,
+		bgcolor_unraid,
+		bgcolor_cache,
+		bgcolor_others,
+		bgcolor_empty,
+		warranty_field,
+		dashboard_widget,
+		dashboard_widget_pos,
+		displayinfo
+	";
+	$sql_tables_settings_group_v5 = "
+		id,
+		group_name,
+		grid_count,
+		grid_columns,
+		grid_rows,
+		grid_trays,
+		disk_tray_direction,
+		tray_direction,
+		tray_width,
+		tray_height
+	";
+	
 	/*
 		Database Version: 4
 	*/
@@ -345,7 +381,7 @@
 			CREATE TABLE settings_group(
 				$sql_create_settings_group
 			);
-			PRAGMA user_version = '5';
+			PRAGMA user_version = '6';
 		";
 		$ret = $db->exec($sql);
 		if(!$ret) {
@@ -598,6 +634,39 @@
 				
 				PRAGMA foreign_keys = on;
 				PRAGMA user_version = '5';
+				
+				VACUUM;
+			";
+			$ret = $db->exec($sql);
+			if(!$ret) {
+				$db_update = 0;
+				echo $db->lastErrorMsg();
+			}
+		}
+		
+		if($database_version < 6) {
+			$db_update = 1;
+			$sql = "
+				PRAGMA foreign_keys = off;
+				
+				BEGIN TRANSACTION;
+				
+				ALTER TABLE settings RENAME TO old_settings;
+				ALTER TABLE settings_group RENAME TO old_settings_group;
+				
+				CREATE TABLE settings($sql_create_settings);
+				CREATE TABLE settings_group($sql_create_settings);
+				
+				INSERT INTO settings ($sql_tables_settings_v5) SELECT $sql_tables_settings_v5 FROM old_settings;
+				INSERT INTO settings_group ($sql_tables_settings_v5) SELECT $sql_tables_settings_v5 FROM old_settings_group;
+				
+				DROP TABLE old_settings;
+				DROP TABLE old_settings_group;
+				
+				COMMIT;
+				
+				PRAGMA foreign_keys = on;
+				PRAGMA user_version = '6';
 				
 				VACUUM;
 			";
