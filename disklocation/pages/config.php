@@ -186,7 +186,7 @@
 					<input type="number" required min="1" max="1000" step="0.1" name="tray_reduction_factor" value="<?php print($tray_reduction_factor); ?>" style="width: 50px;" />
 				</p>
 				<blockquote class='inline_help'>
-					This number will divide from the set height and width sizes defined per group, and display its divided size as a mini layout/dashboard device. Default: 10. Larger number is smaller in size.
+					This number will divide from the set height and width sizes defined per group, and display its divided size as a mini layout/dashboard device. Default: 10 [1.0-1000.0 stepping 0.1]. Larger number is smaller in size.
 				</blockquote>
 				<p>
 					<b>Set warranty date entry:</b><br />
