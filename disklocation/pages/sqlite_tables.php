@@ -655,7 +655,7 @@
 				ALTER TABLE settings_group RENAME TO old_settings_group;
 				
 				CREATE TABLE settings($sql_create_settings);
-				CREATE TABLE settings_group($sql_create_settings);
+				CREATE TABLE settings_group($sql_create_settings_group);
 				
 				INSERT INTO settings ($sql_tables_settings_v5) SELECT $sql_tables_settings_v5 FROM old_settings;
 				INSERT INTO settings_group ($sql_tables_settings_v5) SELECT $sql_tables_settings_v5 FROM old_settings_group;
