@@ -66,16 +66,7 @@
 			$warr_input = "<input type=\"date\" name=\"warranty_date[" . $data["hash"] . "]\" value=\"" . $data["warranty_date"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" />";
 		}
 		
-		switch($data["smart_rotation"]) {
-			case -1:
-				$smart_rotation = "SSD";
-				break;
-			case 0:
-				$smart_rotation = "";
-				break;
-			default:
-				$smart_rotation = $data["smart_rotation"] . "rpm";
-		}
+		$smart_rotation = get_smart_rotation($data["smart_rotation"]);
 		
 		$bgcolor = ( empty($data["color"]) ? $color_array[$data["hash"]] : $data["color"] );
 		
@@ -132,16 +123,7 @@
 			$warr_input = "<input type=\"date\" name=\"warranty_date[" . $data["hash"] . "]\" value=\"" . $data["warranty_date"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" />";
 		}
 		
-		switch($data["smart_rotation"]) {
-			case -1:
-				$smart_rotation = "SSD";
-				break;
-			case 0:
-				$smart_rotation = "";
-				break;
-			default:
-				$smart_rotation = $data["smart_rotation"] . "rpm";
-		}
+		$smart_rotation = get_smart_rotation($data["smart_rotation"]);
 		
 		$bgcolor = ( empty($data["color"]) ? $bgcolor_empty : $data["color"] );
 		

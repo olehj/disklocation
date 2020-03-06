@@ -236,16 +236,7 @@
 					}
 				}
 				if($displayinfo["rotation"]) {
-					switch($data["smart_rotation"]) {
-						case -1:
-							$smart_rotation = "SSD";
-							break;
-						case 0:
-							$smart_rotation = "";
-							break;
-						default:
-							$smart_rotation = $data["smart_rotation"] . "rpm";
-					}
+					$smart_rotation = get_smart_rotation($data["smart_rotation"]);
 				}
 				if($displayinfo["formfactor"]) {
 					$smart_formfactor = str_replace(" inches", "&quot;", $data["smart_formfactor"]);

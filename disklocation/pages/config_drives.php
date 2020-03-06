@@ -36,16 +36,7 @@
 		$smart_powerontime = ( empty($data["smart_powerontime"]) ? null : seconds_to_time($data["smart_powerontime"] * 60 * 60) );
 		$smart_capacity = ( empty($data["smart_capacity"]) ? null : human_filesize($data["smart_capacity"], 1, true) );
 		
-		switch($data["smart_rotation"]) {
-			case -1:
-				$smart_rotation = "SSD";
-				break;
-			case 0:
-				$smart_rotation = "";
-				break;
-			default:
-				$smart_rotation = $data["smart_rotation"] . "rpm";
-		}
+		$smart_rotation = get_smart_rotation($data["smart_rotation"]);
 		
 		$warranty_expire = "";
 		$warranty_left = "";

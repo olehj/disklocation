@@ -675,6 +675,23 @@
 		);
 	}
 	
+	function get_smart_rotation($input) {
+		switch($input) {
+			case -2:
+				$smart_rotation = "NVMe SSD";
+				break;
+			case -1:
+				$smart_rotation = "SSD";
+				break;
+			case 0:
+				$smart_rotation = "";
+				break;
+			default:
+				$smart_rotation = $input . " RPM";
+		}
+		return $smart_rotation;
+	}
+	
 	if(isset($_POST["delete"])) {
 		$sql = "
 			UPDATE disks SET
@@ -1069,7 +1086,7 @@
 					if(!$force_scan) {
 						$smart_standby_cmd = "-n standby";
 					}
-					$smart_cmd[$i] = shell_exec("smartctl $smart_standby_cmd -x --json $lsscsi_devicenodesg[$i]");	// get all SMART data for this device, we grab it ourselves to get all drives also attached to hardware raid cards.
+					$smart_cmd[$i] = shell_exec("smartctl $smart_standby_cmd -x --json $lsscsi_devicenodesg[$i]"); // get all SMART data for this device, we grab it ourselves to get all drives also attached to hardware raid cards.
 					$smart_array = json_decode($smart_cmd[$i], true);
 					debug_print($debugging_active, __LINE__, "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "=" . ( is_array($smart_array) ? "array" : "empty" ) . "");
 					
@@ -1085,7 +1102,13 @@
 						}
 					}
 					
-					$rotation_rate = ( recursive_array_search("Solid State Device Statistics", $smart_array) ? -1 : $smart_array["rotation_rate"] );
+					// Only check for SSD if rotation_rate doesn't exists.
+					if(!$smart_array["rotation_rate"]) {
+						$smart_array["rotation_rate"] = ( recursive_array_search("Solid State Device Statistics", $smart_array) ? -1 : $smart_array["rotation_rate"] );
+						if($smart_array["device"]["type"] == "nvme") {
+							$smart_array["rotation_rate"] = -2;
+						}
+					}
 					$deviceid[$i] = hash('sha256', $smart_array["model_name"] . $smart_array["serial_number"]);
 					
 					debug_print($debugging_active, __LINE__, "HASH", "#:" . $i . ":" . $deviceid[$i] . "");
@@ -1124,7 +1147,7 @@
 									'" . $smart_array["power_on_time"]["hours"] . "',
 									'" . $smart_loadcycle_find . "',
 									'" . $smart_array["user_capacity"]["bytes"] . "',
-									'" . $rotation_rate . "',
+									'" . $smart_array["rotation_rate"] . "',
 									'" . $smart_array["form_factor"]["name"] . "',
 									'h',
 									'" . $deviceid[$i] . "'
@@ -1138,7 +1161,7 @@
 									smart_temperature='" . $smart_array["temperature"]["current"] . "',
 									smart_powerontime='" . $smart_array["power_on_time"]["hours"] . "',
 									smart_loadcycle='" . $smart_loadcycle_find . "',
-									smart_rotation='" . $rotation_rate . "'
+									smart_rotation='" . $smart_array["rotation_rate"] . "'
 								WHERE hash='" . $deviceid[$i] . "';
 						";
 						

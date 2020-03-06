@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2020.03.04">
+<!ENTITY version          "2020.03.06">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -26,6 +26,9 @@
 >
 
 <CHANGES>
+###2020.03.06
+ - Commit #141 - MINOR ISSUE: Checking for SSD only if rotation rate is not reported, some drives should show rotation rates again (ex. Toshiba drives).
+
 ###2020.03.04
  - Commit #139 - FEATURE: Added the ability to turn off scanning of device during a plugin update. If it's disabled it will rely on manual updates (Force Scan All) and S.M.A.R.T update schedules.
  - Commit #138 - FEATURE: Added possibility to adjust the size of the preview/dashboard layout.
