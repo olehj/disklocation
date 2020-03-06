@@ -1069,7 +1069,7 @@
 					if(!$force_scan) {
 						$smart_standby_cmd = "-n standby";
 					}
-					$smart_cmd[$i] = shell_exec("smartctl $smart_standby_cmd -x --json $lsscsi_devicenodesg[$i]");	// get all SMART data for this device, we grab it ourselves to get all drives also attached to hardware raid cards.
+					$smart_cmd[$i] = shell_exec("smartctl $smart_standby_cmd -x --json $lsscsi_devicenodesg[$i]"); // get all SMART data for this device, we grab it ourselves to get all drives also attached to hardware raid cards.
 					$smart_array = json_decode($smart_cmd[$i], true);
 					debug_print($debugging_active, __LINE__, "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "=" . ( is_array($smart_array) ? "array" : "empty" ) . "");
 					
@@ -1085,7 +1085,10 @@
 						}
 					}
 					
-					$rotation_rate = ( recursive_array_search("Solid State Device Statistics", $smart_array) ? -1 : $smart_array["rotation_rate"] );
+					// Only check for SSD if rotation_rate doesn't exists.
+					if(!$smart_array["rotation_rate"]) {
+						$smart_array["rotation_rate"] = ( recursive_array_search("Solid State Device Statistics", $smart_array) ? -1 : $smart_array["rotation_rate"] );
+					}
 					$deviceid[$i] = hash('sha256', $smart_array["model_name"] . $smart_array["serial_number"]);
 					
 					debug_print($debugging_active, __LINE__, "HASH", "#:" . $i . ":" . $deviceid[$i] . "");
@@ -1124,7 +1127,7 @@
 									'" . $smart_array["power_on_time"]["hours"] . "',
 									'" . $smart_loadcycle_find . "',
 									'" . $smart_array["user_capacity"]["bytes"] . "',
-									'" . $rotation_rate . "',
+									'" . $smart_array["rotation_rate"] . "',
 									'" . $smart_array["form_factor"]["name"] . "',
 									'h',
 									'" . $deviceid[$i] . "'
