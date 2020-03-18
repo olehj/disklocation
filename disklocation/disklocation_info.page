@@ -3,4 +3,6 @@ Icon="info"
 Tag="info"
 Title="Information"
 ---
-<?php require_once("/usr/local/emhttp/plugins/disklocation/pages/info.php"); ?>
+<?php
+	require_once("/usr/local/emhttp/plugins/disklocation/pages/info.php");
+?>
