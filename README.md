@@ -8,3 +8,5 @@ Install the plugin from:<br />
 
 For bleeding edge unstable development build, NB! NOT RECOMMENDED!!!:<br />
   https://raw.githubusercontent.com/olehj/disklocation/devel/disklocation-devel.plg
+  
+Licensed under GNU GPL version 3
