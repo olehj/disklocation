@@ -622,7 +622,7 @@
 		$curpath = "";
 		$path = "/etc/cron.";
 		$filename = "disklocation.sh";
-		$md5sum = "59657e65fa67218b3447eee72d30ca3b";
+		$md5sum = "be076c2fc24b9be95dede402a17fd4b4";
 		
 		define("DISKLOCATION_PATH", "/plugins/disklocation");
 		define("EMHTTP_ROOT", "/usr/local/emhttp");
