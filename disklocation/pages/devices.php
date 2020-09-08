@@ -54,6 +54,9 @@
 		if(!$tray_direction) { $tray_direction = 1; }
 		$tray_number_override = tray_number_assign($grid_columns, $grid_rows, $tray_direction, $grid_count);
 		
+		if(!isset($tray_start_num)) { $tray_start_num = 1; }
+		$tray_number_override_start = $tray_start_num;
+		
 		$total_main_trays = 0;
 		if($total_trays > ($grid_columns * $grid_rows)) {
 			$total_main_trays = $grid_columns * $grid_rows;
@@ -89,19 +92,24 @@
 				
 				if($displayinfo["tray"] && !$displayinfo["hideemptycontents"]) {
 					if($tray_number_override[$tray_assign]) {
-						$empty_tray = "<b>" . $tray_number_override[$tray_assign] . "</b>" . $insert_break . "";
+						//$empty_tray = "<b>". $tray_number_override[$tray_assign] . "</b>" . $insert_break . "";
+						$empty_tray = ( empty($tray_number_override_start) ? "<b>" . --$tray_number_override[$tray_assign] . "</b>" . $insert_break . "</b>" : "<b>" . $tray_number_override[$tray_assign] . "</b>" . $insert_break . "</b>");
 						$empty_tray_assign = $tray_number_override[$tray_assign];
 					}
 					else {
 						$empty_tray = "<b>" . $tray_assign . "</b>" . $insert_break . "";
+						$empty_tray = ( empty($tray_number_override_start) ? "<b>" . --$tray_assign . "</b>" . $insert_break . "</b>" : "<b>" . $tray_assign . "</b>" . $insert_break . "</b>");
 						$empty_tray_assign = $tray_assign;
 					}
 				}
+				
 				if($displayinfo["leddiskop"] && !$displayinfo["hideemptycontents"]) {
-					$empty_leddiskop = "<span class=\"grey-off\" alt=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" title=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" />&#11044;</span>" . $insert_break . "";
+					$empty_leddiskop = get_unraid_disk_status("grey-off");
+					//$empty_leddiskop = "<span class=\"grey-off\" alt=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" title=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" />&#11044;</span>" . $insert_break . "";
 				}
 				if($displayinfo["ledsmart"] && !$displayinfo["hideemptycontents"]) {
-					$empty_ledsmart = "<span class=\"grey-off\" alt=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" title=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" />&#11044;</span>";
+					$empty_ledsmart = get_unraid_disk_status("grey-off");
+					//$empty_ledsmart = "<span class=\"grey-off\" alt=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" title=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" />&#11044;</span>";
 				}
 				if(!$displayinfo["hideemptycontents"]) {
 					$empty_traytext = "<b>Available disk slot</b>";
@@ -144,7 +152,7 @@
 					<div style=\"order: " . $tray_assign . "\">
 						<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
 							<div style=\"background-color: #" . $color_array["empty"] . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
-								<div class=\"flex-container-start\" style=\"min-height: 15px;\">
+								<div class=\"flex-container-start\" style=\"/*min-height: 15px;*/\">
 									<b>" . $tray_assign . "</b>
 								</div>
 								<div class=\"flex-container-middle_" . $disk_tray_direction . "\">
@@ -161,8 +169,8 @@
 					<div style=\"order: " . $tray_assign . "\">
 						<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
 							<div style=\"background-color: #" . $color_array["empty"] . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
-								<div class=\"flex-container-start\" style=\"min-height: 15px;\">
-									<span class=\"grey-off\" alt=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" title=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" />&#11044;</span>
+								<div class=\"flex-container-start\" style=\"/*min-height: 15px;*/\">
+									" . get_unraid_disk_status("grey-off") . "
 								</div>
 								<div class=\"flex-container-middle_" . $disk_tray_direction . "\" style=\"padding: 0 0 10px 0;\">
 								</div>
@@ -263,6 +271,7 @@
 				
 				if($displayinfo["leddiskop"]) {
 					if($unraid_array[$devicenode]["color"] && $unraid_array[$devicenode]["status"]) {
+						/*
 						if($unraid_array[$devicenode]["type"] == "Cache") {
 							$disk_status_type = "cache";
 						}
@@ -274,12 +283,29 @@
 						
 						if($unraid_array[$devicenode]["color"] == "green-blink") { $unraid_add_greenblinkid = " class=\"greenblink\" id=\"greenblink\""; } else { $unraid_add_greenblinkid = ""; }
 						$unraid_array_icon = "<span class=\"" . $unraid_array[$devicenode]["color"] . "\" alt=\"" . $unraid_disk_status_message . "\" title=\"" . $unraid_disk_status_message . "\" />&#11044;</span>" . $insert_break . "";
+						*/
+						$unraid_array_icon = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"]);
 					}
 					else {
 						$device_lsscsi = lsscsi_parser(shell_exec("lsscsi -b -g " . $device . ""));
 						usleep($smart_exec_delay . 000); // delay script to get the output of the next shell_exec()
 						$smart_powermode = trim(shell_exec("smartctl -n standby " . $device_lsscsi["sgnode"] . " | grep Device"));
 						
+						if(strstr($smart_powermode, "ACTIVE")) {
+							$unraid_disk_status_color = "green-on";
+						}
+						else if(strstr($smart_powermode, "IDLE")) {
+							$unraid_disk_status_color = "green-on";
+						}
+						else if(strstr($smart_powermode, "STANDBY")) {
+							$unraid_disk_status_color = "green-blink";
+						}
+						else {
+							$unraid_disk_status_color = "grey-off";
+						}
+						
+						$unraid_array_icon = get_unraid_disk_status($unraid_disk_status_color);
+						/*
 						if(strstr($smart_powermode, "ACTIVE")) {
 							$unraid_disk_status_color = "green-on";
 							$unraid_disk_status_message = get_unraid_disk_status($unraid_disk_status_color, "DISK_OK");
@@ -302,6 +328,7 @@
 						}
 						
 						$unraid_array_icon = "<span class=\"" . $unraid_disk_status_color . "\" alt=\"" . $unraid_disk_status_message . "\" title=\"" . $unraid_disk_status_message . "\" />&#11044;</span>" . $insert_break . "";
+						*/
 					}
 				}
 				
@@ -309,13 +336,16 @@
 					$smart_status = $data["smart_status"];
 					switch($smart_status) {
 						case 1:
-							$smart_status_icon = "<span class=\"green-on\" alt=\"S.M.A.R.T: Passed\" title=\"S.M.A.R.T: Passed\" />&#11044;</span>";
+							$smart_status_icon = "<a class='info'><i class='fa fa-circle orb green-orb'></i><span>S.M.A.R.T: Passed</span></a>";
+							//$smart_status_icon = "<span class=\"green-on\" alt=\"S.M.A.R.T: Passed\" title=\"S.M.A.R.T: Passed\" />&#11044;</span>";
 							break;
 						case 0:
-							$smart_status_icon = "<span class=\"red-on\" alt=\"S.M.A.R.T: Failed!\" title=\"S.M.A.R.T: Failed!\" />&#11044;</span>";
+							$smart_status_icon = "<a class='info'><i class='fa fa-times orb red-orb'></i><span>S.M.A.R.T: Failed!</span></a>";
+							//$smart_status_icon = "<span class=\"red-on\" alt=\"S.M.A.R.T: Failed!\" title=\"S.M.A.R.T: Failed!\" />&#11044;</span>";
 							break;
 						default:
-							$smart_status_icon = "<span class=\"grey-off\" alt=\"S.M.A.R.T: Off/None\" title=\"S.M.A.R.T: Off/None\" />&#11044;</span>";
+							//$smart_status_icon = "<span class=\"grey-off\" alt=\"S.M.A.R.T: Off/None\" title=\"S.M.A.R.T: Off/None\" />&#11044;</span>";
+							$smart_status_icon = "<a class='info'><i class='fa fa-circle orb grey-orb'></i><span>S.M.A.R.T: Off/None</span></a>";
 					}
 				}
 				
@@ -327,14 +357,15 @@
 				$drive_tray_order[$hash] = ( empty($drive_tray_order[$hash]) ? $tray_assign : $drive_tray_order[$hash] );
 				if($displayinfo["tray"]) {
 					if($tray_number_override[$drive_tray_order[$hash]]) {
-						$add_traynumber = "<b>" . $tray_number_override[$drive_tray_order[$hash]] . "</b>" . $insert_break . "";
+						//$add_traynumber = "<b>" . $tray_number_override[$drive_tray_order[$hash]] . "</b>" . $insert_break . "";
+						$add_traynumber = ( empty($tray_number_override_start) ? "<b>" . --$tray_number_override[$drive_tray_order[$hash]] . "</b>" . $insert_break . "</b>" : "<b>" . $tray_number_override[$drive_tray_order[$hash]] . "</b>" . $insert_break . "</b>");
 						$drive_tray_order_assign = $tray_number_override[$drive_tray_order[$hash]];
 					}
 					else {
-						$add_traynumber = "<b>" . $drive_tray_order[$hash] . "</b>" . $insert_break . "";
+						//$add_traynumber = "<b>" . $drive_tray_order[$hash] . "</b>" . $insert_break . "";
+						$add_traynumber = ( empty($tray_number_override_start) ? "<b>" . --$drive_tray_order[$hash] . "</b>" . $insert_break . "</b>" : "<b>" . $drive_tray_order[$hash] . "</b>" . $insert_break . "</b>");
 						$drive_tray_order_assign = $drive_tray_order[$hash];
 					}
-					
 				}
 				
 				if($displayinfo["devicenode"]) {
@@ -417,7 +448,7 @@
 					<div style=\"order: " . $drive_tray_order[$hash] . "\">
 						<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
 							<div style=\"background-color: #" . $color_array[$hash] . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
-								<div class=\"flex-container-start\" style=\"min-height: 15px;\">
+								<div class=\"flex-container-start\" style=\"/*min-height: 15px;*/\">
 									<b>" . $drive_tray_order[$hash] . "</b>
 								</div>
 								<div class=\"flex-container-middle_" . $disk_tray_direction . "\">
@@ -432,18 +463,18 @@
 				
 				if($smart_status == 1) {
 					$dashboard_led = $unraid_array_icon;
-					$dashboard_info = "<span class=\"green\"><b>Disks OK!</b></span>";
+					//$dashboard_info = "<span class=\"green\"><b>Disks OK!</b></span>";
 				}
-				else {
+				else if(isset($smart_status)) {
 					$dashboard_led = $smart_status_icon;
-					$dashboard_info = "<span class=\"red\"><b>Failed disk!</b></span>";
+					//$dashboard_info = "<span class=\"red\"><b>S.M.A.R.T Failed!</b></span>";
 				}
 				
 				$disklocation_dash[$gid] .= "
 					<div style=\"order: " . $drive_tray_order[$hash] . "\">
 						<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
 							<div style=\"background-color: #" . $color_array[$hash] . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
-								<div class=\"flex-container-start\" style=\"min-height: 15px;\">
+								<div class=\"flex-container-start\" style=\"/*min-height: 15px;*/\">
 									$dashboard_led
 								</div>
 								<div class=\"flex-container-middle_" . $disk_tray_direction . "\" style=\"padding: 0 0 10px 0;\">

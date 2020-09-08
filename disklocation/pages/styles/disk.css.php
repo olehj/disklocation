@@ -48,7 +48,7 @@ input.diskLocation {
 }
 
 .flex-container-start {
-	min-height: 25px;
+	min-height: 0;
 	text-align: center;
 }
 .flex-container-start>div {

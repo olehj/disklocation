@@ -106,6 +106,14 @@
 					<blockquote class=\"inline_help\">
 						Select the direction you want to count the trays.
 					</blockquote>
+					<p>
+						<b>Tray count start:</b><br />
+						<input type=\"radio\" name=\"tray_start_num\" value=\"0\" " . ( ($tray_start_num == 0) ? "checked" : null ) . " />0
+						<input type=\"radio\" name=\"tray_start_num\" value=\"1\" " . ( ($tray_start_num == 1) ? "checked" : null ) . " />1
+					</p>
+					<blockquote class=\"inline_help\">
+						<p>Select to start counting from 0 or 1.</p>
+					</blockquote>
 					<p style=\"text-align: center;\">
 						<input type=\"hidden\" name=\"groupid\" value=\"$gid\" />
 						<input type=\"submit\" name=\"save_groupsettings\" value=\"Save\" /><!--<input type=\"reset\" value=\"Reset\" />-->
@@ -128,6 +136,18 @@
 	$smart_updates = cronjob_timer();
 	$plugin_update_scan = update_scan_toggle(0, 1);
 ?>
+<script>
+$(function(){
+	// append tab
+	$('.tabs')
+		.append('<div class="tab"><input type="radio" name="tabs2" id="tab5"><label for="tab5"><i class="icon fa fa-server"></i>Devices</label></div>');
+
+	$('#tab5').click(function() {
+		$.cookie('one', 'tab1', { expires:null, path: '/'});
+		location = '/Tools/disklocation';
+	});
+});
+</script>
 <datalist id="disklocationColorsDef">
 	<option>#<?php echo $bgcolor_parity ?></option>
 	<option>#<?php echo $bgcolor_unraid ?></option>

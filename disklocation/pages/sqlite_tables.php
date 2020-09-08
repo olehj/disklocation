@@ -18,9 +18,9 @@
 	 *  along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
 	 *
 	 */
-/*
-	Database Version: current
-*/
+
+//	Database Version:
+	$current_db_ver = 7;
 
 //	Common settings
 //	Variable name		Default value	Description
@@ -66,9 +66,12 @@
 	$grid_trays = 		'';		// total number of trays. default this is (grid_columns * grid_rows), but we choose to add some flexibility for drives outside normal trays
 	$disk_tray_direction =	'h';		// direction of the hard drive trays [h]horizontal | [v]ertical
 	$tray_direction =	'1';		// tray count direction
+	$tray_start_num = 	'1';		// tray count start number, 0 or 1
 	$tray_width =		'400';		// the pixel width of the hard drive tray: in the horizontal direction ===
 	$tray_height =		'70';		// the pixel height of the hard drive tray: in the horizontal direction ===
 
+//	Create database
+	
 	$sql_create_disks = "
 		id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
 		device VARCHAR(16) NOT NULL,
@@ -169,6 +172,7 @@
 		grid_trays SMALLINT,
 		disk_tray_direction CHAR(1) NOT NULL DEFAULT 'h',
 		tray_direction TINYINT NOT NULL DEFAULT '1',
+		tray_start_num TINYINT NOT NULL DEFAULT '1',
 		tray_width SMALLINT NOT NULL DEFAULT '400',
 		tray_height SMALLINT NOT NULL DEFAULT '70'
 	";
@@ -182,10 +186,29 @@
 		grid_trays,
 		disk_tray_direction,
 		tray_direction,
+		tray_start_num,
 		tray_width,
 		tray_height
 	";
 
+	/*
+		Database Version: 6
+	*/
+	
+	$sql_tables_settings_group_v6 = "
+		id,
+		group_name,
+		group_color,
+		grid_count,
+		grid_columns,
+		grid_rows,
+		grid_trays,
+		disk_tray_direction,
+		tray_direction,
+		tray_width,
+		tray_height
+	";
+	
 	/*
 		Database Version: 5
 	*/
@@ -400,7 +423,7 @@
 			CREATE TABLE settings_group(
 				$sql_create_settings_group
 			);
-			PRAGMA user_version = '6';
+			PRAGMA user_version = '$current_db_ver';
 		";
 		$ret = $db->exec($sql);
 		if(!$ret) {
@@ -686,6 +709,35 @@
 				
 				PRAGMA foreign_keys = on;
 				PRAGMA user_version = '6';
+				
+				VACUUM;
+			";
+			$ret = $db->exec($sql);
+			if(!$ret) {
+				$db_update = 0;
+				echo $db->lastErrorMsg();
+			}
+		}
+		
+		if($database_version < 7) {
+			$db_update = 1;
+			$sql = "
+				PRAGMA foreign_keys = off;
+				
+				BEGIN TRANSACTION;
+				
+				ALTER TABLE settings_group RENAME TO old_settings_group;
+				
+				CREATE TABLE settings_group($sql_create_settings_group);
+				
+				INSERT INTO settings_group ($sql_tables_settings_group_v6) SELECT $sql_tables_settings_group_v6 FROM old_settings_group;
+				
+				DROP TABLE old_settings_group;
+				
+				COMMIT;
+				
+				PRAGMA foreign_keys = on;
+				PRAGMA user_version = '7';
 				
 				VACUUM;
 			";

@@ -40,15 +40,18 @@
 		
 		$data = $datasql[$i_drive-1];
 		
-		$tray_assign = ( empty($data["tray"]) ? $i : $data["tray"] );
-		
 		$sql = "SELECT * FROM settings_group WHERE id = '" . $data["groupid"] . "'";
 		$results2 = $db->query($sql);
 		
 		while($datagroup = $results2->fetchArray(1)) {
 			$group_name = $datagroup["group_name"];
+			$tray_start_num = $datagroup["tray_start_num"];
 		}
 		$group_assign = ( empty($group_name) ? $data["groupid"] : $group_name );
+		
+		//$tray_assign = ( empty($data["tray"]) ? $i : $data["tray"] );
+		if(!isset($tray_start_num)) { $tray_start_num = 1; }
+		$tray_assign = ( empty($tray_start_num) ? --$data["tray"] : $data["tray"]);
 		
 		$hash = $data["hash"];
 		$smart_powerontime = ( empty($data["smart_powerontime"]) ? null : seconds_to_time($data["smart_powerontime"] * 60 * 60) );
