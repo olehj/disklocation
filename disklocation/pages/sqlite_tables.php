@@ -172,6 +172,7 @@
 		grid_trays SMALLINT,
 		disk_tray_direction CHAR(1) NOT NULL DEFAULT 'h',
 		tray_direction TINYINT NOT NULL DEFAULT '1',
+		tray_start_num TINYINT NOT NULL DEFAULT '1',
 		tray_width SMALLINT NOT NULL DEFAULT '400',
 		tray_height SMALLINT NOT NULL DEFAULT '70'
 	";
