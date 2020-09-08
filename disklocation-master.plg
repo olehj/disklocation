@@ -47,7 +47,7 @@
 -->
 	
 <CHANGES>
-###2020.09.08
+###2020.09.09
  - Commit #152 - FEATURE: Added an option to start tray count from 0 or 1.
  - Commit #151 - IMPROVEMENT: Adjusted the design to fit to the default Unraid scheme better.
  - Commit #150 - FEATURE: Added shortcut for Tools and Settings page as people were confused and couldn't find the pages.
