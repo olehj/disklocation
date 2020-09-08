@@ -180,67 +180,20 @@
 		}
 	}
 	
-	function get_unraid_disk_status($color, $status, $type = '') {
-		if($type == "cache") {
-			$type = 1; // Cache drive(s)
+	function get_unraid_disk_status($color, $type = '') {
+		switch($color) {
+			case 'green-on': $orb = 'circle'; $color = 'green'; $help = 'Normal operation, device is active'; break;
+			case 'green-blink': $orb = 'circle'; $color = 'grey'; $help = 'Device is in standby mode (spun-down)'; break;
+			case 'blue-on': $orb = 'square'; $color = 'blue'; $help = 'New device'; break;
+			case 'blue-blink': $orb = 'square'; $color = 'grey'; $help = 'New device, in standby mode (spun-down)'; break;
+			case 'yellow-on': $orb = 'warning'; $color = 'yellow'; $help = $type =='Parity' ? 'Parity is invalid' : 'Device contents emulated'; break;
+			case 'yellow-blink': $orb = 'warning'; $color = 'grey'; $help = $type =='Parity' ? 'Parity is invalid, in standby mode (spun-down)' : 'Device contents emulated, in standby mode (spun-down)'; break;
+			case 'red-on': case 'red-blink': $orb = 'times'; $color = 'red'; $help = $type=='Parity' ? 'Parity device is disabled' : 'Device is disabled, contents emulated'; break;
+			case 'red-off': $orb = 'times'; $color = 'red'; $help = $type =='Parity' ? 'Parity device is missing' : 'Device is missing (disabled), contents emulated'; break;
+			case 'grey-off': $orb = 'square'; $color = 'grey'; $help = 'Device not present'; break;
 		}
-		else {
-			$type = '';
-		}
 		
-		$arr_color = array(
-			// color	=> first digit
-			"grey-off"	=> 0,
-			"green-on"	=> 1,
-			"green-blink"	=> 2,
-			"yellow-on"	=> 3,
-			"yellow-blink"	=> 4,
-			"red-on"	=> 5,
-			"red-blink"	=> 6,
-			"red-off"	=> 7,
-			"blue-on"	=> 8,
-			"blue-blink"	=> 9
-		);
-		
-		$arr_status = array(
-			// color	=> second digit
-			"DISK_NP"		=> 0,
-			"DISK_OK"		=> 1,
-			"DISK_INVALID"		=> 2,
-			"DISK_DSBL"		=> 3,
-			"DISK_NP_DSBL"		=> 4,
-			"DISK_DSBL_NEW"		=> 5,
-			"DISK_NP_MISSING"	=> 6,
-			"DISK_WRONG"		=> 7,
-			"DISK_NEW"		=> 8,
-			"DISK_OK_NP"		=> 9
-		);
-		
-		$arr_messages = array(
-			"00" => "Disk unavailable or no information",
-			"11" => "Disk valid: Active or idle",
-			"21" => "Disk valid: Standby",
-			"32" => "Disk invalid: Active or idle",
-			"42" => "Disk invalid: Standby",
-			"53" => "Disk emulated: Active or idle",
-			"63" => "Disk emulated: Standby",
-			"74" => "Disk emulated: No disk",
-			"85" => "Disabled, new disk present: Active or idle",
-			"95" => "Disabled, new disk present: Standby",
-			"76" => "Enabled, disk not present",
-			"57" => "Wrong disk, disk present: Active or idle",
-			"67" => "Wrong disk, disk present: Standby",
-			"88" => "New disk: Active or idle",
-			"98" => "New disk: Standby",
-			"100" => "Disk unavailable, not the first device of multi-disk pool",
-			"109" => "Disk unavailable, first device of multi-disk pool",
-			"111" => "Disk valid: Active or idle",
-			"121" => "Disk valid: Standby",
-			"188" => "New disk: Active or idle",
-			"198" => "New disk: Standby"
-		);
-		
-		return ( isset($arr_messages["" . $type . "" . $arr_color[$color] . "" . $arr_status[$status] . ""]) ? $arr_messages["" . $type . "" . $arr_color[$color] . "" . $arr_status[$status] . ""] : false );
+		return ("<a class='info'><i class='fa fa-$orb orb $color-orb'></i><span>$help</span></a>");
 	}
 	
 	function seconds_to_time($seconds, $array = '') {
@@ -425,6 +378,7 @@
 	function tray_number_assign($col, $row, $dir, $grid) {
 		$total = $col * $row; // 6 = 3 * 2
 		
+		$start = 1;
 		$data = array();
 		$tmp = array();
 		$results = array();
@@ -872,6 +826,7 @@
 		if($_POST["grid_trays"] && !preg_match("/[0-9]{1,3}/", $_POST["grid_trays"])) { $disklocation_error[] = "Grid trays number invalid."; }
 		if(!preg_match("/(h|v)/", $_POST["disk_tray_direction"])) { $disklocation_error[] = "Physical tray direction invalid."; }
 		if(!preg_match("/[0-9]{1}/", $_POST["tray_direction"])) { $disklocation_error[] = "Tray number direction invalid."; }
+		if(!preg_match("/[0-9]{1}/", $_POST["tray_start_num"])) { $disklocation_error[] = "Tray start number invalid."; }
 		if(!preg_match("/[0-9]{1,4}/", $_POST["tray_width"])) { $disklocation_error[] = "Tray's longest side outside limits or invalid number entered."; }
 		if(!preg_match("/[0-9]{1,3}/", $_POST["tray_height"])) { $disklocation_error[] = "Tray's smallest side outside limits or invalid number entered."; }
 		
@@ -885,6 +840,7 @@
 					grid_trays = '" . ( empty($_POST["grid_trays"]) ? null : $_POST["grid_trays"] ) . "',
 					disk_tray_direction = '" . $_POST["disk_tray_direction"] . "',
 					tray_direction = '" . $_POST["tray_direction"] . "',
+					tray_start_num = '" . $_POST["tray_start_num"] . "',
 					tray_width = '" . $_POST["tray_width"] . "',
 					tray_height = '" . $_POST["tray_height"] . "'
 				WHERE id = '" . $_POST["groupid"] . "';
