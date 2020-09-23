@@ -52,10 +52,11 @@
 		$tray_direction = ( empty($tray_direction) ? 1 : $tray_direction);
 		
 		$disk_layouts_config .= "
-			<td style=\"width: 240px; vertical-align: top; border-left: 1px solid black;\">
+			<td style=\"min-width: 240px; vertical-align: top; border-left: 1px solid black;\">
 				<form action=\"\" method=\"post\">
 					<p>
-						<b>Name:</b> <input type=\"text\" name=\"group_name\" value=\"" . stripslashes(htmlspecialchars($group_name)) . "\" style=\"width: " . $vi_width . "px;\" />
+						<b>Name:</b><br />
+						<input type=\"text\" name=\"group_name\" value=\"" . stripslashes(htmlspecialchars($group_name)) . "\" style=\"width: " . $vi_width . "px;\" />
 					</p>
 					<blockquote class=\"inline_help\">
 						Enter a name for the group, optional.
