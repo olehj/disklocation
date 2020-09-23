@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2020.09.09">
+<!ENTITY version          "2020.09.24">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -47,6 +47,9 @@
 -->
 	
 <CHANGES>
+###2020.09.24
+ - Commit #156 - IMPROVEMENT: Changed how the devices are displayed in the dashboard, devices and tray allocations. Should now align itself automagically where it fits best.
+
 ###2020.09.09
  - Commit #152 - FEATURE: Added an option to start tray count from 0 or 1.
  - Commit #151 - IMPROVEMENT: Adjusted the design to fit to the default Unraid scheme better.
