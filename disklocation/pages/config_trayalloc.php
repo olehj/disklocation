@@ -193,7 +193,7 @@
 		";
 		
 		$disk_layouts_alloc .= "
-			<td style=\"vertical-align: top; padding: 0 0 20px 20px;\">
+			<div style=\"float: left; padding: 10px 20px 10px 20px;\">
 				<h2 style=\"text-align: center;\">
 					" . ( empty($group_name) ? $gid : $group_name ) . "
 				</h2>
@@ -206,7 +206,7 @@
 				<blockquote class='inline_help'>
 					This shows you an overview of your configured tray layout
 				</blockquote>
-			</td>
+			</div>
 		";
 		$a++;
 	}
@@ -228,11 +228,8 @@
 	<?php echo $bgcolor_custom_array ?>
 </datalist>
 <form action="" method="post">
-	<table style="width: 0;">
-		<tr>
-			<?php print($disk_layouts_alloc); ?>
-		</tr>
-	</table>
+	<?php print($disk_layouts_alloc); ?>
+	<div style="clear: both;"></div>
 	<!--<blockquote class='inline_help'>-->
 		<p style="color: red;"><b>OBS! When allocating drives you must use the TrayID numbers shown in bold and not the physical tray assignment shown on the right/bottom (these are only shown if the numbers differ).</b><br /><br /></p>
 	<!--</blockquote>-->

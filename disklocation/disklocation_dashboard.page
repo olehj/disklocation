@@ -39,12 +39,12 @@ Tag="server"
 		";
 		
 		$disklocation_dash_out .= "
-			<td style=\"vertical-align: top; padding: 25px 5px 0 0;\">
+			<div style=\"float: left; padding: 5px 10px 5px 10px;\">
 				<div style=\"text-align: center;\"><b>" . stripslashes(htmlspecialchars($group_name)) . "</b></div>
 				<div class=\"grid-container\" style=\"$css_grid_group\">
 					$disklocation_dash[$gid]
 				</div>
-			</td>
+			</div>
 		";
 		$i++;
 	}
@@ -83,18 +83,12 @@ Tag="server"
 	<tbody class="dash_disklocation_toggle sortable" sort="10">
 		<tr>
 			<td></td>
-			<td colspan="<?php echo $dashboard_widget_colspan ?>" class="top">
-				<br />
+			<td colspan="<?php echo $dashboard_widget_colspan ?>" class="top" style="vertical-align: top;">
 				<style type="text/css">
 					<?php require_once("/usr/local/emhttp/plugins/disklocation/pages/styles/disk.css.php"); ?>
 				</style>
 				<link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/signals.css")?>">
-				<table style="width: 0;">
-					<tr>
-						<?php print($disklocation_dash_out); ?>
-						<!--<td style="width: 100%;"></td> --><!-- this will align dashboard tray groups to the left if uncommented. -->
-					</tr>
-				</table>
+				<?php print($disklocation_dash_out); ?>
 			</td>
 			<td></td>
 		</tr>

@@ -40,12 +40,12 @@ Title="Devices"
 		";
 		
 		$disklocation_page_out .= "
-			<td style=\"vertical-align: top; padding: 25px 50px 0 0;\">
+			<div style=\"float: left; top; padding: 25px 50px 25px 50px;\">
 				<h2 style=\"text-align: center;\">" . stripslashes(htmlspecialchars($group_name)) . "</h2>
 				<div class=\"grid-container\" style=\"$css_grid_group\">
 					$disklocation_page[$gid]
 				</div>
-			</td>
+			</div>
 		";
 		$i++;
 	}
@@ -101,8 +101,4 @@ $(function(){
 	</ul>
 	<br /><br />
 </blockquote>
-<table style="width: 0;">
-	<tr>
-		<?php print($disklocation_page_out); ?>
-	</tr>
-</table>
+<?php print($disklocation_page_out); ?>
