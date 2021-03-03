@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2020, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2021, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -243,7 +243,7 @@
 					}
 				}
 				if($displayinfo["comment"]) {
-					$device_comment = ( empty($data["comment"]) ? null : stripslashes(htmlspecialchars($data["comment"])) );
+					$device_comment = ( empty($data["comment"]) ? null : bscode2html(stripslashes(htmlspecialchars($data["comment"]))) );
 				}
 				if($displayinfo["temperature"]) {
 					if($data["smart_temperature"]) {

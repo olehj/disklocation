@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2020, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2021, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -101,7 +101,7 @@
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $data["smart_loadcycle"] . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $data["purchased"] . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><span style=\"cursor: help;\" title=\"Warranty: " . $date_warranty . " Expires: " . $warranty_left . "\">" . $warranty_expire . "</span></td>
-				<td style=\"padding: 0 10px 0 10px;\">" . stripslashes(htmlspecialchars($data["comment"])) . "</td>
+				<td style=\"padding: 0 10px 0 10px;\">" . bscode2html(stripslashes(htmlspecialchars($data["comment"]))) . "</td>
 			</tr>
 		";
 		$i_drive++;
