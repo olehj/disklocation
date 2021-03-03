@@ -2,8 +2,9 @@
 
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
+<!ENTITY prettyname       "Disk Location">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2020.09.24">
+<!ENTITY version          "2021.03.03">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -15,19 +16,19 @@
 <!ENTITY pluginsupportURL "https://forums.unraid.net/topic/77302-plugin-disk-location/">
 ]>
 
-<PLUGIN  name="&name;"
+<PLUGIN  name="&prettyname;"
          author="&author;"
          version="&version;"
          launch="&launch;"
          pluginURL="&pluginURL;"
 	 icon="server"
-	 min="6.7.2"
+	 min="6.9.0"
 	 support="&pluginsupportURL;"
 >
 
 <!--
 
-    Copyright 2019-2020, Ole-Henrik Jakobsen
+    Copyright 2019-2021, Ole-Henrik Jakobsen
 
     This file is part of Disk Location for Unraid.
 
@@ -47,6 +48,10 @@
 -->
 	
 <CHANGES>
+###2020.03.03
+ - Commit #161 - FEATURE: Formatting of the comment field has been added, read "Help" for more information under the "Tray Allocations" tab.
+ - Commit #158 - BUG: NVME drives not detected with Unraid 6.9 because of changes in the output of lsscsi. From now on only Unraid 6.9 and above is supported. Older releases has to use the developer build without nvme support or previous Disk Location version.
+
 ###2020.09.24
  - Commit #156 - IMPROVEMENT: Changed how the devices are displayed in the dashboard, devices and tray allocations. Should now align itself automagically where it fits best.
 
