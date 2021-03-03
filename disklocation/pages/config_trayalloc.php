@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2020, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2021, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -298,7 +298,23 @@
 					<dd>For Unraid array drives which already got the date set, this will be detected (and eventually overwrite) by the main configuration. This plugin will not touch that, unless if those does not exists in the first place. For unassigned devices, you can enter a date of purchase and warranty.</dd>
 					
 					<dt>Comment</dt>
-					<dd>Enter a comment, like where you bought the drive or anything else you'd like.</dd>
+					<dd>Enter a comment, like where you bought the drive or anything else you'd like. Formatting tools:</dd>
+					<dd>
+						Bold: [b]<b>text</b>[/b] or *<b>text</b>*<br />
+						Italic: [i]<i>text</i>[/i] or _<i>text</i>_<br />
+						<br />
+						Font sizes:
+						<span style="font-size: xx-small">tiny</span>
+						<span style="font-size: x-small">small</span>
+						<span style="font-size: medium">medium</span>
+						<span style="font-size: large">large</span>
+						<span style="font-size: x-large">huge</span>
+						<span style="font-size: xx-large">massive</span>
+						<br />
+						Ex: [large]text[/large]<br />
+						<br />
+						Force break: [br]
+					</dd>
 					
 					<dt>Custom Color</dt>
 					<dd>

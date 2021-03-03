@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2020, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2021, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -90,6 +90,27 @@
 	}
 	
 	debug_print($debugging_active, __LINE__, "functions", "Debug function active.");
+	
+	function bscode2html($text) {
+		$text = preg_replace("/\*(.*?)\*/", "<b>$1</b>", $text);
+		$text = preg_replace("/_(.*?)_/", "<i>$1</i>", $text);
+		$text = preg_replace("/\[b\](.*)\[\/b\]/", "<b>$1</b>", $text);
+		$text = preg_replace("/\[i\](.*)\[\/i\]/", "<i>$1</i>", $text);
+		$text = preg_replace("/\[tiny\](.*)\[\/tiny\]/", "<span style=\"font-size: xx-small;\">$1</span>", $text);
+		$text = preg_replace("/\[small\](.*)\[\/small\]/", "<span style=\"font-size: x-small;\">$1</span>", $text);
+		$text = preg_replace("/\[medium\](.*)\[\/medium\]/", "<span style=\"font-size: medium;\">$1</span>", $text);
+		$text = preg_replace("/\[large\](.*)\[\/large\]/", "<span style=\"font-size: large;\">$1</span>", $text);
+		$text = preg_replace("/\[huge\](.*)\[\/huge\]/", "<span style=\"font-size: x-large;\">$1</span>", $text);
+		$text = preg_replace("/\[massive\](.*)\[\/massive\]/", "<span style=\"font-size: xx-large;\">$1</span>", $text);
+		$text = preg_replace("/\[br\]/", "<br />", $text);
+		
+		if($text) {
+			return $text;
+		}
+		else {
+			return false;
+		}
+	}
 	
 	function is_tray_allocated($db, $tray, $gid) {
 		$sql = "SELECT hash FROM location WHERE tray = '" . $tray . "' AND groupid = '" . $gid . "'";
@@ -634,12 +655,16 @@
 	// lsscsi -bg
 	function lsscsi_parser($input) {
 		// \[(.+:.+:.+:.+)\]\s+(-|(\/dev\/(h|s)d[a-z]{1,})?)\s+((\/dev\/(nvme|sg)[0-9]{1,})(n[0-9]{1,})?)
-		$pattern_device = "\[(.+:.+:.+:.+)\]\s+";				// $1
-		$pattern_devnode = "(-|(\/dev\/(h|s)d[a-z]{1,})?)\s+";			// $3
-		$pattern_scsigendevnode = "((\/dev\/(nvme|sg)[0-9]{1,})(n[0-9]{1,})?)";	// $5
-			
+		$pattern_device = "\[(.+:.+:.+:.+)\]\s+";						// $1
+		//$pattern_devnode = "(-|(\/dev\/(h|s)d[a-z]{1,})?)\s+";				// $3 pre 6.9
+		//$pattern_scsigendevnode = "((\/dev\/(nvme|sg)[0-9]{1,})(n[0-9]{1,})?)";		// $5 pre 6.9
+		$pattern_devnode = "((\/dev\/((h|s)d[a-z]{1,}|nvme[0-9]{1,})(n[0-9]{1,})?))\s+";	// $2
+		$pattern_scsigendevnode = "(-|(\/dev\/(sg)[0-9]{1,}))";					// $7
+		
 		list($device, $devnode, $scsigendevnode) = 
-			explode("|", preg_replace("/" . $pattern_device . "" . $pattern_devnode . "" . $pattern_scsigendevnode . "/iu", "$1|$3|$5", $input));
+			explode("|", preg_replace("/" . $pattern_device . "" . $pattern_devnode . "" . $pattern_scsigendevnode . "/iu", "$1|$2|$7", $input));
+		
+		$scsigendevnode = ( strstr($scsigendevnode, "-") ? $devnode : $scsigendevnode ); // script uses SG for most things, so we add nvme into it as well.
 		
 		return array(
 			"device"	=> trim($device),
