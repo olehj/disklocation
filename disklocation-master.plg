@@ -16,7 +16,7 @@
 <!ENTITY pluginsupportURL "https://forums.unraid.net/topic/77302-plugin-disk-location/">
 ]>
 
-<PLUGIN  name="&prettyname;"
+<PLUGIN  name="&name;"
          author="&author;"
          version="&version;"
          launch="&launch;"
