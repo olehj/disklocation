@@ -48,7 +48,7 @@
 	
 <CHANGES>
 ###2021.08.16
- - Commit #166 - INVALID: Removed "prettyname" variable as it wasn't allowed with special characters. Might fix issues where some people didn't see Disk Location in the menus.
+ - Commit #166 - BUG: Removed "prettyname" variable as it wasn't allowed with special characters. Might fix issues where some people didn't see Disk Location in the menus.
 
 ###2021.03.03
  - Commit #161 - FEATURE: Formatting of the comment field has been added, read "Help" for more information under the "Tray Allocations" tab.
