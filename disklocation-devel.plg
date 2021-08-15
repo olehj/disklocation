@@ -1,7 +1,7 @@
 <?xml version='1.0' standalone='yes'?>
 
 <!DOCTYPE PLUGIN [
-<!ENTITY name             "disklocation-dev">
+<!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
 <!ENTITY version          "2021.08.16-dev">
 <!ENTITY launch           "Tools/&name;">
