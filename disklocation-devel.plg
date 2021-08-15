@@ -1,8 +1,7 @@
 <?xml version='1.0' standalone='yes'?>
 
 <!DOCTYPE PLUGIN [
-<!ENTITY name             "disklocation">
-<!ENTITY prettyname       "Disk Location (Developer Edition)">
+<!ENTITY name             "disklocation-dev">
 <!ENTITY author           "Ole-Henrik Jakobsen">
 <!ENTITY version          "2021.03.03-dev">
 <!ENTITY launch           "Tools/&name;">
@@ -16,7 +15,7 @@
 <!ENTITY pluginsupportURL "https://forums.unraid.net/topic/77302-plugin-disk-location/">
 ]>
 
-<PLUGIN  name="&prettyname;"
+<PLUGIN  name="&name;"
          author="&author;"
          version="&version;"
          launch="&launch;"
