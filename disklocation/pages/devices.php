@@ -93,12 +93,12 @@
 				if($displayinfo["tray"] && !$displayinfo["hideemptycontents"]) {
 					if($tray_number_override[$tray_assign]) {
 						//$empty_tray = "<b>". $tray_number_override[$tray_assign] . "</b>" . $insert_break . "";
-						$empty_tray = ( empty($tray_number_override_start) ? "<b>" . --$tray_number_override[$tray_assign] . "</b>" . $insert_break . "</b>" : "<b>" . $tray_number_override[$tray_assign] . "</b>" . $insert_break . "</b>");
+						$empty_tray = ( empty($tray_number_override_start) ? --$tray_number_override[$tray_assign] : ($tray_number_override_start + $tray_number_override[$tray_assign] - 1));
 						$empty_tray_assign = $tray_number_override[$tray_assign];
 					}
 					else {
-						$empty_tray = "<b>" . $tray_assign . "</b>" . $insert_break . "";
-						$empty_tray = ( empty($tray_number_override_start) ? "<b>" . --$tray_assign . "</b>" . $insert_break . "</b>" : "<b>" . $tray_assign . "</b>" . $insert_break . "</b>");
+						$//empty_tray = "<b>" . $tray_assign . "</b>" . $insert_break . "";
+						$empty_tray = ( empty($tray_number_override_start) ? --$tray_assign : $tray_assign);
 						$empty_tray_assign = $tray_assign;
 					}
 				}
@@ -119,7 +119,7 @@
 						<div class=\"flex-container_" . $disk_tray_direction . "\">
 							<div style=\"background-color: #" . $color_array["empty"] . "; width: " . $tray_width . "px; height: " . $tray_height . "px;\">
 								<div class=\"flex-container-start\">
-									$empty_tray
+									<b>$empty_tray</b>$insert_break
 									$empty_leddiskop
 									$empty_ledsmart
 								</div>
@@ -134,30 +134,43 @@
 					</div>
 				";
 				
+				$add_empty_physical_tray_order = "";
+				if($tray_assign != $empty_tray) {
+					$add_empty_physical_tray_order = $tray_assign;
+				}
+				
 				$disklocation_layout[$gid] .= "
 					<div style=\"order: " . $tray_assign . "\">
 						<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
 							<div style=\"background-color: #" . $color_array["empty"] . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
-								<b>" . $empty_tray_assign . "</b>
+								<div class=\"flex-container-start\">
+									<b>$empty_tray</b>
+								</div>
+								<div class=\"flex-container-middle_" . $disk_tray_direction . "\">
+								</div>
+								<div class=\"flex-container-end\">
+									<!--" . $add_empty_physical_tray_order . "-->
+								</div>
 							</div>
 						</div>
 					</div>
 				";
 				
 				$add_empty_physical_tray_order = "";
-				if($tray_assign != $empty_tray_assign) {
-					$add_empty_physical_tray_order = $empty_tray_assign;
+				if($tray_assign != $empty_tray) {
+					$add_empty_physical_tray_order = $empty_tray;
 				}
+				
 				$disklocation_alloc[$gid] .= "
 					<div style=\"order: " . $tray_assign . "\">
 						<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
 							<div style=\"background-color: #" . $color_array["empty"] . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
 								<div class=\"flex-container-start\" style=\"/*min-height: 15px;*/\">
-									<b>" . $tray_assign . "</b>
+									<b>$tray_assign</b>
 								</div>
 								<div class=\"flex-container-middle_" . $disk_tray_direction . "\">
 								</div>
-								<div class=\"flex-container-end\">
+								<div class=\"flex-container-end\" style=\"font-size: xx-small;\">
 									" . $add_empty_physical_tray_order . "
 								</div>
 							</div>
@@ -175,7 +188,7 @@
 								<div class=\"flex-container-middle_" . $disk_tray_direction . "\" style=\"padding: 0 0 10px 0;\">
 								</div>
 								<div class=\"flex-container-end\">
-									<b>" . $empty_tray_assign . "</b>
+									<b>" . $empty_tray . "</b>
 								</div>
 							</div>
 						</div>
@@ -358,13 +371,15 @@
 				if($displayinfo["tray"]) {
 					if($tray_number_override[$drive_tray_order[$hash]]) {
 						//$add_traynumber = "<b>" . $tray_number_override[$drive_tray_order[$hash]] . "</b>" . $insert_break . "";
-						$add_traynumber = ( empty($tray_number_override_start) ? "<b>" . --$tray_number_override[$drive_tray_order[$hash]] . "</b>" . $insert_break . "</b>" : "<b>" . $tray_number_override[$drive_tray_order[$hash]] . "</b>" . $insert_break . "</b>");
+						//$add_traynumber = ( empty($tray_number_override_start) ? "<b>" . --$tray_number_override[$drive_tray_order[$hash]] . "</b>" . $insert_break . "" : "<b>" . ($tray_number_override_start + $tray_number_override[$drive_tray_order[$hash]] - 1) . "</b>" . $insert_break . "");
 						$drive_tray_order_assign = $tray_number_override[$drive_tray_order[$hash]];
+						$physical_traynumber = ( empty($tray_number_override_start) ? --$tray_number_override[$drive_tray_order[$hash]] : ($tray_number_override_start + $tray_number_override[$drive_tray_order[$hash]] - 1));
 					}
 					else {
 						//$add_traynumber = "<b>" . $drive_tray_order[$hash] . "</b>" . $insert_break . "";
-						$add_traynumber = ( empty($tray_number_override_start) ? "<b>" . --$drive_tray_order[$hash] . "</b>" . $insert_break . "</b>" : "<b>" . $drive_tray_order[$hash] . "</b>" . $insert_break . "</b>");
+						//$add_traynumber = ( empty($tray_number_override_start) ? "<b>" . --$drive_tray_order[$hash] . "</b>" . $insert_break . "" : "<b>" . $drive_tray_order[$hash] . "</b>" . $insert_break . "");
 						$drive_tray_order_assign = $drive_tray_order[$hash];
+						$physical_traynumber = ( empty($tray_number_override_start) ? --$drive_tray_order[$hash] : $drive_tray_order[$hash]);
 					}
 				}
 				
@@ -409,7 +424,7 @@
 						<div class=\"flex-container_" . $disk_tray_direction . "\">
 							<div style=\"background-color: #" . $color_array[$hash] . "; width: " . $tray_width . "px; height: " . $tray_height . "px;\">
 								<div class=\"flex-container-start\">
-									$add_traynumber
+									<b>$physical_traynumber</b>$insert_break
 									$unraid_array_icon
 									$smart_status_icon
 									
@@ -430,20 +445,33 @@
 					</div>
 				";
 				
+				$add_physical_tray_order = "";
+				if($drive_tray_order[$hash] != $physical_traynumber) {
+					$add_physical_tray_order = $drive_tray_order[$hash];
+				}
+				
 				$disklocation_layout[$gid] .= "
 					<div style=\"order: " . $drive_tray_order[$hash] . "\">
 						<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
 							<div style=\"background-color: #" . $color_array[$hash] . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
-								<b>" . $drive_tray_order_assign . "</b>
+								<div class=\"flex-container-start\">
+									<b>$physical_traynumber</b>
+								</div>
+								<div class=\"flex-container-middle_" . $disk_tray_direction . "\">
+								</div>
+								<div class=\"flex-container-end\">
+									<!--" . $add_physical_tray_order . "-->
+								</div>
 							</div>
 						</div>
 					</div>
 				";
 				
 				$add_physical_tray_order = "";
-				if($drive_tray_order[$hash] != $drive_tray_order_assign) {
-					$add_physical_tray_order = $drive_tray_order_assign;
+				if($drive_tray_order[$hash] != $physical_traynumber) {
+					$add_physical_tray_order = $physical_traynumber;
 				}
+				
 				$disklocation_alloc[$gid] .= "
 					<div style=\"order: " . $drive_tray_order[$hash] . "\">
 						<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
@@ -453,7 +481,7 @@
 								</div>
 								<div class=\"flex-container-middle_" . $disk_tray_direction . "\">
 								</div>
-								<div class=\"flex-container-end\">
+								<div class=\"flex-container-end\" style=\"font-size: xx-small;\">
 									" . $add_physical_tray_order . "
 								</div>
 							</div>
@@ -480,7 +508,7 @@
 								<div class=\"flex-container-middle_" . $disk_tray_direction . "\" style=\"padding: 0 0 10px 0;\">
 								</div>
 								<div class=\"flex-container-end\">
-									<b>$drive_tray_order_assign</b>
+									<b>$physical_traynumber</b>
 								</div>
 							</div>
 						</div>

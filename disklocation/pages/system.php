@@ -851,7 +851,7 @@
 		if($_POST["grid_trays"] && !preg_match("/[0-9]{1,3}/", $_POST["grid_trays"])) { $disklocation_error[] = "Grid trays number invalid."; }
 		if(!preg_match("/(h|v)/", $_POST["disk_tray_direction"])) { $disklocation_error[] = "Physical tray direction invalid."; }
 		if(!preg_match("/[0-9]{1}/", $_POST["tray_direction"])) { $disklocation_error[] = "Tray number direction invalid."; }
-		if(!preg_match("/[0-9]{1}/", $_POST["tray_start_num"])) { $disklocation_error[] = "Tray start number invalid."; }
+		if(!preg_match("/[0-9]{1,7}/", $_POST["tray_start_num"])) { $disklocation_error[] = "Tray start number invalid."; }
 		if(!preg_match("/[0-9]{1,4}/", $_POST["tray_width"])) { $disklocation_error[] = "Tray's longest side outside limits or invalid number entered."; }
 		if(!preg_match("/[0-9]{1,3}/", $_POST["tray_height"])) { $disklocation_error[] = "Tray's smallest side outside limits or invalid number entered."; }
 		
