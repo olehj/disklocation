@@ -45,13 +45,13 @@
 		
 		while($datagroup = $results2->fetchArray(1)) {
 			$group_name = $datagroup["group_name"];
-			$tray_start_num = $datagroup["tray_start_num"];
+			//$tray_start_num = $datagroup["tray_start_num"];
 		}
 		$group_assign = ( empty($group_name) ? $data["groupid"] : $group_name );
 		
-		//$tray_assign = ( empty($data["tray"]) ? $i : $data["tray"] );
-		if(!isset($tray_start_num)) { $tray_start_num = 1; }
-		$tray_assign = ( empty($tray_start_num) ? --$data["tray"] : $data["tray"]);
+		$tray_assign = ( empty($data["tray"]) ? $i : $data["tray"] );
+		//if(!isset($tray_start_num)) { $tray_start_num = 1; }
+		//$tray_assign = ( empty($tray_start_num) ? --$data["tray"] : $data["tray"]);
 		
 		$hash = $data["hash"];
 		$smart_powerontime = ( empty($data["smart_powerontime"]) ? null : seconds_to_time($data["smart_powerontime"] * 60 * 60) );
@@ -87,16 +87,16 @@
 		$print_drives[$i_drive] = "
 			<tr style=\"background: #" . $color_array[$data["hash"]] . ";\">
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . stripslashes(htmlspecialchars($group_assign)) . "</td>
-				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $tray_assign . "</td>
+				<!--<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $tray_assign . "</td>-->
 				<td style=\"padding: 0 10px 0 10px;\">" . $data["device"] . "</td>
-				<td style=\"padding: 0 10px 0 10px;\">" . $data["luname"] . "</td>
+				<!--<td style=\"padding: 0 10px 0 10px;\">" . $data["luname"] . "</td>-->
 				<td style=\"padding: 0 10px 0 10px;\">" . $data["model_family"] . "</td>
 				<td style=\"padding: 0 10px 0 10px;\">" . $data["model_name"] . "</td>
 				<td style=\"padding: 0 10px 0 10px;\">" . $data["smart_serialnumber"] . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $smart_capacity . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $smart_rotation . "</td>
-				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $data["smart_formfactor"] . "</td>
-				<td style=\"padding: 0 10px 0 10px; text-align: center;\">" . ( empty($data["smart_status"]) ? "FAILED" : "PASSED" ) . "</td>
+				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . str_replace(" inches", "&quot;", $data["smart_formfactor"]) . "</td>
+				<td style=\"padding: 0 10px 0 10px; text-align: center;\">" . ( empty($data["smart_status"]) ? "FAIL" : "OK" ) . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><span style=\"cursor: help;\" title=\"" . $smart_powerontime . "\">" . $data["smart_powerontime"] . "</span></td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $data["smart_loadcycle"] . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $data["purchased"] . "</td>
@@ -117,18 +117,18 @@
 <table>
 	<tr style="border: solid 1px #000000;">
 		<td style="padding: 0 10px 0 10px;"><b>Group</b></td>
-		<td style="padding: 0 10px 0 10px;"><b>Tray</b></td>
+		<!--<td style="padding: 0 10px 0 10px;"><b>TrayID</b></td>-->
 		<td style="padding: 0 10px 0 10px;"><b>Path</b></td>
-		<td style="padding: 0 10px 0 10px;"><b>Logical Unit Name</b></td>
+		<!--<td style="padding: 0 10px 0 10px;"><b>Logical Unit Name</b></td>-->
 		<td style="padding: 0 10px 0 10px;"><b>Manufacturer</b></td>
 		<td style="padding: 0 10px 0 10px;"><b>Device Model</b></td>
 		<td style="padding: 0 10px 0 10px;"><b>Serial Number</b></td>
 		<td style="padding: 0 10px 0 10px;"><b>Capacity</b></td>
 		<td style="padding: 0 10px 0 10px;"><b>Rotation</b></td>
-		<td style="padding: 0 10px 0 10px;"><b>Form Factor</b></td>
-		<td style="padding: 0 10px 0 10px;"><b>SMART Status</b></td>
-		<td style="padding: 0 10px 0 10px;"><b>Power On Hours</b></td>
-		<td style="padding: 0 10px 0 10px;"><b>Load Cycle Count</b></td>
+		<td style="padding: 0 10px 0 10px;"><b>Size</b></td>
+		<td style="padding: 0 10px 0 10px;"><b>SMART</b></td>
+		<td style="padding: 0 10px 0 10px;"><b>Power On</b></td>
+		<td style="padding: 0 10px 0 10px;"><b>Load Cycle</b></td>
 		<td style="padding: 0 10px 0 10px;"><b>Purchased</b></td>
 		<td style="padding: 0 10px 0 10px;"><b>Warranty</b></td>
 		<td style="padding: 0 10px 0 10px;"><b>Comment</b></td>

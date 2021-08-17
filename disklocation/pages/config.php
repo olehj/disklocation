@@ -109,11 +109,14 @@
 					</blockquote>
 					<p>
 						<b>Tray count start:</b><br />
+						<input type=\"number\" required min=\"0\" max=\"9999999\" name=\"tray_start_num\" value=\"$tray_start_num\" style=\"width: 50px;\" />
+						<!--
 						<input type=\"radio\" name=\"tray_start_num\" value=\"0\" " . ( ($tray_start_num == 0) ? "checked" : null ) . " />0
 						<input type=\"radio\" name=\"tray_start_num\" value=\"1\" " . ( ($tray_start_num == 1) ? "checked" : null ) . " />1
+						-->
 					</p>
 					<blockquote class=\"inline_help\">
-						<p>Select to start counting from 0 or 1.</p>
+						<p>Start counting tray from the entered number.</p>
 					</blockquote>
 					<p style=\"text-align: center;\">
 						<input type=\"hidden\" name=\"groupid\" value=\"$gid\" />
