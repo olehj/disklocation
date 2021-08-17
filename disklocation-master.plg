@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2021.08.16">
+<!ENTITY version          "2021.08.17">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -47,6 +47,9 @@
 -->
 	
 <CHANGES>
+###2021.08.17
+ - Commit #163 - FEATURE: Added custom start number offset for trays other than 0 and 1. Also cleaned up the disk information tables a bit.
+
 ###2021.08.16
  - Commit #166 - BUG: Removed "prettyname" variable as it wasn't allowed with special characters. Might fix issues where some people didn't see Disk Location in the menus.
 
