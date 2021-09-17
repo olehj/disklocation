@@ -1,4 +1,5 @@
-//  Copyright 2019-2020, Ole-Henrik Jakobsen
+<?php header('Content-Type: text/javascript'); ?>
+//  Copyright 2019-2021, Ole-Henrik Jakobsen
 //
 //  This file is part of Disk Location for Unraid.
 //
@@ -15,6 +16,17 @@
 //  You should have received a copy of the GNU General Public License
 //  along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
 
+<?php
+	$path = filter_var($_GET["path"], FILTER_SANITIZE_URL);
+	
+	if(!file_exists($_SERVER['DOCUMENT_ROOT'] . $path . "/pages/locate.php")) {
+		die("<h1>Path: " . $_SERVER['DOCUMENT_ROOT'] . $path . "/pages/locate.php does not exist.</h1>");
+	}
+	else {
+		$path = $_GET["path"] . "/pages/locate.php";
+	}
+?>
+
 function locateStart(locateDisk){
 	if(locateDisk) {
 		//console.log("Locating started: " + locateDisk.id);
@@ -23,7 +35,7 @@ function locateStart(locateDisk){
 		locateDisk.value = "Stop";
 		locateDisk.style.backgroundColor = '#000000';
 		var diskpath = encodeURI(locateDisk.id);
-		$.get('<?php echo $_GET["path"] ?>/pages/locate.php',{ disklocation:diskpath, cmd:"start"},function(data) {
+		$.get('<?php echo $path ?>',{ disklocation:diskpath, cmd:"start"},function(data) {
 			// script is handled in the background, nothing to do here
 		});
 	}
@@ -36,7 +48,7 @@ function locateStop(locateDisk){
 	locateDisk.value = "Locate";
 	locateDisk.style.backgroundColor = '#FFFFFF';
 	var diskpath = encodeURI(locateDisk.id);
-	$.get('<?php echo $_GET["path"] ?>/pages/locate.php',{ disklocation:diskpath, cmd:"stop"},function(data) {
+	$.get('<?php echo $path ?>',{ disklocation:diskpath, cmd:"stop"},function(data) {
 		// script is handled in the background, nothing to do here
 	});
 }
@@ -52,7 +64,7 @@ function locateKillAll(locateDisk){
 		//console.log("Locating killed: " + y[i].id);
 	}
 	
-	$.get('<?php echo $_GET["path"] ?>/pages/locate.php',{ cmd:"killall"},function(data) {
+	$.get('<?php echo $path ?>',{ cmd:"killall"},function(data) {
 		// script is handled in the background, nothing to do here
 	});
 }
