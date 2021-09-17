@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2021.08.17">
+<!ENTITY version          "2021.09.17">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -47,6 +47,10 @@
 -->
 	
 <CHANGES>
+###2021.09.17
+ - Commit #172 - BUG: Javascript MIME type fixed (probably) for the locate script, some might have experienced the problem with Firefox.
+ - Commit #171 - SECURITY: Boring security update, fixed some SQL and javascript injection security issues.
+
 ###2021.08.17
  - Commit #163 - FEATURE: Added custom start number offset for trays other than 0 and 1. Also cleaned up the disk information tables a bit.
 
