@@ -244,6 +244,23 @@
 		}
 	}
 	
+	function find_device_ports() {
+		$path = "/dev/disk/by-path/";
+		
+		$scandisks = array_values(preg_grep("/part/", array_diff(scandir($path), array('..', '.')), PREG_GREP_INVERT));
+		
+		for($i=0; $i < count($scandisks); ++$i) {
+			$deviceports[str_replace("../../", "", readlink($path . $scandisks[$i]))] = $scandisks[$i];
+		}
+		
+		if($deviceports) {
+			return $deviceports;
+		}
+		else {
+			return false;
+		}
+	}
+	
 	function find_and_set_removed_devices_status($db, $arr_hash) {
 		$sql = "SELECT hash FROM disks WHERE status IS NOT 'd';";
 		$results = $db->query($sql);
@@ -313,9 +330,9 @@
 		$sql_status .= "
 			UPDATE disks SET
 				status = 'r'
-			WHERE hash = '" . $hash . "'
+			WHERE hash = '" . SQLite3::escapeString($hash) . "'
 			;
-			DELETE FROM location WHERE hash = '" . $hash . "';
+			DELETE FROM location WHERE hash = '" . SQLite3::escapeString($hash) . "';
 		";
 		
 		$ret = $db->exec($sql_status);
@@ -694,7 +711,7 @@
 		$sql = "
 			UPDATE disks SET
 				status = 'd'
-			WHERE hash = '" . $_POST["hash"] . "'
+			WHERE hash = '" . SQLite3::escapeString($_POST["hash"]) . "'
 			;
 		";
 		
@@ -721,7 +738,7 @@
 		$sql = "
 			UPDATE disks SET
 				status = 'h'
-			WHERE hash = '" . $_POST["hash"] . "'
+			WHERE hash = '" . SQLite3::escapeString($_POST["hash"]) . "'
 			;
 		";
 		
@@ -756,7 +773,7 @@
 	if(isset($_POST["group_del"])) {
 		$sql = "
 			DELETE FROM settings_group WHERE id = (SELECT MAX(id) FROM settings_group);
-			DELETE FROM location WHERE groupid = '" . $_POST["last_group_id"] . "';
+			DELETE FROM location WHERE groupid = '" . SQLite3::escapeString($_POST["last_group_id"]) . "';
 		";
 		
 		$ret = $db->exec($sql);
@@ -779,11 +796,13 @@
 		
 		// settings
 		if(!preg_match("/[0-9]{1,5}/", $_POST["smart_exec_delay"])) { $disklocation_error[] = "SMART execution delay missing or invalid number."; }
+		if(!preg_match("/(hourly|daily|weekly|monthly|disabled)/", $_POST["smart_updates"])) { $disklocation_error[] = "Invalid data for SMART updates."; }
 		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_parity"])) { $disklocation_error[] = "Background color for \"Parity\" invalid."; } else { $_POST["bgcolor_parity"] = str_replace("#", "", $_POST["bgcolor_parity"]); }
 		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_unraid"])) { $disklocation_error[] = "Background color for \"Data\" invalid."; } else { $_POST["bgcolor_unraid"] = str_replace("#", "", $_POST["bgcolor_unraid"]); }
 		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_cache"])) { $disklocation_error[] = "Background color for \"Cache\" invalid."; } else { $_POST["bgcolor_cache"] = str_replace("#", "", $_POST["bgcolor_cache"]); }
 		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_others"])) { $disklocation_error[] = "Background color for \"Unassigned devices\" invalid."; } else { $_POST["bgcolor_others"] = str_replace("#", "", $_POST["bgcolor_others"]); }
 		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_empty"])) { $disklocation_error[] = "Background color for \"Empty trays\" invalid."; } else { $_POST["bgcolor_empty"] = str_replace("#", "", $_POST["bgcolor_empty"]); }
+		if(!is_numeric($_POST["tray_reduction_factor"])) { $disklocation_error[] = "The size divider is not numeric."; }
 		if(!preg_match("/(u|m)/", $_POST["warranty_field"])) { $disklocation_error[] = "Warranty field is invalid."; }
 		if(!preg_match("/[0-9]{1,4}/", $_POST["dashboard_widget_pos"])) { $disklocation_error[] = "Dashboard widget position invalid."; }
 		
@@ -824,7 +843,7 @@
 						'" . $_POST["bgcolor_empty"] . "',
 						'" . $_POST["tray_reduction_factor"] . "',
 						'" . $_POST["warranty_field"] . "',
-						'" . $_POST["dashboard_widget"] . "',
+						'" . SQLite3::escapeString($_POST["dashboard_widget"]) . "',
 						'" . $_POST["dashboard_widget_pos"] . "',
 						'" . $post_info . "'
 					)
@@ -854,11 +873,12 @@
 		if(!preg_match("/[0-9]{1,7}/", $_POST["tray_start_num"])) { $disklocation_error[] = "Tray start number invalid."; }
 		if(!preg_match("/[0-9]{1,4}/", $_POST["tray_width"])) { $disklocation_error[] = "Tray's longest side outside limits or invalid number entered."; }
 		if(!preg_match("/[0-9]{1,3}/", $_POST["tray_height"])) { $disklocation_error[] = "Tray's smallest side outside limits or invalid number entered."; }
+		if(!preg_match("/[0-9]{1,}/", $_POST["groupid"])) { $disklocation_error[] = "Expected group ID to be an integer."; }
 		
 		if(empty($disklocation_error)) {
 			$sql .= "
 				UPDATE settings_group SET
-					group_name = '" . $_POST["group_name"] . "',
+					group_name = '" . SQLite3::escapeString($_POST["group_name"]) . "',
 					grid_count = '" . $_POST["grid_count"] . "',
 					grid_columns = '" . $_POST["grid_columns"] . "',
 					grid_rows = '" . $_POST["grid_rows"] . "',
@@ -868,7 +888,7 @@
 					tray_start_num = '" . $_POST["tray_start_num"] . "',
 					tray_width = '" . $_POST["tray_width"] . "',
 					tray_height = '" . $_POST["tray_height"] . "'
-				WHERE id = '" . $_POST["groupid"] . "';
+				WHERE id = '" . $_POST["groupid"] . "'
 				;
 			";
 			
@@ -956,19 +976,19 @@
 			for($i=0; $i < count($keys_drives); ++$i) {
 				$sql .= "
 					UPDATE disks SET
-						purchased = '" . $_POST["purchased"][$keys_drives[$i]] . "',
+						purchased = '" . SQLite3::escapeString($_POST["purchased"][$keys_drives[$i]]) . "',
 				";
 				if($_POST["current_warranty_field"] == "u") {
-					$sql .= "warranty = '" . $_POST["warranty"][$keys_drives[$i]] . "',";
+					$sql .= "warranty = '" . SQLite3::escapeString($_POST["warranty"][$keys_drives[$i]]) . "',";
 				}
 				else {
-					$sql .= "warranty_date = '" . $_POST["warranty_date"][$keys_drives[$i]] . "',";
+					$sql .= "warranty_date = '" . SQLite3::escapeString($_POST["warranty_date"][$keys_drives[$i]]) . "',";
 				}
 				$sql .= "
-						comment = '" . $_POST["comment"][$keys_drives[$i]] . "'
+						comment = '" . SQLite3::escapeString($_POST["comment"][$keys_drives[$i]]) . "'
 					";
-				if(!in_array(str_replace("#", "", $_POST["bgcolor_custom"][$keys_drives[$i]]), array($bgcolor_parity, $bgcolor_unraid, $bgcolor_cache, $bgcolor_others, $bgcolor_empty))) {
-					$sql .= ", color = '" . str_replace("#", "", $_POST["bgcolor_custom"][$keys_drives[$i]]) . "'";
+				if(!in_array(str_replace("#", "", SQLite3::escapeString($_POST["bgcolor_custom"][$keys_drives[$i]])), array($bgcolor_parity, $bgcolor_unraid, $bgcolor_cache, $bgcolor_others, $bgcolor_empty))) {
+					$sql .= ", color = '" . str_replace("#", "", SQLite3::escapeString($_POST["bgcolor_custom"][$keys_drives[$i]])) . "'";
 				}
 				else {
 					$sql .= ", color = ''";
