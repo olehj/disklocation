@@ -209,12 +209,52 @@
 			case 'blue-blink': $orb = 'square'; $color = 'grey'; $help = 'New device, in standby mode (spun-down)'; break;
 			case 'yellow-on': $orb = 'warning'; $color = 'yellow'; $help = $type =='Parity' ? 'Parity is invalid' : 'Device contents emulated'; break;
 			case 'yellow-blink': $orb = 'warning'; $color = 'grey'; $help = $type =='Parity' ? 'Parity is invalid, in standby mode (spun-down)' : 'Device contents emulated, in standby mode (spun-down)'; break;
-			case 'red-on': case 'red-blink': $orb = 'times'; $color = 'red'; $help = $type=='Parity' ? 'Parity device is disabled' : 'Device is disabled, contents emulated'; break;
+			case 'red-on': $orb = 'times'; $color = 'red'; $help = $type=='Parity' ? 'Parity device is disabled' : 'Device is disabled, contents emulated'; break;
+			case 'red-blink': $orb = 'times'; $color = 'red'; $help = $type=='Parity' ? 'Parity device is disabled' : 'Device is disabled, contents emulated'; break;
 			case 'red-off': $orb = 'times'; $color = 'red'; $help = $type =='Parity' ? 'Parity device is missing' : 'Device is missing (disabled), contents emulated'; break;
 			case 'grey-off': $orb = 'square'; $color = 'grey'; $help = 'Device not present'; break;
+			// ZFS values
+			case 'ONLINE': $orb = 'circle'; $color = 'green'; $help = 'Normal operation, device is online'; break;
+			case 'FAULTED': $orb = 'warning'; $color = 'yellow'; $help = 'Device has faulted'; break;
+			case 'DEGRADED': $orb = 'warning'; $color = 'yellow'; $help = 'Device is degraded'; break;
+			case 'UNAVAIL': $orb = 'times'; $color = 'red'; $help = 'Device is unavailable'; break;
+			case 'OFFLINE': $orb = 'times'; $color = 'red'; $help = 'Device is offline'; break;
 		}
 		
 		return ("<a class='info'><i class='fa fa-$orb orb $color-orb'></i><span>$help</span></a>");
+	}
+	
+	function zfs_check() {
+		if(is_file("/usr/sbin/zpool")) {
+			if(preg_match("/\bstate\b/i", shell_exec("/usr/sbin/zpool status"))) {
+				return 1;
+			}
+		}
+		else {
+			return 0;
+		}
+	}
+	
+	function zfs_parser($disk) {
+		if(zfs_check()) {
+			$zpool = shell_exec("/usr/sbin/zpool status");
+			
+			// Array $pool: 0 = null | 1 = pool | 2 = state | 3 = config | 4 = errors
+			$pool = preg_split("/(.*)\:/", $zpool);
+			$disks = explode("\n", $pool[3]); // using config (3)
+			
+			// Array $match: 0 = disk-by-id | 1 = state | 2 = read | 3 = write | 4 = cksum
+			for($i=0; $i < count($disks); ++$i) {
+				if(preg_match("/" . $disk . "/", $disks[$i])) {
+					$match = explode(":", preg_replace("/\s+/", ":", trim($disks[$i])));
+				}
+			}
+			
+			return $match;
+		}
+		else {
+			return false;
+		}
 	}
 	
 	function seconds_to_time($seconds, $array = '') {
