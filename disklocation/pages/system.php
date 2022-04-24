@@ -235,21 +235,37 @@
 		}
 	}
 	
-	function zfs_parser($disk) {
+	function zfs_parser() {
 		if(zfs_check()) {
-			$zpool = shell_exec("/usr/sbin/zpool status");
+			$str = shell_exec("/usr/sbin/zpool status");
 			
-			// Array $pool: 0 = null | 1 = pool | 2 = state | 3 = config | 4 = errors
-			$pool = preg_split("/(.*)\:/", $zpool);
-			$disks = explode("\n", $pool[3]); // using config (3)
+			$pattern = "/((pool|state|scan|errors): (.*)?\n|(config):[\s]+(.*)?\s\n)/Uis";
+			preg_match_all($pattern, $str, $matches, PREG_SET_ORDER);
 			
+			$result = array();
+
+			foreach($matches as $match) {
+				$length = count($match);
+				$result[$match[$length-2]] = $match[$length-1];
+			}
+			
+			return $result;
+		}
+		else {
+			return false;
+		}
+	}
+	
+	function zfs_disk($disk) {
+		if(zfs_check()) {
+			$zfs_config = zfs_parser();
+			$disks = explode("\n", $zfs_config["config"]);
 			// Array $match: 0 = disk-by-id | 1 = state | 2 = read | 3 = write | 4 = cksum
 			for($i=0; $i < count($disks); ++$i) {
 				if(preg_match("/" . $disk . "/", $disks[$i])) {
 					$match = explode(":", preg_replace("/\s+/", ":", trim($disks[$i])));
 				}
 			}
-			
 			return $match;
 		}
 		else {
