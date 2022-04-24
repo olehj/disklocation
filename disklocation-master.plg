@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2022.04.22">
+<!ENTITY version          "2022.04.25">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -47,6 +47,9 @@
 -->
 	
 <CHANGES>
+###2022.04.25
+- Commit #177b - BUG: Fixed an issue where the indicator for ZFS would fail.
+
 ###2022.04.22
  - Commit #177 - FEATURE: Added status indicator for ZFS drives.
 
