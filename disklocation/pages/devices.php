@@ -82,6 +82,7 @@
 		$i_empty=1;
 		$i_drive=1;
 		$i=1;
+		
 		while($i <= $total_trays) {
 			$data = $datasql[$i_drive-1];
 			
@@ -93,12 +94,13 @@
 				if($displayinfo["tray"] && !$displayinfo["hideemptycontents"]) {
 					if($tray_number_override[$tray_assign]) {
 						//$empty_tray = "<b>". $tray_number_override[$tray_assign] . "</b>" . $insert_break . "";
-						$empty_tray = ( empty($tray_number_override_start) ? --$tray_number_override[$tray_assign] : ($tray_number_override_start + $tray_number_override[$tray_assign] - 1));
+						$empty_tray = ( !isset($tray_number_override_start) ? --$tray_number_override[$tray_assign] : ($tray_number_override_start + $tray_number_override[$tray_assign] - 1));
 						$empty_tray_assign = $tray_number_override[$tray_assign];
 					}
+					
 					else {
-						$//empty_tray = "<b>" . $tray_assign . "</b>" . $insert_break . "";
-						$empty_tray = ( empty($tray_number_override_start) ? --$tray_assign : $tray_assign);
+						//empty_tray = "<b>" . $tray_assign . "</b>" . $insert_break . "";
+						$empty_tray = ( !isset($tray_number_override_start) ? --$tray_assign : $tray_number_override_start + $tray_assign -1);
 						$empty_tray_assign = $tray_assign;
 					}
 				}
@@ -226,13 +228,13 @@
 					$smart_serialnumber = ( isset($data["smart_serialnumber"]) ? "<span style=\"white-space: nowrap;\">(" . $data["smart_serialnumber"] . ")</span>" : null );
 				}
 				if($displayinfo["powerontime"]) {
-					$smart_powerontime = ( empty($data["smart_powerontime"]) ? null : "<span style=\"cursor: help;\" title=\"" . seconds_to_time($data["smart_powerontime"] * 60 * 60) . "\">" . $data["smart_powerontime"] . "h</span>" );
+					$smart_powerontime = ( !isset($data["smart_powerontime"]) ? null : "<span style=\"cursor: help;\" title=\"" . seconds_to_time($data["smart_powerontime"] * 60 * 60) . "\">" . $data["smart_powerontime"] . "h</span>" );
 				}
 				if($displayinfo["loadcyclecount"]) {
-					$smart_loadcycle = ( empty($data["smart_loadcycle"]) ? null : $data["smart_loadcycle"] . "c" );
+					$smart_loadcycle = ( !isset($data["smart_loadcycle"]) ? null : $data["smart_loadcycle"] . "c" );
 				}
 				if($displayinfo["capacity"]) {
-					$smart_capacity = ( empty($data["smart_capacity"]) ? null : human_filesize($data["smart_capacity"], 1, true) );
+					$smart_capacity = ( !isset($data["smart_capacity"]) ? null : human_filesize($data["smart_capacity"], 1, true) );
 				}
 				if($displayinfo["warranty"] && ($data["purchased"] && ($data["warranty"] || $data["warranty_date"]))) {
 					$warranty_start = strtotime($data["purchased"]);
@@ -256,7 +258,7 @@
 					}
 				}
 				if($displayinfo["comment"]) {
-					$device_comment = ( empty($data["comment"]) ? null : bscode2html(stripslashes(htmlspecialchars($data["comment"]))) );
+					$device_comment = ( !isset($data["comment"]) ? null : bscode2html(stripslashes(htmlspecialchars($data["comment"]))) );
 				}
 				if($displayinfo["temperature"]) {
 					if($data["smart_temperature"]) {
@@ -375,19 +377,19 @@
 				}
 				
 				$drive_tray_order[$hash] = get_tray_location($db, $hash, $gid);
-				$drive_tray_order[$hash] = ( empty($drive_tray_order[$hash]) ? $tray_assign : $drive_tray_order[$hash] );
+				$drive_tray_order[$hash] = ( !isset($drive_tray_order[$hash]) ? $tray_assign : $drive_tray_order[$hash] );
 				if($displayinfo["tray"]) {
 					if($tray_number_override[$drive_tray_order[$hash]]) {
 						//$add_traynumber = "<b>" . $tray_number_override[$drive_tray_order[$hash]] . "</b>" . $insert_break . "";
 						//$add_traynumber = ( empty($tray_number_override_start) ? "<b>" . --$tray_number_override[$drive_tray_order[$hash]] . "</b>" . $insert_break . "" : "<b>" . ($tray_number_override_start + $tray_number_override[$drive_tray_order[$hash]] - 1) . "</b>" . $insert_break . "");
 						$drive_tray_order_assign = $tray_number_override[$drive_tray_order[$hash]];
-						$physical_traynumber = ( empty($tray_number_override_start) ? --$tray_number_override[$drive_tray_order[$hash]] : ($tray_number_override_start + $tray_number_override[$drive_tray_order[$hash]] - 1));
+						$physical_traynumber = ( !isset($tray_number_override_start) ? --$tray_number_override[$drive_tray_order[$hash]] : ($tray_number_override_start + $tray_number_override[$drive_tray_order[$hash]] - 1));
 					}
 					else {
 						//$add_traynumber = "<b>" . $drive_tray_order[$hash] . "</b>" . $insert_break . "";
 						//$add_traynumber = ( empty($tray_number_override_start) ? "<b>" . --$drive_tray_order[$hash] . "</b>" . $insert_break . "" : "<b>" . $drive_tray_order[$hash] . "</b>" . $insert_break . "");
 						$drive_tray_order_assign = $drive_tray_order[$hash];
-						$physical_traynumber = ( empty($tray_number_override_start) ? --$drive_tray_order[$hash] : $drive_tray_order[$hash]);
+						$physical_traynumber = ( !isset($tray_number_override_start) ? --$drive_tray_order[$hash] : $drive_tray_order[$hash]);
 					}
 				}
 				
