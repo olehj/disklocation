@@ -1166,15 +1166,30 @@
 					$smart_array = json_decode($smart_cmd[$i], true);
 					debug_print($debugging_active, __LINE__, "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "=" . ( is_array($smart_array) ? "array" : "empty" ) . "");
 					
-					$smart_i=0;
-					$smart_loadcycle_find = "";
-					if(is_array($smart_array["ata_smart_attributes"]["table"])) {
-						while($smart_i < count($smart_array["ata_smart_attributes"]["table"])) {
-							if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Load_Cycle_Count") {
-								$smart_loadcycle_find = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"];
-								$smart_i = count($smart_array["ata_smart_attributes"]["table"]);
+					if($smart_array["protocol"] == "SCSI") {
+						$smart_lun = $smart_array["logical_unit_id"];
+						$smart_model_family = $smart_array["scsi_product"];
+						$smart_model_name = $smart_array["scsi_model_name"];
+						
+						if(is_array($smart_array["accumulated_load_unload_cycles"])) {
+							$smart_loadcycle_find = $smart_array["accumulated_load_unload_cycles"];
+						}
+					}
+					else {
+						$smart_lun = "" . $smart_array["wwn"]["naa"] . " " . $smart_array["wwn"]["oui"] . " " . $smart_array["wwn"]["id"] . "";
+						$smart_model_family = $smart_array["model_family"];
+						$smart_model_name = $smart_array["model_name"];
+						
+						$smart_i=0;
+						$smart_loadcycle_find = "";
+						if(is_array($smart_array["ata_smart_attributes"]["table"])) {
+							while($smart_i < count($smart_array["ata_smart_attributes"]["table"])) {
+								if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Load_Cycle_Count") {
+									$smart_loadcycle_find = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"];
+									$smart_i = count($smart_array["ata_smart_attributes"]["table"]);
+								}
+								$smart_i++;
 							}
-							$smart_i++;
 						}
 					}
 					
@@ -1185,13 +1200,13 @@
 							$smart_array["rotation_rate"] = -2;
 						}
 					}
-					$deviceid[$i] = hash('sha256', $smart_array["model_name"] . $smart_array["serial_number"]);
+					$deviceid[$i] = hash('sha256', $smart_model_name . $smart_array["serial_number"]);
 					
 					debug_print($debugging_active, __LINE__, "HASH", "#:" . $i . ":" . $deviceid[$i] . "");
 					
 					find_and_unset_reinserted_devices_status($db, $deviceid[$i]);	// tags old existing devices with 'null', delete device from location just in case it for whatever reason it already exists.
 					
-					if($smart_array["serial_number"] && $smart_array["model_name"]) {
+					if($smart_array["serial_number"] && $smart_model_name) {
 						$sql = "
 							INSERT INTO
 								disks(
@@ -1214,9 +1229,9 @@
 								VALUES(
 									'" . $lsscsi_device[$i] . "',
 									'" . $lsscsi_devicenode[$i] . "',
-									'" . $smart_array["wwn"]["naa"] . " " . $smart_array["wwn"]["oui"] . " " . $smart_array["wwn"]["id"] . "',
-									'" . $smart_array["model_family"] . "',
-									'" . $smart_array["model_name"] . "',
+									'" . $smart_lun . "',
+									'" . $smart_model_family . "',
+									'" . $smart_model_name . "',
 									'" . $smart_array["smart_status"]["passed"] . "',
 									'" . $smart_array["serial_number"] . "',
 									'" . $smart_array["temperature"]["current"] . "',
@@ -1231,8 +1246,8 @@
 								ON CONFLICT(hash) DO UPDATE SET
 									device='" . $lsscsi_device[$i] . "',
 									devicenode='" . $lsscsi_devicenode[$i] . "',
-									luname='" . $smart_array["wwn"]["naa"] . " " . $smart_array["wwn"]["oui"] . " " . $smart_array["wwn"]["id"] . "',
-									model_family='" . $smart_array["model_family"] . "',
+									luname='" . $smart_lun . "',
+									model_family='" . $smart_model_family . "',
 									smart_status='" . $smart_array["smart_status"]["passed"] . "',
 									smart_temperature='" . $smart_array["temperature"]["current"] . "',
 									smart_powerontime='" . $smart_array["power_on_time"]["hours"] . "',
@@ -1241,11 +1256,11 @@
 								WHERE hash='" . $deviceid[$i] . "';
 						";
 						
-						if(is_array($unraid_disklog["" . str_replace(" ", "_", $smart_array["model_name"]) . "_" . str_replace(" ", "_", $smart_array["serial_number"]) . ""])) {
+						if(is_array($unraid_disklog["" . str_replace(" ", "_", $smart_model_name) . "_" . str_replace(" ", "_", $smart_array["serial_number"]) . ""])) {
 							$sql .= "
 								UPDATE disks SET
-									purchased='" . $unraid_disklog["" . str_replace(" ", "_", $smart_array["model_name"]) . "_" . str_replace(" ", "_", $smart_array["serial_number"]) . ""]["purchase"] . "',
-									warranty='" . $unraid_disklog["" . str_replace(" ", "_", $smart_array["model_name"]) . "_" . str_replace(" ", "_", $smart_array["serial_number"]) . ""]["warranty"] . "'
+									purchased='" . $unraid_disklog["" . str_replace(" ", "_", $smart_model_name) . "_" . str_replace(" ", "_", $smart_array["serial_number"]) . ""]["purchase"] . "',
+									warranty='" . $unraid_disklog["" . str_replace(" ", "_", $smart_model_name) . "_" . str_replace(" ", "_", $smart_array["serial_number"]) . ""]["warranty"] . "'
 								WHERE hash = '" . $deviceid[$i] . "'
 								;
 							";
