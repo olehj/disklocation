@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2022.05.03">
+<!ENTITY version          "2022.06.05">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,8 +45,10 @@
     along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
 
 -->
-	
 <CHANGES>
+###2022.06.05
+ - Commit #182 - BUG: With SCSI enclosures, SMART data behaves slightly different and ignores the drives as the plugin couldn't find them. Added new variables required to detect disks in enclosures.
+
 ###2022.05.03
  - Commit #180 - BUG: Wrong numbering in the layout if using tray override - and please don't use override, just add another group. Count assignment still bugged if not using default, but won't affect assigned drives.
 
