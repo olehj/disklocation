@@ -1155,7 +1155,7 @@
 			if($lsscsi_device[$i] && $lsscsi_devicenodesg[$i]) {
 				//debug_print($debugging_active, __LINE__, "loop", "Scanning " . $lsscsi_type[$i] . ": " . $lsscsi_device[$i] . " LUN: " . $lsscsi_luname[$i] . " Node: " . $lsscsi_devicenodesg[$i] . "");
 				debug_print($debugging_active, __LINE__, "loop", "Scanning: " . $lsscsi_device[$i] . " Node: " . $lsscsi_devicenodesg[$i] . "");
-				$smart_check_operation = shell_exec("smartctl -n standby $lsscsi_devicenodesg[$i] | egrep 'ACTIVE|IDLE'");
+				$smart_check_operation = shell_exec("smartctl -n standby $lsscsi_devicenodesg[$i] | egrep 'ACTIVE|IDLE|NVMe'");
 				usleep($smart_exec_delay . 000); // delay script to get the output of the next shell_exec()
 				
 				if(!empty($smart_check_operation) || $force_scan) { // only get SMART data if the disk is spinning, if it is a new install/empty database, or if scan is forced.
@@ -1166,7 +1166,7 @@
 					$smart_array = json_decode($smart_cmd[$i], true);
 					debug_print($debugging_active, __LINE__, "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "=" . ( is_array($smart_array) ? "array" : "empty" ) . "");
 					
-					if($smart_array["protocol"] == "SCSI") {
+					if($smart_array["device"]["protocol"] == "SCSI") {
 						$smart_lun = $smart_array["logical_unit_id"];
 						$smart_model_family = $smart_array["scsi_product"];
 						$smart_model_name = $smart_array["scsi_model_name"];
@@ -1174,6 +1174,8 @@
 						if(is_array($smart_array["accumulated_load_unload_cycles"])) {
 							$smart_loadcycle_find = $smart_array["accumulated_load_unload_cycles"];
 						}
+						
+						debug_print($debugging_active, __LINE__, "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "|PROTOCOL=SCSI");
 					}
 					else {
 						$smart_lun = "" . $smart_array["wwn"]["naa"] . " " . $smart_array["wwn"]["oui"] . " " . $smart_array["wwn"]["id"] . "";
@@ -1191,6 +1193,8 @@
 								$smart_i++;
 							}
 						}
+						
+						debug_print($debugging_active, __LINE__, "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "|PROTOCOL=" . $smart_array["device"]["protocol"] . "");
 					}
 					
 					// Only check for SSD if rotation_rate doesn't exists.
