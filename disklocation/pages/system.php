@@ -1155,7 +1155,7 @@
 			if($lsscsi_device[$i] && $lsscsi_devicenodesg[$i]) {
 				//debug_print($debugging_active, __LINE__, "loop", "Scanning " . $lsscsi_type[$i] . ": " . $lsscsi_device[$i] . " LUN: " . $lsscsi_luname[$i] . " Node: " . $lsscsi_devicenodesg[$i] . "");
 				debug_print($debugging_active, __LINE__, "loop", "Scanning: " . $lsscsi_device[$i] . " Node: " . $lsscsi_devicenodesg[$i] . "");
-				$smart_check_operation = shell_exec("smartctl -n standby $lsscsi_devicenodesg[$i] | egrep 'ACTIVE|IDLE'");
+				$smart_check_operation = shell_exec("smartctl -n standby $lsscsi_devicenodesg[$i] | egrep 'ACTIVE|IDLE|NVMe'");
 				usleep($smart_exec_delay . 000); // delay script to get the output of the next shell_exec()
 				
 				if(!empty($smart_check_operation) || $force_scan) { // only get SMART data if the disk is spinning, if it is a new install/empty database, or if scan is forced.
@@ -1194,7 +1194,7 @@
 							}
 						}
 						
-						debug_print($debugging_active, __LINE__, "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "|PROTOCOL=ATA");
+						debug_print($debugging_active, __LINE__, "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "|PROTOCOL=" . $smart_array["device"]["protocol"] . "");
 					}
 					
 					// Only check for SSD if rotation_rate doesn't exists.
