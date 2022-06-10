@@ -1167,9 +1167,9 @@
 					debug_print($debugging_active, __LINE__, "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "=" . ( is_array($smart_array) ? "array" : "empty" ) . "");
 					
 					if($smart_array["device"]["protocol"] == "SCSI") {
-						$smart_lun = $smart_array["logical_unit_id"];
-						$smart_model_family = $smart_array["scsi_product"];
-						$smart_model_name = $smart_array["scsi_model_name"];
+						$smart_lun = ( $smart_array["logical_unit_id"] ? $smart_array["logical_unit_id"] : null );
+						$smart_model_family = ( $smart_array["scsi_product"] ? $smart_array["scsi_product"] : $smart_array["product"] );
+						$smart_model_name = ( $smart_array["scsi_model_name"] ? $smart_array["scsi_model_name"] : $smart_array["model_name"] );
 						
 						if(is_array($smart_array["accumulated_load_unload_cycles"])) {
 							$smart_loadcycle_find = $smart_array["accumulated_load_unload_cycles"];
