@@ -228,13 +228,13 @@
 					$smart_serialnumber = ( isset($data["smart_serialnumber"]) ? "<span style=\"white-space: nowrap;\">(" . $data["smart_serialnumber"] . ")</span>" : null );
 				}
 				if($displayinfo["powerontime"]) {
-					$smart_powerontime = ( !isset($data["smart_powerontime"]) ? null : "<span style=\"cursor: help;\" title=\"" . seconds_to_time($data["smart_powerontime"] * 60 * 60) . "\">" . $data["smart_powerontime"] . "h</span>" );
+					$smart_powerontime = ( !is_numeric($data["smart_powerontime"]) ? null : "<span style=\"cursor: help;\" title=\"" . seconds_to_time($data["smart_powerontime"] * 60 * 60) . "\">" . $data["smart_powerontime"] . "h</span>" );
 				}
 				if($displayinfo["loadcyclecount"]) {
-					$smart_loadcycle = ( !isset($data["smart_loadcycle"]) ? null : $data["smart_loadcycle"] . "c" );
+					$smart_loadcycle = ( !is_numeric($data["smart_loadcycle"]) ? null : $data["smart_loadcycle"] . "c" );
 				}
 				if($displayinfo["capacity"]) {
-					$smart_capacity = ( !isset($data["smart_capacity"]) ? null : human_filesize($data["smart_capacity"], 1, true) );
+					$smart_capacity = ( !is_numeric($data["smart_capacity"]) ? null : human_filesize($data["smart_capacity"], 1, true) );
 				}
 				if($displayinfo["warranty"] && ($data["purchased"] && ($data["warranty"] || $data["warranty_date"]))) {
 					$warranty_start = strtotime($data["purchased"]);
