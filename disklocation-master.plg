@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2022.06.10">
+<!ENTITY version          "2022.06.18">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -46,8 +46,11 @@
 
 -->
 <CHANGES>
+###2022.06.18
+ - Commit #187 - BUG: Posted warnings about non numeric values, fixed by looking for "is_numeric" instead of "isset"
+
 ###2022.06.10
- - Commit #185 - BUG: json output of smartctl varies between SCSI protocols, checking for multiple variables instead.
+ - Commit #185 - BUG: JSON output of smartctl varies between SCSI protocols, checking for multiple variables instead.
 
 ###2022.06.07
  - Commit #182 - BUG: Picked up wrong array from SMART data, Commit #182 should work now (hopefully). Added additional debugging lines and made NVMe drives be ignored from the standby check during scanning.
