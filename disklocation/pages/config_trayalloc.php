@@ -73,8 +73,9 @@
 		}
 		
 		$warr_input = "";
+		$warr_options = "";
+		
 		if($warranty_field == "u") {
-			$warr_options = "";
 			for($warr_i = 6; $warr_i <= (6*10); $warr_i+=6) {
 				if($data["warranty"] == $warr_i) { $selected="selected"; } else { $selected=""; }
 				$warr_options .= "<option value=\"$warr_i\" " . $selected . " style=\"text-align: right;\">$warr_i months</option>";
@@ -118,6 +119,8 @@
 	$sql = "SELECT * FROM disks WHERE status = 'h' ORDER BY ID ASC;";
 	
 	$results = $db->query($sql);
+	
+	$print_add_drives = "";
 	
 	while($data = $results->fetchArray(1)) {
 		$tray_options = "";
