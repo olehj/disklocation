@@ -46,6 +46,9 @@
 
 -->
 <CHANGES>
+###2023.??.??
+ - Commit #??? - IMPROVEMENT: Prepared for Unraid 6.12
+
 ###2022.06.18
  - Commit #187 - BUG: Posted warnings about non numeric values, fixed by looking for "is_numeric" instead of "isset"
 
