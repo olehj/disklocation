@@ -1,6 +1,5 @@
-Menu="Dashboard"
-Icon="server"
-Tag="server"
+Menu="Dashboard:0"
+Cond="version_compare(parse_ini_file('/etc/unraid-version')['version'],'6.11.9','>')"
 ---
 <?php
 	/*
@@ -22,6 +21,9 @@ Tag="server"
 	 *  along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
 	 *
 	 */
+	
+	$pluginname = "Disk Location";
+	
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/system.php");
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/devices.php");
 	
@@ -57,57 +59,17 @@ Tag="server"
 		$installed_drives = 0;
 	}
 	
-	if($dashboard_widget_pos == 1) {
-		$dashboard_widget_colspan = 3;
-	}
-	if($dashboard_widget_pos == 2) {
-		$dashboard_widget_colspan = 5;
-	}
+	print("<style type=\"text/css\">");
+	require_once("/usr/local/emhttp/plugins/disklocation/pages/styles/disk.css.php");
+	require_once("/usr/local/emhttp/plugins/disklocation/pages/styles/signals.css");
+	print("</style>");
+
+$mytiles[$pluginname]['column1'] =
+<<<EOT
+<tbody title="_(Disk Location)_">
+<tr><td>_(Disk Location)_<a href="/Dashboard/Settings/disklocationConfig" title="_(Go to Disk Location configuration)_"><i class="fa fa-fw fa-cog control"></i></a></td></tr>
+<tr><td>$installed_drives of $total_trays_group drives assigned.</td></tr>
+<tr><td>$disklocation_dash_out</td></tr>
+</tbody>
+EOT;
 ?>
-
-<style type="text/css">
-	.dash_disklocation_toggle{display:none}
-</style>
-
-<table id="db-box<?php echo $dashboard_widget_pos ?>" class="dash_disklocation dashboard box<?php echo $dashboard_widget_pos ?>" style="display:none">
-	<thead sort="10" class="sortable">
-		<tr>
-			<td></td>
-			<td class="next" colspan="<?php echo $dashboard_widget_colspan ?>" style="white-space: no-wrap;">Disk Location
-				<i class="fa fa-fw chevron mt0" id="dash_disklocation_toggle" onclick="toggleChevron('dash_disklocation_toggle',0)"></i>
-				<a href="/Settings/disklocationConfig" title="Go to Disk Location Configuration page"><i class="fa fa-fw fa-cog chevron mt0"></i></a>
-				<a href="/Tools/disklocation" title="Go to Disk Location page"><i class="fa fa-fw fa-server chevron mt0"></i></a>
-				<span class="info"><?php print($installed_drives); ?> of <?php print($total_trays_group); ?> drives assigned. <?php //print($dashboard_info); ?></span>
-			</td>
-			<td></td>
-		</tr>
-	</thead>
-	<tbody class="dash_disklocation_toggle sortable" sort="10">
-		<tr>
-			<td></td>
-			<td colspan="<?php echo $dashboard_widget_colspan ?>" class="top" style="vertical-align: top;">
-				<style type="text/css">
-					<?php require_once("/usr/local/emhttp/plugins/disklocation/pages/styles/disk.css.php"); ?>
-				</style>
-				<link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/signals.css")?>">
-				<?php print($disklocation_dash_out); ?>
-			</td>
-			<td></td>
-		</tr>
-	</tbody>
-</table>
-
-<script>
-$(function() {
-  // append data from the table into the correct one
-  $("#db-box<?php echo $dashboard_widget_pos ?>").append($(".dash_disklocation").html());
-  
-  // reload toggle to get the correct state
-  toggleView('dash_disklocation_toggle',true);
-  
-  // reload sorting to get the stored data (cookie)
-  sortTable($('#db-box1'),$.cookie('db-box1'));
-  sortTable($('#db-box2'),$.cookie('db-box2'));
-  sortTable($('#db-box3'),$.cookie('db-box3'));
-});
-</script>
