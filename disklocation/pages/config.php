@@ -242,18 +242,12 @@ $(function(){
 					Select how you want to enter the warranty date: the Unraid way of selecting amount of months, or manual ISO date for specific dates. Both values can be stored, but only one can be visible at a time.
 				</blockquote>
 				<p>
-					<b>Dashboard plugin position:</b><br />
+					<b>Dashboard plugin:</b><br />
 					<input type="radio" name="dashboard_widget_pos" value="0" <?php if(!$dashboard_widget_pos) echo "checked"; ?> />Off
-					<input type="radio" name="dashboard_widget_pos" value="1" <?php if($dashboard_widget_pos == 1) echo "checked"; ?> />Hardware
-					<input type="radio" name="dashboard_widget_pos" value="2" <?php if($dashboard_widget_pos == 2) echo "checked"; ?> />Disk arrays
+					<input type="radio" name="dashboard_widget_pos" value="1" <?php if($dashboard_widget_pos == 1) echo "checked"; ?> />On
 				</p>
 				<blockquote class='inline_help'>
 					Choose if you want to display this plugin in the Unraid Dashboard, "Enable" or "Disable"<br />
-					Enter a number in the location box to decide where to put the dashboard widget, this is a bit experimental.
-					Enter 0 and it will position itself automatically, usually at the bottom. Enter a number, like 10, and it will stay at the top of the page. 
-					If the number you wrote has the same number as another plugin, it will stay above or underneath it, so change the number and try again.
-					This feature is rather experimental and the behaviour might be unexpected, there's no real documentation for creating dashboard widgets with current Unraid Dashboard design.
-					And the positioning isn't easy to customize by just adding it into the page.
 				</blockquote>
 			</td>
 			<td style="padding-left: 25px; vertical-align: top;">
