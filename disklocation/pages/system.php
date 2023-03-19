@@ -33,7 +33,7 @@
 	define("DISKLOGFILE", "/boot/config/disk.log");
 	define("DISKLOCATION_VERSION", $get_page_info["Version"]);
 	define("DISKLOCATION_URL", "/Tools/disklocation");
-	define("DISKLOCATIONCONF_URL", "/Settings/disklocationConfig");
+	define("DISKLOCATIONCONF_URL", "/Tools/disklocation");
 	define("DISKLOCATION_PATH", "/plugins/disklocation");
 	define("EMHTTP_ROOT", "/usr/local/emhttp");
 	

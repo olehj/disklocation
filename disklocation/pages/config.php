@@ -142,18 +142,6 @@
 	$smart_updates = cronjob_timer();
 	$plugin_update_scan = update_scan_toggle(0, 1);
 ?>
-<script>
-$(function(){
-	// append tab
-	$('.tabs')
-		.append('<div class="tab"><input type="radio" name="tabs2" id="tab5"><label for="tab5"><i class="icon fa fa-server"></i>Devices</label></div>');
-
-	$('#tab5').click(function() {
-		$.cookie('one', 'tab1', { expires:null, path: '/'});
-		location = '/Tools/disklocation';
-	});
-});
-</script>
 <datalist id="disklocationColorsDef">
 	<option>#<?php echo $bgcolor_parity ?></option>
 	<option>#<?php echo $bgcolor_unraid ?></option>
@@ -238,6 +226,7 @@ $(function(){
 					<input type="radio" name="warranty_field" value="u" <?php if($warranty_field == "u") echo "checked"; ?> />Unraid
 					<input type="radio" name="warranty_field" value="m" <?php if($warranty_field == "m") echo "checked"; ?>/>Manual ISO
 				</p>
+				<!--
 				<blockquote class='inline_help'>
 					Select how you want to enter the warranty date: the Unraid way of selecting amount of months, or manual ISO date for specific dates. Both values can be stored, but only one can be visible at a time.
 				</blockquote>
@@ -249,6 +238,8 @@ $(function(){
 				<blockquote class='inline_help'>
 					Choose if you want to display this plugin in the Unraid Dashboard, "Enable" or "Disable"<br />
 				</blockquote>
+				-->
+				<input type="hidden" name="dashboard_widget_pos" value="1" /> <!-- new Dashboard system, just leaving this to enabled by default -->
 			</td>
 			<td style="padding-left: 25px; vertical-align: top;">
 				<h2>Updates</h2>
