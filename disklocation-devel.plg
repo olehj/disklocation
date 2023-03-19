@@ -2,9 +2,9 @@
 
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
-<!ENTITY prettyname        "Disk Location">
+<!ENTITY prettyname       "Disk Location">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2023.03.19g-dev">
+<!ENTITY version          "2023.03.19h-dev">
 <!ENTITY launch           "Tools/&branch;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
