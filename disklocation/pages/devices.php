@@ -226,6 +226,7 @@
 				$device_comment = "";
 				$smart_rotation = "";
 				$smart_formfactor = "";
+				$smart_temperature = 0;
 				
 				if(isset($displayinfo["path"])) {
 					$device_page = $device;
@@ -429,6 +430,8 @@
 				}
 				
 				$deviceid = hash('sha256', $data["model_name"] . $data["smart_serialnumber"]);
+				
+				$color_array[$deviceid] = "";
 				
 				switch(strtolower($unraid_array[$devicenode]["type"] ?? null)) {
 					case "parity":
