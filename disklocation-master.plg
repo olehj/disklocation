@@ -5,7 +5,7 @@
 <!ENTITY prettyame        "Disk Location">
 <!ENTITY author           "Ole-Henrik Jakobsen">
 <!ENTITY version          "2023.00.00">
-<!ENTITY launch           "Tools/disclocation">
+<!ENTITY launch           "Tools/&branch;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
 <!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/&branch;/&name;-&branch;.plg">
@@ -21,9 +21,9 @@
          version="&version;"
          launch="&launch;"
          pluginURL="&pluginURL;"
-	 icon="server"
-	 min="6.11.9"
-	 support="&pluginsupportURL;"
+         icon="server"
+         min="6.11.9"
+         support="&pluginsupportURL;"
 >
 
 <!--
