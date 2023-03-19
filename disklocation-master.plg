@@ -3,8 +3,8 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2022.06.18">
-<!ENTITY launch           "Tools/&name;">
+<!ENTITY version          "2023.00.00">
+<!ENTITY launch           "Tools/Disk Location">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
 <!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/&branch;/&name;-&branch;.plg">
@@ -21,13 +21,13 @@
          launch="&launch;"
          pluginURL="&pluginURL;"
 	 icon="server"
-	 min="6.9.0"
+	 min="6.11.9"
 	 support="&pluginsupportURL;"
 >
 
 <!--
 
-    Copyright 2019-2021, Ole-Henrik Jakobsen
+    Copyright 2019-2023, Ole-Henrik Jakobsen
 
     This file is part of Disk Location for Unraid.
 
@@ -47,7 +47,7 @@
 -->
 <CHANGES>
 ###2023.??.??
- - Commit #??? - IMPROVEMENT: Prepared for Unraid 6.12
+ - Commit #??? - IMPROVEMENT: Prepared for Unraid 6.12 and above. Breaks Dashboard compatibility with earlier Unraid versions.
 
 ###2022.06.18
  - Commit #187 - BUG: Posted warnings about non numeric values, fixed by looking for "is_numeric" instead of "isset"
