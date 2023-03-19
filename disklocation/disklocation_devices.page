@@ -5,7 +5,7 @@ Title="Devices"
 ---
 <?php
 	/*
-	 *  Copyright 2019-2020, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2023, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -25,6 +25,8 @@ Title="Devices"
 	 */
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/system.php");
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/devices.php");
+	
+	$disklocation_page_out = "";
 	
 	$sql = "SELECT * FROM settings_group ORDER BY id ASC";
 	$results = $db->query($sql);

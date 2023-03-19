@@ -4,7 +4,7 @@ Tag="server"
 ---
 <?php
 	/*
-	 *  Copyright 2019-2020, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2023, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -27,6 +27,8 @@ Tag="server"
 	
 	$sql = "SELECT * FROM settings_group ORDER BY id ASC";
 	$results = $db->query($sql);
+	
+	$disklocation_dash_out = "";
 	
 	while($data = $results->fetchArray(1)) {
 		extract($data);
