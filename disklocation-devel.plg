@@ -2,9 +2,10 @@
 
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
+<!ENTITY prettyame        "Disk Location">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2023.03.19d-dev">
-<!ENTITY launch           "Tools/Disk Location">
+<!ENTITY version          "2023.03.19e-dev">
+<!ENTITY launch           "Tools/disklocation">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
 <!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/&branch;/&name;-&branch;.plg">
@@ -15,7 +16,7 @@
 <!ENTITY pluginsupportURL "https://forums.unraid.net/topic/77302-plugin-disk-location/">
 ]>
 
-<PLUGIN  name="&name;"
+<PLUGIN  name="&prettyname;"
          author="&author;"
          version="&version;"
          launch="&launch;"
