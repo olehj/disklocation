@@ -24,7 +24,10 @@
 	// Set warning level
 	error_reporting(E_ERROR | E_WARNING | E_PARSE);
 	
+	$get_page_info = array();
+	$get_page_info["Version"] = "";
 	$get_page_info = parse_ini_file("/usr/local/emhttp/plugins/disklocation/disklocation.page");
+	
 	
 	// define constants
 	define("UNRAID_CONFIG_PATH", "/boot/config");
@@ -684,6 +687,7 @@
 	
 	function cronjob_timer($time = "") {
 		$curpath = "";
+		$curtime = "disabled";
 		$path = "/etc/cron.";
 		$filename = "disklocation.sh";
 		$md5sum = "be076c2fc24b9be95dede402a17fd4b4";
@@ -729,10 +733,6 @@
 			copy(EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/disklocation.cron", $path . "" . $time . "/" . $filename);
 			chmod($path . "" . $time . "/" . $filename, 0777);
 			$curtime = $time;
-		}
-		
-		if(!$curtime) {
-			$curtime = "disabled";
 		}
 		
 		return ( $curtime ? $curtime : $time );
@@ -1101,7 +1101,7 @@
 	}
 	
 	if($force_scan || in_array("cronjob", $argv)) {
-		if($_GET["force_smart_scan"]) {
+		if(isset($_GET["force_smart_scan"])) {
 			print("
 				<!DOCTYPE HTML>
 				<html>
@@ -1317,7 +1317,7 @@
 			find_and_set_removed_devices_status($db, $deviceid); 		// tags removed devices 'r', delete device from location
 		}
 		
-		if($_GET["force_smart_scan"]) {
+		if(isset($_GET["force_smart_scan"])) {
 			print("
 				</p>
 				<p>
