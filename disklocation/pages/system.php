@@ -79,7 +79,7 @@
 		set_time_limit(600); // set to 10 minutes.
 	}
 	
-	function debug_print($line, $section, $message, $act = 0) {
+	function debug_print($act, $line, $section, $message) {
 		if($act == 1 && $section && $message) {
 			// write out directly and flush out the results asap
 			$out = "<span style=\"color: red;\">[" . date("His") . "] <b>" . basename(__FILE__) . ":<i>" . $line . "</i></b> @ " . $section . ": " . $message . "</span><br />\n";
@@ -747,16 +747,24 @@
 		$pattern_devnode = "((\/dev\/((h|s)d[a-z]{1,}|nvme[0-9]{1,})(n[0-9]{1,})?))\s+";	// $2
 		$pattern_scsigendevnode = "(-|(\/dev\/(sg)[0-9]{1,}))";					// $7
 		
-		list($device, $devnode, $scsigendevnode) = 
-			explode("|", preg_replace("/" . $pattern_device . "" . $pattern_devnode . "" . $pattern_scsigendevnode . "/iu", "$1|$2|$7", $input));
+		if($input) {
+			list($device, $devnode, $scsigendevnode) = explode("|", preg_replace("/" . $pattern_device . "" . $pattern_devnode . "" . $pattern_scsigendevnode . "/iu", "$1|$2|$7", $input));
 		
-		$scsigendevnode = ( strstr($scsigendevnode, "-") ? $devnode : $scsigendevnode ); // script uses SG for most things, so we add nvme into it as well.
-		
-		return array(
-			"device"	=> trim($device) ?? null,
-			"devnode"	=> str_replace("-", "", trim($devnode)) ?? null,
-			"sgnode"	=> trim($scsigendevnode) ?? null
-		);
+			$scsigendevnode = ( strstr($scsigendevnode, "-") ? $devnode : $scsigendevnode ); // script uses SG for most things, so we add nvme into it as well.
+			
+			return array(
+				'device'	=> (trim($device) ?? null),
+				'devnode'	=> (str_replace("-", "", trim($devnode)) ?? null),
+				'sgnode'	=> (trim($scsigendevnode) ?? null)
+			);
+		}
+		else {
+			return array(
+				'device'	=> '',
+				'devnode'	=> '',
+				'sgnode'	=> ''
+			);
+		}
 	}
 	
 	function get_smart_rotation($input) {
