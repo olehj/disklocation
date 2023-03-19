@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2021, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2023, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -75,7 +75,7 @@
 		$warr_input = "";
 		if($warranty_field == "u") {
 			$warr_options = "";
-			for($warr_i = 12; $warr_i <= (12*5); $warr_i+=12) {
+			for($warr_i = 6; $warr_i <= (6*10); $warr_i+=6) {
 				if($data["warranty"] == $warr_i) { $selected="selected"; } else { $selected=""; }
 				$warr_options .= "<option value=\"$warr_i\" " . $selected . " style=\"text-align: right;\">$warr_i months</option>";
 			}
@@ -180,6 +180,8 @@
 	$sql = "SELECT * FROM settings_group ORDER BY id ASC";
 	$results = $db->query($sql);
 	
+	$disk_layouts_alloc = "";
+	
 	while($group = $results->fetchArray(1)) {
 		extract($group);
 		
@@ -212,7 +214,7 @@
 	}
 	
 	$custom_colors_array_dedup = array_values(array_unique($custom_colors_array));
-	
+	$bgcolor_custom_array = "";
 	for($i=0; $i < count($custom_colors_array_dedup); ++$i) {
 		$bgcolor_custom_array .= "<option>#" . $custom_colors_array_dedup[$i] . "</option>\n";
 	}
@@ -261,7 +263,7 @@
 							print($print_drives[$i]);
 							$i++;
 						}
-						if($print_add_drives) {
+						if(isset($print_add_drives)) {
 							print("
 								<tr>
 									<td style=\"padding: 10px 10px 0 10px;\" colspan=\"15\">

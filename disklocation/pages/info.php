@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2021, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2023, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -59,6 +59,7 @@
 		
 		$smart_rotation = get_smart_rotation($data["smart_rotation"]);
 		
+		$date_warranty = "";
 		$warranty_expire = "";
 		$warranty_left = "";
 		if($data["purchased"] && ($data["warranty"] || $data["warranty_date"])) {

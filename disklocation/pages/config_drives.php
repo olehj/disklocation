@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2021, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2023, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -59,6 +59,7 @@
 		
 		$smart_rotation = get_smart_rotation($data["smart_rotation"]);
 		
+		$date_warranty = "";
 		$warranty_expire = "";
 		$warranty_left = "";
 		if($data["purchased"] && ($data["warranty"] || $data["warranty_date"])) {
@@ -224,7 +225,7 @@
 	While the <i class="fa fa-plus-circle fa-lg"></i> button will re-add the drive to the main list for tray allocation, it will revert back to the not found list if the drive does actually not exists after using "Force scan all".
 </p>
 <?php
-	if($print_removed_drives) {
+	if(isset($print_removed_drives)) {
 		print("
 			<table>
 				<tr style=\"border: solid 1px #000000;\">

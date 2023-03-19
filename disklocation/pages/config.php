@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2020, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2023, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -38,6 +38,8 @@
 	
 	$sql = "SELECT * FROM settings_group ORDER BY id ASC";
 	$results = $db->query($sql);
+	
+	$disk_layouts_config = "";
 	
 	while($data = $results->fetchArray(1)) {
 		extract($data);
@@ -298,71 +300,71 @@ $(function(){
 				<table style="width: auto;">
 					<tr>
 						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[tray]" value="1" <?php if($displayinfo["tray"]) echo "checked"; ?> />Tray number
+							<input type="checkbox" name="displayinfo[tray]" value="1" <?php if(isset($displayinfo["tray"])) echo "checked"; ?> />Tray number
 						</td>
 						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[leddiskop]" value="1" <?php if($displayinfo["leddiskop"]) echo "checked"; ?> />Disk Operation LED
+							<input type="checkbox" name="displayinfo[leddiskop]" value="1" <?php if(isset($displayinfo["leddiskop"])) echo "checked"; ?> />Disk Operation LED
 						</td>
 						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[ledsmart]" value="1" <?php if($displayinfo["ledsmart"]) echo "checked"; ?> />SMART Status LED
-						</td>
-					</tr>
-					<tr>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[unraidinfo]" value="1" <?php if($displayinfo["unraidinfo"]) echo "checked"; ?> />Unraid info
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[path]" value="1" <?php if($displayinfo["path"]) echo "checked"; ?> />Path
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[devicenode]" value="1" <?php if($displayinfo["devicenode"]) echo "checked"; ?> />Device Node
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[luname]" value="1" <?php if($displayinfo["luname"]) echo "checked"; ?> />Logical Unit Name
+							<input type="checkbox" name="displayinfo[ledsmart]" value="1" <?php if(isset($displayinfo["ledsmart"])) echo "checked"; ?> />SMART Status LED
 						</td>
 					</tr>
 					<tr>
 						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[manufacturer]" value="1" <?php if($displayinfo["manufacturer"]) echo "checked"; ?> />Manufacturer
+							<input type="checkbox" name="displayinfo[unraidinfo]" value="1" <?php if(isset($displayinfo["unraidinfo"])) echo "checked"; ?> />Unraid info
 						</td>
 						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[devicemodel]" value="1" <?php if($displayinfo["devicemodel"]) echo "checked"; ?> />Device Model
+							<input type="checkbox" name="displayinfo[path]" value="1" <?php if(isset($displayinfo["path"])) echo "checked"; ?> />Path
 						</td>
 						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[serialnumber]" value="1" <?php if($displayinfo["serialnumber"]) echo "checked"; ?> />Serial Number
-						</td>
-					</tr>
-					<tr>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[temperature]" value="1" <?php if($displayinfo["temperature"]) echo "checked"; ?> />Temperature
+							<input type="checkbox" name="displayinfo[devicenode]" value="1" <?php if(isset($displayinfo["devicenode"])) echo "checked"; ?> />Device Node
 						</td>
 						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[powerontime]" value="1" <?php if($displayinfo["powerontime"]) echo "checked"; ?> />Power On Time
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[loadcyclecount]" value="1" <?php if($displayinfo["loadcyclecount"]) echo "checked"; ?> />Load Cycle Count
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[capacity]" value="1" <?php if($displayinfo["capacity"]) echo "checked"; ?> />Capacity
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[rotation]" value="1" <?php if($displayinfo["rotation"]) echo "checked"; ?> />Rotation
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[formfactor]" value="1" <?php if($displayinfo["formfactor"]) echo "checked"; ?> />Form Factor
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[warranty]" value="1" <?php if($displayinfo["warranty"]) echo "checked"; ?> />Warranty Left
+							<input type="checkbox" name="displayinfo[luname]" value="1" <?php if(isset($displayinfo["luname"])) echo "checked"; ?> />Logical Unit Name
 						</td>
 					</tr>
 					<tr>
 						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[comment]" value="1" <?php if($displayinfo["comment"]) echo "checked"; ?> />Comment
+							<input type="checkbox" name="displayinfo[manufacturer]" value="1" <?php if(isset($displayinfo["manufacturer"])) echo "checked"; ?> />Manufacturer
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[devicemodel]" value="1" <?php if(isset($displayinfo["devicemodel"])) echo "checked"; ?> />Device Model
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[serialnumber]" value="1" <?php if(isset($displayinfo["serialnumber"])) echo "checked"; ?> />Serial Number
+						</td>
+					</tr>
+					<tr>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[temperature]" value="1" <?php if(isset($displayinfo["temperature"])) echo "checked"; ?> />Temperature
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[powerontime]" value="1" <?php if(isset($displayinfo["powerontime"])) echo "checked"; ?> />Power On Time
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[loadcyclecount]" value="1" <?php if(isset($displayinfo["loadcyclecount"])) echo "checked"; ?> />Load Cycle Count
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[capacity]" value="1" <?php if(isset($displayinfo["capacity"])) echo "checked"; ?> />Capacity
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[rotation]" value="1" <?php if(isset($displayinfo["rotation"])) echo "checked"; ?> />Rotation
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[formfactor]" value="1" <?php if(isset($displayinfo["formfactor"])) echo "checked"; ?> />Form Factor
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[warranty]" value="1" <?php if(isset($displayinfo["warranty"])) echo "checked"; ?> />Warranty Left
+						</td>
+					</tr>
+					<tr>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[comment]" value="1" <?php if(isset($displayinfo["comment"])) echo "checked"; ?> />Comment
 						</td>
 					</tr>
 					<tr>
 						<td style="width: <?php echo $vi_width ?>px;" colspan="2">
-							<input type="checkbox" name="displayinfo[hideemptycontents]" value="1" <?php if($displayinfo["hideemptycontents"]) echo "checked"; ?> />Hide empty tray contents
+							<input type="checkbox" name="displayinfo[hideemptycontents]" value="1" <?php if(isset($displayinfo["hideemptycontents"])) echo "checked"; ?> />Hide empty tray contents
 						</td>
 					</tr>
 					<tr>

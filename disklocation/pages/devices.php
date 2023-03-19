@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2021, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2023, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -18,17 +18,26 @@
 	 *  along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
 	 *
 	 */
-	unset($disklocation_page); unset($disklocation_layout);
+	unset($disklocation_page);
+	unset($disklocation_layout);
+	
 	$biggest_tray_group = 0;
 	
 	$sql = "SELECT * FROM settings_group ORDER BY id ASC";
 	$results = $db->query($sql);
+	
+	$total_trays_group = 0;
 	
 	while($data = $results->fetchArray(1)) {
 		extract($data);
 		
 		$gid = $id;
 		$groupid = $gid;
+
+		$disklocation_page[$gid] = "";
+		$disklocation_layout[$gid] = "";
+		$disklocation_alloc[$gid] = "";
+		$disklocation_dash[$gid] = "";
 		
 		if(!$total_groups) {
 			$sql = "SELECT * FROM disks WHERE status IS NULL;";
@@ -84,14 +93,13 @@
 		$i=1;
 		
 		while($i <= $total_trays) {
-			$data = $datasql[$i_drive-1];
-			
+			$data = isset($datasql[$i_drive-1]) ? $datasql[$i_drive-1] : 0;
 			$tray_assign = $i;
 			
-			if($data["tray"] != $i) {
+			if(( isset($data["tray"]) ? $data["tray"] : 0 ) != $i) {
 				debug_print($debugging_active, __LINE__, "loop", "Empty tray: " . $tray_assign . "");
 				
-				if($displayinfo["tray"] && !$displayinfo["hideemptycontents"]) {
+				if($displayinfo["tray"] && !in_array("hideemptycontents", $displayinfo)) {
 					if($tray_number_override[$tray_assign]) {
 						//$empty_tray = "<b>". $tray_number_override[$tray_assign] . "</b>" . $insert_break . "";
 						$empty_tray = ( !isset($tray_number_override_start) ? --$tray_number_override[$tray_assign] : ($tray_number_override_start + $tray_number_override[$tray_assign] - 1));
@@ -105,15 +113,15 @@
 					}
 				}
 				
-				if($displayinfo["leddiskop"] && !$displayinfo["hideemptycontents"]) {
+				if($displayinfo["leddiskop"] && !in_array("hideemptycontents", $displayinfo)) {
 					$empty_leddiskop = get_unraid_disk_status("grey-off");
 					//$empty_leddiskop = "<span class=\"grey-off\" alt=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" title=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" />&#11044;</span>" . $insert_break . "";
 				}
-				if($displayinfo["ledsmart"] && !$displayinfo["hideemptycontents"]) {
+				if($displayinfo["ledsmart"] && !in_array("hideemptycontents", $displayinfo)) {
 					$empty_ledsmart = get_unraid_disk_status("grey-off");
 					//$empty_ledsmart = "<span class=\"grey-off\" alt=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" title=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" />&#11044;</span>";
 				}
-				if(!$displayinfo["hideemptycontents"]) {
+				if(!in_array("hideemptycontents", $displayinfo)) {
 					$empty_traytext = "<b>Available disk slot</b>";
 				}
 				$disklocation_page[$gid] .= "
@@ -205,38 +213,48 @@
 				$device = $data["device"];
 				$devicenode = $data["devicenode"];
 				$luname = $data["luname"];
+				$luname_page = "";
 				$hash = $data["hash"];
 				$color_override = $data["color"];
 				$warranty_page = "";
+				$smart_modelfamily = "";
+				$smart_modelname = "";
+				$smart_serialnumber = "";
+				$smart_powerontime = 0;
+				$smart_loadcycle = 0;
+				$smart_capacity = "";
+				$device_comment = "";
+				$smart_rotation = "";
+				$smart_formfactor = "";
 				
-				if($displayinfo["path"]) {
+				if(isset($displayinfo["path"])) {
 					$device_page = $device;
 				}
-				if($displayinfo["devicenode"]) {
+				if(isset($displayinfo["devicenode"])) {
 					$devicenode_page = $devicenode;
 				}
-				if($displayinfo["luname"]) {
+				if(isset($displayinfo["luname"])) {
 					$luname_page = "(" . $luname . ")";
 				}
-				if($displayinfo["manufacturer"]) {
+				if(isset($displayinfo["manufacturer"])) {
 					$smart_modelfamily = $data["model_family"];
 				}
-				if($displayinfo["devicemodel"]) {
+				if(isset($displayinfo["devicemodel"])) {
 					$smart_modelname = $data["model_name"];
 				}
-				if($displayinfo["serialnumber"]) {
+				if(isset($displayinfo["serialnumber"])) {
 					$smart_serialnumber = ( isset($data["smart_serialnumber"]) ? "<span style=\"white-space: nowrap;\">(" . $data["smart_serialnumber"] . ")</span>" : null );
 				}
-				if($displayinfo["powerontime"]) {
+				if(isset($displayinfo["powerontime"])) {
 					$smart_powerontime = ( !is_numeric($data["smart_powerontime"]) ? null : "<span style=\"cursor: help;\" title=\"" . seconds_to_time($data["smart_powerontime"] * 60 * 60) . "\">" . $data["smart_powerontime"] . "h</span>" );
 				}
-				if($displayinfo["loadcyclecount"]) {
+				if(isset($displayinfo["loadcyclecount"])) {
 					$smart_loadcycle = ( !is_numeric($data["smart_loadcycle"]) ? null : $data["smart_loadcycle"] . "c" );
 				}
-				if($displayinfo["capacity"]) {
+				if(isset($displayinfo["capacity"])) {
 					$smart_capacity = ( !is_numeric($data["smart_capacity"]) ? null : human_filesize($data["smart_capacity"], 1, true) );
 				}
-				if($displayinfo["warranty"] && ($data["purchased"] && ($data["warranty"] || $data["warranty_date"]))) {
+				if(isset($displayinfo["warranty"]) && ($data["purchased"] && ($data["warranty"] || $data["warranty_date"]))) {
 					$warranty_start = strtotime($data["purchased"]);
 					$warranty_end = "";
 					
@@ -257,10 +275,10 @@
 						$warranty_page = "<span style=\"cursor: help;\" title=\"Warranty has expired\">WTY:expired</span>";
 					}
 				}
-				if($displayinfo["comment"]) {
+				if(isset($displayinfo["comment"])) {
 					$device_comment = ( !isset($data["comment"]) ? null : bscode2html(stripslashes(htmlspecialchars($data["comment"]))) );
 				}
-				if($displayinfo["temperature"]) {
+				if(isset($displayinfo["temperature"])) {
 					if($data["smart_temperature"]) {
 						switch($display["unit"]) {
 							case 'F':
@@ -277,15 +295,15 @@
 						$smart_temperature = '';
 					}
 				}
-				if($displayinfo["rotation"]) {
+				if(isset($displayinfo["rotation"])) {
 					$smart_rotation = get_smart_rotation($data["smart_rotation"]);
 				}
-				if($displayinfo["formfactor"]) {
+				if(isset($displayinfo["formfactor"])) {
 					$smart_formfactor = str_replace(" inches", "&quot;", $data["smart_formfactor"]);
 				}
 				
-				if($displayinfo["leddiskop"]) {
-					if($unraid_array[$devicenode]["color"] && $unraid_array[$devicenode]["status"]) {
+				if(isset($displayinfo["leddiskop"])) {
+					if(isset($unraid_array[$devicenode]["color"]) && isset($unraid_array[$devicenode]["status"])) {
 						/*
 						if($unraid_array[$devicenode]["type"] == "Cache") {
 							$disk_status_type = "cache";
@@ -412,7 +430,7 @@
 				
 				$deviceid = hash('sha256', $data["model_name"] . $data["smart_serialnumber"]);
 				
-				switch(strtolower($unraid_array[$devicenode]["type"])) {
+				switch(strtolower($unraid_array[$devicenode]["type"] ?? null)) {
 					case "parity":
 						$color_array[$deviceid] = $bgcolor_parity;
 						break;
@@ -537,7 +555,6 @@
 			
 			$i++;
 		}
-		
 		$grid_columns_styles[$gid] = str_repeat(" auto", $grid_columns);
 		$grid_rows_styles[$gid] = str_repeat(" auto", $grid_rows);
 	}
