@@ -67,7 +67,7 @@ Cond="version_compare(parse_ini_file('/etc/unraid-version')['version'],'6.11.9',
 $mytiles[$pluginname]['column1'] =
 <<<EOT
 <tbody title="_(Disk Location)_">
-<tr><td>_(Disk Location)_<a href="/Dashboard/Settings/disklocationConfig" title="_(Go to Disk Location configuration)_"><i class="fa fa-fw fa-cog control"></i></a></td></tr>
+<tr><td>_(Disk Location)_<a href="/Dashboard/Tools/disklocation" title="_(Go to Disk Location)_"><i class="fa fa-fw fa-cog control"></i></a></td></tr>
 <tr><td>$installed_drives of $total_trays_group drives assigned.</td></tr>
 <tr><td>$disklocation_dash_out</td></tr>
 </tbody>

@@ -62,25 +62,13 @@ Title="Devices"
 <link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/signals.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/help.css")?>">
 <script type="text/javascript" src="<?autov("" . DISKLOCATION_PATH . "/pages/script/locate_script_top.js.php")?><?php print("&amp;path=" . DISKLOCATION_PATH . ""); ?>"></script>
-<script>
-$(function(){
-	// append tab
-	$('.tabs')
-		.append('<div class="tab"><input type="radio" name="tabs2" id="tab3"><label for="tab3"><i class="icon fa fa-cogs"></i>Configuration</label></div>');
-
-	$('#tab3').click(function() {
-		$.cookie('one', 'tab1', { expires:null, path: '/'});
-		location = '/Settings/disklocationConfig';
-	});
-});
-</script>
 <style type="text/css">
 	<?php include "/usr/local/emhttp/plugins/disklocation/pages/styles/disk.css.php"; ?>
 </style>
 <blockquote class='inline_help'>
 	<h3><b><?php echo $get_page_info["Title"] ?> ver. <?php echo DISKLOCATION_VERSION ?></b></h3>
 	<p>
-		Made by <?php echo $get_page_info["Author"] ?>. Copyright ©2018-2019. All rights reserved.
+		Made by <?php echo $get_page_info["Author"] ?>. Copyright ©2018-2023. All rights reserved.
 	</p>
 	<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
 		<input type="hidden" name="cmd" value="_donations" />

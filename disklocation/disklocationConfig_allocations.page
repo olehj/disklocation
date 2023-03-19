@@ -1,4 +1,4 @@
-Menu="disklocationConfig:2"
+Menu="disklocation:4"
 Icon="server"
 Tag="server"
 Title="Tray Allocations"
