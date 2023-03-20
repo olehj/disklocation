@@ -1346,6 +1346,7 @@
 	}
 	
 // Common config
+if(!in_array("cronjob", $argv)) {
 	$unraid_disks = $GLOBALS["disks"];
 	$unraid_disks = array_values($unraid_disks);
 	
@@ -1463,4 +1464,5 @@
 	print(count($group));
 	die();
 	*/
+}
 ?>
