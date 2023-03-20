@@ -18,7 +18,7 @@
 	 *  along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
 	 *
 	 */
-	// Set to 1 to enable debugging:
+	// Set to 1|2|3 to enable debugging:
 	$debugging_active = 0;
 	
 	// Set warning level
