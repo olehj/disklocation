@@ -4,7 +4,7 @@
 <!ENTITY name             "disklocation">
 <!ENTITY prettyname       "Disk Location">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2023.00.00">
+<!ENTITY version          "2023.03.22">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -47,8 +47,10 @@
 
 -->
 <CHANGES>
-###2023.??.??
- - Commit #??? - IMPROVEMENT: Prepared for Unraid 6.12 and above. Breaks Dashboard compatibility with earlier Unraid versions.
+###2023.03.22
+ - Commit #192 - IMPROVEMENT: Prepared for Unraid 6.12 and above. Breaks Dashboard compatibility with earlier Unraid versions.
+ - Commit #190 - FEATURE: Addition of a Heat Map has been added, this can now be chosen instead of the traditional color scheme. It will disable custom drive colors.
+ - Commit #176 - BUG: Fixed storing warranty and purchase date from the Unraid system to the plugins database.
 
 ###2022.06.18
  - Commit #187 - BUG: Posted warnings about non numeric values, fixed by looking for "is_numeric" instead of "isset"

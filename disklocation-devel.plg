@@ -4,7 +4,7 @@
 <!ENTITY name             "disklocation">
 <!ENTITY prettyname       "Disk Location">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2023.03.19m-dev">
+<!ENTITY version          "2023.03.20-dev">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,7 +45,6 @@
     along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
 
 -->
-
 <CHANGES>
 ###Development releases
  - This package includes unstable development branch and should only be used for testing or instructed to do so.
