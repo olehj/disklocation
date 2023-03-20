@@ -95,9 +95,9 @@
 		while($i <= $total_trays) {
 			$data = isset($datasql[$i_drive-1]) ? $datasql[$i_drive-1] : 0;
 			$tray_assign = $i;
-			$empty_leddiskop = 0;
-			$empty_ledsmart = 0;
-			$empty_ledtemp = 0;
+			$empty_leddiskop = "";
+			$empty_ledsmart = "";
+			$empty_ledtemp = "";
 			
 			if(( isset($data["tray"]) ? $data["tray"] : 0 ) != $i) {
 				debug_print($debugging_active, __LINE__, "loop", "Empty tray: " . $tray_assign . "");
@@ -228,14 +228,14 @@
 				$smart_modelfamily = "";
 				$smart_modelname = "";
 				$smart_serialnumber = "";
-				$smart_powerontime = 0;
-				$smart_loadcycle = 0;
+				$smart_powerontime = "";
+				$smart_loadcycle = "";
 				$smart_capacity = "";
 				$device_comment = "";
 				$smart_rotation = "";
 				$smart_formfactor = "";
 				$smart_temperature = 0;
-				$smart_temperature_text = 0;
+				$smart_temperature_text = "";
 				$temp_status_icon = "";
 				
 				if(isset($displayinfo["path"])) {
