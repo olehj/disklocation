@@ -48,6 +48,7 @@
 -->
 <CHANGES>
 ###2023.03.22
+ - Commit #193 - BUG: Various bugs fixed. Eg. SMART crontab should now be able to install again.
  - Commit #192 - IMPROVEMENT: Prepared for Unraid 6.12 and above. Breaks Dashboard compatibility with earlier Unraid versions.
  - Commit #190 - FEATURE: Addition of a Heat Map has been added, this can now be chosen instead of the traditional color scheme. It will disable custom drive colors.
  - Commit #176 - BUG: Fixed storing warranty and purchase date from the Unraid system to the plugins database.
