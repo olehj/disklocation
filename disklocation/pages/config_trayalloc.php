@@ -109,7 +109,10 @@
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><input type=\"date\" name=\"purchased[" . $data["hash"] . "]\" value=\"" . $data["purchased"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" /></td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $warr_input . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><input type=\"text\" name=\"comment[" . $data["hash"] . "]\" value=\"" . stripslashes(htmlspecialchars($data["comment"])) . "\" style=\"width: 150px;\" /></td>
-				<td style=\"padding: 0 10px 0 10px;\"><input type=\"color\" name=\"bgcolor_custom[" . $data["hash"] . "]\" list=\"disklocationColors\" value=\"#" . $bgcolor . "\" " . ($dashboard_widget ? "disabled=\"disabled\"" : null ) . " /></td>
+				<td style=\"padding: 0 10px 0 10px;\">
+					<input type=\"color\" name=\"bgcolor_custom[" . $data["hash"] . "]\" list=\"disklocationColors\" value=\"#" . $bgcolor . "\" " . ($dashboard_widget ? "disabled=\"disabled\"" : null ) . " />
+					" . ($dashboard_widget ? "<input type=\"hidden\" name=\"bgcolor_custom[" . $data["hash"] . "]\" value=\"#" . $bgcolor . "\" />" : null ) . "
+				</td>
 			</tr>
 		";
 		$i_drive++;
@@ -166,7 +169,10 @@
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><input type=\"date\" name=\"purchased[" . $data["hash"] . "]\" value=\"" . $data["purchased"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" /></td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $warr_input . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><input type=\"text\" name=\"comment[" . $data["hash"] . "]\" value=\"" . stripslashes(htmlspecialchars($data["comment"])) . "\" style=\"width: 150px;\" /></td>
-				<td style=\"padding: 0 10px 0 10px;\"><input type=\"color\" name=\"bgcolor_custom[" . $data["hash"] . "]\" list=\"disklocationColors\" value=\"#" . $bgcolor . "\" " . ($dashboard_widget ? "disabled=\"disabled\"" : null ) . " /></td>
+				<td style=\"padding: 0 10px 0 10px;\">
+					<input type=\"color\" name=\"bgcolor_custom[" . $data["hash"] . "]\" list=\"disklocationColors\" value=\"#" . $bgcolor . "\" " . ($dashboard_widget ? "disabled=\"disabled\"" : null ) . " />
+					" . ($dashboard_widget ? "<input type=\"hidden\" name=\"bgcolor_custom[" . $data["hash"] . "]\" value=\"#" . $bgcolor . "\" />" : null ) . "
+				</td>
 			</tr>
 		";
 	}
