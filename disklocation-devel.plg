@@ -4,7 +4,7 @@
 <!ENTITY name             "disklocation">
 <!ENTITY prettyname       "Disk Location">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2023.03.21-dev">
+<!ENTITY version          "2023.03.22-dev">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
