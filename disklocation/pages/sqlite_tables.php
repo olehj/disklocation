@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2020, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2023, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -27,19 +27,20 @@
 //	--------------------------------------------------------------------------------
 	$smart_exec_delay =		'200';		// set milliseconds for next execution for SMART shell_exec - needed to actually grab all the information for unassigned devices. Default: 200
 	$smart_updates =		'disabled';	// set how often to update the cronjob [hourly|daily|weekly|monthly|disabled]
-	$bgcolor_parity =		'eb4f41';	// background color for Unraid parity disks
-	$bgcolor_unraid =		'ef6441';	// background color for Unraid data disks
-	$bgcolor_cache =		'ff884c';	// background color for Unraid cache disks
-	$bgcolor_others =		'41b5ef';	// background color for unassigned/other disks
+	$bgcolor_parity =		'eb4f41';	// background color for Unraid parity disks / critical temp
+	$bgcolor_unraid =		'ef6441';	// background color for Unraid data disks / warning temp
+	$bgcolor_cache =		'ff884c';	// background color for Unraid cache disks / normal temp
+	$bgcolor_others =		'41b5ef';	// background color for unassigned/other disks / unknown temp
 	$bgcolor_empty =		'aaaaaa';	// background color for empty trays
 	$tray_reduction_factor =	'10';		// set the scale divider for the mini tray layout
 	$warranty_field =		'u';		// choose [u]nraid's way of entering warranty date (12/24/36... months) or enter [m]anual ISO dates.
-	$dashboard_widget =		'on';		// show dashboard widget [on|off]
-	$dashboard_widget_pos = 	'0';		// dashboard widgets position, 0 or 10 is usually fine. Fine tuning is currently not possible, Unraid issue.
+	$dashboard_widget =		'1';		// choose background for the drives, Drive Type (0) or Heat Map (1)
+	$dashboard_widget_pos = 	'0';		// not in use anymore
 	$displayinfo =	json_encode(array(		// this will store an json_encoded array of display settings for the "Device" page.
 		'tray' => 1,
 		'leddiskop' => 1,
 		'ledsmart' => 1,
+		'ledtemp' => 1,
 		'unraidinfo' => 1,
 		'path' => 1,
 		'devicenode' => 1,

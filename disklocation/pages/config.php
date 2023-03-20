@@ -140,11 +140,14 @@
 	}
 	
 	$smart_updates = cronjob_timer();
+	
 	$plugin_update_scan = update_scan_toggle(0, 1);
 	
+	/*
 	if(empty($dashboard_widget) || $dashboard_widget == "on" || $dashboard_widget == "off") {
 		$dashboard_widget = 0;
 	}
+	*/
 ?>
 <datalist id="disklocationColorsDef">
 	<option>#<?php echo $bgcolor_parity ?></option>
@@ -160,7 +163,7 @@
 </datalist>
 <script>
 $(document).ready(function(){
-	$('input[type=radio]').change(function(){
+	$('input:radio[name="dashboard_widget"]').change(function(){
 	var n = $(this).val();
 	switch(n) {
 		case '0':
@@ -326,6 +329,9 @@ $(document).ready(function(){
 						</td>
 						<td style="width: <?php echo $vi_width ?>px;">
 							<input type="checkbox" name="displayinfo[ledsmart]" value="1" <?php if(isset($displayinfo["ledsmart"])) echo "checked"; ?> />SMART Status LED
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[ledtemp]" value="1" <?php if(isset($displayinfo["ledtemp"])) echo "checked"; ?> />Temperature LED
 						</td>
 					</tr>
 					<tr>

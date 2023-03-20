@@ -95,6 +95,9 @@
 		while($i <= $total_trays) {
 			$data = isset($datasql[$i_drive-1]) ? $datasql[$i_drive-1] : 0;
 			$tray_assign = $i;
+			$empty_leddiskop = 0;
+			$empty_ledsmart = 0;
+			$empty_ledtemp = 0;
 			
 			if(( isset($data["tray"]) ? $data["tray"] : 0 ) != $i) {
 				debug_print($debugging_active, __LINE__, "loop", "Empty tray: " . $tray_assign . "");
@@ -113,12 +116,16 @@
 					}
 				}
 				
-				if($displayinfo["leddiskop"] && !in_array("hideemptycontents", $displayinfo)) {
+				if(isset($displayinfo["leddiskop"]) && $displayinfo["leddiskop"] == 1 && !in_array("hideemptycontents", $displayinfo)) {
 					$empty_leddiskop = get_unraid_disk_status("grey-off");
 					//$empty_leddiskop = "<span class=\"grey-off\" alt=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" title=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" />&#11044;</span>" . $insert_break . "";
 				}
-				if($displayinfo["ledsmart"] && !in_array("hideemptycontents", $displayinfo)) {
+				if(isset($displayinfo["ledsmart"]) && $displayinfo["ledsmart"] == 1 && !in_array("hideemptycontents", $displayinfo)) {
 					$empty_ledsmart = get_unraid_disk_status("grey-off");
+					//$empty_ledsmart = "<span class=\"grey-off\" alt=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" title=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" />&#11044;</span>";
+				}
+				if(isset($displayinfo["ledtemp"]) && $displayinfo["ledtemp"] == 1 && !in_array("hideemptycontents", $displayinfo)) {
+					$empty_ledtemp = get_unraid_disk_status("grey-off");
 					//$empty_ledsmart = "<span class=\"grey-off\" alt=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" title=\"" . get_unraid_disk_status("grey-off", "DISK_NP") . "\" />&#11044;</span>";
 				}
 				if(!in_array("hideemptycontents", $displayinfo)) {
@@ -128,10 +135,11 @@
 					<div style=\"order: " . $tray_assign . "\">
 						<div class=\"flex-container_" . $disk_tray_direction . "\">
 							<div style=\"background-color: #" . $color_array["empty"] . "; width: " . $tray_width . "px; height: " . $tray_height . "px;\">
-								<div class=\"flex-container-start\">
+								<div class=\"flex-container-start\" style=\"white-space: nowrap;\">
 									<b>$empty_tray</b>$insert_break
-									$empty_leddiskop
-									$empty_ledsmart
+									$empty_leddiskop $insert_break
+									$empty_ledsmart $insert_break
+									$empty_ledtemp
 								</div>
 								<div class=\"flex-container-middle_" . $disk_tray_direction . "\">
 									$empty_traytext
@@ -227,6 +235,8 @@
 				$smart_rotation = "";
 				$smart_formfactor = "";
 				$smart_temperature = 0;
+				$smart_temperature_text = 0;
+				$temp_status_icon = "";
 				
 				if(isset($displayinfo["path"])) {
 					$device_page = $device;
@@ -279,22 +289,31 @@
 				if(isset($displayinfo["comment"])) {
 					$device_comment = ( !isset($data["comment"]) ? null : bscode2html(stripslashes(htmlspecialchars($data["comment"]))) );
 				}
-				if(isset($displayinfo["temperature"])) {
+				if(isset($displayinfo["temperature"]) || isset($displayinfo["ledtemp"])) {
 					if($unraid_array[$devicenode]["temp"]) {
 						switch($display["unit"]) {
 							case 'F':
-								$smart_temperature = round(temperature_conv($unraid_array[$devicenode]["temp"], 'C', 'F')) . "°F";
+								$smart_temperature = round(temperature_conv($unraid_array[$data["devicenode"]]["temp"], 'C', 'F')) . "°F";
+								$smart_temperature_warning = round(temperature_conv($unraid_array[$data["devicenode"]]["hotTemp"], 'C', 'F')) . "°F";
+								$smart_temperature_critical = round(temperature_conv($unraid_array[$data["devicenode"]]["maxTemp"], 'C', 'F')) . "°F";
 								break;
 							case 'K':
-								$smart_temperature = round(temperature_conv($unraid_array[$devicenode]["temp"], 'C', 'K')) . "K";
+								$smart_temperature = round(temperature_conv($unraid_array[$data["devicenode"]]["temp"], 'C', 'K')) . "K";
+								$smart_temperature_warning = round(temperature_conv($unraid_array[$data["devicenode"]]["hotTemp"], 'C', 'K')) . "K";
+								$smart_temperature_critical = round(temperature_conv($unraid_array[$data["devicenode"]]["maxTemp"], 'C', 'K')) . "K";
 								break;
 							default:
-								$smart_temperature = $unraid_array[$devicenode]["temp"] . "°C";
+								$smart_temperature = $unraid_array[$data["devicenode"]]["temp"] . "°C";
+								$smart_temperature_warning = $unraid_array[$data["devicenode"]]["hotTemp"] . "°C";
+								$smart_temperature_critical = $unraid_array[$data["devicenode"]]["maxTemp"] . "°C";
 						}
 					}
 					else {
 						$smart_temperature = '';
 					}
+				}
+				if(isset($displayinfo["temperature"])) {
+					$smart_temperature_text = $smart_temperature;
 				}
 				if(isset($displayinfo["rotation"])) {
 					$smart_rotation = get_smart_rotation($data["smart_rotation"]);
@@ -374,7 +393,7 @@
 					}
 				}
 				
-				if($displayinfo["ledsmart"]) {
+				if(isset($displayinfo["ledsmart"])) {
 					$smart_status = $data["smart_status"];
 					switch($smart_status) {
 						case 1:
@@ -388,6 +407,26 @@
 						default:
 							//$smart_status_icon = "<span class=\"grey-off\" alt=\"S.M.A.R.T: Off/None\" title=\"S.M.A.R.T: Off/None\" />&#11044;</span>";
 							$smart_status_icon = "<a class='info'><i class='fa fa-circle orb grey-orb'></i><span>S.M.A.R.T: Off/None</span></a>";
+					}
+				}
+				
+				if(isset($displayinfo["ledtemp"])) {
+					if(!isset($unraid_array[$devicenode]["temp"])) { $unraid_array[$devicenode]["temp"] = 0; }
+					if(!$unraid_array[$devicenode]["temp"]) {
+						$temp_status_icon = "<a class='info'><i class='fa fa-circle orb gray-orb'></i><span></span></a>";
+						$temp_status = 0;
+					}
+					if($unraid_array[$devicenode]["temp"] < $unraid_array[$devicenode]["hotTemp"]) {
+						$temp_status_icon = "<a class='info'><i class='fa fa-circle orb green-orb'></i><span>" . $smart_temperature . "</span></a>";
+						$temp_status = 1;
+					}
+					if($unraid_array[$devicenode]["temp"] >= $unraid_array[$devicenode]["hotTemp"]) {
+						$temp_status_icon = "<a class='info' style=\"margin: 0; text-align:left;\"><i class='fa fa-fire yellow-orb'></i><span>" . $smart_temperature . " (Warning: &gt;" . $smart_temperature_warning . ")</span></a>";
+						$temp_status = 2;
+					}
+					if($unraid_array[$devicenode]["temp"] >= $unraid_array[$devicenode]["maxTemp"]) {
+						$temp_status_icon = "<a class='info'><i class='fa fa-fire red-blink'></i><span>" . $smart_temperature . " (Critical: &gt;" . $smart_temperature_critical . ")</span></a>";
+						$temp_status = 3;
 					}
 				}
 				
@@ -471,16 +510,16 @@
 					<div style=\"order: " . $drive_tray_order[$hash] . "\">
 						<div class=\"flex-container_" . $disk_tray_direction . "\">
 							<div style=\"background-color: #" . $color_array[$hash] . "; width: " . $tray_width . "px; height: " . $tray_height . "px;\">
-								<div class=\"flex-container-start\">
+								<div class=\"flex-container-start\" style=\"white-space: nowrap;\">
 									<b>$physical_traynumber</b>$insert_break
-									$unraid_array_icon
-									$smart_status_icon
-									
+									$unraid_array_icon $insert_break
+									$smart_status_icon $insert_break
+									$temp_status_icon
 								</div>
 								<div class=\"flex-container-middle_" . $disk_tray_direction . "\">
 									$unraid_dev $device_page $devicenode_page $luname_page $add_break_1
 									$smart_modelfamily $smart_modelname $smart_serialnumber $add_break_2
-									$smart_temperature $smart_powerontime $smart_loadcycle $smart_capacity $smart_rotation $smart_formfactor $warranty_page $add_break_3
+									$smart_temperature_text $smart_powerontime $smart_loadcycle $smart_capacity $smart_rotation $smart_formfactor $warranty_page $add_break_3
 									$device_comment
 								</div>
 								<!--
@@ -545,12 +584,15 @@
 					$dashboard_led = $smart_status_icon;
 					//$dashboard_info = "<span class=\"red\"><b>S.M.A.R.T Failed!</b></span>";
 				}
+				if(isset($temp_status) && $temp_status > 1) {
+					$dashboard_led = $temp_status_icon;
+				}
 				
 				$disklocation_dash[$gid] .= "
 					<div style=\"order: " . $drive_tray_order[$hash] . "\">
 						<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
 							<div style=\"background-color: #" . $color_array[$hash] . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
-								<div class=\"flex-container-start\" style=\"/*min-height: 15px;*/\">
+								<div class=\"flex-container-start\" style=\"text-align: center;/*min-height: 15px;*/\">
 									$dashboard_led
 								</div>
 								<div class=\"flex-container-middle_" . $disk_tray_direction . "\" style=\"padding: 0 0 10px 0;\">

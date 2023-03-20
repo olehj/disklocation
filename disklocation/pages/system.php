@@ -729,7 +729,7 @@
 			}
 		}
 		
-		if(!$curtime && $time && $time != "disabled") {
+		if($time && $time != "disabled") {
 			copy(EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/disklocation.cron", $path . "" . $time . "/" . $filename);
 			chmod($path . "" . $time . "/" . $filename, 0777);
 			$curtime = $time;
@@ -1362,11 +1362,11 @@ if(!in_array("cronjob", $argv)) {
 	$i=0;
 	while($i < count($unraid_disks)) {
 		$getdevicenode = $unraid_disks[$i]["device"];
-		if(!isset($unraid_disks[$i]["warning"])) { 
-			$unraid_disks[$i]["warning"] = 0;
+		if(!isset($unraid_disks[$i]["hotTemp"])) { 
+			$unraid_disks[$i]["hotTemp"] = 0;
 		}
-		if(!isset($unraid_disks[$i]["critical"])) { 
-			$unraid_disks[$i]["critical"] = 0;
+		if(!isset($unraid_disks[$i]["maxTempl"])) { 
+			$unraid_disks[$i]["maxTemp"] = 0;
 		}
 		
 		if($getdevicenode) {
@@ -1376,8 +1376,8 @@ if(!in_array("cronjob", $argv)) {
 				"status" => ($unraid_disks[$i]["status"] ?? null),
 				"type" => ($unraid_disks[$i]["type"] ?? null),
 				"temp" => ($unraid_disks[$i]["temp"] ?? null),
-				"hotTemp" => ($unraid_disks[$i]["warning"] ? $unraid_disks[$i]["warning"] : $GLOBALS["display"]["hot"]),
-				"maxTemp" => ($unraid_disks[$i]["critical"] ? $unraid_disks[$i]["critical"] : $GLOBALS["display"]["max"]),
+				"hotTemp" => ($unraid_disks[$i]["hotTemp"] ? $unraid_disks[$i]["hotTemp"] : $GLOBALS["display"]["hot"]),
+				"maxTemp" => ($unraid_disks[$i]["maxTemp"] ? $unraid_disks[$i]["maxTemp"] : $GLOBALS["display"]["max"]),
 				"color" => ($unraid_disks[$i]["color"] ?? null),
 				"fscolor" => ($unraid_disks[$i]["fsColor"] ?? null)
 			);
