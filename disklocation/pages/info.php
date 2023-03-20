@@ -85,6 +85,29 @@
 			}
 		}
 		
+		$smart_temperature = 0;
+		$smart_temperature_warning = 0;
+		$smart_temperature_critical = 0;
+		
+		if($unraid_array[$data["devicenode"]]["temp"]) {
+			switch($display["unit"]) {
+				case 'F':
+					$smart_temperature = round(temperature_conv($unraid_array[$data["devicenode"]]["temp"], 'C', 'F')) . "°F";
+					$smart_temperature_warning = round(temperature_conv($unraid_array[$data["devicenode"]]["hotTemp"], 'C', 'F')) . "°F";
+					$smart_temperature_critical = round(temperature_conv($unraid_array[$data["devicenode"]]["maxTemp"], 'C', 'F')) . "°F";
+					break;
+				case 'K':
+					$smart_temperature = round(temperature_conv($unraid_array[$data["devicenode"]]["temp"], 'C', 'K')) . "K";
+					$smart_temperature_warning = round(temperature_conv($unraid_array[$data["devicenode"]]["hotTemp"], 'C', 'K')) . "K";
+					$smart_temperature_critical = round(temperature_conv($unraid_array[$data["devicenode"]]["maxTemp"], 'C', 'K')) . "K";
+					break;
+				default:
+					$smart_temperature = $unraid_array[$data["devicenode"]]["temp"] . "°C";
+					$smart_temperature_warning = $unraid_array[$data["devicenode"]]["hotTemp"] . "°C";
+					$smart_temperature_critical = $unraid_array[$data["devicenode"]]["maxTemp"] . "°C";
+			}
+		}
+		
 		$print_drives[$i_drive] = "
 			<tr style=\"background: #" . $color_array[$data["hash"]] . ";\">
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . stripslashes(htmlspecialchars($group_assign)) . "</td>
@@ -98,6 +121,7 @@
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $smart_rotation . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . str_replace(" inches", "&quot;", $data["smart_formfactor"]) . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: center;\">" . ( empty($data["smart_status"]) ? "FAIL" : "OK" ) . "</td>
+				<td style=\"padding: 0 10px 0 10px; text-align: left;\">" . $smart_temperature . " (" . $smart_temperature_warning . "/" . $smart_temperature_critical . ")</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><span style=\"cursor: help;\" title=\"" . $smart_powerontime . "\">" . $data["smart_powerontime"] . "</span></td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $data["smart_loadcycle"] . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $data["purchased"] . "</td>
@@ -128,6 +152,7 @@
 		<td style="padding: 0 10px 0 10px;"><b>Rotation</b></td>
 		<td style="padding: 0 10px 0 10px;"><b>Size</b></td>
 		<td style="padding: 0 10px 0 10px;"><b>SMART</b></td>
+		<td style="padding: 0 10px 0 10px;"><b>Temp (Warn/Crit)</b></td>
 		<td style="padding: 0 10px 0 10px;"><b>Power On</b></td>
 		<td style="padding: 0 10px 0 10px;"><b>Load Cycle</b></td>
 		<td style="padding: 0 10px 0 10px;"><b>Purchased</b></td>

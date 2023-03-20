@@ -280,16 +280,16 @@
 					$device_comment = ( !isset($data["comment"]) ? null : bscode2html(stripslashes(htmlspecialchars($data["comment"]))) );
 				}
 				if(isset($displayinfo["temperature"])) {
-					if($data["smart_temperature"]) {
+					if($unraid_array[$devicenode]["temp"]) {
 						switch($display["unit"]) {
 							case 'F':
-								$smart_temperature = round(temperature_conv($data["smart_temperature"], 'C', 'F')) . "°F";
+								$smart_temperature = round(temperature_conv($unraid_array[$devicenode]["temp"], 'C', 'F')) . "°F";
 								break;
 							case 'K':
-								$smart_temperature = round(temperature_conv($data["smart_temperature"], 'C', 'K')) . "K";
+								$smart_temperature = round(temperature_conv($unraid_array[$devicenode]["temp"], 'C', 'K')) . "K";
 								break;
 							default:
-								$smart_temperature = $data["smart_temperature"] . "°C";
+								$smart_temperature = $unraid_array[$devicenode]["temp"] . "°C";
 						}
 					}
 					else {
@@ -433,21 +433,38 @@
 				
 				$color_array[$deviceid] = "";
 				
-				switch(strtolower($unraid_array[$devicenode]["type"] ?? null)) {
-					case "parity":
-						$color_array[$deviceid] = $bgcolor_parity;
-						break;
-					case "data":
-						$color_array[$deviceid] = $bgcolor_unraid;
-						break;
-					case "cache":
-						$color_array[$deviceid] = $bgcolor_cache;
-						break;	
-					default:
-						$color_array[$deviceid] = $bgcolor_others;
+				if(!$dashboard_widget) { // $dashboard_widget is really for Disk Type / Heatmap setting.
+					switch(strtolower($unraid_array[$devicenode]["type"] ?? null)) {
+						case "parity":
+							$color_array[$deviceid] = $bgcolor_parity;
+							break;
+						case "data":
+							$color_array[$deviceid] = $bgcolor_unraid;
+							break;
+						case "cache":
+							$color_array[$deviceid] = $bgcolor_cache;
+							break;	
+						default:
+							$color_array[$deviceid] = $bgcolor_others;
+					}
+					if($color_override) {
+						$color_array[$deviceid] = $color_override;
+					}
 				}
-				if($color_override) {
-					$color_array[$deviceid] = $color_override;
+				else {
+					if(!isset($unraid_array[$devicenode]["temp"])) { $unraid_array[$devicenode]["temp"] = 0; }
+					if(!$unraid_array[$devicenode]["temp"]) {
+						$color_array[$deviceid] = $bgcolor_others;
+					}
+					if($unraid_array[$devicenode]["temp"] < $unraid_array[$devicenode]["hotTemp"]) {
+						$color_array[$deviceid] = $bgcolor_cache;
+					}
+					if($unraid_array[$devicenode]["temp"] >= $unraid_array[$devicenode]["hotTemp"]) {
+						$color_array[$deviceid] = $bgcolor_unraid;
+					}
+					if($unraid_array[$devicenode]["temp"] >= $unraid_array[$devicenode]["maxTemp"]) {
+						$color_array[$deviceid] = $bgcolor_parity;
+					}
 				}
 				
 				$disklocation_page[$gid] .= "

@@ -35,8 +35,8 @@
 	define("DISKINFORMATION", "/var/local/emhttp/disks.ini");
 	define("DISKLOGFILE", "/boot/config/disk.log");
 	define("DISKLOCATION_VERSION", $get_page_info["Version"]);
-	define("DISKLOCATION_URL", "/Tools/disklocation");
-	define("DISKLOCATIONCONF_URL", "/Tools/disklocation");
+	define("DISKLOCATION_URL", "/Settings/disklocation");
+	define("DISKLOCATIONCONF_URL", "/Settings/disklocation");
 	define("DISKLOCATION_PATH", "/plugins/disklocation");
 	define("EMHTTP_ROOT", "/usr/local/emhttp");
 	
@@ -643,7 +643,7 @@
 				return false;
 		}
 	}
-	
+/*
 	function dashboard_toggle($widget = 0) {
 		$path = "" . EMHTTP_ROOT . "" . DISKLOCATION_PATH . "";
 		
@@ -663,7 +663,7 @@
 			$widget_status = "on";
 		}
 	}
-	
+*/	
 	function update_scan_toggle($set = 0, $get_status = 0) {
 		$path = "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "";
 		
@@ -977,16 +977,15 @@
 			}
 		}
 	}
-
+	
 	if(isset($_POST["save_allocations"])) {
 		debug_print($debugging_active, __LINE__, "POST", "Button: SAVE ALLOCATIONS has been pressed.");
 		// trays
 		$sql = "";
 		$post_drives = $_POST["drives"];
 		$post_groups = $_POST["groups"];
-		$post_empty = $_POST["empty"];
 		
-		if(!isset($disklocation_error)) {
+		if(empty($disklocation_error)) {
 			$keys_drives = array_keys($post_drives);
 			for($i=0; $i < count($keys_drives); ++$i) {
 				$tray_assign = ( empty($post_drives[$keys_drives[$i]]) ? null : $post_drives[$keys_drives[$i]] );
@@ -1346,28 +1345,71 @@
 	}
 	
 // Common config
-	$unraid_disks = array();
+	$unraid_disks = $GLOBALS["disks"];
+	$unraid_disks = array_values($unraid_disks);
 	
 	// get configured Unraid disks
+	/*
 	if(is_file(DISKINFORMATION)) {
 		$unraid_disks_import = parse_ini_file(DISKINFORMATION, true);
 		$unraid_disks = array_values($unraid_disks_import);
 	}
-
+	*/
 	// modify the array to suit our needs
 	$unraid_array = array();
 	$i=0;
 	while($i < count($unraid_disks)) {
 		$getdevicenode = $unraid_disks[$i]["device"];
+		if(!isset($unraid_disks[$i]["warning"])) { 
+			$unraid_disks[$i]["warning"] = 0;
+		}
+		if(!isset($unraid_disks[$i]["critical"])) { 
+			$unraid_disks[$i]["critical"] = 0;
+		}
+		
 		if($getdevicenode) {
 			$unraid_array[$getdevicenode] = array(
-				"name" => $unraid_disks[$i]["name"] ?? null,
-				"device" => $unraid_disks[$i]["device"] ?? null,
-				"status" => $unraid_disks[$i]["status"] ?? null,
-				"type" => $unraid_disks[$i]["type"] ?? null,
-				"temp" => $unraid_disks[$i]["temp"] ?? null,
-				"color" => $unraid_disks[$i]["color"] ?? null,
-				"fscolor" => $unraid_disks[$i]["fsColor"] ?? null
+				"name" => ($unraid_disks[$i]["name"] ?? null),
+				"device" => ($unraid_disks[$i]["device"] ?? null),
+				"status" => ($unraid_disks[$i]["status"] ?? null),
+				"type" => ($unraid_disks[$i]["type"] ?? null),
+				"temp" => ($unraid_disks[$i]["temp"] ?? null),
+				"hotTemp" => ($unraid_disks[$i]["warning"] ? $unraid_disks[$i]["warning"] : $GLOBALS["display"]["hot"]),
+				"maxTemp" => ($unraid_disks[$i]["critical"] ? $unraid_disks[$i]["critical"] : $GLOBALS["display"]["max"]),
+				"color" => ($unraid_disks[$i]["color"] ?? null),
+				"fscolor" => ($unraid_disks[$i]["fsColor"] ?? null)
+			);
+		}
+		$i++;
+	}
+	
+	// get unassigned Unraid disks
+	
+	$unraid_devs = $GLOBALS["devs"];
+	$unraid_devs = array_values($unraid_devs);
+	
+	// modify the array to suit our needs
+	$unraid_unassigned = array();
+	$i=0;
+	while($i < count($unraid_devs)) {
+		$getdevicenode = $unraid_devs[$i]["device"];
+		if(!isset($unraid_devs[$i]["hotTemp"])) { 
+			$unraid_devs[$i]["hotTemp"] = 0;
+		}
+		if(!isset($unraid_devs[$i]["maxTemp"])) { 
+			$unraid_devs[$i]["maxTemp"] = 0;
+		}
+		if($getdevicenode) {
+			$unraid_array[$getdevicenode] = array(
+				"name" => ($unraid_devs[$i]["name"] ?? null),
+				"device" => ($unraid_devs[$i]["device"] ?? null),
+				"status" => ($unraid_devs[$i]["status"] ?? null),
+				"type" => ($unraid_devs[$i]["type"] ?? null),
+				"temp" => ($unraid_devs[$i]["temp"] ?? null),
+				"hotTemp" => ($unraid_devs[$i]["hotTemp"] ? $unraid_devs[$i]["hotTemp"] : $GLOBALS["display"]["hot"]),
+				"maxTemp" => ($unraid_devs[$i]["maxTemp"] ? $unraid_devs[$i]["maxTemp"] : $GLOBALS["display"]["max"]),
+				"color" => ($unraid_devs[$i]["color"] ?? null),
+				"fscolor" => ($unraid_devs[$i]["fsColor"] ?? null)
 			);
 		}
 		$i++;
@@ -1383,13 +1425,15 @@
 	
 	$displayinfo = json_decode($displayinfo, true);
 	
-	dashboard_toggle($dashboard_widget_pos);
+	//dashboard_toggle($dashboard_widget_pos); 
 	cronjob_timer($smart_updates);
 	
 	$color_array = array();
 	$color_array["empty"] = $bgcolor_empty;
 	
 // Group config
+	$last_group_id = 0;
+	
 	$sql = "SELECT * FROM settings_group ORDER BY id ASC";
 	$results = $db->query($sql);
 	
@@ -1399,6 +1443,7 @@
 		}
 	}
 	
+	$count_groups = array();
 	$sql = "SELECT id FROM settings_group GROUP BY id;";
 	$results = $db->query($sql);
 	while($data = $results->fetchArray(1)) {

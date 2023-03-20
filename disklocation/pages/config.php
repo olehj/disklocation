@@ -141,6 +141,10 @@
 	
 	$smart_updates = cronjob_timer();
 	$plugin_update_scan = update_scan_toggle(0, 1);
+	
+	if(empty($dashboard_widget) || $dashboard_widget == "on" || $dashboard_widget == "off") {
+		$dashboard_widget = 0;
+	}
 ?>
 <datalist id="disklocationColorsDef">
 	<option>#<?php echo $bgcolor_parity ?></option>
@@ -154,6 +158,27 @@
 	<?php echo ( $bgcolor_others != "41b5ef" ? "<option>#41b5ef</option>" : null ) ?>
 	<?php echo ( $bgcolor_empty != "aaaaaa" ? "<option>#aaaaaa</option>" : null ) ?>
 </datalist>
+<script>
+$(document).ready(function(){
+	$('input[type=radio]').change(function(){
+	var n = $(this).val();
+	switch(n) {
+		case '0':
+			$('#disp_parity').html("Parity");
+			$('#disp_data').html("Data");
+			$('#disp_cache').html("Cache");
+			$('#disp_unassigned').html("Unassigned devices");
+			break;
+		case '1':
+			$('#disp_parity').html("Critical");
+			$('#disp_data').html("Warning");
+			$('#disp_cache').html("Normal");
+			$('#disp_unassigned').html("Temperature N/A");
+			break;
+        }
+    });
+});
+</script>
 <form action="" method="post">
 	<table>
 		<tr>
@@ -162,17 +187,26 @@
 				<p>
 					<b>Change background colors:</b>
 				</p>
+				<p>
+					<input type="radio" name="dashboard_widget" id="bgcolor_display_0" value="0" <?php if($dashboard_widget == "0") echo "checked"; ?> />Disk Type
+					<input type="radio" name="dashboard_widget" id="bgcolor_display_1" value="1" <?php if($dashboard_widget == "1") echo "checked"; ?> />Heat Map
+					<!-- reusing the deprecated dashboard variable instead of messing with the database -->
+				</p>
+				<blockquote class='inline_help'>
+					Choose "Disk Type" for the traditional color scheme over the array and disk type.<br />
+					Choose "Heat Map" for backgrounds that depends on the temperature range set in Unraid, per disk or global.
+				</blockquote>
 				<div style="padding-top: 20px;">
 					<table>
 						<tr>
 							<td style="padding: 0;">
-								Parity
+								<div id="disp_parity"><?php echo (!$dashboard_widget ? "Parity" : "Critical") ?></div>
 							</td>
 							<td style="padding: 0;">
-								Data
+								<div id="disp_data"><?php echo (!$dashboard_widget ? "Data" : "Warning") ?></div></div>
 							</td>
 							<td style="padding: 0;">
-								Cache
+								<div id="disp_cache"><?php echo (!$dashboard_widget ? "Cache" : "Normal") ?></div></div>
 							</td>
 						</tr>
 						<tr>
@@ -191,7 +225,7 @@
 								<input type="color" required name="bgcolor_others" list="disklocationColorsDef" value="#<?php print($bgcolor_others); ?>" />
 							</td>
 							<td style="padding: 0;" colspan="2">
-								Unassigned devices
+								<div id="disp_unassigned"><?php echo (!$dashboard_widget ? "Unassigned devices" : "Temperature N/A") ?></div>
 							</td>
 						</tr>
 						<tr>
@@ -239,7 +273,7 @@
 					Choose if you want to display this plugin in the Unraid Dashboard, "Enable" or "Disable"<br />
 				</blockquote>
 				-->
-				<input type="hidden" name="dashboard_widget_pos" value="1" /> <!-- new Dashboard system, just leaving this to enabled by default -->
+				<input type="hidden" name="dashboard_widget_pos" value="0" /> <!-- new Dashboard system, just leaving this to disabled by default -->
 			</td>
 			<td style="padding-left: 25px; vertical-align: top;">
 				<h2>Updates</h2>
