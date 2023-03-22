@@ -5,7 +5,7 @@ Title="Devices"
 ---
 <?php
 	/*
-	 *  Copyright 2019-2020, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2023, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -25,6 +25,8 @@ Title="Devices"
 	 */
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/system.php");
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/devices.php");
+	
+	$disklocation_page_out = "";
 	
 	$sql = "SELECT * FROM settings_group ORDER BY id ASC";
 	$results = $db->query($sql);
@@ -53,32 +55,21 @@ Title="Devices"
 	if(!count_table_rows($db, "location")) {
 		$disklocation_page_out = "
 			<h1>Please configure Disk Location</h1>
-			Go to <a href=\"" . DISKLOCATIONCONF_URL . "\">Disk Location Configuration</a>
+			<p>Press the Unraid \"Help\" icon for additional information per page.</p>
+			<!--Go to <a href=\"" . DISKLOCATIONCONF_URL . "\">Disk Location Configuration</a>-->
 		";
 	}
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/signals.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/help.css")?>">
 <script type="text/javascript" src="<?autov("" . DISKLOCATION_PATH . "/pages/script/locate_script_top.js.php")?><?php print("&amp;path=" . DISKLOCATION_PATH . ""); ?>"></script>
-<script>
-$(function(){
-	// append tab
-	$('.tabs')
-		.append('<div class="tab"><input type="radio" name="tabs2" id="tab3"><label for="tab3"><i class="icon fa fa-cogs"></i>Configuration</label></div>');
-
-	$('#tab3').click(function() {
-		$.cookie('one', 'tab1', { expires:null, path: '/'});
-		location = '/Settings/disklocationConfig';
-	});
-});
-</script>
 <style type="text/css">
 	<?php include "/usr/local/emhttp/plugins/disklocation/pages/styles/disk.css.php"; ?>
 </style>
 <blockquote class='inline_help'>
 	<h3><b><?php echo $get_page_info["Title"] ?> ver. <?php echo DISKLOCATION_VERSION ?></b></h3>
 	<p>
-		Made by <?php echo $get_page_info["Author"] ?>. Copyright ©2018-2019. All rights reserved.
+		Made by <?php echo $get_page_info["Author"] ?>. Copyright ©2018-2023. All rights reserved.
 	</p>
 	<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
 		<input type="hidden" name="cmd" value="_donations" />
@@ -100,5 +91,51 @@ $(function(){
 		<li><b>Lower LED</b> indicates the SMART check, failed (red) or passed (green).</li>
 	</ul>
 	<br /><br />
+</blockquote>
+<blockquote class='inline_help'>
+	<h1>Additional help</h1>
+	
+	<h3>Installation</h3>
+	<dl>
+		<!--
+		<dt>Why does this plugin require smartmontools 7.0+?</dt>
+		<dd>During installation, smartmontools 7.0 will be installed for Unraid 6.6.x (it is included in Unraid 6.7+ as default). This is required for JSON-output for the smartctl command.</dd>
+		-->
+		
+		<!--
+		<dt>Why does this plugin require GIT tools?</dt>
+		<dd>This needs to be installed via the Nerd Pack plugin or other methods. During installation the package is cloned from a git repository and archived for later use locally, this simplifies the install updates a bit.</dd>
+		-->
+		
+		<dt>What else does it install in the system?</dt>
+		<dd>It will install a smartlocate script in /usr/local/bin/, this is needed for the "Locate" function. It will also add a script for cronjob in /etc/cron.hourly/</dd>
+		
+		<dt>How is the versioning working?</dt>
+		<dd>The digits are as following: the first is the year, second the month, and third the day. Technically an ISO date. Multiple updates at the same day will get a letter behind the date increasing from [a]. First version released was 2019.01.22</dd>
+		
+		<dt>What's the requirements?</dt>
+		<dd>A newer browser supporting HTML5, tested with Chrome-based browsers and Firefox.</dd>
+		
+		<dt>It takes a long time to open the page!</dt>
+		<dd>The first install will wake up all the drives and force scan SMART data to insert into a database, this might take a while. You can redo this later by clicking the "Force Scan All" button. The automagic cronjob will only scan drives which is already spinning (hopefully).</dd>
+	</dl>
+	
+	<h3>Configuration</h3>
+	<dl>
+		<dt>Removed devices shows up in the "Configuration" area, it didn't before.</dt>
+		<dd>The new system runs in the background and therefore does not run a function to remove these disks, but you can use the "Force Scan All" button to run it. NB! It will wake up all disks!</dd>
+	</dl>
+	
+	<h3>Other</h3>
+	<dl>
+		<dt>Why did you make this when it already exists something similar?</dt>
+		<dd>The other script which inspired me creating this one, does not support drives not directly attached to Unraid. And since I have several attached to a hardware raid card, I found it useful to be able to list all the drives regardless.</dd>
+		
+		<dt>How and where is the configuration file stored?</dt>
+		<dd>The configration is stored in a SQLite database and is located at: /boot/config/plugins/disklocation/disklocation.sqlite</dd>
+		
+		<dt>I want to reset everything to "Factory defaults", how?</dt>
+		<dd>You can delete the database under "System Files" tab. This will be recreated with blank defaults when you enter the plugin page next. Remember, all settings and tray allocations will be deleted for this plugin.</dd>
+	</dl>
 </blockquote>
 <?php print($disklocation_page_out); ?>

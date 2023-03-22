@@ -28,8 +28,6 @@ input.diskLocation {
 
 .flex-container_h>div {
 	display: flex;
-	/*width: <?php echo $tray_width[$gid] ?>px;*/
-	/*height: <?php echo $tray_height[$gid] ?>px;*/
 	margin: 5px;
 	padding: 10px 10px 10px 10px;
 	justify-content: space-between;
@@ -38,8 +36,6 @@ input.diskLocation {
 }
 .flex-container_v>div {
 	display: flex;
-	/*width: <?php echo $tray_height[$gid] ?>px;*/
-	/*height: <?php echo $tray_width[$gid] ?>px;*/
 	margin: 5px;
 	padding: 10px 10px 10px 10px;
 	flex-direction: column;
@@ -85,8 +81,6 @@ input.diskLocation {
 }
 .flex-container-layout_h>div {
 	display: flex;
-	/*width: <?php print($tray_width[$gid]/10); ?>px;*/
-	/*height: <?php print($tray_height[$gid]/10); ?>px;*/
 	margin: 1px;
 	padding: 5px 5px 5px 5px;
 	justify-content: center;
@@ -96,8 +90,6 @@ input.diskLocation {
 }
 .flex-container-layout_v>div {
 	display: flex;
-	/*width: <?php print($tray_height[$gid]/10); ?>px;*/
-	/*height: <?php print($tray_width[$gid]/10); ?>px;*/
 	margin: 1px;
 	padding: 5px 5px 5px 5px;
 	flex-direction: column;
@@ -105,23 +97,4 @@ input.diskLocation {
 	border-radius: 1px;
 	align-items: center;
 	justify-content: center;
-}
-
-
-/*inactive*/
-foofoofoo.diskLocation_foo {
-	padding: 5px;
-	width: 70px;
-	height: 30px;
-	background-color: #F2F2F2;
-	margin-top: auto;
-	margin-bottom: auto;
-	margin-left: -20px;
-	margin-right: -20px;
-	transform: rotate(90deg);
-}
-fooofoofoo.grid-container_foo {
-	/*grid-template-columns: <?php echo $grid_columns_styles ?>;*/
-	/*grid-template-rows: <?php echo $grid_rows_styles ?>;*/
-	/*grid-auto-flow: <?php echo $grid_count ?>;*/ /* column: bays ordered from top to bottom from left to right | row: ..from left to right from top to bottom */
 }

@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2020, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2023, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -38,6 +38,8 @@
 	
 	$sql = "SELECT * FROM settings_group ORDER BY id ASC";
 	$results = $db->query($sql);
+	
+	$disk_layouts_config = "";
 	
 	while($data = $results->fetchArray(1)) {
 		extract($data);
@@ -138,20 +140,15 @@
 	}
 	
 	$smart_updates = cronjob_timer();
+	
 	$plugin_update_scan = update_scan_toggle(0, 1);
+	
+	/*
+	if(empty($dashboard_widget) || $dashboard_widget == "on" || $dashboard_widget == "off") {
+		$dashboard_widget = 0;
+	}
+	*/
 ?>
-<script>
-$(function(){
-	// append tab
-	$('.tabs')
-		.append('<div class="tab"><input type="radio" name="tabs2" id="tab5"><label for="tab5"><i class="icon fa fa-server"></i>Devices</label></div>');
-
-	$('#tab5').click(function() {
-		$.cookie('one', 'tab1', { expires:null, path: '/'});
-		location = '/Tools/disklocation';
-	});
-});
-</script>
 <datalist id="disklocationColorsDef">
 	<option>#<?php echo $bgcolor_parity ?></option>
 	<option>#<?php echo $bgcolor_unraid ?></option>
@@ -164,6 +161,27 @@ $(function(){
 	<?php echo ( $bgcolor_others != "41b5ef" ? "<option>#41b5ef</option>" : null ) ?>
 	<?php echo ( $bgcolor_empty != "aaaaaa" ? "<option>#aaaaaa</option>" : null ) ?>
 </datalist>
+<script>
+$(document).ready(function(){
+	$('input:radio[name="dashboard_widget"]').change(function(){
+	var n = $(this).val();
+	switch(n) {
+		case '0':
+			$('#disp_parity').html("Parity");
+			$('#disp_data').html("Data");
+			$('#disp_cache').html("Cache");
+			$('#disp_unassigned').html("Unassigned devices");
+			break;
+		case '1':
+			$('#disp_parity').html("Critical");
+			$('#disp_data').html("Warning");
+			$('#disp_cache').html("Normal");
+			$('#disp_unassigned').html("Temperature N/A");
+			break;
+        }
+    });
+});
+</script>
 <form action="" method="post">
 	<table>
 		<tr>
@@ -172,17 +190,26 @@ $(function(){
 				<p>
 					<b>Change background colors:</b>
 				</p>
+				<p>
+					<input type="radio" name="dashboard_widget" id="bgcolor_display_0" value="0" <?php if($dashboard_widget == "0") echo "checked"; ?> />Disk Type
+					<input type="radio" name="dashboard_widget" id="bgcolor_display_1" value="1" <?php if($dashboard_widget == "1") echo "checked"; ?> />Heat Map
+					<!-- reusing the deprecated dashboard variable instead of messing with the database -->
+				</p>
+				<blockquote class='inline_help'>
+					Choose "Disk Type" for the traditional color scheme over the array and disk type.<br />
+					Choose "Heat Map" for backgrounds that depends on the temperature range set in Unraid, per disk or global.
+				</blockquote>
 				<div style="padding-top: 20px;">
 					<table>
 						<tr>
 							<td style="padding: 0;">
-								Parity
+								<div id="disp_parity"><?php echo (!$dashboard_widget ? "Parity" : "Critical") ?></div>
 							</td>
 							<td style="padding: 0;">
-								Data
+								<div id="disp_data"><?php echo (!$dashboard_widget ? "Data" : "Warning") ?></div></div>
 							</td>
 							<td style="padding: 0;">
-								Cache
+								<div id="disp_cache"><?php echo (!$dashboard_widget ? "Cache" : "Normal") ?></div></div>
 							</td>
 						</tr>
 						<tr>
@@ -201,7 +228,7 @@ $(function(){
 								<input type="color" required name="bgcolor_others" list="disklocationColorsDef" value="#<?php print($bgcolor_others); ?>" />
 							</td>
 							<td style="padding: 0;" colspan="2">
-								Unassigned devices
+								<div id="disp_unassigned"><?php echo (!$dashboard_widget ? "Unassigned devices" : "Temperature N/A") ?></div>
 							</td>
 						</tr>
 						<tr>
@@ -236,23 +263,20 @@ $(function(){
 					<input type="radio" name="warranty_field" value="u" <?php if($warranty_field == "u") echo "checked"; ?> />Unraid
 					<input type="radio" name="warranty_field" value="m" <?php if($warranty_field == "m") echo "checked"; ?>/>Manual ISO
 				</p>
+				<!--
 				<blockquote class='inline_help'>
 					Select how you want to enter the warranty date: the Unraid way of selecting amount of months, or manual ISO date for specific dates. Both values can be stored, but only one can be visible at a time.
 				</blockquote>
 				<p>
-					<b>Dashboard plugin position:</b><br />
+					<b>Dashboard plugin:</b><br />
 					<input type="radio" name="dashboard_widget_pos" value="0" <?php if(!$dashboard_widget_pos) echo "checked"; ?> />Off
-					<input type="radio" name="dashboard_widget_pos" value="1" <?php if($dashboard_widget_pos == 1) echo "checked"; ?> />Hardware
-					<input type="radio" name="dashboard_widget_pos" value="2" <?php if($dashboard_widget_pos == 2) echo "checked"; ?> />Disk arrays
+					<input type="radio" name="dashboard_widget_pos" value="1" <?php if($dashboard_widget_pos == 1) echo "checked"; ?> />On
 				</p>
 				<blockquote class='inline_help'>
 					Choose if you want to display this plugin in the Unraid Dashboard, "Enable" or "Disable"<br />
-					Enter a number in the location box to decide where to put the dashboard widget, this is a bit experimental.
-					Enter 0 and it will position itself automatically, usually at the bottom. Enter a number, like 10, and it will stay at the top of the page. 
-					If the number you wrote has the same number as another plugin, it will stay above or underneath it, so change the number and try again.
-					This feature is rather experimental and the behaviour might be unexpected, there's no real documentation for creating dashboard widgets with current Unraid Dashboard design.
-					And the positioning isn't easy to customize by just adding it into the page.
 				</blockquote>
+				-->
+				<input type="hidden" name="dashboard_widget_pos" value="0" /> <!-- new Dashboard system, just leaving this to disabled by default -->
 			</td>
 			<td style="padding-left: 25px; vertical-align: top;">
 				<h2>Updates</h2>
@@ -298,71 +322,74 @@ $(function(){
 				<table style="width: auto;">
 					<tr>
 						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[tray]" value="1" <?php if($displayinfo["tray"]) echo "checked"; ?> />Tray number
+							<input type="checkbox" name="displayinfo[tray]" value="1" <?php if(isset($displayinfo["tray"])) echo "checked"; ?> />Tray number
 						</td>
 						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[leddiskop]" value="1" <?php if($displayinfo["leddiskop"]) echo "checked"; ?> />Disk Operation LED
+							<input type="checkbox" name="displayinfo[leddiskop]" value="1" <?php if(isset($displayinfo["leddiskop"])) echo "checked"; ?> />Disk Operation LED
 						</td>
 						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[ledsmart]" value="1" <?php if($displayinfo["ledsmart"]) echo "checked"; ?> />SMART Status LED
-						</td>
-					</tr>
-					<tr>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[unraidinfo]" value="1" <?php if($displayinfo["unraidinfo"]) echo "checked"; ?> />Unraid info
+							<input type="checkbox" name="displayinfo[ledsmart]" value="1" <?php if(isset($displayinfo["ledsmart"])) echo "checked"; ?> />SMART Status LED
 						</td>
 						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[path]" value="1" <?php if($displayinfo["path"]) echo "checked"; ?> />Path
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[devicenode]" value="1" <?php if($displayinfo["devicenode"]) echo "checked"; ?> />Device Node
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[luname]" value="1" <?php if($displayinfo["luname"]) echo "checked"; ?> />Logical Unit Name
+							<input type="checkbox" name="displayinfo[ledtemp]" value="1" <?php if(isset($displayinfo["ledtemp"])) echo "checked"; ?> />Temperature LED
 						</td>
 					</tr>
 					<tr>
 						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[manufacturer]" value="1" <?php if($displayinfo["manufacturer"]) echo "checked"; ?> />Manufacturer
+							<input type="checkbox" name="displayinfo[unraidinfo]" value="1" <?php if(isset($displayinfo["unraidinfo"])) echo "checked"; ?> />Unraid info
 						</td>
 						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[devicemodel]" value="1" <?php if($displayinfo["devicemodel"]) echo "checked"; ?> />Device Model
+							<input type="checkbox" name="displayinfo[path]" value="1" <?php if(isset($displayinfo["path"])) echo "checked"; ?> />Path
 						</td>
 						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[serialnumber]" value="1" <?php if($displayinfo["serialnumber"]) echo "checked"; ?> />Serial Number
-						</td>
-					</tr>
-					<tr>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[temperature]" value="1" <?php if($displayinfo["temperature"]) echo "checked"; ?> />Temperature
+							<input type="checkbox" name="displayinfo[devicenode]" value="1" <?php if(isset($displayinfo["devicenode"])) echo "checked"; ?> />Device Node
 						</td>
 						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[powerontime]" value="1" <?php if($displayinfo["powerontime"]) echo "checked"; ?> />Power On Time
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[loadcyclecount]" value="1" <?php if($displayinfo["loadcyclecount"]) echo "checked"; ?> />Load Cycle Count
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[capacity]" value="1" <?php if($displayinfo["capacity"]) echo "checked"; ?> />Capacity
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[rotation]" value="1" <?php if($displayinfo["rotation"]) echo "checked"; ?> />Rotation
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[formfactor]" value="1" <?php if($displayinfo["formfactor"]) echo "checked"; ?> />Form Factor
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[warranty]" value="1" <?php if($displayinfo["warranty"]) echo "checked"; ?> />Warranty Left
+							<input type="checkbox" name="displayinfo[luname]" value="1" <?php if(isset($displayinfo["luname"])) echo "checked"; ?> />Logical Unit Name
 						</td>
 					</tr>
 					<tr>
 						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[comment]" value="1" <?php if($displayinfo["comment"]) echo "checked"; ?> />Comment
+							<input type="checkbox" name="displayinfo[manufacturer]" value="1" <?php if(isset($displayinfo["manufacturer"])) echo "checked"; ?> />Manufacturer
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[devicemodel]" value="1" <?php if(isset($displayinfo["devicemodel"])) echo "checked"; ?> />Device Model
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[serialnumber]" value="1" <?php if(isset($displayinfo["serialnumber"])) echo "checked"; ?> />Serial Number
+						</td>
+					</tr>
+					<tr>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[temperature]" value="1" <?php if(isset($displayinfo["temperature"])) echo "checked"; ?> />Temperature
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[powerontime]" value="1" <?php if(isset($displayinfo["powerontime"])) echo "checked"; ?> />Power On Time
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[loadcyclecount]" value="1" <?php if(isset($displayinfo["loadcyclecount"])) echo "checked"; ?> />Load Cycle Count
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[capacity]" value="1" <?php if(isset($displayinfo["capacity"])) echo "checked"; ?> />Capacity
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[rotation]" value="1" <?php if(isset($displayinfo["rotation"])) echo "checked"; ?> />Rotation
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[formfactor]" value="1" <?php if(isset($displayinfo["formfactor"])) echo "checked"; ?> />Form Factor
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[warranty]" value="1" <?php if(isset($displayinfo["warranty"])) echo "checked"; ?> />Warranty Left
+						</td>
+					</tr>
+					<tr>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[comment]" value="1" <?php if(isset($displayinfo["comment"])) echo "checked"; ?> />Comment
 						</td>
 					</tr>
 					<tr>
 						<td style="width: <?php echo $vi_width ?>px;" colspan="2">
-							<input type="checkbox" name="displayinfo[hideemptycontents]" value="1" <?php if($displayinfo["hideemptycontents"]) echo "checked"; ?> />Hide empty tray contents
+							<input type="checkbox" name="displayinfo[hideemptycontents]" value="1" <?php if(isset($displayinfo["hideemptycontents"])) echo "checked"; ?> />Hide empty tray contents
 						</td>
 					</tr>
 					<tr>

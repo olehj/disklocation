@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2021, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2023, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -18,13 +18,16 @@
 	 *  along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
 	 *
 	 */
-	// Comment out to enable debugging:
-	//$debugging_active = 1;
+	// Set to 1|2|3 to enable debugging:
+	$debugging_active = 0;
 	
 	// Set warning level
 	error_reporting(E_ERROR | E_WARNING | E_PARSE);
 	
+	$get_page_info = array();
+	$get_page_info["Version"] = "";
 	$get_page_info = parse_ini_file("/usr/local/emhttp/plugins/disklocation/disklocation.page");
+	
 	
 	// define constants
 	define("UNRAID_CONFIG_PATH", "/boot/config");
@@ -32,14 +35,19 @@
 	define("DISKINFORMATION", "/var/local/emhttp/disks.ini");
 	define("DISKLOGFILE", "/boot/config/disk.log");
 	define("DISKLOCATION_VERSION", $get_page_info["Version"]);
-	define("DISKLOCATION_URL", "/Tools/disklocation");
-	define("DISKLOCATIONCONF_URL", "/Settings/disklocationConfig");
+	define("DISKLOCATION_URL", "/Settings/disklocation");
+	define("DISKLOCATIONCONF_URL", "/Settings/disklocation");
 	define("DISKLOCATION_PATH", "/plugins/disklocation");
 	define("EMHTTP_ROOT", "/usr/local/emhttp");
 	
 	$disklocation_error = array();
 	$disklocation_new_install = 0;
 	$group = array();
+	$unraid_disklog = array();
+	
+	if(!isset($argv)) {
+		$argv = array();
+	}
 	
 	if(!is_file(DISKLOCATION_DB)) {
 		$disklocation_new_install = 1;
@@ -60,14 +68,21 @@
 	
 	require_once("sqlite_tables.php");
 	
-	if($argv[1] == "cronjob" || $argv[1] == "force") {
-		if(!$argv[2]) { 
+	$sql_status = "";
+	
+	// get disk logs
+	if(is_file(DISKLOGFILE)) {
+		$unraid_disklog = parse_ini_file(DISKLOGFILE, true);
+	}
+	
+	if(in_array("cronjob", $argv) || in_array("force", $argv)) {
+		if(!isset($argv[2])) { 
 			$debugging_active = 2;
 		}
 		set_time_limit(600); // set to 10 minutes.
 	}
 	
-	function debug_print($act = 0, $line, $section, $message) {
+	function debug_print($act, $line, $section, $message) {
 		if($act == 1 && $section && $message) {
 			// write out directly and flush out the results asap
 			$out = "<span style=\"color: red;\">[" . date("His") . "] <b>" . basename(__FILE__) . ":<i>" . $line . "</i></b> @ " . $section . ": " . $message . "</span><br />\n";
@@ -334,6 +349,8 @@
 		$results = array_diff($sql_hash, $arr_hash);
 		$old_hash = array_values($results);
 		
+		$sql_status = "";
+		
 		for($i=0; $i < count($old_hash); ++$i) {
 			$sql_status .= "
 				UPDATE disks SET
@@ -360,6 +377,8 @@
 		while($res = $results->fetchArray(1)) {
 			$location = $res["hash"];
 		}
+		
+		$sql_status = "";
 		
 		if(empty($location)) {
 			$sql_status .= "
@@ -624,7 +643,7 @@
 				return false;
 		}
 	}
-	
+/*
 	function dashboard_toggle($widget = 0) {
 		$path = "" . EMHTTP_ROOT . "" . DISKLOCATION_PATH . "";
 		
@@ -644,7 +663,7 @@
 			$widget_status = "on";
 		}
 	}
-	
+*/	
 	function update_scan_toggle($set = 0, $get_status = 0) {
 		$path = "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "";
 		
@@ -668,12 +687,10 @@
 	
 	function cronjob_timer($time = "") {
 		$curpath = "";
+		$curtime = "disabled";
 		$path = "/etc/cron.";
 		$filename = "disklocation.sh";
 		$md5sum = "be076c2fc24b9be95dede402a17fd4b4";
-		
-		define("DISKLOCATION_PATH", "/plugins/disklocation");
-		define("EMHTTP_ROOT", "/usr/local/emhttp");
 		
 		if(file_exists($path . "hourly/" . $filename) && md5_file($path . "hourly/" . $filename) == $md5sum) {
 			$curtime = "hourly";
@@ -712,14 +729,10 @@
 			}
 		}
 		
-		if(!$curtime && $time && $time != "disabled") {
+		if($time && $time != "disabled") {
 			copy(EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/disklocation.cron", $path . "" . $time . "/" . $filename);
 			chmod($path . "" . $time . "/" . $filename, 0777);
 			$curtime = $time;
-		}
-		
-		if(!$curtime) {
-			$curtime = "disabled";
 		}
 		
 		return ( $curtime ? $curtime : $time );
@@ -734,16 +747,24 @@
 		$pattern_devnode = "((\/dev\/((h|s)d[a-z]{1,}|nvme[0-9]{1,})(n[0-9]{1,})?))\s+";	// $2
 		$pattern_scsigendevnode = "(-|(\/dev\/(sg)[0-9]{1,}))";					// $7
 		
-		list($device, $devnode, $scsigendevnode) = 
-			explode("|", preg_replace("/" . $pattern_device . "" . $pattern_devnode . "" . $pattern_scsigendevnode . "/iu", "$1|$2|$7", $input));
+		if($input) {
+			list($device, $devnode, $scsigendevnode) = explode("|", preg_replace("/" . $pattern_device . "" . $pattern_devnode . "" . $pattern_scsigendevnode . "/iu", "$1|$2|$7", $input));
 		
-		$scsigendevnode = ( strstr($scsigendevnode, "-") ? $devnode : $scsigendevnode ); // script uses SG for most things, so we add nvme into it as well.
-		
-		return array(
-			"device"	=> trim($device),
-			"devnode"	=> str_replace("-", "", trim($devnode)),
-			"sgnode"	=> trim($scsigendevnode)
-		);
+			$scsigendevnode = ( strstr($scsigendevnode, "-") ? $devnode : $scsigendevnode ); // script uses SG for most things, so we add nvme into it as well.
+			
+			return array(
+				'device'	=> (trim($device) ?? null),
+				'devnode'	=> (str_replace("-", "", trim($devnode)) ?? null),
+				'sgnode'	=> (trim($scsigendevnode) ?? null)
+			);
+		}
+		else {
+			return array(
+				'device'	=> '',
+				'devnode'	=> '',
+				'sgnode'	=> ''
+			);
+		}
 	}
 	
 	function get_smart_rotation($input) {
@@ -844,7 +865,7 @@
 		exit;
 	}
 	
-	if($_POST["save_settings"]) {
+	if(isset($_POST["save_settings"])) {
 		debug_print($debugging_active, __LINE__, "POST", "Button: SAVE SETTINGS has been pressed.");
 		$sql = "";
 		
@@ -899,7 +920,7 @@
 						'" . $_POST["bgcolor_empty"] . "',
 						'" . $_POST["tray_reduction_factor"] . "',
 						'" . $_POST["warranty_field"] . "',
-						'" . SQLite3::escapeString($_POST["dashboard_widget"]) . "',
+						'" . SQLite3::escapeString($_POST["dashboard_widget"] ?? null) . "',
 						'" . $_POST["dashboard_widget_pos"] . "',
 						'" . $post_info . "'
 					)
@@ -915,7 +936,7 @@
 		}
 	}
 	
-	if($_POST["save_groupsettings"] && $_POST["groupid"]) {
+	if(isset($_POST["save_groupsettings"]) && isset($_POST["groupid"])) {
 		debug_print($debugging_active, __LINE__, "POST", "Button: SAVE GROUP SETTINGS has been pressed.");
 		$sql = "";
 		
@@ -956,14 +977,13 @@
 			}
 		}
 	}
-
-	if($_POST["save_allocations"]) {
+	
+	if(isset($_POST["save_allocations"])) {
 		debug_print($debugging_active, __LINE__, "POST", "Button: SAVE ALLOCATIONS has been pressed.");
 		// trays
 		$sql = "";
 		$post_drives = $_POST["drives"];
 		$post_groups = $_POST["groups"];
-		$post_empty = $_POST["empty"];
 		
 		if(empty($disklocation_error)) {
 			$keys_drives = array_keys($post_drives);
@@ -1068,18 +1088,19 @@
 	//$lsscsi_cmd = shell_exec("lsscsi -u -g");
 	$lsscsi_cmd = shell_exec("lsscsi -b -g");
 	$lsscsi_arr = explode(PHP_EOL, $lsscsi_cmd);
+	$force_scan = 0;
 	
 	// add and update disk info
-	if($_POST["force_smart_scan"] || $_GET["force_smart_scan"] || $disklocation_new_install || $argv[1] == "force") {
+	if(isset($_POST["force_smart_scan"]) || isset($_GET["force_smart_scan"]) || $disklocation_new_install || in_array("force", $argv)) {
 		$force_scan = 1; // trigger force_smart_scan post if it is a new install or if it is forced at CLI
 	}
 	
-	if($_GET["force_smart_scan"]) {
+	if(isset($_GET["force_smart_scan"])) {
 		$debugging_active = 3;
 	}
 	
-	if($force_scan || $argv[1] == "cronjob") {
-		if($_GET["force_smart_scan"]) {
+	if($force_scan || in_array("cronjob", $argv)) {
+		if(isset($_GET["force_smart_scan"])) {
 			print("
 				<!DOCTYPE HTML>
 				<html>
@@ -1159,6 +1180,7 @@
 				usleep($smart_exec_delay . 000); // delay script to get the output of the next shell_exec()
 				
 				if(!empty($smart_check_operation) || $force_scan) { // only get SMART data if the disk is spinning, if it is a new install/empty database, or if scan is forced.
+					$smart_standby_cmd = "";
 					if(!$force_scan) {
 						$smart_standby_cmd = "-n standby";
 					}
@@ -1166,7 +1188,7 @@
 					$smart_array = json_decode($smart_cmd[$i], true);
 					debug_print($debugging_active, __LINE__, "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "=" . ( is_array($smart_array) ? "array" : "empty" ) . "");
 					
-					if($smart_array["device"]["protocol"] == "SCSI") {
+					if(isset($smart_array["device"]["protocol"]) && $smart_array["device"]["protocol"] == "SCSI") {
 						$smart_lun = ( $smart_array["logical_unit_id"] ? $smart_array["logical_unit_id"] : null );
 						$smart_model_family = ( $smart_array["scsi_product"] ? $smart_array["scsi_product"] : $smart_array["product"] );
 						$smart_model_name = ( $smart_array["scsi_model_name"] ? $smart_array["scsi_model_name"] : $smart_array["model_name"] );
@@ -1178,13 +1200,15 @@
 						debug_print($debugging_active, __LINE__, "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "|PROTOCOL=SCSI");
 					}
 					else {
-						$smart_lun = "" . $smart_array["wwn"]["naa"] . " " . $smart_array["wwn"]["oui"] . " " . $smart_array["wwn"]["id"] . "";
-						$smart_model_family = $smart_array["model_family"];
-						$smart_model_name = $smart_array["model_name"];
+						if(isset($smart_array["wwn"])) {
+							$smart_lun = "" . $smart_array["wwn"]["naa"] ?? null . " " . $smart_array["wwn"]["oui"] ?? null . " " . $smart_array["wwn"]["id"] ?? null . "";
+						}
+						$smart_model_family = $smart_array["model_family"] ?? null;
+						$smart_model_name = $smart_array["model_name"] ?? null;
 						
 						$smart_i=0;
 						$smart_loadcycle_find = "";
-						if(is_array($smart_array["ata_smart_attributes"]["table"])) {
+						if(isset($smart_array["ata_smart_attributes"]["table"])) {
 							while($smart_i < count($smart_array["ata_smart_attributes"]["table"])) {
 								if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Load_Cycle_Count") {
 									$smart_loadcycle_find = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"];
@@ -1194,23 +1218,23 @@
 							}
 						}
 						
-						debug_print($debugging_active, __LINE__, "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "|PROTOCOL=" . $smart_array["device"]["protocol"] . "");
+						debug_print($debugging_active, __LINE__, "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "|PROTOCOL=" . ( isset($smart_array["device"]["protocol"]) ? $smart_array["device"]["protocol"] : null . ""));
 					}
 					
 					// Only check for SSD if rotation_rate doesn't exists.
-					if(!$smart_array["rotation_rate"]) {
-						$smart_array["rotation_rate"] = ( recursive_array_search("Solid State Device Statistics", $smart_array) ? -1 : $smart_array["rotation_rate"] );
-						if($smart_array["device"]["type"] == "nvme") {
+					if(!isset($smart_array["rotation_rate"])) {
+						$smart_array["rotation_rate"] = ( recursive_array_search("Solid State Device Statistics", $smart_array) ? -1 : null );
+						if(isset($smart_array["device"]["type"]) && $smart_array["device"]["type"] == "nvme") {
 							$smart_array["rotation_rate"] = -2;
 						}
 					}
-					$deviceid[$i] = hash('sha256', $smart_model_name . $smart_array["serial_number"]);
+					$deviceid[$i] = hash('sha256', $smart_model_name . ( isset($smart_array["serial_number"]) ? $smart_array["serial_number"] : null));
 					
 					debug_print($debugging_active, __LINE__, "HASH", "#:" . $i . ":" . $deviceid[$i] . "");
 					
 					find_and_unset_reinserted_devices_status($db, $deviceid[$i]);	// tags old existing devices with 'null', delete device from location just in case it for whatever reason it already exists.
 					
-					if($smart_array["serial_number"] && $smart_model_name) {
+					if(isset($smart_array["serial_number"]) && $smart_model_name) {
 						$sql = "
 							INSERT INTO
 								disks(
@@ -1231,33 +1255,34 @@
 									hash
 								)
 								VALUES(
-									'" . $lsscsi_device[$i] . "',
-									'" . $lsscsi_devicenode[$i] . "',
-									'" . $smart_lun . "',
-									'" . $smart_model_family . "',
-									'" . $smart_model_name . "',
-									'" . $smart_array["smart_status"]["passed"] . "',
-									'" . $smart_array["serial_number"] . "',
-									'" . $smart_array["temperature"]["current"] . "',
-									'" . $smart_array["power_on_time"]["hours"] . "',
-									'" . $smart_loadcycle_find . "',
-									'" . $smart_array["user_capacity"]["bytes"] . "',
-									'" . $smart_array["rotation_rate"] . "',
-									'" . $smart_array["form_factor"]["name"] . "',
+									'" . ($lsscsi_device[$i] ?? null) . "',
+									'" . ($lsscsi_devicenode[$i] ?? null) . "',
+									'" . ($smart_lun ?? null) . "',
+									'" . ($smart_model_family ?? null) . "',
+									'" . ($smart_model_name ?? null) . "',
+									'" . ($smart_array["smart_status"]["passed"] ?? null) . "',
+									'" . ($smart_array["serial_number"] ?? null) . "',
+									'" . ($smart_array["temperature"]["current"] ?? null) . "',
+									'" . ($smart_array["power_on_time"]["hours"] ?? null) . "',
+									'" . ($smart_loadcycle_find ?? null) . "',
+									'" . ($smart_array["user_capacity"]["bytes"] ?? null) . "',
+									'" . ($smart_array["rotation_rate"] ?? null) . "',
+									'" . ($smart_array["form_factor"]["name"] ?? null) . "',
 									'h',
-									'" . $deviceid[$i] . "'
+									'" . ($deviceid[$i] ?? null) . "'
 								)
 								ON CONFLICT(hash) DO UPDATE SET
-									device='" . $lsscsi_device[$i] . "',
-									devicenode='" . $lsscsi_devicenode[$i] . "',
-									luname='" . $smart_lun . "',
-									model_family='" . $smart_model_family . "',
-									smart_status='" . $smart_array["smart_status"]["passed"] . "',
-									smart_temperature='" . $smart_array["temperature"]["current"] . "',
-									smart_powerontime='" . $smart_array["power_on_time"]["hours"] . "',
-									smart_loadcycle='" . $smart_loadcycle_find . "',
-									smart_rotation='" . $smart_array["rotation_rate"] . "'
-								WHERE hash='" . $deviceid[$i] . "';
+									device='" . ($lsscsi_device[$i] ?? null) . "',
+									devicenode='" . ($lsscsi_devicenode[$i] ?? null) . "',
+									luname='" . ($smart_lun ?? null) . "',
+									model_family='" . ($smart_model_family ?? null) . "',
+									smart_status='" . ($smart_array["smart_status"]["passed"] ?? null) . "',
+									smart_temperature='" . ($smart_array["temperature"]["current"] ?? null) . "',
+									smart_powerontime='" . ($smart_array["power_on_time"]["hours"] ?? null) . "',
+									smart_loadcycle='" . ($smart_loadcycle_find ?? null) . "',
+									smart_rotation='" . ($smart_array["rotation_rate"] ?? null) . "'
+								WHERE hash='" . $deviceid[$i] . "'
+								;
 						";
 						
 						if(is_array($unraid_disklog["" . str_replace(" ", "_", $smart_model_name) . "_" . str_replace(" ", "_", $smart_array["serial_number"]) . ""])) {
@@ -1266,11 +1291,11 @@
 									purchased='" . $unraid_disklog["" . str_replace(" ", "_", $smart_model_name) . "_" . str_replace(" ", "_", $smart_array["serial_number"]) . ""]["purchase"] . "',
 									warranty='" . $unraid_disklog["" . str_replace(" ", "_", $smart_model_name) . "_" . str_replace(" ", "_", $smart_array["serial_number"]) . ""]["warranty"] . "'
 								WHERE hash = '" . $deviceid[$i] . "'
-								;
 							";
 						}
 						
 						debug_print($debugging_active, __LINE__, "SQL", "#:" . $i . ":<pre>" . $sql . "</pre>");
+						//print("#:" . $i . ":<pre>" . $sql . "</pre>");
 						
 						$ret = $db->exec($sql);
 						if(!$ret) {
@@ -1291,7 +1316,7 @@
 			find_and_set_removed_devices_status($db, $deviceid); 		// tags removed devices 'r', delete device from location
 		}
 		
-		if($_GET["force_smart_scan"]) {
+		if(isset($_GET["force_smart_scan"])) {
 			print("
 				</p>
 				<p>
@@ -1312,48 +1337,87 @@
 					})
 				</script>
 			");
+			die();
 		}
 	}
 	
-	if($_POST["reset_all_colors"]) {
+	if(isset($_POST["reset_all_colors"])) {
 		force_reset_color($db, "*");
 	}
 	
 // Common config
-	$unraid_disks = array();
+if(!in_array("cronjob", $argv)) {
+	$unraid_disks = $GLOBALS["disks"];
+	$unraid_disks = array_values($unraid_disks);
 	
 	// get configured Unraid disks
+	/*
 	if(is_file(DISKINFORMATION)) {
 		$unraid_disks_import = parse_ini_file(DISKINFORMATION, true);
 		$unraid_disks = array_values($unraid_disks_import);
 	}
-
+	*/
 	// modify the array to suit our needs
 	$unraid_array = array();
 	$i=0;
 	while($i < count($unraid_disks)) {
 		$getdevicenode = $unraid_disks[$i]["device"];
+		if(!isset($unraid_disks[$i]["hotTemp"])) { 
+			$unraid_disks[$i]["hotTemp"] = 0;
+		}
+		if(!isset($unraid_disks[$i]["maxTempl"])) { 
+			$unraid_disks[$i]["maxTemp"] = 0;
+		}
+		
 		if($getdevicenode) {
 			$unraid_array[$getdevicenode] = array(
-				"name" => $unraid_disks[$i]["name"],
-				"device" => $unraid_disks[$i]["device"],
-				"status" => $unraid_disks[$i]["status"],
-				"type" => $unraid_disks[$i]["type"],
-				"temp" => $unraid_disks[$i]["temp"],
-				"color" => $unraid_disks[$i]["color"],
-				"fscolor" => $unraid_disks[$i]["fsColor"]
+				"name" => ($unraid_disks[$i]["name"] ?? null),
+				"device" => ($unraid_disks[$i]["device"] ?? null),
+				"status" => ($unraid_disks[$i]["status"] ?? null),
+				"type" => ($unraid_disks[$i]["type"] ?? null),
+				"temp" => ($unraid_disks[$i]["temp"] ?? null),
+				"hotTemp" => ($unraid_disks[$i]["hotTemp"] ? $unraid_disks[$i]["hotTemp"] : $GLOBALS["display"]["hot"]),
+				"maxTemp" => ($unraid_disks[$i]["maxTemp"] ? $unraid_disks[$i]["maxTemp"] : $GLOBALS["display"]["max"]),
+				"color" => ($unraid_disks[$i]["color"] ?? null),
+				"fscolor" => ($unraid_disks[$i]["fsColor"] ?? null)
 			);
 		}
 		$i++;
 	}
 	
-	// get disk logs
-	if(is_file(DISKLOGFILE)) {
-		$unraid_disklog = parse_ini_file(DISKLOGFILE, true);
+	// get unassigned Unraid disks
+	
+	$unraid_devs = $GLOBALS["devs"];
+	$unraid_devs = array_values($unraid_devs);
+	
+	// modify the array to suit our needs
+	$unraid_unassigned = array();
+	$i=0;
+	while($i < count($unraid_devs)) {
+		$getdevicenode = $unraid_devs[$i]["device"];
+		if(!isset($unraid_devs[$i]["hotTemp"])) { 
+			$unraid_devs[$i]["hotTemp"] = 0;
+		}
+		if(!isset($unraid_devs[$i]["maxTemp"])) { 
+			$unraid_devs[$i]["maxTemp"] = 0;
+		}
+		if($getdevicenode) {
+			$unraid_array[$getdevicenode] = array(
+				"name" => ($unraid_devs[$i]["name"] ?? null),
+				"device" => ($unraid_devs[$i]["device"] ?? null),
+				"status" => ($unraid_devs[$i]["status"] ?? null),
+				"type" => ($unraid_devs[$i]["type"] ?? null),
+				"temp" => ($unraid_devs[$i]["temp"] ?? null),
+				"hotTemp" => ($unraid_devs[$i]["hotTemp"] ? $unraid_devs[$i]["hotTemp"] : $GLOBALS["display"]["hot"]),
+				"maxTemp" => ($unraid_devs[$i]["maxTemp"] ? $unraid_devs[$i]["maxTemp"] : $GLOBALS["display"]["max"]),
+				"color" => ($unraid_devs[$i]["color"] ?? null),
+				"fscolor" => ($unraid_devs[$i]["fsColor"] ?? null)
+			);
+		}
+		$i++;
 	}
 	
 	// get settings from DB as $var
-	
 	$sql = "SELECT * FROM settings";
 	$results = $db->query($sql);
 	
@@ -1363,13 +1427,15 @@
 	
 	$displayinfo = json_decode($displayinfo, true);
 	
-	dashboard_toggle($dashboard_widget_pos);
+	//dashboard_toggle($dashboard_widget_pos); 
 	cronjob_timer($smart_updates);
 	
 	$color_array = array();
 	$color_array["empty"] = $bgcolor_empty;
 	
 // Group config
+	$last_group_id = 0;
+	
 	$sql = "SELECT * FROM settings_group ORDER BY id ASC";
 	$results = $db->query($sql);
 	
@@ -1379,6 +1445,7 @@
 		}
 	}
 	
+	$count_groups = array();
 	$sql = "SELECT id FROM settings_group GROUP BY id;";
 	$results = $db->query($sql);
 	while($data = $results->fetchArray(1)) {
@@ -1397,4 +1464,5 @@
 	print(count($group));
 	die();
 	*/
+}
 ?>

@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2020, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2023, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -68,22 +68,27 @@
 		}
 	}
 	
-	if($_POST["del_backup"]) {
+	if(isset($_POST["del_backup"])) {
 		disklocation_system("backup", "delete");
 	}
-	if($_POST["del_debug"]) {
+	if(isset($_POST["del_debug"])) {
 		disklocation_system("debug", "delete");
 	}
-	if($_POST["del_database"]) {
+	if(isset($_POST["del_database"])) {
 		disklocation_system("database", "delete");
 		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
-	if($_POST["undelete_devices"]) {
+	if(isset($_POST["undelete_devices"])) {
 		force_undelete_devices($db, 'm');
 		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
 		exit;
 	}
+
+	$print_list_backup = "";
+	$print_list_debug = "";
+	$print_list_database = "";
+	$print_list_undelete = "";
 	
 	$list_backup = disklocation_system("backup", "list");
 	if($list_backup) {

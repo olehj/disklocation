@@ -2,9 +2,10 @@
 
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
+<!ENTITY prettyname       "Disk Location">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2022.06.18">
-<!ENTITY launch           "Tools/&name;">
+<!ENTITY version          "2023.03.22">
+<!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
 <!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/&branch;/&name;-&branch;.plg">
@@ -15,19 +16,19 @@
 <!ENTITY pluginsupportURL "https://forums.unraid.net/topic/77302-plugin-disk-location/">
 ]>
 
-<PLUGIN  name="&name;"
+<PLUGIN  name="&prettyname;"
          author="&author;"
          version="&version;"
          launch="&launch;"
          pluginURL="&pluginURL;"
-	 icon="server"
-	 min="6.9.0"
-	 support="&pluginsupportURL;"
+         icon="server"
+         min="6.11.9"
+         support="&pluginsupportURL;"
 >
 
 <!--
 
-    Copyright 2019-2021, Ole-Henrik Jakobsen
+    Copyright 2019-2023, Ole-Henrik Jakobsen
 
     This file is part of Disk Location for Unraid.
 
@@ -46,6 +47,12 @@
 
 -->
 <CHANGES>
+###2023.03.22
+ - Commit #193 - BUG: Various bugs fixed. Eg. SMART crontab should now be able to install again.
+ - Commit #192 - IMPROVEMENT: Prepared for Unraid 6.12 and above. Breaks Dashboard compatibility with earlier Unraid versions.
+ - Commit #190 - FEATURE: Addition of a Heat Map has been added, this can now be chosen instead of the traditional color scheme. It will disable custom drive colors.
+ - Commit #176 - BUG: Fixed storing warranty and purchase date from the Unraid system to the plugins database.
+
 ###2022.06.18
  - Commit #187 - BUG: Posted warnings about non numeric values, fixed by looking for "is_numeric" instead of "isset"
 

@@ -2,9 +2,10 @@
 
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
+<!ENTITY prettyname       "Disk Location">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2022.06.18-dev">
-<!ENTITY launch           "Tools/&name;">
+<!ENTITY version          "2023.03.22-dev">
+<!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
 <!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/&branch;/&name;-&branch;.plg">
@@ -15,18 +16,18 @@
 <!ENTITY pluginsupportURL "https://forums.unraid.net/topic/77302-plugin-disk-location/">
 ]>
 
-<PLUGIN  name="&name;"
+<PLUGIN  name="&prettyname;"
          author="&author;"
          version="&version;"
          launch="&launch;"
          pluginURL="&pluginURL;"
-	 icon="server"
-	 support="&pluginsupportURL;"
+         icon="server"
+         support="&pluginsupportURL;"
 >
 
 <!--
 
-    Copyright 2019-2021, Ole-Henrik Jakobsen
+    Copyright 2019-2023, Ole-Henrik Jakobsen
 
     This file is part of Disk Location for Unraid.
 
@@ -44,7 +45,6 @@
     along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
 
 -->
-
 <CHANGES>
 ###Development releases
  - This package includes unstable development branch and should only be used for testing or instructed to do so.

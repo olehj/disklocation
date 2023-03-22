@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2021, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2023, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -45,6 +45,8 @@
 	$print_drives = array();
 	$datasql = array();
 	$custom_colors_array = array();
+	$warr_options = "";
+	
 	$results = $db->query($sql);	
 	//while($i < $total_disks) {
 	while($res = $results->fetchArray(1)) {
@@ -73,9 +75,9 @@
 		}
 		
 		$warr_input = "";
+		
 		if($warranty_field == "u") {
-			$warr_options = "";
-			for($warr_i = 12; $warr_i <= (12*5); $warr_i+=12) {
+			for($warr_i = 6; $warr_i <= (6*10); $warr_i+=6) {
 				if($data["warranty"] == $warr_i) { $selected="selected"; } else { $selected=""; }
 				$warr_options .= "<option value=\"$warr_i\" " . $selected . " style=\"text-align: right;\">$warr_i months</option>";
 			}
@@ -87,10 +89,12 @@
 		
 		$smart_rotation = get_smart_rotation($data["smart_rotation"]);
 		
+		
+		
 		$bgcolor = ( empty($data["color"]) ? $color_array[$data["hash"]] : $data["color"] );
 		
 		$print_drives[$i_drive] = "
-			<tr style=\"background: #" . $color_array[$data["hash"]] . ";\">
+			<tr style=\"background: #" . ($color_array[$data["hash"]] ?? null) . ";\">
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><select name=\"groups[" . $data["hash"] . "]\" dir=\"rtl\" style=\"min-width: 0; max-width: 150px; min-width: 40px;\"><option value=\"\" selected style=\"text-align: right;\">--</option>" . $group_options . "</select></td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><select name=\"drives[" . $data["hash"] . "]\" dir=\"rtl\" style=\"min-width: 0; max-width: 50px; width: 40px;\"><option value=\"\" selected style=\"text-align: right;\">--</option>" . $tray_options . "</select></td>
 				<td style=\"padding: 0 10px 0 10px; text-align: center;\"><input type=\"button\" class=\"diskLocation\" style=\"transform: none;\" onclick=\"locateStart()\" value=\"Locate\" id=\"" . $data["device"] . "\" name=\"" . $data["device"] . "\" /></td>
@@ -105,7 +109,10 @@
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><input type=\"date\" name=\"purchased[" . $data["hash"] . "]\" value=\"" . $data["purchased"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" /></td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $warr_input . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><input type=\"text\" name=\"comment[" . $data["hash"] . "]\" value=\"" . stripslashes(htmlspecialchars($data["comment"])) . "\" style=\"width: 150px;\" /></td>
-				<td style=\"padding: 0 10px 0 10px;\"><input type=\"color\" name=\"bgcolor_custom[" . $data["hash"] . "]\" list=\"disklocationColors\" value=\"#" . $bgcolor . "\" /></td>
+				<td style=\"padding: 0 10px 0 10px;\">
+					<input type=\"color\" name=\"bgcolor_custom[" . $data["hash"] . "]\" list=\"disklocationColors\" value=\"#" . $bgcolor . "\" " . ($dashboard_widget ? "disabled=\"disabled\"" : null ) . " />
+					" . ($dashboard_widget ? "<input type=\"hidden\" name=\"bgcolor_custom[" . $data["hash"] . "]\" value=\"#" . $bgcolor . "\" />" : null ) . "
+				</td>
 			</tr>
 		";
 		$i_drive++;
@@ -114,10 +121,10 @@
 	
 	// get unassigned disks info
 	$data = "";
-	
 	$sql = "SELECT * FROM disks WHERE status = 'h' ORDER BY ID ASC;";
-	
 	$results = $db->query($sql);
+	$print_add_drives = "";
+	$warr_options = "";
 	
 	while($data = $results->fetchArray(1)) {
 		$tray_options = "";
@@ -147,7 +154,7 @@
 		$bgcolor = ( empty($data["color"]) ? $bgcolor_empty : $data["color"] );
 		
 		$print_add_drives .= "
-			<tr style=\"background: #" . $color_array[$data["hash"]] . ";\">
+			<tr style=\"background: #" . ($color_array[$data["hash"]] ?? null) . ";\">
 				<td style=\"padding: 0 10px 0 10px;  text-align: right;\"><select name=\"groups[" . $data["hash"] . "]\" dir=\"rtl\" style=\"min-width: 0; max-width: 100px; min-width: 40px;\"><option value=\"\" selected style=\"text-align: right;\">--</option>" . $group_options . "</select></td>
 				<td style=\"padding: 0 10px 0 10px;  text-align: right;\"><select name=\"drives[" . $data["hash"] . "]\" dir=\"rtl\" style=\"min-width: 0; max-width: 50px; width: 40px;\"><option value=\"\" selected style=\"text-align: right;\">--</option>" . $tray_options . "</select></td>
 				<td style=\"padding: 0 10px 0 10px; text-align: center;\"><input type=\"button\" class=\"diskLocation\" style=\"transform: none;\" onclick=\"locateStart()\" value=\"Locate\" id=\"" . $data["device"] . "\" name=\"" . $data["device"] . "\" /></td>
@@ -162,7 +169,10 @@
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><input type=\"date\" name=\"purchased[" . $data["hash"] . "]\" value=\"" . $data["purchased"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" /></td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $warr_input . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><input type=\"text\" name=\"comment[" . $data["hash"] . "]\" value=\"" . stripslashes(htmlspecialchars($data["comment"])) . "\" style=\"width: 150px;\" /></td>
-				<td style=\"padding: 0 10px 0 10px;\"><input type=\"color\" name=\"bgcolor_custom[" . $data["hash"] . "]\" list=\"disklocationColors\" value=\"#" . $bgcolor . "\" /></td>
+				<td style=\"padding: 0 10px 0 10px;\">
+					<input type=\"color\" name=\"bgcolor_custom[" . $data["hash"] . "]\" list=\"disklocationColors\" value=\"#" . $bgcolor . "\" " . ($dashboard_widget ? "disabled=\"disabled\"" : null ) . " />
+					" . ($dashboard_widget ? "<input type=\"hidden\" name=\"bgcolor_custom[" . $data["hash"] . "]\" value=\"#" . $bgcolor . "\" />" : null ) . "
+				</td>
 			</tr>
 		";
 	}
@@ -179,6 +189,8 @@
 	
 	$sql = "SELECT * FROM settings_group ORDER BY id ASC";
 	$results = $db->query($sql);
+	
+	$disk_layouts_alloc = "";
 	
 	while($group = $results->fetchArray(1)) {
 		extract($group);
@@ -211,10 +223,12 @@
 		$a++;
 	}
 	
-	$custom_colors_array_dedup = array_values(array_unique($custom_colors_array));
-	
-	for($i=0; $i < count($custom_colors_array_dedup); ++$i) {
-		$bgcolor_custom_array .= "<option>#" . $custom_colors_array_dedup[$i] . "</option>\n";
+	$bgcolor_custom_array = "";
+	if(isset($custom_colors_array)) {
+		$custom_colors_array_dedup = array_values(array_unique($custom_colors_array));
+		for($i=0; $i < count($custom_colors_array_dedup); ++$i) {
+			$bgcolor_custom_array .= "<option>#" . $custom_colors_array_dedup[$i] . "</option>\n";
+		}
 	}
 ?>
 <datalist id="disklocationColors">
@@ -232,6 +246,11 @@
 	<div style="clear: both;"></div>
 	<!--<blockquote class='inline_help'>-->
 		<p style="color: red;"><b>OBS! When allocating drives you must use the TrayID numbers shown in bold and not the physical tray assignment shown on the right/bottom (these are only shown if the numbers differ).</b><br /><br /></p>
+		<?php
+			if($dashboard_widget) { 
+				print("<p style=\"color: red;\">Custom Color is disabled when \"Heat Map\" is used.<br /><br /></p>");
+			}
+		?>
 	<!--</blockquote>-->
 	<table style="width: 0;">
 		<tr>
@@ -261,7 +280,7 @@
 							print($print_drives[$i]);
 							$i++;
 						}
-						if($print_add_drives) {
+						if(isset($print_add_drives)) {
 							print("
 								<tr>
 									<td style=\"padding: 10px 10px 0 10px;\" colspan=\"15\">
@@ -347,53 +366,6 @@
 					</ul>
 					<!--You can also run "Force Scan All" from the shell and get direct output which might be useful for debugging:<br />
 					<code style="white-space: nowrap;">php -f /usr/local/emhttp/plugins/disklocation/pages/system.php force</code>-->
-				</blockquote>
-				
-				<blockquote class='inline_help'>
-					<h1>Additional help</h1>
-					
-					<h3>Installation</h3>
-					<dl>
-						<!--
-						<dt>Why does this plugin require smartmontools 7.0+?</dt>
-						<dd>During installation, smartmontools 7.0 will be installed for Unraid 6.6.x (it is included in Unraid 6.7+ as default). This is required for JSON-output for the smartctl command.</dd>
-						-->
-						
-						<!--
-						<dt>Why does this plugin require GIT tools?</dt>
-						<dd>This needs to be installed via the Nerd Pack plugin or other methods. During installation the package is cloned from a git repository and archived for later use locally, this simplifies the install updates a bit.</dd>
-						-->
-						
-						<dt>What else does it install in the system?</dt>
-						<dd>It will install a smartlocate script in /usr/local/bin/, this is needed for the "Locate" function. It will also add a script for cronjob in /etc/cron.hourly/</dd>
-						
-						<dt>How is the versioning working?</dt>
-						<dd>The digits are as following: the first is the year, second the month, and third the day. Technically an ISO date. Multiple updates at the same day will get a letter behind the date increasing from [a]. First version released was 2019.01.22</dd>
-						
-						<dt>What's the requirements?</dt>
-						<dd>A newer browser supporting HTML5, tested with Chrome-based browsers and Firefox.</dd>
-						
-						<dt>It takes a long time to open the page!</dt>
-						<dd>The first install will wake up all the drives and force scan SMART data to insert into a database, this might take a while. You can redo this later by clicking the "Force Scan All" button. The automagic cronjob will only scan drives which is already spinning (hopefully).</dd>
-					</dl>
-					
-					<h3>Configuration</h3>
-					<dl>
-						<dt>Removed devices shows up in the "Configuration" area, it didn't before.</dt>
-						<dd>The new system runs in the background and therefore does not run a function to remove these disks, but you can use the "Force Scan All" button to run it. NB! It will wake up all disks!</dd>
-					</dl>
-					
-					<h3>Other</h3>
-					<dl>
-						<dt>Why did you make this when it already exists something similar?</dt>
-						<dd>The other script which inspired me creating this one, does not support drives not directly attached to Unraid. And since I have several attached to a hardware raid card, I found it useful to be able to list all the drives regardless.</dd>
-						
-						<dt>How and where is the configuration file stored?</dt>
-						<dd>The configration is stored in a SQLite database and is located at: /boot/config/plugins/disklocation/disklocation.sqlite</dd>
-						
-						<dt>I want to reset everything to "Factory defaults", how?</dt>
-						<dd>You can delete the database under "System Files" tab. This will be recreated with blank defaults when you enter the plugin page next. Remember, all settings and tray allocations will be deleted for this plugin.</dd>
-					</dl>
 				</blockquote>
 			</td>
 		</tr>

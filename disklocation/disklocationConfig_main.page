@@ -1,8 +1,6 @@
-Menu="disklocationConfig:1"
+Menu="disklocation:3"
 Icon="cogs"
 Tag="cogs"
-Type="xmenu"
-Tabs="true"
 Title="Configuration"
 ---
 <?php 

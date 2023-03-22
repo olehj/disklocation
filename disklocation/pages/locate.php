@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2020, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2023, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -20,15 +20,15 @@
 	 */
 	$smartlocate_path = "/usr/local/bin";
 	
-	if($_GET["disklocation"] && $_GET["cmd"] == "start") {
+	if(isset($_GET["disklocation"]) && $_GET["cmd"] == "start") {
 		shell_exec("" . $smartlocate_path . "/smartlocate " . escapeshellarg($_GET["disklocation"] . ""));
 		exit;
 	}
-	else if($_GET["disklocation"] && $_GET["cmd"] == "stop") {
+	else if(isset($_GET["disklocation"]) && $_GET["cmd"] == "stop") {
 		shell_exec("pkill -f \"smartlocate " . escapeshellarg($_GET["disklocation"] . "\""));
 		exit;
 	}
-	else if($_GET["cmd"] == "killall") {
+	else if(isset($_GET["cmd"]) == "killall") {
 		shell_exec("pkill -f smartlocate");
 		exit;
 	}

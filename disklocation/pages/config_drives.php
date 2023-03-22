@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2021, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2023, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -59,6 +59,7 @@
 		
 		$smart_rotation = get_smart_rotation($data["smart_rotation"]);
 		
+		$date_warranty = "";
 		$warranty_expire = "";
 		$warranty_left = "";
 		if($data["purchased"] && ($data["warranty"] || $data["warranty_date"])) {
@@ -116,10 +117,9 @@
 	
 	// get removed disks info
 	$data = "";
-	
 	$sql = "SELECT * FROM disks WHERE status = 'r' ORDER BY ID DESC;";
-	
 	$results = $db->query($sql);
+	$print_removed_drives = "";
 	
 	while($data = $results->fetchArray(1)) {
 		$hash = $data["hash"];
@@ -153,7 +153,7 @@
 		}
 		
 		$print_removed_drives .= "
-			<tr style=\"background: #" . $color_array[$data["hash"]] . ";\">
+			<tr style=\"background: #" . ($color_array[$data["hash"]] ?? null) . ";\">
 				<td style=\"padding: 0 10px 0 10px; white-space: nowrap;\">
 					<form action=\"" . DISKLOCATION_PATH . "/pages/system.php\" method=\"post\">
 						<button type=\"submit\" name=\"delete\" title=\"Delete, this will flag the drive hidden in the database.\" style=\"min-width: 0; background-size: 0; margin: 0; padding: 0;\"><i style=\"font-size: 15px;\" class=\"fa fa-minus-circle fa-lg\"></i></button>
@@ -224,7 +224,7 @@
 	While the <i class="fa fa-plus-circle fa-lg"></i> button will re-add the drive to the main list for tray allocation, it will revert back to the not found list if the drive does actually not exists after using "Force scan all".
 </p>
 <?php
-	if($print_removed_drives) {
+	if(isset($print_removed_drives)) {
 		print("
 			<table>
 				<tr style=\"border: solid 1px #000000;\">
