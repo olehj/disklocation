@@ -375,7 +375,7 @@
 				
 				if(isset($displayinfo["ledtemp"])) {
 					if($unraid_array[$devicenode]["temp"] < $unraid_array[$devicenode]["hotTemp"]) {
-						$temp_status_icon = "<a class='info'><i class='fa fa-fire green-orb'></i><span>" . $smart_temperature . "</span></a>";
+						$temp_status_icon = "<a class='info'><i class='fa fa-circle orb green-orb'></i><span>" . $smart_temperature . "</span></a>";
 						$temp_status = 1;
 					}
 					if($unraid_array[$devicenode]["temp"] >= $unraid_array[$devicenode]["hotTemp"]) {
