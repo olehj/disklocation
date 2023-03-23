@@ -364,7 +364,7 @@
 							//$smart_status_icon = "<span class=\"green-on\" alt=\"S.M.A.R.T: Passed\" title=\"S.M.A.R.T: Passed\" />&#11044;</span>";
 							break;
 						case 0:
-							$smart_status_icon = "<a class='info'><i class='fa fa-times orb red-orb'></i><span>S.M.A.R.T: Failed!</span></a>";
+							$smart_status_icon = "<a class='info'><i class='fa fa-circle orb red-orb'></i><span>S.M.A.R.T: Failed!</span></a>";
 							//$smart_status_icon = "<span class=\"red-on\" alt=\"S.M.A.R.T: Failed!\" title=\"S.M.A.R.T: Failed!\" />&#11044;</span>";
 							break;
 						default:
@@ -374,11 +374,6 @@
 				}
 				
 				if(isset($displayinfo["ledtemp"])) {
-					if(!isset($unraid_array[$devicenode]["temp"])) { $unraid_array[$devicenode]["temp"] = 0; }
-					if(!$unraid_array[$devicenode]["temp"]) {
-						$temp_status_icon = "<a class='info'><i class='fa fa-circle orb gray-orb'></i><span></span></a>";
-						$temp_status = 0;
-					}
 					if($unraid_array[$devicenode]["temp"] < $unraid_array[$devicenode]["hotTemp"]) {
 						$temp_status_icon = "<a class='info'><i class='fa fa-circle orb green-orb'></i><span>" . $smart_temperature . "</span></a>";
 						$temp_status = 1;
@@ -390,6 +385,12 @@
 					if($unraid_array[$devicenode]["temp"] >= $unraid_array[$devicenode]["maxTemp"]) {
 						$temp_status_icon = "<a class='info'><i class='fa fa-fire red-blink'></i><span>" . $smart_temperature . " (Critical: &gt;" . $smart_temperature_critical . ")</span></a>";
 						$temp_status = 3;
+					}
+					if(!$unraid_array[$devicenode]["temp"] && (!$unraid_array[$devicenode]["temp"] && $unraid_array[$devicenode]["hotTemp"] == 0 && $unraid_array[$devicenode]["maxTemp"] == 0)) {
+						$unraid_array[$devicenode]["temp"] = 0;
+						
+						$temp_status_icon = "<a class='info'><i class='fa fa-fire orb grey-orb'></i><span>Temperature unavailable</span></a>";
+						$temp_status = 0;
 					}
 				}
 				
@@ -450,10 +451,6 @@
 					}
 				}
 				else {
-					if(!isset($unraid_array[$devicenode]["temp"])) { $unraid_array[$devicenode]["temp"] = 0; }
-					if(!$unraid_array[$devicenode]["temp"]) {
-						$color_array[$deviceid] = $bgcolor_others;
-					}
 					if($unraid_array[$devicenode]["temp"] < $unraid_array[$devicenode]["hotTemp"]) {
 						$color_array[$deviceid] = $bgcolor_cache;
 					}
@@ -462,6 +459,9 @@
 					}
 					if($unraid_array[$devicenode]["temp"] >= $unraid_array[$devicenode]["maxTemp"]) {
 						$color_array[$deviceid] = $bgcolor_parity;
+					}
+					if(!$unraid_array[$devicenode]["temp"] && (!$unraid_array[$devicenode]["temp"] && $unraid_array[$devicenode]["hotTemp"] == 0 && $unraid_array[$devicenode]["maxTemp"] == 0)) {
+						$color_array[$deviceid] = $bgcolor_others;
 					}
 				}
 				
