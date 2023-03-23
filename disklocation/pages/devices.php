@@ -389,7 +389,7 @@
 					if(!$unraid_array[$devicenode]["temp"] && (!$unraid_array[$devicenode]["temp"] && $unraid_array[$devicenode]["hotTemp"] == 0 && $unraid_array[$devicenode]["maxTemp"] == 0)) {
 						$unraid_array[$devicenode]["temp"] = 0;
 						
-						$temp_status_icon = "<a class='info'><i class='fa fa-fire orb grey-orb'></i><span>Temperature unavailable</span></a>";
+						$temp_status_icon = "<a class='info'><i class='fa fa-circle orb grey-orb'></i><span>Temperature unavailable</span></a>";
 						$temp_status = 0;
 					}
 				}
