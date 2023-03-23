@@ -2,41 +2,35 @@
 		font-size: 1.1rem;
 		margin: 0;
 		padding: 0 0 0 0;
+		cursor: help;
 	}
 	.grey-orb { color: #C0C0C0 }
 	.grey-off {
 		color: #C0C0C0;
 		font-size: 8pt;
-		cursor: help;
 	}
-	
 	.green-orb{ color: #33CC33 }
 	.green-on {
 		color: #33CC33;
 		font-size: 8pt;
-		cursor: help;
 	}
 	.green-blink {
 		animation: blinker-green 2s ease-in-out infinite;
 		font-size: 8pt;
-		cursor: help;
 	}
 	@keyframes blinker-green {
 		0% {color: #AAAAAA;}
 		50% {color: #33CC33;}
 		100% {color: #AAAAAA;}
 	}
-
 	.yellow-orb { color: #FF9900 }
 	.yellow-on {
 		color: #FF9900;
 		font-size: 8pt;
-		cursor: help;
 	}
 	.yellow-blink {
 		animation: blinker-yellow 2s ease-in-out infinite;
 		font-size: 8pt;
-		cursor: help;
 	}
 	@keyframes blinker-yellow {
 		0% {color: #AAAAAA;}
@@ -51,22 +45,18 @@
 		50% {background-color: #FF9900;}
 		100% {background-color: #000000;}
 	}
-
 	.red-orb{ color: #FF3300 }
 	.red-on {
 		color: #FF3300;
 		font-size: 8pt;
-		cursor: help;
 	}
 	.red-off {
 		color: #FF3300;
 		font-size: 8pt;
-		cursor: help;
 	}
 	.red-blink {
 		animation: blinker-red 1s ease-in-out infinite;
 		font-size: 8pt;
-		cursor: help;
 	}
 	@keyframes blinker-red {
 		0% {color: #FF0000;}
@@ -85,17 +75,14 @@
 		75% {background-color: #000000;}
 		100% {background-color: #FF0000;}
 	}
-
 	.blue-orb{ color: #0099FF }
 	.blue-on {
 		color: #0099FF;
 		font-size: 8pt;
-		cursor: help;
 	}
 	.blue-blink {
 		animation: blinker-blue 2s ease-in-out infinite;
 		font-size: 8pt;
-		cursor: help;
 	}
 	@keyframes blinker-blue {
 		0% {color: #AAAAAA;}
