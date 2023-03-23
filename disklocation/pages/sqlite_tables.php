@@ -56,7 +56,9 @@
 		'formfactor' => 1,
 		'warranty' => 1,
 		'comment' => 0,
-		'hideemptycontents' => 0
+		'hideemptycontents' => 0,
+		'flashwarning' => 0,
+		'flashcritical' => 1
 	));
 	
 //	Group settings
