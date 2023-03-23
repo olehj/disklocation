@@ -391,11 +391,24 @@ $(document).ready(function(){
 						<td style="width: <?php echo $vi_width ?>px;" colspan="2">
 							<input type="checkbox" name="displayinfo[hideemptycontents]" value="1" <?php if(isset($displayinfo["hideemptycontents"])) echo "checked"; ?> />Hide empty tray contents
 						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[flashwarning]" value="1" <?php if(isset($displayinfo["flashwarning"])) echo "checked"; ?> />Flash warning
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[flashcritical]" value="1" <?php if(isset($displayinfo["flashcritical"])) echo "checked"; ?> />Flash critical 
+						</td>
 					</tr>
 					<tr>
 						<td colspan="7">
 							<blockquote class='inline_help'>
 								<p>Select the information you want to display on the "Devices" page. Each row is based upon the layout.</p>
+							</blockquote>
+							<blockquote class='inline_help'>
+								<p>
+									Hide empty tray contents: Nothing but the background color.<br />
+									Flash warning: the background will flash when the drive has a warning.<br />
+									Flash critical: the background will flash when the drive has a critical issue.
+								</p>
 							</blockquote>
 						</td>
 					</tr>

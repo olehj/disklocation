@@ -216,7 +216,7 @@
 		}
 	}
 	
-	function get_unraid_disk_status($color, $type = '') {
+	function get_unraid_disk_status($color, $type = '', $output = '') {
 		switch($color) {
 			case 'green-on': $orb = 'circle'; $color = 'green'; $help = 'Normal operation, device is active'; break;
 			case 'green-blink': $orb = 'circle'; $color = 'grey'; $help = 'Device is in standby mode (spun-down)'; break;
@@ -236,7 +236,12 @@
 			case 'OFFLINE': $orb = 'times'; $color = 'red'; $help = 'Device is offline'; break;
 		}
 		
-		return ("<a class='info'><i class='fa fa-$orb orb $color-orb'></i><span>$help</span></a>");
+		if(!$output) {
+			return ("<a class='info'><i class='fa fa-$orb orb $color-orb'></i><span>$help</span></a>");
+		}
+		else if($output == "color") {
+			return $color;
+		}
 	}
 	
 	function zfs_check() {
