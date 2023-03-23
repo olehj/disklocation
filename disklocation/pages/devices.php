@@ -558,7 +558,7 @@
 				$disklocation_dash[$gid] .= "
 					<div style=\"order: " . $drive_tray_order[$hash] . "\">
 						<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
-							<div style=\"$add_anim_bg_class style=\"background-color: #" . $color_array[$hash] . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
+							<div $add_anim_bg_class style=\"background-color: #" . $color_array[$hash] . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
 								<div class=\"flex-container-start\" style=\"text-align: center;/*min-height: 15px;*/\">
 									$dashboard_led
 								</div>
