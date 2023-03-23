@@ -43,6 +43,14 @@
 		50% {color: #FF9900;}
 		100% {color: #AAAAAA;}
 	}
+	.yellow-blink-bg {
+		animation: blinker-yellow-bg 2s ease-in-out infinite;
+	}
+	@keyframes blinker-yellow-bg {
+		0% {background-color: #000000;}
+		50% {background-color: #FF9900;}
+		100% {background-color: #000000;}
+	}
 
 	.red-orb{ color: #FF3300 }
 	.red-on {
@@ -66,6 +74,16 @@
 		50% {color: #FF0000;}
 		75% {color: #FF9900;}
 		100% {color: #FF0000;}
+	}
+	.red-blink-bg {
+		animation: blinker-red-bg 1s ease-in-out infinite;
+	}
+	@keyframes blinker-red-bg {
+		0% {background-color: #FF0000;}
+		25% {background-color: #000000;}
+		50% {background-color: #FF0000;}
+		75% {background-color: #000000;}
+		100% {background-color: #FF0000;}
 	}
 
 	.blue-orb{ color: #0099FF }
