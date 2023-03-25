@@ -466,19 +466,20 @@
 				}
 				
 				$add_anim_bg_class = "";
+				$color_array_blinker = "";
 				if(isset($displayinfo["flashwarning"]) && ($temp_status == 2 || $color_status == "yellow")) { // warning
-					$color_array[$hash] = "blinker-yellow-bg";
+					$color_array_blinker = "blinker-yellow-bg";
 					$add_anim_bg_class = "class=\"yellow-blink-bg\"";
 				}
 				if(isset($displayinfo["flashcritical"]) && ($temp_status == 3 || !$smart_status || $color_status == "red")) { // critical
-					$color_array[$hash] = "blinker-red-bg";
+					$color_array_blinker = "blinker-red-bg";
 					$add_anim_bg_class = "class=\"red-blink-bg\"";
 				}
 				
 				$disklocation_page[$gid] .= "
 					<div style=\"order: " . $drive_tray_order[$hash] . "\">
 						<div class=\"flex-container_" . $disk_tray_direction . "\">
-							<div $add_anim_bg_class style=\"background-color: #" . $color_array[$hash] . "; width: " . $tray_width . "px; height: " . $tray_height . "px;\">
+							<div $add_anim_bg_class style=\"background-color: #" . ( !empty($add_anim_bg_class) ? $color_array_blinker : $color_array[$hash] ) . "; width: " . $tray_width . "px; height: " . $tray_height . "px;\">
 								<div class=\"flex-container-start\" style=\"white-space: nowrap;\">
 									<b>$physical_traynumber</b>$insert_break
 									$unraid_array_icon $insert_break
@@ -558,7 +559,7 @@
 				$disklocation_dash[$gid] .= "
 					<div style=\"order: " . $drive_tray_order[$hash] . "\">
 						<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
-							<div $add_anim_bg_class style=\"background-color: #" . $color_array[$hash] . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
+							<div $add_anim_bg_class style=\"background-color: #" . ( !empty($add_anim_bg_class) ? $color_array_blinker : $color_array[$hash] ) . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
 								<div class=\"flex-container-start\" style=\"text-align: center;/*min-height: 15px;*/\">
 									$dashboard_led
 								</div>
