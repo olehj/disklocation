@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2023.03.25">
+<!ENTITY version          "2023.04.01">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -21,7 +21,7 @@
          launch="&launch;"
          pluginURL="&pluginURL;"
          icon="server"
-         min="6.11.9"
+         min="6.9.0"
          support="&pluginsupportURL;"
 >
 
@@ -46,6 +46,9 @@
 
 -->
 <CHANGES>
+###2023.04.01
+ - Commit #205 - IMPROVEMENT: Added a legacy dashboard back, as people can use newer plugin on a current stable Unraid system again. -_- Also removed a useless question mark icon when hovering the LED-icons.
+
 ###2023.03.25
  - Commit #203 - BUG: Background color bug if warning/critical flash fixed.
 
