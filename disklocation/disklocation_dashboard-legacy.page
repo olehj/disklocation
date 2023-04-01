@@ -79,8 +79,7 @@ Tag="server"
 			<td></td>
 			<td class="next" colspan="<?php echo $dashboard_widget_colspan_legacy ?>" style="white-space: no-wrap;">Disk Location
 				<i class="fa fa-fw chevron mt0" id="dash_disklocation_toggle" onclick="toggleChevron('dash_disklocation_toggle',0)"></i>
-				<a href="/Settings/disklocationConfig" title="Go to Disk Location Configuration page"><i class="fa fa-fw fa-cog chevron mt0"></i></a>
-				<a href="/Tools/disklocation" title="Go to Disk Location page"><i class="fa fa-fw fa-server chevron mt0"></i></a>
+				<a href="/Settings/disklocation" title="Go to Disk Location page"><i class="fa fa-fw fa-cog chevron mt0"></i></a>
 				<span class="info"><?php print($installed_drives); ?> of <?php print($total_trays_group); ?> drives assigned. <?php //print($dashboard_info); ?></span>
 			</td>
 			<td></td>
