@@ -193,7 +193,7 @@
 		";
 	}
 	
-	if(version_compare($GLOBALS["unraid"]["version"], "6.12.0", "<")) {
+	if(version_compare($GLOBALS["unraid"]["version"], "6.11.9", "<")) {
 		$list_ldashleft = disklocation_system("ldashleft", "list");
 		$print_list_ldashleft = "
 			<h3>Legacy Dashboard location</h3>
