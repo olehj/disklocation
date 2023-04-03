@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2023.04.01-dev">
+<!ENTITY version          "2023.04.04-dev">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -249,7 +249,7 @@ logit "Removing plugin..."
 [ -f "/etc/cron.monthly/disklocation.sh" ] &amp;&amp; rm -f "/etc/etc.monthly/disklocation.sh"
 rm -f &pluginLOC;/disklocation.*.tar.bz2
 rm -f &pluginLOC;/disklocation.*.zip
-logit "Plugin stopped and removed, package files removed from &pluginLOC;, database is not removed."
+logit "Plugin stopped and removed, package files removed from &pluginLOC;, database, settings and the backups are not removed."
 </INLINE>
 </FILE>
 </PLUGIN>
