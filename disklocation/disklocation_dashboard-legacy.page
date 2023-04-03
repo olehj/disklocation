@@ -56,17 +56,16 @@ Tag="server"
 		$installed_drives = 0;
 	}
 	
-	$dashboard_widget_pos_legacy = 2;
-	$dashboard_widget_colspan_legacy = 5;
-	/* Disabled the positions as they are incompatible with the new Unraid 6.12 version of the plugin. This will also make some people happy hopefully.. but I dunno, maybe not. Because suddenly it will be stuck on the right side of the dashboard regardless. It can't be disabled either, soooo... the next forum posts might be interessting, I don't know.. but best I can do for now. At least you can still move it up and down. Yes, I'm a bit bored writing all this nonsense. But I felt like it, cheers!
+	// Make the possibility to keep the position saved during updates
 	
-	if($dashboard_widget_pos_legacy == 1) {
+	if(file_exists("" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.ldashleft")) {
+		$dashboard_widget_pos_legacy = 1;
 		$dashboard_widget_colspan_legacy = 3;
 	}
-	if($dashboard_widget_pos_legacy == 2) {
+	else {
+		$dashboard_widget_pos_legacy = 2;
 		$dashboard_widget_colspan_legacy = 5;
 	}
-	*/
 ?>
 
 <style type="text/css">
