@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2023.04.01">
+<!ENTITY version          "2023.04.04">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -46,6 +46,9 @@
 
 -->
 <CHANGES>
+###2023.04.04
+ - Commit #208 - IMPROVEMENT: Added a button to move the legacy Dashboard left and right under "System" configuration. This is not visible for Unraid 6.12 users.
+
 ###2023.04.01
  - Commit #205 - IMPROVEMENT: Added a legacy dashboard back, as people can use newer plugin on a current stable Unraid system again. -_- Also removed a useless question mark icon when hovering the LED-icons.
 
@@ -532,7 +535,7 @@ logit "Removing plugin..."
 [ -f "/etc/cron.monthly/disklocation.sh" ] &amp;&amp; rm -f "/etc/etc.monthly/disklocation.sh"
 rm -f &pluginLOC;/disklocation.*.tar.bz2
 rm -f &pluginLOC;/disklocation.*.zip
-logit "Plugin stopped and removed, package files removed from &pluginLOC;, database is not removed."
+logit "Plugin stopped and removed, package files removed from &pluginLOC;, database, settings and the backups are not removed."
 </INLINE>
 </FILE>
 </PLUGIN>

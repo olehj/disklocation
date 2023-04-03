@@ -66,6 +66,23 @@
 				unlink("" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/debugging.html");
 			}
 		}
+		
+		if($type == "ldashleft") {
+			if($operation == "list") {
+				if(file_exists("" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.ldashleft")) {
+					return true;
+				}
+				else {
+					return false;
+				}
+			}
+			if($operation == "delete") {
+				unlink("" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.ldashleft");
+			}
+			if($operation == "create") {
+				touch("" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.ldashleft");
+			}
+		}
 	}
 	
 	if(isset($_POST["del_backup"])) {
@@ -84,11 +101,18 @@
 		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
 		exit;
 	}
+	if(isset($_POST["del_ldashleft"])) {
+		disklocation_system("ldashleft", "delete");
+	}
+	if(isset($_POST["add_ldashleft"])) {
+		disklocation_system("ldashleft", "create");
+	}
 
 	$print_list_backup = "";
 	$print_list_debug = "";
 	$print_list_database = "";
 	$print_list_undelete = "";
+	$print_list_ldashleft = "";
 	
 	$list_backup = disklocation_system("backup", "list");
 	if($list_backup) {
@@ -169,6 +193,34 @@
 		";
 	}
 	
+	if(version_compare($GLOBALS["unraid"]["version"], "6.11.9", "<")) {
+		$list_ldashleft = disklocation_system("ldashleft", "list");
+		$print_list_ldashleft = "
+			<h3>Legacy Dashboard location</h3>
+			<p>
+				This setting is only visible and usable for Unraid version below 6.12.
+			</p>
+		";
+		if($list_ldashleft) {
+			$print_list_ldashleft .= "
+				<form action=\"\" method=\"post\">
+					<input type=\"submit\" name=\"del_ldashleft\" value=\"Move to right\" />
+				</form>
+			";
+		}
+		else {
+			$print_list_ldashleft .= "
+				<form action=\"\" method=\"post\">
+					<input type=\"submit\" name=\"add_ldashleft\" value=\"Move to left\" />
+				</form>
+			";
+		}
+	}
+	else { // delete a file that's not required anymore, if it exists.
+		if(disklocation_system("ldashleft", "list")) {
+			disklocation_system("ldashleft", "delete");
+		}
+	}
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/help.css")?>">
 <h2>System</h2>
@@ -179,3 +231,4 @@
 <?php echo $print_list_debug ?>
 <?php echo $print_list_database ?>
 <?php echo $print_list_undelete ?>
+<?php echo $print_list_ldashleft ?>
