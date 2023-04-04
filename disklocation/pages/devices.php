@@ -360,36 +360,36 @@
 					$smart_status = $data["smart_status"];
 					switch($smart_status) {
 						case 1:
-							$smart_status_icon = "<a class='info'><i class='fa fa-circle orb green-orb'></i><span>S.M.A.R.T: Passed</span></a>";
+							$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation green-orb-disklocation'></i><span>S.M.A.R.T: Passed</span></a>";
 							//$smart_status_icon = "<span class=\"green-on\" alt=\"S.M.A.R.T: Passed\" title=\"S.M.A.R.T: Passed\" />&#11044;</span>";
 							break;
 						case 0:
-							$smart_status_icon = "<a class='info'><i class='fa fa-circle orb red-orb'></i><span>S.M.A.R.T: Failed!</span></a>";
+							$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation red-orb-disklocation'></i><span>S.M.A.R.T: Failed!</span></a>";
 							//$smart_status_icon = "<span class=\"red-on\" alt=\"S.M.A.R.T: Failed!\" title=\"S.M.A.R.T: Failed!\" />&#11044;</span>";
 							break;
 						default:
 							//$smart_status_icon = "<span class=\"grey-off\" alt=\"S.M.A.R.T: Off/None\" title=\"S.M.A.R.T: Off/None\" />&#11044;</span>";
-							$smart_status_icon = "<a class='info'><i class='fa fa-circle orb grey-orb'></i><span>S.M.A.R.T: Off/None</span></a>";
+							$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation grey-orb-disklocation'></i><span>S.M.A.R.T: Off/None</span></a>";
 					}
 				}
 				
 				if(isset($displayinfo["ledtemp"])) {
 					if($unraid_array[$devicenode]["temp"] < $unraid_array[$devicenode]["hotTemp"]) {
-						$temp_status_icon = "<a class='info'><i class='fa fa-circle orb green-orb'></i><span>" . $smart_temperature . "</span></a>";
+						$temp_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation green-orb-disklocation'></i><span>" . $smart_temperature . "</span></a>";
 						$temp_status = 1;
 					}
 					if($unraid_array[$devicenode]["temp"] >= $unraid_array[$devicenode]["hotTemp"]) {
-						$temp_status_icon = "<a class='info' style=\"margin: 0; text-align:left;\"><i class='fa fa-fire yellow-orb'></i><span>" . $smart_temperature . " (Warning: &gt;" . $smart_temperature_warning . ")</span></a>";
+						$temp_status_icon = "<a class='info' style=\"margin: 0; text-align:left;\"><i class='fa fa-fire yellow-orb-disklocation'></i><span>" . $smart_temperature . " (Warning: &gt;" . $smart_temperature_warning . ")</span></a>";
 						$temp_status = 2;
 					}
 					if($unraid_array[$devicenode]["temp"] >= $unraid_array[$devicenode]["maxTemp"]) {
-						$temp_status_icon = "<a class='info'><i class='fa fa-fire red-blink'></i><span>" . $smart_temperature . " (Critical: &gt;" . $smart_temperature_critical . ")</span></a>";
+						$temp_status_icon = "<a class='info'><i class='fa fa-fire red-blink-disklocation'></i><span>" . $smart_temperature . " (Critical: &gt;" . $smart_temperature_critical . ")</span></a>";
 						$temp_status = 3;
 					}
 					if(!$unraid_array[$devicenode]["temp"] && (!$unraid_array[$devicenode]["temp"] && $unraid_array[$devicenode]["hotTemp"] == 0 && $unraid_array[$devicenode]["maxTemp"] == 0)) {
 						$unraid_array[$devicenode]["temp"] = 0;
 						
-						$temp_status_icon = "<a class='info'><i class='fa fa-circle orb grey-orb'></i><span>Temperature unavailable</span></a>";
+						$temp_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation grey-orb-disklocation'></i><span>Temperature unavailable</span></a>";
 						$temp_status = 0;
 					}
 				}
@@ -468,12 +468,12 @@
 				$add_anim_bg_class = "";
 				$color_array_blinker = "";
 				if(isset($displayinfo["flashwarning"]) && ($temp_status == 2 || $color_status == "yellow")) { // warning
-					$color_array_blinker = "blinker-yellow-bg";
-					$add_anim_bg_class = "class=\"yellow-blink-bg\"";
+					$color_array_blinker = "blinker-disklocation-yellow-bg";
+					$add_anim_bg_class = "class=\"yellow-blink-disklocation-bg\"";
 				}
 				if(isset($displayinfo["flashcritical"]) && ($temp_status == 3 || !$smart_status || $color_status == "red")) { // critical
-					$color_array_blinker = "blinker-red-bg";
-					$add_anim_bg_class = "class=\"red-blink-bg\"";
+					$color_array_blinker = "blinker-disklocation-red-bg";
+					$add_anim_bg_class = "class=\"red-blink-disklocation-bg\"";
 				}
 				
 				$disklocation_page[$gid] .= "

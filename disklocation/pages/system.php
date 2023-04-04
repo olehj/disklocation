@@ -237,7 +237,7 @@
 		}
 		
 		if(!$output) {
-			return ("<a class='info'><i class='fa fa-$orb orb $color-orb'></i><span>$help</span></a>");
+			return ("<a class='info'><i class='fa fa-$orb orb-disklocation $color-orb-disklocation'></i><span>$help</span></a>");
 		}
 		else if($output == "color") {
 			return $color;

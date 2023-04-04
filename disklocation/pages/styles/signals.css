@@ -1,89 +1,65 @@
-	i.orb {
+	i.orb-disklocation {
 		font-size: 1.1rem;
 		margin: 0;
 		padding: 0 0 0 0;
 	}
-	.grey-orb { color: #C0C0C0 }
-	.grey-off {
-		color: #C0C0C0;
+	.grey-orb-disklocation { color: #C0C0C0 }
+	.green-orb-disklocation{ color: #33CC33 }
+	.green-blink-disklocation-disklocation {
+		animation: blinker-disklocation-green 2s ease-in-out infinite;
 		font-size: 8pt;
 	}
-	.green-orb{ color: #33CC33 }
-	.green-on {
-		color: #33CC33;
-		font-size: 8pt;
-	}
-	.green-blink {
-		animation: blinker-green 2s ease-in-out infinite;
-		font-size: 8pt;
-	}
-	@keyframes blinker-green {
+	@keyframes blinker-disklocation-green {
 		0% {color: #AAAAAA;}
 		50% {color: #33CC33;}
 		100% {color: #AAAAAA;}
 	}
-	.yellow-orb { color: #FF9900 }
-	.yellow-on {
-		color: #FF9900;
+	.yellow-orb-disklocation { color: #FF9900 }
+	.yellow-blink-disklocation {
+		animation: blinker-disklocation-yellow 2s ease-in-out infinite;
 		font-size: 8pt;
 	}
-	.yellow-blink {
-		animation: blinker-yellow 2s ease-in-out infinite;
-		font-size: 8pt;
-	}
-	@keyframes blinker-yellow {
+	@keyframes blinker-disklocation-yellow {
 		0% {color: #AAAAAA;}
 		50% {color: #FF9900;}
 		100% {color: #AAAAAA;}
 	}
-	.yellow-blink-bg {
-		animation: blinker-yellow-bg 2s ease-in-out infinite;
+	.yellow-blink-disklocation-bg {
+		animation: blinker-disklocation-yellow-bg 2s ease-in-out infinite;
 	}
-	@keyframes blinker-yellow-bg {
+	@keyframes blinker-disklocation-yellow-bg {
 		0% {background-color: #000000;}
 		50% {background-color: #FF9900;}
 		100% {background-color: #000000;}
 	}
-	.red-orb{ color: #FF3300 }
-	.red-on {
-		color: #FF3300;
+	.red-orb-disklocation{ color: #FF3300 }
+	.red-blink-disklocation {
+		animation: blinker-disklocation-red 1s ease-in-out infinite;
 		font-size: 8pt;
 	}
-	.red-off {
-		color: #FF3300;
-		font-size: 8pt;
-	}
-	.red-blink {
-		animation: blinker-red 1s ease-in-out infinite;
-		font-size: 8pt;
-	}
-	@keyframes blinker-red {
+	@keyframes blinker-disklocation-red {
 		0% {color: #FF0000;}
 		25% {color: #FF9900;}
 		50% {color: #FF0000;}
 		75% {color: #FF9900;}
 		100% {color: #FF0000;}
 	}
-	.red-blink-bg {
-		animation: blinker-red-bg 1s ease-in-out infinite;
+	.red-blink-disklocation-bg {
+		animation: blinker-disklocation-red-bg 1s ease-in-out infinite;
 	}
-	@keyframes blinker-red-bg {
+	@keyframes blinker-disklocation-red-bg {
 		0% {background-color: #FF0000;}
 		25% {background-color: #000000;}
 		50% {background-color: #FF0000;}
 		75% {background-color: #000000;}
 		100% {background-color: #FF0000;}
 	}
-	.blue-orb{ color: #0099FF }
-	.blue-on {
-		color: #0099FF;
+	.blue-orb-disklocation{ color: #0099FF }
+	.blue-blink-disklocation {
+		animation: blinker-disklocation-blue 2s ease-in-out infinite;
 		font-size: 8pt;
 	}
-	.blue-blink {
-		animation: blinker-blue 2s ease-in-out infinite;
-		font-size: 8pt;
-	}
-	@keyframes blinker-blue {
+	@keyframes blinker-disklocation-blue {
 		0% {color: #AAAAAA;}
 		50% {color: #0099FF;}
 		100% {color: #AAAAAA;}
