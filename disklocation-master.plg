@@ -47,7 +47,7 @@
 -->
 <CHANGES>
 ###2023.04.05
- - Commit #210 - BUG: Conficting style sheets across the plugin and Unraid LEDs has been addressed.
+ - Commit #210 - BUG: Conflicting style sheets across the plugin and Unraid LEDs has been addressed.
 
 ###2023.04.04
  - Commit #208 - IMPROVEMENT: Added a button to move the legacy Dashboard left and right under "System" configuration. This is not visible for Unraid 6.12 users.
