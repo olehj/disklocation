@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2023.04.04">
+<!ENTITY version          "2023.04.05">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -46,6 +46,9 @@
 
 -->
 <CHANGES>
+###2023.04.05
+ - Commit #210 - BUG: Conficting style sheets across the plugin and Unraid LEDs has been addressed.
+
 ###2023.04.04
  - Commit #208 - IMPROVEMENT: Added a button to move the legacy Dashboard left and right under "System" configuration. This is not visible for Unraid 6.12 users.
 
