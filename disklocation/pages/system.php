@@ -1159,8 +1159,8 @@
 		}
 		
 		// wait until the cronjob has finished.
-		$pid_cron_script = ( trim(shell_exec("pgrep -f disklocation.sh")) ? trim(shell_exec("pgrep -f disklocation.sh")) : 0 );
-		while(!is_null(trim(shell_exec("pgrep -f disklocation.sh"))) && $force_scan) {
+		$pid_cron_script = ( shell_exec("pgrep -f disklocation.sh") ? trim(shell_exec("pgrep -f disklocation.sh")) : 0 );
+		while(!empty(shell_exec("pgrep -f disklocation.sh")) && $force_scan) {
 			$retry_delay = 5;
 			debug_print($debugging_active, __LINE__, "delay", "PGREP: Cronjob (PID:$pid_cron_script) running, retrying every $retry_delay secs...");
 			sleep($retry_delay);
