@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2023.04.05">
+<!ENTITY version          "2023.04.15">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -46,6 +46,9 @@
 
 -->
 <CHANGES>
+###2023.04.15
+ - Commit #212 - MINOR: Fixed some more undefined variables.
+
 ###2023.04.05
  - Commit #210 - BUG: Conflicting style sheets across the plugin and Unraid LEDs has been addressed.
 

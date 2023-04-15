@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation-devel">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2023.04.14-dev">
+<!ENTITY version          "2023.04.15-dev">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
