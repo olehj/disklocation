@@ -91,6 +91,7 @@
 		$i_empty=1;
 		$i_drive=1;
 		$i=1;
+		$empty_tray = 0;
 		
 		while($i <= $total_trays) {
 			$data = isset($datasql[$i_drive-1]) ? $datasql[$i_drive-1] : 0;
