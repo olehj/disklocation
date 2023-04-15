@@ -22,7 +22,7 @@
 	$debugging_active = 0;
 	
 	// Set warning level
-	error_reporting(E_ERROR | E_WARNING | E_PARSE);
+	//error_reporting(E_ERROR | E_WARNING | E_PARSE);
 	
 	$get_page_info = array();
 	$get_page_info["Version"] = "";
@@ -44,6 +44,9 @@
 	$disklocation_new_install = 0;
 	$group = array();
 	$unraid_disklog = array();
+	$installed_drives = array();
+	
+	global $unraid, $GLOBALS;
 	
 	if(!isset($argv)) {
 		$argv = array();
@@ -178,7 +181,8 @@
 		// Celcius to Kelvin, 0C = 273.15K
 		
 		$result = 0;
-		if($input != $output) {
+		
+		if(is_numeric($float) && ($input != $output)) {
 			if($output == "C") {
 				if($input == "F") {
 					$result = ($float-32)*5/9;
@@ -246,7 +250,7 @@
 	
 	function zfs_check() {
 		if(is_file("/usr/sbin/zpool")) {
-			if(preg_match("/\bstate\b/i", shell_exec("/usr/sbin/zpool status"))) {
+			if(preg_match("/\bstate\b/i", ( shell_exec("/usr/sbin/zpool status") ? shell_exec("/usr/sbin/zpool status") : "none" ))) {
 				return 1;
 			}
 		}
@@ -1155,8 +1159,8 @@
 		}
 		
 		// wait until the cronjob has finished.
-		$pid_cron_script = trim(shell_exec("pgrep -f disklocation.sh"));
-		while(!empty(trim(shell_exec("pgrep -f disklocation.sh"))) && $force_scan) {
+		$pid_cron_script = ( shell_exec("pgrep -f disklocation.sh") ? trim(shell_exec("pgrep -f disklocation.sh")) : 0 );
+		while(!empty(shell_exec("pgrep -f disklocation.sh")) && $force_scan) {
 			$retry_delay = 5;
 			debug_print($debugging_active, __LINE__, "delay", "PGREP: Cronjob (PID:$pid_cron_script) running, retrying every $retry_delay secs...");
 			sleep($retry_delay);
