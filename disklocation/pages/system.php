@@ -1193,7 +1193,7 @@
 					if(!$force_scan) {
 						$smart_standby_cmd = "-n standby";
 					}
-					$smart_cmd[$i] = shell_exec("smartctl $smart_standby_cmd -x --json $lsscsi_devicenodesg[$i]"); // get all SMART data for this device, we grab it ourselves to get all drives also attached to hardware raid cards.
+					$smart_cmd[$i] = shell_exec("smartctl $smart_standby_cmd -x --json --quietmode=silent $lsscsi_devicenodesg[$i]"); // get all SMART data for this device, we grab it ourselves to get all drives also attached to hardware raid cards.
 					$smart_array = json_decode($smart_cmd[$i], true);
 					debug_print($debugging_active, __LINE__, "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "=" . ( is_array($smart_array) ? "array" : "empty" ) . "");
 					
