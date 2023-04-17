@@ -46,6 +46,9 @@
 
 -->
 <CHANGES>
+###2023.04.17
+ - Commit #188 - BUG: Some errors might be output with smartctl on certain NVMe drives, added a silent mode to ignore such events as it's not useful for this plugin anyway.
+
 ###2023.04.15
  - Commit #212 - MINOR: Fixed some more undefined variables.
 
