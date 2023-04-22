@@ -1374,7 +1374,7 @@ if(!in_array("cronjob", $argv)) {
 		if(!isset($unraid_disks[$i]["hotTemp"])) { 
 			$unraid_disks[$i]["hotTemp"] = 0;
 		}
-		if(!isset($unraid_disks[$i]["maxTempl"])) { 
+		if(!isset($unraid_disks[$i]["maxTemp"])) { 
 			$unraid_disks[$i]["maxTemp"] = 0;
 		}
 		
