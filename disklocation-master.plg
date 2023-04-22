@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2023.04.17">
+<!ENTITY version          "2023.04.22">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -46,6 +46,9 @@
 
 -->
 <CHANGES>
+###2023.04.22
+ - Commit #216 - BUG: typo on a variable caused wrong "maxTemp" to be included.
+
 ###2023.04.17
  - Commit #188 - BUG: Some errors might be output with smartctl on certain NVMe drives, added a silent mode to ignore such events as it's not useful for this plugin anyway.
 
