@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2023.04.22">
+<!ENTITY version          "2023.05.30">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -46,8 +46,11 @@
 
 -->
 <CHANGES>
+###2023.05.30
+ - Commit #218 - BUG: When upgrading the plugin or Unraid, something might not upgrade correctly. Added some cleanup before install script starts to prevent this from happening.
+
 ###2023.04.22
- - Commit #216 - BUG: typo on a variable caused wrong "maxTemp" to be included.
+ - Commit #216 - BUG: Typo on a variable caused wrong "maxTemp" to be included.
 
 ###2023.04.17
  - Commit #188 - BUG: Some errors might be output with smartctl on certain NVMe drives, added a silent mode to ignore such events as it's not useful for this plugin anyway.
@@ -368,6 +371,10 @@ logit()
 
 DOWNLOAD_PKG="false"
 INSTALL_PKG="false"
+
+logit "Removing old plugin data before installing, if they exists..."
+[ -d "&emhttpLOC;" ] &amp;&amp; rm -fR "&emhttpLOC;"
+[ -f "/usr/local/bin/smartlocate" ] &amp;&amp; rm -f "/usr/local/bin/smartlocate"
 
 logit "Installing plugin..."
 
