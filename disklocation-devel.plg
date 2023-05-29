@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2023.04.22-dev">
+<!ENTITY version          "2023.05.30-dev">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -70,6 +70,10 @@ logit()
 
 DOWNLOAD_PKG="false"
 INSTALL_PKG="false"
+
+logit "Removing old plugin data before installing, if they exists..."
+[ -d "&emhttpLOC;" ] &amp;&amp; rm -fR "&emhttpLOC;"
+[ -f "/usr/local/bin/smartlocate" ] &amp;&amp; rm -f "/usr/local/bin/smartlocate"
 
 logit "Installing plugin..."
 
