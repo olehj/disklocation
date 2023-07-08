@@ -287,10 +287,9 @@
 			// Array $match: 0 = disk-by-id | 1 = state | 2 = read | 3 = write | 4 = cksum
 			for($i=0; $i < count($disks); ++$i) {
 				if(preg_match("/" . $disk . "/", $disks[$i])) {
-					$match = explode(":", preg_replace("/\s+/", ":", trim($disks[$i])));
+					return explode(":", preg_replace("/\s+/", ":", trim($disks[$i])));
 				}
 			}
-			return $match;
 		}
 		else {
 			return false;
