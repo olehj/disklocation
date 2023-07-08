@@ -755,15 +755,21 @@
 		$pattern_devnode = "((\/dev\/((h|s)d[a-z]{1,}|nvme[0-9]{1,})(n[0-9]{1,})?))\s+";	// $2
 		$pattern_scsigendevnode = "(-|(\/dev\/(sg)[0-9]{1,}))";					// $7
 		
+		$device = '';
+		$devnode = '';
+		$scsigendevnode = '';
+		
 		if($input) {
 			list($device, $devnode, $scsigendevnode) = explode("|", preg_replace("/" . $pattern_device . "" . $pattern_devnode . "" . $pattern_scsigendevnode . "/iu", "$1|$2|$7", $input));
 		
-			$scsigendevnode = ( strstr($scsigendevnode, "-") ? $devnode : $scsigendevnode ); // script uses SG for most things, so we add nvme into it as well.
+			if($scsigendevnode) {
+				$scsigendevnode = ( strstr($scsigendevnode, "-") ? $devnode : $scsigendevnode ); // script uses SG for most things, so we add nvme into it as well.
+			}
 			
 			return array(
-				'device'	=> (trim($device) ?? null),
-				'devnode'	=> (str_replace("-", "", trim($devnode)) ?? null),
-				'sgnode'	=> (trim($scsigendevnode) ?? null)
+				'device'	=> (trim($device) ?? ''),
+				'devnode'	=> (str_replace("-", "", trim($devnode)) ?? ''),
+				'sgnode'	=> (trim($scsigendevnode) ?? '')
 			);
 		}
 		else {
@@ -877,7 +883,12 @@
 		debug_print($debugging_active, __LINE__, "POST", "Button: SAVE SETTINGS has been pressed.");
 		$sql = "";
 		
-		$post_info = json_encode($_POST["displayinfo"]);
+		if(isset($_POST["displayinfo"])) {
+			$post_info = json_encode($_POST["displayinfo"]);
+		}
+		else {
+			$post_info = "";
+		}
 		
 		// settings
 		if(!preg_match("/[0-9]{1,5}/", $_POST["smart_exec_delay"])) { $disklocation_error[] = "SMART execution delay missing or invalid number."; }
