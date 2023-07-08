@@ -223,6 +223,8 @@
 				$hash = $data["hash"];
 				$color_override = $data["color"];
 				$warranty_page = "";
+				$smart_status = 0;
+				$smart_status_icon = "";
 				$smart_modelfamily = "";
 				$smart_modelname = "";
 				$smart_serialnumber = "";
@@ -234,8 +236,16 @@
 				$smart_formfactor = "";
 				$smart_temperature = 0;
 				$smart_temperature_text = "";
+				$temp_status = 0;
 				$temp_status_icon = "";
 				$color_status = "";
+				$dashboard_led = "";
+				$unraid_array_icon = "";
+				$physical_traynumber = null;
+				$unraid_dev = "";
+				$device_page = "";
+				$devicenode_page = "";
+				$luname_page = "";
 				
 				if(isset($displayinfo["path"])) {
 					$device_page = $device;
@@ -361,24 +371,31 @@
 					}
 				}
 				
-				if(isset($displayinfo["ledsmart"])) {
-					$smart_status = $data["smart_status"];
-					switch($smart_status) {
-						case 1:
-							$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation green-orb-disklocation'></i><span>S.M.A.R.T: Passed</span></a>";
-							//$smart_status_icon = "<span class=\"green-on\" alt=\"S.M.A.R.T: Passed\" title=\"S.M.A.R.T: Passed\" />&#11044;</span>";
-							break;
-						case 0:
-							$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation red-orb-disklocation'></i><span>S.M.A.R.T: Failed!</span></a>";
-							//$smart_status_icon = "<span class=\"red-on\" alt=\"S.M.A.R.T: Failed!\" title=\"S.M.A.R.T: Failed!\" />&#11044;</span>";
-							break;
-						default:
-							//$smart_status_icon = "<span class=\"grey-off\" alt=\"S.M.A.R.T: Off/None\" title=\"S.M.A.R.T: Off/None\" />&#11044;</span>";
-							$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation grey-orb-disklocation'></i><span>S.M.A.R.T: Off/None</span></a>";
-					}
+				$smart_status = $data["smart_status"];
+				switch($smart_status) {
+					case 1:
+						$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation green-orb-disklocation'></i><span>S.M.A.R.T: Passed</span></a>";
+						//$smart_status_icon = "<span class=\"green-on\" alt=\"S.M.A.R.T: Passed\" title=\"S.M.A.R.T: Passed\" />&#11044;</span>";
+						break;
+					case 0:
+						$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation red-orb-disklocation'></i><span>S.M.A.R.T: Failed!</span></a>";
+						//$smart_status_icon = "<span class=\"red-on\" alt=\"S.M.A.R.T: Failed!\" title=\"S.M.A.R.T: Failed!\" />&#11044;</span>";
+						break;
+					default:
+						//$smart_status_icon = "<span class=\"grey-off\" alt=\"S.M.A.R.T: Off/None\" title=\"S.M.A.R.T: Off/None\" />&#11044;</span>";
+						$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation grey-orb-disklocation'></i><span>S.M.A.R.T: Off/None</span></a>";
+				}
+				if(!isset($displayinfo["ledsmart"])) {
+					$smart_status_icon = "";
 				}
 				
-				if(isset($displayinfo["ledtemp"])) {
+				if(!$unraid_array[$devicenode]["temp"] || !is_numeric($unraid_array[$devicenode]["temp"])) { // && (!$unraid_array[$devicenode]["temp"] && $unraid_array[$devicenode]["hotTemp"] == 0 && $unraid_array[$devicenode]["maxTemp"] == 0)) {
+					$unraid_array[$devicenode]["temp"] = 0;
+					
+					$temp_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation grey-orb-disklocation'></i><span>Temperature unavailable</span></a>";
+					$temp_status = 0;
+				}
+				else {
 					if($unraid_array[$devicenode]["temp"] < $unraid_array[$devicenode]["hotTemp"]) {
 						$temp_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation green-orb-disklocation'></i><span>" . $smart_temperature . "</span></a>";
 						$temp_status = 1;
@@ -391,21 +408,18 @@
 						$temp_status_icon = "<a class='info'><i class='fa fa-fire red-blink-disklocation'></i><span>" . $smart_temperature . " (Critical: &gt;" . $smart_temperature_critical . ")</span></a>";
 						$temp_status = 3;
 					}
-					if(!$unraid_array[$devicenode]["temp"] && (!$unraid_array[$devicenode]["temp"] && $unraid_array[$devicenode]["hotTemp"] == 0 && $unraid_array[$devicenode]["maxTemp"] == 0)) {
-						$unraid_array[$devicenode]["temp"] = 0;
-						
-						$temp_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation grey-orb-disklocation'></i><span>Temperature unavailable</span></a>";
-						$temp_status = 0;
-					}
+				}
+				if(!isset($displayinfo["ledtemp"])) {
+					$temp_status_icon = "";
 				}
 				
-				if($displayinfo["unraidinfo"]) {
+				if(isset($displayinfo["unraidinfo"])) {
 					$unraid_dev = ( isset($unraid_array[$devicenode]["type"]) ? "<b>" . $unraid_array[$devicenode]["type"] . "</b>: " . $unraid_array[$devicenode]["name"] : "<b>Unassigned:</b>" );
 				}
 				
 				$drive_tray_order[$hash] = get_tray_location($db, $hash, $gid);
 				$drive_tray_order[$hash] = ( !isset($drive_tray_order[$hash]) ? $tray_assign : $drive_tray_order[$hash] );
-				if($displayinfo["tray"]) {
+				if(isset($displayinfo["tray"])) {
 					if($tray_number_override[$drive_tray_order[$hash]]) {
 						$drive_tray_order_assign = $tray_number_override[$drive_tray_order[$hash]];
 						$physical_traynumber = ( !isset($tray_number_override_start) ? --$tray_number_override[$drive_tray_order[$hash]] : ($tray_number_override_start + $tray_number_override[$drive_tray_order[$hash]] - 1));
@@ -416,7 +430,7 @@
 					}
 				}
 				
-				if($displayinfo["devicenode"]) {
+				if(isset($displayinfo["devicenode"])) {
 					$devicenode_page = str_replace("-", "", $devicenode);
 				}
 				
