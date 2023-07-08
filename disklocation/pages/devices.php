@@ -289,7 +289,7 @@
 					$device_comment = ( !isset($data["comment"]) ? null : bscode2html(stripslashes(htmlspecialchars($data["comment"]))) );
 				}
 				if(isset($displayinfo["temperature"]) || isset($displayinfo["ledtemp"])) {
-					if($unraid_array[$devicenode]["temp"]) {
+					if($unraid_array[$data["devicenode"]]["temp"] && $unraid_array[$devicenode]["temp"]) {
 						switch($display["unit"]) {
 							case 'F':
 								$smart_temperature = round(temperature_conv($unraid_array[$data["devicenode"]]["temp"], 'C', 'F')) . "°F";
@@ -309,6 +309,8 @@
 					}
 					else {
 						$smart_temperature = '';
+						$smart_temperature_warning = '';
+						$smart_temperature_critical = '';
 					}
 				}
 				if(isset($displayinfo["temperature"])) {
@@ -329,7 +331,9 @@
 					else {
 						$device_lsscsi = lsscsi_parser(shell_exec("lsscsi -b -g " . $device . ""));
 						usleep($smart_exec_delay . 000); // delay script to get the output of the next shell_exec()
-						$smart_powermode = trim(shell_exec("smartctl -n standby " . $device_lsscsi["sgnode"] . " | grep Device"));
+						
+						$smart_powermode_shell = shell_exec("smartctl -n standby " . $device_lsscsi["sgnode"] . " | grep Device");
+						$smart_powermode = (isset($smart_powermode_shell) ? trim($smart_powermode_shell) : '');
 						
 						if(strstr($smart_powermode, "ACTIVE")) {
 							$unraid_disk_status_color = "green-on";
@@ -434,7 +438,7 @@
 				$color_array[$deviceid] = "";
 				
 				if(!$dashboard_widget) { // $dashboard_widget is really for Disk Type / Heatmap setting.
-					switch(strtolower($unraid_array[$devicenode]["type"] ?? null)) {
+					switch(strtolower($unraid_array[$devicenode]["type"] ?? '')) {
 						case "parity":
 							$color_array[$deviceid] = $bgcolor_parity;
 							break;
