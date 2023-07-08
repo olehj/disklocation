@@ -755,21 +755,17 @@
 		$pattern_devnode = "((\/dev\/((h|s)d[a-z]{1,}|nvme[0-9]{1,})(n[0-9]{1,})?))\s+";	// $2
 		$pattern_scsigendevnode = "(-|(\/dev\/(sg)[0-9]{1,}))";					// $7
 		
-		$device = '';
-		$devnode = '';
-		$scsigendevnode = '';
-		
 		if($input) {
-			list($device, $devnode, $scsigendevnode) = explode("|", preg_replace("/" . $pattern_device . "" . $pattern_devnode . "" . $pattern_scsigendevnode . "/iu", "$1|$2|$7", $input));
-		
+			[$device, $devnode, $scsigendevnode] = explode("|", preg_replace("/" . $pattern_device . "" . $pattern_devnode . "" . $pattern_scsigendevnode . "/iu", "$1|$2|$7", $input));
+			
 			if($scsigendevnode) {
 				$scsigendevnode = ( strstr($scsigendevnode, "-") ? $devnode : $scsigendevnode ); // script uses SG for most things, so we add nvme into it as well.
 			}
 			
 			return array(
-				'device'	=> (trim($device) ?? ''),
-				'devnode'	=> (str_replace("-", "", trim($devnode)) ?? ''),
-				'sgnode'	=> (trim($scsigendevnode) ?? '')
+				'device'	=> ($device ? trim($device) : ''),
+				'devnode'	=> ($devnode ? str_replace("-", "", trim($devnode)) : ''),
+				'sgnode'	=> ($scsigendevnode ? trim($scsigendevnode) : '')
 			);
 		}
 		else {
