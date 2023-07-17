@@ -47,7 +47,7 @@
 -->
 <CHANGES>
 ###2023.07.17
- - Commit #221 - MAJOR ISSUE: Fixed a Dashboard crash when all drives were spun down.
+ - Commit #224 - MAJOR ISSUE: Fixed a Dashboard crash when all drives were spun down.
 
 ###2023.07.08
  - Commit #220 - MINOR ISSUE: Fixed also some other minor PHP deprecations.
