@@ -299,7 +299,7 @@
 					$device_comment = ( !isset($data["comment"]) ? null : bscode2html(stripslashes(htmlspecialchars($data["comment"]))) );
 				}
 				if(isset($displayinfo["temperature"]) || isset($displayinfo["ledtemp"])) {
-					if($unraid_array[$data["devicenode"]]["temp"] && $unraid_array[$devicenode]["temp"]) {
+					if(is_float($unraid_array[$data["devicenode"]]["temp"]) && is_float($unraid_array[$devicenode]["temp"])) {
 						switch($display["unit"]) {
 							case 'F':
 								$smart_temperature = round(temperature_conv($unraid_array[$data["devicenode"]]["temp"], 'C', 'F')) . "°F";
