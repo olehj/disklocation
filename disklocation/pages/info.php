@@ -89,7 +89,7 @@
 		$smart_temperature_warning = 0;
 		$smart_temperature_critical = 0;
 		
-		if($unraid_array[$data["devicenode"]]["temp"]) {
+		if(is_numeric($unraid_array[$data["devicenode"]]["temp"]) && is_numeric($unraid_array[$devicenode]["temp"])) {
 			switch($display["unit"]) {
 				case 'F':
 					$smart_temperature = round(temperature_conv($unraid_array[$data["devicenode"]]["temp"], 'C', 'F')) . "°F";
