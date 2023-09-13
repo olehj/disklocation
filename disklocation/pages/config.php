@@ -139,7 +139,7 @@
 		";
 	}
 	
-	$smart_updates = cronjob_timer();
+	$smart_updates = cronjob_current();
 	
 	$plugin_update_scan = update_scan_toggle(0, 1);
 	
@@ -279,7 +279,7 @@ $(document).ready(function(){
 				<input type="hidden" name="dashboard_widget_pos" value="0" /> <!-- new Dashboard system, just leaving this to disabled by default -->
 			</td>
 			<td style="padding-left: 25px; vertical-align: top;">
-				<h2>Updates</h2>
+				<!--<h2>Updates</h2>
 				<p>
 					<b>Disk Location plugin on update scan:</b><br />
 					<input type="radio" name="plugin_update_scan" value="1" <?php if($plugin_update_scan == 1) echo "checked"; ?> />Enabled
@@ -288,6 +288,7 @@ $(document).ready(function(){
 				<blockquote class='inline_help'>
 					Enable or disable the auto scan during a plugin update. If it's disabled it will rely on manual updates (Force Scan All) and S.M.A.R.T update schedules.
 				</blockquote>
+				-->
 				<p>
 					<b>S.M.A.R.T updates:</b><br />
 					<input type="radio" name="smart_updates" value="hourly" <?php if($smart_updates == "hourly") echo "checked"; ?> />Hourly
@@ -295,6 +296,7 @@ $(document).ready(function(){
 					<input type="radio" name="smart_updates" value="weekly" <?php if($smart_updates == "weekly") echo "checked"; ?> />Weekly
 					<input type="radio" name="smart_updates" value="monthly" <?php if($smart_updates == "monthly") echo "checked"; ?> />Monthly
 					<input type="radio" name="smart_updates" value="disabled" <?php if($smart_updates == "disabled") echo "checked"; ?> />Disabled
+					<input type="hidden" name="smart_updates_url" value="<?php print($GLOBALS["nginx"]["NGINX_DEFAULTURL"]); ?>" />
 				</p>
 				<blockquote class='inline_help'>
 					Choose how often you want the S.M.A.R.T data to be updated, or disable it.<br />
