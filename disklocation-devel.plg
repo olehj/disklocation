@@ -186,9 +186,9 @@ EOL
     logit "done and continue..."
   fi
   
-  if [[ -f "&pluginLOC;/disklocation.sqlite" &amp;&amp; ! -f "&pluginLOC;/disklocation_db_v6.sqlite.tar.bz2" ]]; then
-    tar jcf &pluginLOC;/disklocation_db_v6.sqlite.tar.bz2 &pluginLOC;/disklocation.sqlite
-    logit "Made backup of database (&pluginLOC;/disklocation_db_v6.sqlite.tar.bz2) before it will be upgraded to version 7"
+  if [[ -f "&pluginLOC;/disklocation.sqlite" &amp;&amp; ! -f "&pluginLOC;/disklocation_db_v7.sqlite.tar.bz2" ]]; then
+    tar jcf &pluginLOC;/disklocation_db_v7.sqlite.tar.bz2 &pluginLOC;/disklocation.sqlite
+    logit "Made backup of database (&pluginLOC;/disklocation_db_v7.sqlite.tar.bz2) before it will be upgraded to version 8"
   fi
   logit "Package file &packagefile; extracted."
   
