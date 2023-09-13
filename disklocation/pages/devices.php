@@ -527,9 +527,10 @@
 									$temp_status_icon
 								</div>
 								<div class=\"flex-container-middle_" . $disk_tray_direction . "\">
-									$unraid_dev $device_page
+									$unraid_dev
+									$device_page
 									$devicenode_page
-									$luname_page
+									<!--$luname_page-->
 									$smart_capacity
 									$smart_formfactor
 									$smart_rotation

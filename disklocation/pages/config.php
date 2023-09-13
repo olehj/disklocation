@@ -347,8 +347,19 @@ $(document).ready(function(){
 						<td style="width: <?php echo $vi_width ?>px;">
 							<input type="checkbox" name="displayinfo[devicenode]" value="1" <?php if(isset($displayinfo["devicenode"])) echo "checked"; ?> />Device Node
 						</td>
+						<!--
 						<td style="width: <?php echo $vi_width ?>px;">
 							<input type="checkbox" name="displayinfo[luname]" value="1" <?php if(isset($displayinfo["luname"])) echo "checked"; ?> />Logical Unit Name
+						</td>
+						-->
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[capacity]" value="1" <?php if(isset($displayinfo["capacity"])) echo "checked"; ?> />Capacity
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[formfactor]" value="1" <?php if(isset($displayinfo["formfactor"])) echo "checked"; ?> />Form Factor
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[rotation]" value="1" <?php if(isset($displayinfo["rotation"])) echo "checked"; ?> />Rotation
 						</td>
 					</tr>
 					<tr>
@@ -372,18 +383,6 @@ $(document).ready(function(){
 						<td style="width: <?php echo $vi_width ?>px;">
 							<input type="checkbox" name="displayinfo[loadcyclecount]" value="1" <?php if(isset($displayinfo["loadcyclecount"])) echo "checked"; ?> />Load Cycle Count
 						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[capacity]" value="1" <?php if(isset($displayinfo["capacity"])) echo "checked"; ?> />Capacity
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[rotation]" value="1" <?php if(isset($displayinfo["rotation"])) echo "checked"; ?> />Rotation
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[formfactor]" value="1" <?php if(isset($displayinfo["formfactor"])) echo "checked"; ?> />Form Factor
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[warranty]" value="1" <?php if(isset($displayinfo["warranty"])) echo "checked"; ?> />Warranty Left
-						</td>
 					</tr>
 					<tr>
 						<td style="width: <?php echo $vi_width ?>px;">
@@ -400,6 +399,9 @@ $(document).ready(function(){
 						</td>
 						<td style="width: <?php echo $vi_width ?>px;">
 							<input type="checkbox" name="displayinfo[data_units_written]" value="1" <?php if(isset($displayinfo["data_units_written"])) echo "checked"; ?> />Data Written
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[warranty]" value="1" <?php if(isset($displayinfo["warranty"])) echo "checked"; ?> />Warranty Left
 						</td>
 					</tr>
 					<tr>
