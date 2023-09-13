@@ -23,6 +23,7 @@
 	
 	// Set warning level
 	//error_reporting(E_ERROR | E_WARNING | E_PARSE);
+	error_reporting(E_ERROR);
 	
 	$get_page_info = array();
 	$get_page_info["Version"] = "";
