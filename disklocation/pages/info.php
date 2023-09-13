@@ -59,6 +59,9 @@
 		
 		$smart_rotation = get_smart_rotation($data["smart_rotation"]);
 		
+		$smart_nvme_data_units_read = ( empty($data["smart_nvme_data_units_read"]) ? null : human_filesize(smart_units_to_bytes($data["smart_nvme_data_units_read"]), 1, true) );
+		$smart_nvme_data_units_written = ( empty($data["smart_nvme_data_units_written"]) ? null : human_filesize(smart_units_to_bytes($data["smart_nvme_data_units_written"]), 1, true) );
+		
 		$date_warranty = "";
 		$warranty_expire = "";
 		$warranty_left = "";
@@ -123,7 +126,9 @@
 				<td style=\"padding: 0 10px 0 10px; text-align: center;\">" . ( empty($data["smart_status"]) ? "FAIL" : "OK" ) . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: left;\">" . $smart_temperature . " (" . $smart_temperature_warning . "/" . $smart_temperature_critical . ")</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><span style=\"cursor: help;\" title=\"" . $smart_powerontime . "\">" . $data["smart_powerontime"] . "</span></td>
-				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $data["smart_loadcycle"] . "</td>
+				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . ( isset($data["smart_loadcycle"]) ? $data["smart_loadcycle"] : "" ) . "" . ( is_numeric($data["smart_nvme_percentage_used"]) ? $data["smart_nvme_percentage_used"] . "%" : "" ) . "</td>
+				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $smart_nvme_data_units_read . "</td>
+				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $smart_nvme_data_units_written . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $data["purchased"] . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><span style=\"cursor: help;\" title=\"Warranty: " . $date_warranty . " Expires: " . $warranty_left . "\">" . $warranty_expire . "</span></td>
 				<td style=\"padding: 0 10px 0 10px;\">" . bscode2html(stripslashes(htmlspecialchars($data["comment"]))) . "</td>
@@ -154,7 +159,9 @@
 		<td style="padding: 0 10px 0 10px;"><b>SMART</b></td>
 		<td style="padding: 0 10px 0 10px;"><b>Temp (Warn/Crit)</b></td>
 		<td style="padding: 0 10px 0 10px;"><b>Power On</b></td>
-		<td style="padding: 0 10px 0 10px;"><b>Load Cycle</b></td>
+		<td style="padding: 0 10px 0 10px;"><b>Cycles/% Used</b></td>
+		<td style="padding: 0 10px 0 10px;"><b>Read</b></td>
+		<td style="padding: 0 10px 0 10px;"><b>Written</b></td>
 		<td style="padding: 0 10px 0 10px;"><b>Purchased</b></td>
 		<td style="padding: 0 10px 0 10px;"><b>Warranty</b></td>
 		<td style="padding: 0 10px 0 10px;"><b>Comment</b></td>

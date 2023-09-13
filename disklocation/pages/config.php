@@ -141,7 +141,7 @@
 	
 	$smart_updates = cronjob_current();
 	
-	$plugin_update_scan = update_scan_toggle(0, 1);
+	//$plugin_update_scan = update_scan_toggle(0, 1);
 	
 	/*
 	if(empty($dashboard_widget) || $dashboard_widget == "on" || $dashboard_widget == "off") {
@@ -279,7 +279,8 @@ $(document).ready(function(){
 				<input type="hidden" name="dashboard_widget_pos" value="0" /> <!-- new Dashboard system, just leaving this to disabled by default -->
 			</td>
 			<td style="padding-left: 25px; vertical-align: top;">
-				<!--<h2>Updates</h2>
+				<h2>Updates</h2>
+				<!--
 				<p>
 					<b>Disk Location plugin on update scan:</b><br />
 					<input type="radio" name="plugin_update_scan" value="1" <?php if($plugin_update_scan == 1) echo "checked"; ?> />Enabled
@@ -346,8 +347,19 @@ $(document).ready(function(){
 						<td style="width: <?php echo $vi_width ?>px;">
 							<input type="checkbox" name="displayinfo[devicenode]" value="1" <?php if(isset($displayinfo["devicenode"])) echo "checked"; ?> />Device Node
 						</td>
+						<!--
 						<td style="width: <?php echo $vi_width ?>px;">
 							<input type="checkbox" name="displayinfo[luname]" value="1" <?php if(isset($displayinfo["luname"])) echo "checked"; ?> />Logical Unit Name
+						</td>
+						-->
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[capacity]" value="1" <?php if(isset($displayinfo["capacity"])) echo "checked"; ?> />Capacity
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[formfactor]" value="1" <?php if(isset($displayinfo["formfactor"])) echo "checked"; ?> />Form Factor
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[rotation]" value="1" <?php if(isset($displayinfo["rotation"])) echo "checked"; ?> />Rotation
 						</td>
 					</tr>
 					<tr>
@@ -371,14 +383,22 @@ $(document).ready(function(){
 						<td style="width: <?php echo $vi_width ?>px;">
 							<input type="checkbox" name="displayinfo[loadcyclecount]" value="1" <?php if(isset($displayinfo["loadcyclecount"])) echo "checked"; ?> />Load Cycle Count
 						</td>
+					</tr>
+					<tr>
 						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[capacity]" value="1" <?php if(isset($displayinfo["capacity"])) echo "checked"; ?> />Capacity
+							<input type="checkbox" name="displayinfo[available_spare]" value="1" <?php if(isset($displayinfo["available_spare"])) echo "checked"; ?> />Spare
 						</td>
 						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[rotation]" value="1" <?php if(isset($displayinfo["rotation"])) echo "checked"; ?> />Rotation
+							<input type="checkbox" name="displayinfo[available_spare_threshold]" value="1" <?php if(isset($displayinfo["available_spare_threshold"])) echo "checked"; ?> />Spare Threshold
 						</td>
 						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[formfactor]" value="1" <?php if(isset($displayinfo["formfactor"])) echo "checked"; ?> />Form Factor
+							<input type="checkbox" name="displayinfo[percentage_used]" value="1" <?php if(isset($displayinfo["percentage_used"])) echo "checked"; ?> />Percentage Used
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[data_units_read]" value="1" <?php if(isset($displayinfo["data_units_read"])) echo "checked"; ?> />Data Read
+						</td>
+						<td style="width: <?php echo $vi_width ?>px;">
+							<input type="checkbox" name="displayinfo[data_units_written]" value="1" <?php if(isset($displayinfo["data_units_written"])) echo "checked"; ?> />Data Written
 						</td>
 						<td style="width: <?php echo $vi_width ?>px;">
 							<input type="checkbox" name="displayinfo[warranty]" value="1" <?php if(isset($displayinfo["warranty"])) echo "checked"; ?> />Warranty Left

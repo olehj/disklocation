@@ -236,6 +236,11 @@
 				$smart_formfactor = "";
 				$smart_temperature = 0;
 				$smart_temperature_text = "";
+				$smart_nvme_data_units_read = "";
+				$smart_nvme_data_units_written = "";
+				$smart_nvme_percentage_used = "";
+				$smart_nvme_available_spare = "";
+				$smart_nvme_available_spare_threshold = "";
 				$temp_status = 0;
 				$temp_status_icon = "";
 				$color_status = "";
@@ -273,6 +278,21 @@
 				}
 				if(isset($displayinfo["capacity"])) {
 					$smart_capacity = ( !is_numeric($data["smart_capacity"]) ? null : human_filesize($data["smart_capacity"], 1, true) );
+				}
+				if(isset($displayinfo["available_spare"])) {
+					$smart_nvme_available_spare = ( !is_numeric($data["smart_nvme_available_spare"]) ? null : "Spare: " . $data["smart_nvme_available_spare"] . "%" );
+				}
+				if(isset($displayinfo["available_spare_threshold"])) {
+					$smart_nvme_available_spare_threshold = ( !is_numeric($data["smart_nvme_available_spare_threshold"]) ? null : "Spare threshold: " . $data["smart_nvme_available_spare_threshold"] . "%" );
+				}
+				if(isset($displayinfo["percentage_used"])) {
+					$smart_nvme_percentage_used = ( !is_numeric($data["smart_nvme_percentage_used"]) ? null : $data["smart_nvme_percentage_used"] . "%" );
+				}
+				if(isset($displayinfo["data_units_read"])) {
+					$smart_nvme_data_units_read = ( !is_numeric($data["smart_nvme_data_units_read"]) ? null : "R:" . human_filesize(smart_units_to_bytes($data["smart_nvme_data_units_read"]), 1, true) . "" );
+				}
+				if(isset($displayinfo["data_units_written"])) {
+					$smart_nvme_data_units_written = ( !is_numeric($data["smart_nvme_data_units_written"]) ? null : "W:" . human_filesize(smart_units_to_bytes($data["smart_nvme_data_units_written"]), 1, true) . "" );
 				}
 				if(isset($displayinfo["warranty"]) && ($data["purchased"] && ($data["warranty"] || $data["warranty_date"]))) {
 					$warranty_start = strtotime($data["purchased"]);
@@ -437,13 +457,14 @@
 				$add_break_1 = "";
 				$add_break_2 = "";
 				$add_break_3 = "";
-				if($unraid_dev || $device_page || $devicenode_page || $luname_page) {
+				$add_break_4 = "";
+				if($unraid_dev || $device_page || $devicenode_page || $luname_page || $smart_capacity || $smart_rotation || $smart_formfactor) {
 					$add_break_1 = "<br />";
 				}
 				if($smart_modelfamily || $smart_modelname || $smart_serialnumber) {
 					$add_break_2 = "<br />";
 				}
-				if($smart_temperature || $smart_powerontime || $smart_loadcycle || $smart_capacity || $smart_rotation || $smart_formfactor || $warranty_page) {
+				if($smart_temperature || $smart_powerontime || $smart_loadcycle || $warranty_page || $smart_nvme_available_spare || $smart_nvme_available_spare_threshold || $smart_nvme_percentage_used || $smart_nvme_data_units_read || $smart_nvme_data_units_written) {
 					$add_break_3 = "<br />";
 				}
 				
@@ -506,9 +527,31 @@
 									$temp_status_icon
 								</div>
 								<div class=\"flex-container-middle_" . $disk_tray_direction . "\">
-									$unraid_dev $device_page $devicenode_page $luname_page $add_break_1
-									$smart_modelfamily $smart_modelname $smart_serialnumber $add_break_2
-									$smart_temperature_text $smart_powerontime $smart_loadcycle $smart_capacity $smart_rotation $smart_formfactor $warranty_page $add_break_3
+									$unraid_dev
+									$device_page
+									$devicenode_page
+									<!--$luname_page-->
+									$smart_capacity
+									$smart_formfactor
+									$smart_rotation
+									$add_break_1
+									
+									$smart_modelfamily
+									$smart_modelname
+									$smart_serialnumber
+									$add_break_2
+									
+									$smart_temperature_text
+									$smart_powerontime
+									$smart_loadcycle
+									$smart_nvme_available_spare
+									$smart_nvme_available_spare_threshold
+									$smart_nvme_percentage_used
+									$smart_nvme_data_units_read
+									$smart_nvme_data_units_written
+									$warranty_page
+									$add_break_3
+									
 									$device_comment
 								</div>
 								<!--

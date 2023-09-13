@@ -96,7 +96,7 @@
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . stripslashes(htmlspecialchars($group_assign)) . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $tray_assign . "</td>
 				<td style=\"padding: 0 10px 0 10px;\">" . $data["device"] . "</td>
-				<td style=\"padding: 0 10px 0 10px;\">" . $data["luname"] . "</td>
+				<!--<td style=\"padding: 0 10px 0 10px;\">" . $data["luname"] . "</td>-->
 				<td style=\"padding: 0 10px 0 10px;\">" . $data["model_family"] . "</td>
 				<td style=\"padding: 0 10px 0 10px;\">" . $data["model_name"] . "</td>
 				<td style=\"padding: 0 10px 0 10px;\">" . $data["smart_serialnumber"] . "</td>
@@ -136,6 +136,9 @@
 				$smart_rotation = $data["smart_rotation"] . "rpm";
 		}
 		
+		$smart_nvme_data_units_read = ( empty($data["smart_nvme_data_units_read"]) ? null : human_filesize(smart_units_to_bytes($data["smart_nvme_data_units_read"]), 1, true) );
+		$smart_nvme_data_units_written = ( empty($data["smart_nvme_data_units_written"]) ? null : human_filesize(smart_units_to_bytes($data["smart_nvme_data_units_written"]), 1, true) );
+		
 		$warranty_expire = "";
 		$warranty_left = "";
 		if($data["purchased"] && $data["warranty"]) {
@@ -171,7 +174,9 @@
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . str_replace(" inches", "&quot;", $data["smart_formfactor"]) . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: center;\">" . ( empty($data["smart_status"]) ? "FAIL" : "OK" ) . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><span style=\"cursor: help;\" title=\"" . $smart_powerontime . "\">" . $data["smart_powerontime"] . "</span></td>
-				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $data["smart_loadcycle"] . "</td>
+				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . ( isset($data["smart_loadcycle"]) ? $data["smart_loadcycle"] : "" ) . "" . ( is_numeric($data["smart_nvme_percentage_used"]) ? $data["smart_nvme_percentage_used"] . "%" : "" ) . "</td>
+				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $smart_nvme_data_units_read . "</td>
+				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $smart_nvme_data_units_written . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $data["purchased"] . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><span style=\"cursor: help;\" title=\"Warranty: " . $data["warranty"] . " months. Expires: " . $warranty_left . "\">" . $warranty_expire . "</span></td>
 				<td style=\"padding: 0 10px 0 10px;\" colspan=\"3\">" . bscode2html(stripslashes(htmlspecialchars($data["comment"]))) . "</td>
@@ -196,7 +201,7 @@
 		<td style="padding: 0 10px 0 10px;"><b>Group</b></td>
 		<td style="padding: 0 10px 0 10px; width: 20px;"><b>TrayID</b></td>
 		<td style="padding: 0 10px 0 10px;"><b>Path</b></td>
-		<td style="padding: 0 10px 0 10px;"><b>LUN</b></td>
+		<!--<td style="padding: 0 10px 0 10px;"><b>LUN</b></td>-->
 		<td style="padding: 0 10px 0 10px;"><b>Manufacturer</b></td>
 		<td style="padding: 0 10px 0 10px;"><b>Device Model</b></td>
 		<td style="padding: 0 10px 0 10px;"><b>Serial Number</b></td>
@@ -239,7 +244,9 @@
 					<td style=\"padding: 0 10px 0 10px;\"><b>Size</b></td>
 					<td style=\"padding: 0 10px 0 10px;\"><b>SMART</b></td>
 					<td style=\"padding: 0 10px 0 10px;\"><b>Power On</b></td>
-					<td style=\"padding: 0 10px 0 10px;\"><b>Load Cycle</b></td>
+					<td style=\"padding: 0 10px 0 10px;\"><b>Cycles/Used %</b></td>
+					<td style=\"padding: 0 10px 0 10px;\"><b>Read</b></td>
+					<td style=\"padding: 0 10px 0 10px;\"><b>Written</b></td>
 					<td style=\"padding: 0 10px 0 10px;\"><b>Purchased</b></td>
 					<td style=\"padding: 0 10px 0 10px;\"><b>Warranty</b></td>
 					<td style=\"padding: 0 10px 0 10px;\"><b>Comment</b></td>
