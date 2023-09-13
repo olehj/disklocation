@@ -283,8 +283,8 @@ $(document).ready(function(){
 				<!--
 				<p>
 					<b>Disk Location plugin on update scan:</b><br />
-					<input type="radio" name="plugin_update_scan" value="1" <?php if($plugin_update_scan == 1) echo "checked"; ?> />Enabled
-					<input type="radio" name="plugin_update_scan" value="0" <?php if($plugin_update_scan == 0) echo "checked"; ?> />Disabled
+					<input type="radio" name="plugin_update_scan" value="1" <?php //if($plugin_update_scan == 1) echo "checked"; ?> />Enabled
+					<input type="radio" name="plugin_update_scan" value="0" <?php //if($plugin_update_scan == 0) echo "checked"; ?> />Disabled
 				</p>
 				<blockquote class='inline_help'>
 					Enable or disable the auto scan during a plugin update. If it's disabled it will rely on manual updates (Force Scan All) and S.M.A.R.T update schedules.
