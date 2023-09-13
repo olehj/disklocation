@@ -49,7 +49,7 @@
 ###2923.09.14
  - Commit #227 - FEATURE: Added "percentage used" and other NVME SMART data to the plugin. Should cover TBW.. ish.
  - Commit #232 - FEATURE: Include global SMART controller and autorenew cron script.
-                 Visible Frontpage Information is slightly rearranged, LUN info broken and deleted.
+                 Visible Frontpage Information is slightly rearranged, LUN info broken and removed.
 
 ###2023.09.13
  - Commit #230 - FEATURE: SMART controllers should now be supported. Currently only supporting controllers defined by "per device", and not global in Unraid (probably). 
