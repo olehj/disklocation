@@ -173,6 +173,10 @@
 		}
 	}
 	
+	function smart_units_to_bytes($units) {
+		return $units * 512 * 1024;
+	}
+	
 	function temperature_conv($float, $input, $output) {
 		// temperature_conv(floatnumber, F, C) : from F to C
 		
@@ -671,6 +675,7 @@
 		}
 	}
 */	
+/*
 	function update_scan_toggle($set = 0, $get_status = 0) {
 		$path = "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "";
 		
@@ -691,15 +696,15 @@
 		
 		return $status;
 	}
-	
+*/	
 	function cronjob_timer($time, $url) {
 		$path = "/etc/cron.";
 		$filename = "disklocation.sh";
 		
-		unlink($path . "hourly/" . $filename);
-		unlink($path . "daily/" . $filename);
-		unlink($path . "weekly/" . $filename);
-		unlink($path . "monthly/" . $filename);
+		if(file_exists($path . "hourly/" . $filename)) unlink($path . "hourly/" . $filename);
+		if(file_exists($path . "daily/" . $filename)) unlink($path . "daily/" . $filename);
+		if(file_exists($path . "weekly/" . $filename)) unlink($path . "weekly/" . $filename);
+		if(file_exists($path . "monthly/" . $filename)) unlink($path . "monthly/" . $filename);
 		
 		$cron_cmd = "wget -q --delete-after " . $url . "/Settings/disklocation?crontab=1";
 		if($time != "disabled") {
@@ -716,6 +721,21 @@
 		if(file_exists($path . "weekly/" . $filename)) return "weekly";
 		if(file_exists($path . "monthly/" . $filename)) return "monthly";
 		else return "disabled";
+	}
+	
+	function cronjob_runfile_updater() {
+		$path = "/etc/cron.";
+		$filename = "disklocation.sh";
+		$current = cronjob_current();
+		
+		if($current != "disabled") {
+			if(file_exists($path . "" . $current . "/" . $filename)) {
+				$contents = file_get_contents($path . "" . $current . "/" . $filename);
+				if(preg_match("/system\.php cronjob silent/", $contents)) {
+					cronjob_timer($current, $GLOBALS["nginx"]["NGINX_DEFAULTURL"]);
+				}
+			}
+		}
 	}
 	
 	// lsscsi -bg
@@ -876,7 +896,7 @@
 		$dashboard_widget_pos = $dashboard_widget_array["position"];
 		*/
 		cronjob_timer($_POST["smart_updates"],$_POST["smart_updates_url"]);
-		update_scan_toggle($_POST["plugin_update_scan"]);
+		//update_scan_toggle($_POST["plugin_update_scan"]);
 		
 		if(empty($disklocation_error)) {
 			$sql .= "
@@ -1072,6 +1092,8 @@
 	}
 	
 // Common config
+	$get_global_smType = ( isset($GLOBALS["var"]["smType"]) ? $GLOBALS["var"]["smType"] : null );
+	
 	$unraid_disks = $GLOBALS["disks"];
 	$unraid_disks = array_values($unraid_disks);
 	
@@ -1095,7 +1117,7 @@
 			$unraid_disks[$i]["maxTemp"] = 0;
 		}
 		
-		$smart_controller_unraid = "" . ( isset($unraid_disks[$i]["smType"]) ? $unraid_disks[$i]["smType"] : null ) . "" . ( isset($unraid_disks[$i]["smPort1"]) ? "," . $unraid_disks[$i]["smPort1"] : null ) . "" . ( isset($unraid_disks[$i]["smPort2"]) ? $unraid_disks[$i]["smGlue"] . "" . $unraid_disks[$i]["smPort2"] : null ) . "" . ( isset($unraid_disks[$i]["smPort3"]) ? $unraid_disks[$i]["smGlue"] . "" . $unraid_disks[$i]["smPort3"] : null ) . "" . ( isset($unraid_disks[$i]["smDevice"]) ? " /dev/" . $unraid_disks[$i]["smDevice"] : null ) . "";
+		$smart_controller_unraid = "" . ( isset($unraid_disks[$i]["smType"]) ? $unraid_disks[$i]["smType"] : $get_global_smType ) . "" . ( isset($unraid_disks[$i]["smPort1"]) ? "," . $unraid_disks[$i]["smPort1"] : null ) . "" . ( isset($unraid_disks[$i]["smPort2"]) ? $unraid_disks[$i]["smGlue"] . "" . $unraid_disks[$i]["smPort2"] : null ) . "" . ( isset($unraid_disks[$i]["smPort3"]) ? $unraid_disks[$i]["smGlue"] . "" . $unraid_disks[$i]["smPort3"] : null ) . "" . ( isset($unraid_disks[$i]["smDevice"]) ? " /dev/" . $unraid_disks[$i]["smDevice"] : null ) . "";
 		
 		if($getdevicenode) {
 			$unraid_array[$getdevicenode] = array(
@@ -1132,7 +1154,7 @@
 			$unraid_devs[$i]["maxTemp"] = 0;
 		}
 		
-		$smart_controller_devs = "" . ( isset($unraid_devs[$i]["smType"]) ? $unraid_devs[$i]["smType"] : null ) . "" . ( isset($unraid_devs[$i]["smPort1"]) ? "," . $unraid_devs[$i]["smPort1"] : null ) . "" . ( isset($unraid_devs[$i]["smPort2"]) ? $unraid_devs[$i]["smGlue"] . "" . $unraid_devs[$i]["smPort2"] : null ) . "" . ( isset($unraid_devs[$i]["smPort3"]) ? $unraid_devs[$i]["smGlue"] . "" . $unraid_devs[$i]["smPort3"] : null ) . "" . ( isset($unraid_devs[$i]["smDevice"]) ? " /dev/" . $unraid_devs[$i]["smDevice"] : null ) . "";
+		$smart_controller_devs = "" . ( isset($unraid_devs[$i]["smType"]) ? $unraid_devs[$i]["smType"] : $get_global_smType ) . "" . ( isset($unraid_devs[$i]["smPort1"]) ? "," . $unraid_devs[$i]["smPort1"] : null ) . "" . ( isset($unraid_devs[$i]["smPort2"]) ? $unraid_devs[$i]["smGlue"] . "" . $unraid_devs[$i]["smPort2"] : null ) . "" . ( isset($unraid_devs[$i]["smPort3"]) ? $unraid_devs[$i]["smGlue"] . "" . $unraid_devs[$i]["smPort3"] : null ) . "" . ( isset($unraid_devs[$i]["smDevice"]) ? " /dev/" . $unraid_devs[$i]["smDevice"] : null ) . "";
 		
 		if($getdevicenode) {
 			$unraid_array[$getdevicenode] = array(
@@ -1336,6 +1358,11 @@
 									smart_capacity,
 									smart_rotation,
 									smart_formfactor,
+									smart_nvme_available_spare,
+									smart_nvme_available_spare_threshold,
+									smart_nvme_percentage_used,
+									smart_nvme_data_units_read,
+									smart_nvme_data_units_written,
 									status,
 									hash
 								)
@@ -1353,6 +1380,11 @@
 									'" . ($smart_array["user_capacity"]["bytes"] ?? null) . "',
 									'" . ($smart_array["rotation_rate"] ?? null) . "',
 									'" . ($smart_array["form_factor"]["name"] ?? null) . "',
+									'" . ($smart_array["nvme_smart_health_information_log"]["available_spare"] ?? null) . "',
+									'" . ($smart_array["nvme_smart_health_information_log"]["available_spare_threshold"] ?? null) . "',
+									'" . ($smart_array["nvme_smart_health_information_log"]["percentage_used"] ?? null) . "',
+									'" . ($smart_array["nvme_smart_health_information_log"]["data_units_read"] ?? null) . "',
+									'" . ($smart_array["nvme_smart_health_information_log"]["data_units_written"] ?? null) . "',
 									'h',
 									'" . ($deviceid[$i] ?? null) . "'
 								)
@@ -1365,7 +1397,13 @@
 									smart_temperature='" . ($smart_array["temperature"]["current"] ?? null) . "',
 									smart_powerontime='" . ($smart_array["power_on_time"]["hours"] ?? null) . "',
 									smart_loadcycle='" . ($smart_loadcycle_find ?? null) . "',
-									smart_rotation='" . ($smart_array["rotation_rate"] ?? null) . "'
+									smart_rotation='" . ($smart_array["rotation_rate"] ?? null) . "',
+									smart_nvme_available_spare='" . ($smart_array["nvme_smart_health_information_log"]["available_spare"] ?? null) . "',
+									smart_nvme_available_spare_threshold='" . ($smart_array["nvme_smart_health_information_log"]["available_spare_threshold"] ?? null) . "',
+									smart_nvme_percentage_used='" . ($smart_array["nvme_smart_health_information_log"]["percentage_used"] ?? null) . "',
+									smart_nvme_data_units_read='" . ($smart_array["nvme_smart_health_information_log"]["data_units_read"] ?? null) . "',
+									smart_nvme_data_units_written='" . ($smart_array["nvme_smart_health_information_log"]["data_units_written"] ?? null) . "'
+									
 								WHERE hash='" . $deviceid[$i] . "'
 								;
 						";
@@ -1431,4 +1469,6 @@
 	if(isset($_POST["reset_all_colors"])) {
 		force_reset_color($db, "*");
 	}
+	
+	cronjob_runfile_updater();
 ?>

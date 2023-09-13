@@ -20,7 +20,7 @@
 	 */
 
 //	Database Version:
-	$current_db_ver = 7;
+	$current_db_ver = 8;
 
 //	Common settings
 //	Variable name		Default value	Description
@@ -54,6 +54,11 @@
 		'capacity' => 1,
 		'rotation' => 1,
 		'formfactor' => 1,
+		'available_spare' => 0,
+		'available_spare_threshold' => 0,
+		'percentage_used' => 1,
+		'data_units_read' => 1,
+		'data_units_written' => 1,
 		'warranty' => 1,
 		'comment' => 0,
 		'hideemptycontents' => 0,
@@ -90,6 +95,11 @@
 		smart_capacity INT,
 		smart_rotation INT,
 		smart_formfactor VARCHAR(16),
+		smart_nvme_available_spare INT,
+		smart_nvme_available_spare_threshold INT,
+		smart_nvme_percentage_used INT,
+		smart_nvme_data_units_read INT,
+		smart_nvme_data_units_written INT,
 		status CHAR(1),
 		purchased DATE,
 		warranty SMALLINT,
@@ -113,6 +123,11 @@
 		smart_capacity,
 		smart_rotation,
 		smart_formfactor,
+		smart_nvme_available_spare,
+		smart_nvme_available_spare_threshold,
+		smart_nvme_percentage_used,
+		smart_nvme_data_units_read,
+		smart_nvme_data_units_written,
 		status,
 		purchased,
 		warranty,
@@ -194,6 +209,34 @@
 		tray_height
 	";
 
+	/*
+		Database Version: 7
+	*/
+	
+	$sql_tables_disks_v7 = "
+		id,
+		device,
+		devicenode,
+		luname,
+		model_family,
+		model_name,
+		smart_status,
+		smart_serialnumber,
+		smart_temperature,
+		smart_powerontime,
+		smart_loadcycle,
+		smart_capacity,
+		smart_rotation,
+		smart_formfactor,
+		status,
+		purchased,
+		warranty,
+		warranty_date,
+		comment,
+		color,
+		hash
+	";
+	
 	/*
 		Database Version: 6
 	*/
@@ -741,6 +784,35 @@
 				
 				PRAGMA foreign_keys = on;
 				PRAGMA user_version = '7';
+				
+				VACUUM;
+			";
+			$ret = $db->exec($sql);
+			if(!$ret) {
+				$db_update = 0;
+				echo $db->lastErrorMsg();
+			}
+		}
+		
+		if($database_version < 8) {
+			$db_update = 1;
+			$sql = "
+				PRAGMA foreign_keys = off;
+				
+				BEGIN TRANSACTION;
+				
+				ALTER TABLE disks RENAME TO old_disks;
+				
+				CREATE TABLE disks($sql_create_disks);
+				
+				INSERT INTO disks ($sql_tables_disks_v7) SELECT $sql_tables_disks_v7 FROM old_disks;
+				
+				DROP TABLE old_disks;
+				
+				COMMIT;
+				
+				PRAGMA foreign_keys = on;
+				PRAGMA user_version = '8';
 				
 				VACUUM;
 			";
