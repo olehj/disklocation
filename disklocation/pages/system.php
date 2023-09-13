@@ -28,7 +28,6 @@
 	$get_page_info["Version"] = "";
 	$get_page_info = parse_ini_file("/usr/local/emhttp/plugins/disklocation/disklocation.page");
 	
-	
 	// define constants
 	define("UNRAID_CONFIG_PATH", "/boot/config");
 	define("DISKLOCATION_DB", "/boot/config/plugins/disklocation/disklocation.sqlite");
@@ -693,57 +692,30 @@
 		return $status;
 	}
 	
-	function cronjob_timer($time = "") {
-		$curpath = "";
-		$curtime = "disabled";
+	function cronjob_timer($time, $url) {
 		$path = "/etc/cron.";
 		$filename = "disklocation.sh";
-		$md5sum = "be076c2fc24b9be95dede402a17fd4b4";
 		
-		if(file_exists($path . "hourly/" . $filename) && md5_file($path . "hourly/" . $filename) == $md5sum) {
-			$curtime = "hourly";
-			if($time && $time != "disabled" && $time != $curtime) {
-				rename($path . "hourly/" . $filename, $path . "" . $time . "/" . $filename);
-			}
-			if($time == "disabled") {
-				unlink($path . "hourly/" . $filename);
-			}
-		}
-		if(file_exists($path . "daily/" . $filename) && md5_file($path . "daily/" . $filename) == $md5sum) {
-			$curtime = "daily";
-			if($time && $time != "disabled" && $time != $curtime) {
-				rename($path . "daily/" . $filename, $path . "" . $time . "/" . $filename);
-			}
-			if($time == "disabled") {
-				unlink($path . "daily/" . $filename);
-			}
-		}
-		if(file_exists($path . "weekly/" . $filename) && md5_file($path . "weekly/" . $filename) == $md5sum) {
-			$curtime = "weekly";
-			if($time && $time != "disabled" && $time != $curtime) {
-				rename($path . "weekly/" . $filename, $path . "" . $time . "/" . $filename);
-			}
-			if($time == "disabled") {
-				unlink($path . "weekly/" . $filename);
-			}
-		}
-		if(file_exists($path . "monthly/" . $filename) && md5_file($path . "monthly/" . $filename) == $md5sum) {
-			$curtime = "monthly";
-			if($time && $time != "disabled" && $time != $curtime) {
-				rename($path . "monthly/" . $filename, $path . "" . $time . "/" . $filename);
-			}
-			if($time == "disabled") {
-				unlink($path . "monthly/" . $filename);
-			}
-		}
+		unlink($path . "hourly/" . $filename);
+		unlink($path . "daily/" . $filename);
+		unlink($path . "weekly/" . $filename);
+		unlink($path . "monthly/" . $filename);
 		
-		if($time && $time != "disabled") {
-			copy(EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/disklocation.cron", $path . "" . $time . "/" . $filename);
+		$cron_cmd = "wget -q --delete-after " . $url . "/Settings/disklocation?crontab=1";
+		if($time != "disabled") {
+			file_put_contents($path . "" . $time . "/" . $filename, $cron_cmd);
 			chmod($path . "" . $time . "/" . $filename, 0777);
-			$curtime = $time;
 		}
+	}
+	function cronjob_current() {
+		$path = "/etc/cron.";
+		$filename = "disklocation.sh";
 		
-		return ( $curtime ? $curtime : $time );
+		if(file_exists($path . "hourly/" . $filename)) return "hourly";
+		if(file_exists($path . "daily/" . $filename)) return "daily";
+		if(file_exists($path . "weekly/" . $filename)) return "weekly";
+		if(file_exists($path . "monthly/" . $filename)) return "monthly";
+		else return "disabled";
 	}
 	
 	// lsscsi -bg
@@ -903,7 +875,7 @@
 		$dashboard_widget = $dashboard_widget_array["current"];
 		$dashboard_widget_pos = $dashboard_widget_array["position"];
 		*/
-		cronjob_timer($_POST["smart_updates"]);
+		cronjob_timer($_POST["smart_updates"],$_POST["smart_updates_url"]);
 		update_scan_toggle($_POST["plugin_update_scan"]);
 		
 		if(empty($disklocation_error)) {
@@ -1099,6 +1071,136 @@
 		}
 	}
 	
+// Common config
+	$unraid_disks = $GLOBALS["disks"];
+	$unraid_disks = array_values($unraid_disks);
+	
+	// get configured Unraid disks
+	/*
+	if(is_file(DISKINFORMATION)) {
+		$unraid_disks_import = parse_ini_file(DISKINFORMATION, true);
+		$unraid_disks = array_values($unraid_disks_import);
+	}
+	*/
+	// modify the array to suit our needs
+	$unraid_array = array();
+	$smart_controller_unraid = "";
+	$i=0;
+	while($i < count($unraid_disks)) {
+		$getdevicenode = $unraid_disks[$i]["device"];
+		if(!isset($unraid_disks[$i]["hotTemp"])) { 
+			$unraid_disks[$i]["hotTemp"] = 0;
+		}
+		if(!isset($unraid_disks[$i]["maxTemp"])) { 
+			$unraid_disks[$i]["maxTemp"] = 0;
+		}
+		
+		$smart_controller_unraid = "" . ( isset($unraid_disks[$i]["smType"]) ? $unraid_disks[$i]["smType"] : null ) . "" . ( isset($unraid_disks[$i]["smPort1"]) ? "," . $unraid_disks[$i]["smPort1"] : null ) . "" . ( isset($unraid_disks[$i]["smPort2"]) ? $unraid_disks[$i]["smGlue"] . "" . $unraid_disks[$i]["smPort2"] : null ) . "" . ( isset($unraid_disks[$i]["smPort3"]) ? $unraid_disks[$i]["smGlue"] . "" . $unraid_disks[$i]["smPort3"] : null ) . "" . ( isset($unraid_disks[$i]["smDevice"]) ? " /dev/" . $unraid_disks[$i]["smDevice"] : null ) . "";
+		
+		if($getdevicenode) {
+			$unraid_array[$getdevicenode] = array(
+				"name" => ($unraid_disks[$i]["name"] ?? null),
+				"device" => ($unraid_disks[$i]["device"] ?? null),
+				"status" => ($unraid_disks[$i]["status"] ?? null),
+				"type" => ($unraid_disks[$i]["type"] ?? null),
+				"temp" => ($unraid_disks[$i]["temp"] ?? null),
+				"hotTemp" => ($unraid_disks[$i]["hotTemp"] ? $unraid_disks[$i]["hotTemp"] : $GLOBALS["display"]["hot"]),
+				"maxTemp" => ($unraid_disks[$i]["maxTemp"] ? $unraid_disks[$i]["maxTemp"] : $GLOBALS["display"]["max"]),
+				"color" => ($unraid_disks[$i]["color"] ?? null),
+				"fscolor" => ($unraid_disks[$i]["fsColor"] ?? null),
+				"smart_controller_cmd" => ($smart_controller_unraid ?? null)
+			);
+		}
+		$i++;
+	}
+	
+	// get unassigned Unraid disks
+	
+	$unraid_devs = $GLOBALS["devs"];
+	$unraid_devs = array_values($unraid_devs);
+	
+	// modify the array to suit our needs
+	$unraid_unassigned = array();
+	$smart_controller_devs = "";
+	$i=0;
+	while($i < count($unraid_devs)) {
+		$getdevicenode = $unraid_devs[$i]["device"];
+		if(!isset($unraid_devs[$i]["hotTemp"])) { 
+			$unraid_devs[$i]["hotTemp"] = 0;
+		}
+		if(!isset($unraid_devs[$i]["maxTemp"])) { 
+			$unraid_devs[$i]["maxTemp"] = 0;
+		}
+		
+		$smart_controller_devs = "" . ( isset($unraid_devs[$i]["smType"]) ? $unraid_devs[$i]["smType"] : null ) . "" . ( isset($unraid_devs[$i]["smPort1"]) ? "," . $unraid_devs[$i]["smPort1"] : null ) . "" . ( isset($unraid_devs[$i]["smPort2"]) ? $unraid_devs[$i]["smGlue"] . "" . $unraid_devs[$i]["smPort2"] : null ) . "" . ( isset($unraid_devs[$i]["smPort3"]) ? $unraid_devs[$i]["smGlue"] . "" . $unraid_devs[$i]["smPort3"] : null ) . "" . ( isset($unraid_devs[$i]["smDevice"]) ? " /dev/" . $unraid_devs[$i]["smDevice"] : null ) . "";
+		
+		if($getdevicenode) {
+			$unraid_array[$getdevicenode] = array(
+				"name" => ($unraid_devs[$i]["name"] ?? null),
+				"device" => ($unraid_devs[$i]["device"] ?? null),
+				"status" => ($unraid_devs[$i]["status"] ?? null),
+				"type" => ($unraid_devs[$i]["type"] ?? null),
+				"temp" => ($unraid_devs[$i]["temp"] ?? null),
+				"hotTemp" => ($unraid_devs[$i]["hotTemp"] ? $unraid_devs[$i]["hotTemp"] : $GLOBALS["display"]["hot"]),
+				"maxTemp" => ($unraid_devs[$i]["maxTemp"] ? $unraid_devs[$i]["maxTemp"] : $GLOBALS["display"]["max"]),
+				"color" => ($unraid_devs[$i]["color"] ?? null),
+				"fscolor" => ($unraid_devs[$i]["fsColor"] ?? null),
+				"smart_controller_cmd" => ($smart_controller_devs ?? null)
+			);
+		}
+		$i++;
+	}
+	
+	//if(!in_array("cronjob", $argv)) {
+		// get settings from DB as $var
+		$sql = "SELECT * FROM settings";
+		$results = $db->query($sql);
+		
+		while($data = $results->fetchArray(1)) {
+			extract($data);
+		}
+		
+		$displayinfo = json_decode($displayinfo, true);
+		
+		//dashboard_toggle($dashboard_widget_pos); 
+		//cronjob_timer($smart_updates);
+		
+		$color_array = array();
+		$color_array["empty"] = $bgcolor_empty;
+		
+	// Group config
+		$last_group_id = 0;
+		
+		$sql = "SELECT * FROM settings_group ORDER BY id ASC";
+		$results = $db->query($sql);
+		
+		while($data_group = $results->fetchArray(1)) {
+			foreach($data_group as $key=>$value) {
+				$group[$data_group["id"]][$key] = "".$value."";
+			}
+		}
+		
+		$count_groups = array();
+		$sql = "SELECT id FROM settings_group GROUP BY id;";
+		$results = $db->query($sql);
+		while($data = $results->fetchArray(1)) {
+			$count_groups[] = $data["id"];
+		}
+		$total_groups = ( is_array($count_groups) ? count($count_groups) : 0 );
+		
+		$sql = "SELECT id FROM settings_group ORDER BY id DESC limit 1;";
+		$results = $db->query($sql);
+		while($data = $results->fetchArray(1)) {
+			$last_group_id = $data["id"];
+		}
+		
+		/*
+		print_r($group);
+		print(count($group));
+		die();
+		*/
+	//}
+	
 	// get all attached SCSI drives - usually should grab all local drives available
 	//$lsscsi_cmd = shell_exec("lsscsi -u -g");
 	$lsscsi_cmd = shell_exec("lsscsi -b -g");
@@ -1106,57 +1208,19 @@
 	$force_scan = 0;
 	
 	// add and update disk info
-	if(isset($_POST["force_smart_scan"]) || isset($_GET["force_smart_scan"]) || $disklocation_new_install || in_array("force", $argv)) {
+	if(isset($_POST["force_smart_scan"]) || isset($_GET["force_smart_scan"]) || isset($_GET["crontab"]) || $disklocation_new_install || in_array("force", $argv)) {
 		$force_scan = 1; // trigger force_smart_scan post if it is a new install or if it is forced at CLI
 	}
 	
-	if(isset($_GET["force_smart_scan"])) {
+	/*
+	if(isset($_GET["force_smart_scan"]) || isset($_POST["force_smart_scan"])) {
 		$debugging_active = 3;
 	}
+	*/
 	
 	if($force_scan || in_array("cronjob", $argv)) {
-		if(isset($_GET["force_smart_scan"])) {
+		if(isset($_GET["force_smart_scan"]) || isset($_POST["force_smart_scan"])) {
 			print("
-				<!DOCTYPE HTML>
-				<html>
-				<head>
-				<meta name=\"robots\" content=\"noindex, nofollow\">
-				<style>
-					@font-face{
-					font-family:'clear-sans';font-weight:normal;font-style:normal;
-					src:url('/webGui/styles/clear-sans.eot');src:url('/webGui/styles/clear-sans.eot?#iefix') format('embedded-opentype'),url('/webGui/styles/clear-sans.woff') format('woff'),url('/webGui/styles/clear-sans.ttf') format('truetype'),url('/webGui/styles/clear-sans.svg#clear-sans') format('svg');
-					}
-					@font-face{
-					font-family:'clear-sans';font-weight:bold;font-style:normal;
-					src:url('/webGui/styles/clear-sans-bold.eot');src:url('/webGui/styles/clear-sans-bold.eot?#iefix') format('embedded-opentype'),url('/webGui/styles/clear-sans-bold.woff') format('woff'),url('/webGui/styles/clear-sans-bold.ttf') format('truetype'),url('/webGui/styles/clear-sans-bold.svg#clear-sans-bold') format('svg');
-					}
-					@font-face{
-					font-family:'clear-sans';font-weight:normal;font-style:italic;
-					src:url('/webGui/styles/clear-sans-italic.eot');src:url('/webGui/styles/clear-sans-italic.eot?#iefix') format('embedded-opentype'),url('/webGui/styles/clear-sans-italic.woff') format('woff'),url('/webGui/styles/clear-sans-italic.ttf') format('truetype'),url('/webGui/styles/clear-sans-italic.svg#clear-sans-italic') format('svg');
-					}
-					@font-face{
-					font-family:'clear-sans';font-weight:bold;font-style:italic;
-					src:url('/webGui/styles/clear-sans-bold-italic.eot');src:url('/webGui/styles/clear-sans-bold-italic.eot?#iefix') format('embedded-opentype'),url('/webGui/styles/clear-sans-bold-italic.woff') format('woff'),url('/webGui/styles/clear-sans-bold-italic.ttf') format('truetype'),url('/webGui/styles/clear-sans-bold-italic.svg#clear-sans-bold-italic') format('svg');
-					}
-					@font-face{
-					font-family:'bitstream';font-weight:normal;font-style:normal;
-					src:url('/webGui/styles/bitstream.eot');src:url('/webGui/styles/bitstream.eot?#iefix') format('embedded-opentype'),url('/webGui/styles/bitstream.woff') format('woff'),url('/webGui/styles/bitstream.ttf') format('truetype'),url('/webGui/styles/bitstream.svg#bitstream') format('svg');
-					}
-					html{font-family:clear-sans;font-size:62.5%;height:100%}
-					body{font-size:1.2rem;color:#1c1c1c;background:#f2f2f2;padding:0;margin:0;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
-					.mono {font: small 'lucida console', Monaco, monospace;}
-					input[type=button],input[type=reset],input[type=submit],button,button[type=button],a.button { 
-						font-family:clear-sans;font-size:1.1rem;font-weight:bold;letter-spacing:2px;text-transform:uppercase;margin:10px 12px 10px 0;padding:9px 18px;text-decoration:none;white-space:nowrap;cursor:pointer;outline:none;border-radius:4px;border:0;color:#ff8c2f;background:-webkit-gradient(linear,left top,right top,from(#e22828),to(#ff8c2f)) 0 0 no-repeat,-webkit-gradient(linear,left top,right top,from(#e22828),to(#ff8c2f)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#e22828),to(#e22828)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#ff8c2f),to(#ff8c2f)) 100% 100% no-repeat;background:linear-gradient(90deg,#e22828 0,#ff8c2f) 0 0 no-repeat,linear-gradient(90deg,#e22828 0,#ff8c2f) 0 100% no-repeat,linear-gradient(0deg,#e22828 0,#e22828) 0 100% no-repeat,linear-gradient(0deg,#ff8c2f 0,#ff8c2f) 100% 100% no-repeat;background-size:100% 2px,100% 2px,2px 100%,2px 100%
-					}
-					input:hover[type=button],input:hover[type=reset],input:hover[type=submit],button:hover,button:hover[type=button],a.button:hover { 
-						color:#f2f2f2;background:-webkit-gradient(linear,left top,right top,from(#e22828),to(#ff8c2f));background:linear-gradient(90deg,#e22828 0,#ff8c2f)
-					}
-					input[type=button][disabled],input[type=reset][disabled],input[type=submit][disabled],button[disabled],button[type=button][disabled],a.button[disabled]
-					input:hover[type=button][disabled],input:hover[type=reset][disabled],input:hover[type=submit][disabled],button:hover[disabled],button:hover[type=button][disabled],a.button:hover[disabled]
-					input:active[type=button][disabled],input:active[type=reset][disabled],input:active[type=submit][disabled],button:active[disabled],button:active[type=button][disabled],a.button:active[disabled] {
-						cursor:default;color:#808080;background:-webkit-gradient(linear,left top,right top,from(#404040),to(#808080)) 0 0 no-repeat,-webkit-gradient(linear,left top,right top,from(#404040),to(#808080)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#404040),to(#404040)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#808080),to(#808080)) 100% 100% no-repeat;background:linear-gradient(90deg,#404040 0,#808080) 0 0 no-repeat,linear-gradient(90deg,#404040 0,#808080) 0 100% no-repeat,linear-gradient(0deg,#404040 0,#404040) 0 100% no-repeat,linear-gradient(0deg,#808080 0,#808080) 100% 100% no-repeat;background-size:100% 2px,100% 2px,2px 100%,2px 100%
-					}
-				</style>
 				<p>
 					<b>Scanning drives, please wait until it is completed...</b>
 				</p>
@@ -1191,17 +1255,23 @@
 			if($lsscsi_device[$i] && $lsscsi_devicenodesg[$i]) {
 				//debug_print($debugging_active, __LINE__, "loop", "Scanning " . $lsscsi_type[$i] . ": " . $lsscsi_device[$i] . " LUN: " . $lsscsi_luname[$i] . " Node: " . $lsscsi_devicenodesg[$i] . "");
 				debug_print($debugging_active, __LINE__, "loop", "Scanning: " . $lsscsi_device[$i] . " Node: " . $lsscsi_devicenodesg[$i] . "");
-				$smart_check_operation = shell_exec("smartctl -n standby $lsscsi_devicenodesg[$i] | egrep 'ACTIVE|IDLE|NVMe'");
+				//$smart_check_operation = shell_exec("smartctl -n standby $lsscsi_devicenodesg[$i] | egrep 'ACTIVE|IDLE|NVMe'");
+				$smart_check_operation = shell_exec("smartctl -n standby " . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ?? $lsscsi_devicenodesg[$i] ) . " | egrep 'ACTIVE|IDLE|NVMe'");
+				
 				usleep($smart_exec_delay . 000); // delay script to get the output of the next shell_exec()
+				
+				print("SMART: " . $lsscsi_devicenodesg[$i] . " ");
 				
 				if(!empty($smart_check_operation) || $force_scan) { // only get SMART data if the disk is spinning, if it is a new install/empty database, or if scan is forced.
 					$smart_standby_cmd = "";
 					if(!$force_scan) {
 						$smart_standby_cmd = "-n standby";
 					}
-					$smart_cmd[$i] = shell_exec("smartctl $smart_standby_cmd -x --json --quietmode=silent $lsscsi_devicenodesg[$i]"); // get all SMART data for this device, we grab it ourselves to get all drives also attached to hardware raid cards.
+					$smart_cmd[$i] = shell_exec("smartctl $smart_standby_cmd -x --json --quietmode=silent " . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . ""); // get all SMART data for this device, we grab it ourselves to get all drives also attached to hardware raid cards.
 					$smart_array = json_decode($smart_cmd[$i], true);
 					debug_print($debugging_active, __LINE__, "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "=" . ( is_array($smart_array) ? "array" : "empty" ) . "");
+					//debug_print($debugging_active, __LINE__, "SMART", "CMD: " . $smart_cmd[$i] . "");
+					debug_print($debugging_active, __LINE__, "SMART", "CMD: smartctl $smart_standby_cmd -x --json --quietmode=silent " . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . "");
 					
 					if(isset($smart_array["device"]["protocol"]) && $smart_array["device"]["protocol"] == "SCSI") {
 						$smart_lun = ( $smart_array["logical_unit_id"] ? $smart_array["logical_unit_id"] : null );
@@ -1322,6 +1392,8 @@
 					}
 				}
 				
+				print("done.<br />");
+				
 				unset($smart_array);
 			}
 			$i++;
@@ -1331,23 +1403,23 @@
 			find_and_set_removed_devices_status($db, $deviceid); 		// tags removed devices 'r', delete device from location
 		}
 		
-		if(isset($_GET["force_smart_scan"])) {
+		if(isset($_GET["force_smart_scan"]) || isset($_POST["force_smart_scan"])) {
 			print("
 				</p>
 				<p>
-					<b>Scanning has completed, refreshing within 3 seconds...
-<!-- press \"Done\" and refresh the page.</b>
-</p>
-<p style=\"text-align: center;\">
-	<button type=\"button\" onclick=\"top.Shadowbox.close()\">Done</button>
-</p>
--->
+					<b>Scanning has completed, refreshing within 5 seconds...
+				<!-- 
+				Press \"Done\" and refresh the page.</b>
+				</p>
+				<p style=\"text-align: center;\">
+					<button type=\"button\" onclick=\"top.Shadowbox.close()\">Done</button>
+				-->
 				</p>
 				<script type=\"text/javascript\">
 					function sleep (time) {
 						return new Promise((resolve) => setTimeout(resolve, time));
 					}
-					sleep(3000).then(() => {
+					sleep(5000).then(() => {
 						window.top.location = '" . DISKLOCATIONCONF_URL . "';
 					})
 				</script>
@@ -1359,125 +1431,4 @@
 	if(isset($_POST["reset_all_colors"])) {
 		force_reset_color($db, "*");
 	}
-	
-// Common config
-if(!in_array("cronjob", $argv)) {
-	$unraid_disks = $GLOBALS["disks"];
-	$unraid_disks = array_values($unraid_disks);
-	
-	// get configured Unraid disks
-	/*
-	if(is_file(DISKINFORMATION)) {
-		$unraid_disks_import = parse_ini_file(DISKINFORMATION, true);
-		$unraid_disks = array_values($unraid_disks_import);
-	}
-	*/
-	// modify the array to suit our needs
-	$unraid_array = array();
-	$i=0;
-	while($i < count($unraid_disks)) {
-		$getdevicenode = $unraid_disks[$i]["device"];
-		if(!isset($unraid_disks[$i]["hotTemp"])) { 
-			$unraid_disks[$i]["hotTemp"] = 0;
-		}
-		if(!isset($unraid_disks[$i]["maxTemp"])) { 
-			$unraid_disks[$i]["maxTemp"] = 0;
-		}
-		
-		if($getdevicenode) {
-			$unraid_array[$getdevicenode] = array(
-				"name" => ($unraid_disks[$i]["name"] ?? null),
-				"device" => ($unraid_disks[$i]["device"] ?? null),
-				"status" => ($unraid_disks[$i]["status"] ?? null),
-				"type" => ($unraid_disks[$i]["type"] ?? null),
-				"temp" => ($unraid_disks[$i]["temp"] ?? null),
-				"hotTemp" => ($unraid_disks[$i]["hotTemp"] ? $unraid_disks[$i]["hotTemp"] : $GLOBALS["display"]["hot"]),
-				"maxTemp" => ($unraid_disks[$i]["maxTemp"] ? $unraid_disks[$i]["maxTemp"] : $GLOBALS["display"]["max"]),
-				"color" => ($unraid_disks[$i]["color"] ?? null),
-				"fscolor" => ($unraid_disks[$i]["fsColor"] ?? null)
-			);
-		}
-		$i++;
-	}
-	
-	// get unassigned Unraid disks
-	
-	$unraid_devs = $GLOBALS["devs"];
-	$unraid_devs = array_values($unraid_devs);
-	
-	// modify the array to suit our needs
-	$unraid_unassigned = array();
-	$i=0;
-	while($i < count($unraid_devs)) {
-		$getdevicenode = $unraid_devs[$i]["device"];
-		if(!isset($unraid_devs[$i]["hotTemp"])) { 
-			$unraid_devs[$i]["hotTemp"] = 0;
-		}
-		if(!isset($unraid_devs[$i]["maxTemp"])) { 
-			$unraid_devs[$i]["maxTemp"] = 0;
-		}
-		if($getdevicenode) {
-			$unraid_array[$getdevicenode] = array(
-				"name" => ($unraid_devs[$i]["name"] ?? null),
-				"device" => ($unraid_devs[$i]["device"] ?? null),
-				"status" => ($unraid_devs[$i]["status"] ?? null),
-				"type" => ($unraid_devs[$i]["type"] ?? null),
-				"temp" => ($unraid_devs[$i]["temp"] ?? null),
-				"hotTemp" => ($unraid_devs[$i]["hotTemp"] ? $unraid_devs[$i]["hotTemp"] : $GLOBALS["display"]["hot"]),
-				"maxTemp" => ($unraid_devs[$i]["maxTemp"] ? $unraid_devs[$i]["maxTemp"] : $GLOBALS["display"]["max"]),
-				"color" => ($unraid_devs[$i]["color"] ?? null),
-				"fscolor" => ($unraid_devs[$i]["fsColor"] ?? null)
-			);
-		}
-		$i++;
-	}
-	
-	// get settings from DB as $var
-	$sql = "SELECT * FROM settings";
-	$results = $db->query($sql);
-	
-	while($data = $results->fetchArray(1)) {
-		extract($data);
-	}
-	
-	$displayinfo = json_decode($displayinfo, true);
-	
-	//dashboard_toggle($dashboard_widget_pos); 
-	cronjob_timer($smart_updates);
-	
-	$color_array = array();
-	$color_array["empty"] = $bgcolor_empty;
-	
-// Group config
-	$last_group_id = 0;
-	
-	$sql = "SELECT * FROM settings_group ORDER BY id ASC";
-	$results = $db->query($sql);
-	
-	while($data_group = $results->fetchArray(1)) {
-		foreach($data_group as $key=>$value) {
-			$group[$data_group["id"]][$key] = "".$value."";
-		}
-	}
-	
-	$count_groups = array();
-	$sql = "SELECT id FROM settings_group GROUP BY id;";
-	$results = $db->query($sql);
-	while($data = $results->fetchArray(1)) {
-		 $count_groups[] = $data["id"];
-	}
-	$total_groups = ( is_array($count_groups) ? count($count_groups) : 0 );
-	
-	$sql = "SELECT id FROM settings_group ORDER BY id DESC limit 1;";
-	$results = $db->query($sql);
-	while($data = $results->fetchArray(1)) {
-		 $last_group_id = $data["id"];
-	}
-	
-	/*
-	print_r($group);
-	print(count($group));
-	die();
-	*/
-}
 ?>

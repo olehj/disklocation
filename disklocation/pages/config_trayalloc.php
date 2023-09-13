@@ -355,8 +355,6 @@
 				<input type="submit" name="save_allocations" value="Save" /><!--<input type="reset" value="Reset" />-->
 				<!--<input type="submit" name="force_smart_scan" value="Force Scan All" />-->
 				<span style="padding-left: 50px;"></span>
-				<input type='button' value='Force Scan All' onclick='openBox("/plugins/disklocation/pages/system.php?force_smart_scan=1","Force Scanning",600,1000,true,"loadlist",":return")'>
-				<span style="padding-left: 50px;"></span>
 				<input type="submit" name="reset_all_colors" value="Reset All Colors" /> <b>or choose "Empty" color (first color listed) per device under "Custom Color" to reset, and then hit the "Save" button.</b>
 				<blockquote class='inline_help'>
 					<ul>
