@@ -1338,6 +1338,11 @@
 					}
 					$deviceid[$i] = hash('sha256', $smart_model_name . ( isset($smart_array["serial_number"]) ? $smart_array["serial_number"] : null));
 					
+					print(" (" . $deviceid[$i] . ") ");
+					if(!empty($unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"])) {
+						print(" CTRL CMD: " . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " ");
+					}
+					
 					debug_print($debugging_active, __LINE__, "HASH", "#:" . $i . ":" . $deviceid[$i] . "");
 					
 					find_and_unset_reinserted_devices_status($db, $deviceid[$i]);	// tags old existing devices with 'null', delete device from location just in case it for whatever reason it already exists.
@@ -1446,7 +1451,7 @@
 			print("
 				</p>
 				<p>
-					<b>Scanning has completed, refreshing within 5 seconds...
+					<b>Scanning has completed, refreshing within 60 seconds or when you click \"Done\"
 				<!-- 
 				Press \"Done\" and refresh the page.</b>
 				</p>
@@ -1454,11 +1459,14 @@
 					<button type=\"button\" onclick=\"top.Shadowbox.close()\">Done</button>
 				-->
 				</p>
+				<p style=\"text-align: center;\">
+					<button type=\"button\" onclick=\"window.top.location = '" . DISKLOCATIONCONF_URL . "';\">Done</button>
+				</p>
 				<script type=\"text/javascript\">
 					function sleep (time) {
 						return new Promise((resolve) => setTimeout(resolve, time));
 					}
-					sleep(5000).then(() => {
+					sleep(60000).then(() => {
 						window.top.location = '" . DISKLOCATIONCONF_URL . "';
 					})
 				</script>
