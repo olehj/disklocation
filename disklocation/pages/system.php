@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2023, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2024, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -1187,6 +1187,9 @@
 		
 		//dashboard_toggle($dashboard_widget_pos); 
 		//cronjob_timer($smart_updates);
+		if($smart_updates != cronjob_current()) {
+			cronjob_timer($smart_updates, $GLOBALS["nginx"]["NGINX_DEFAULTURL"]);
+		}
 		
 		$color_array = array();
 		$color_array["empty"] = $bgcolor_empty;
