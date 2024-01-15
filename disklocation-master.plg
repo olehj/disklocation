@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2023.09.20">
+<!ENTITY version          "2024.01.15">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -46,6 +46,9 @@
 
 -->
 <CHANGES>
+###2024.01.15
+ - Commit #240 - BUG: Fixed SMART update so it won't disable itself every reboot. It will use the value stored in the DB.
+
 ###2023.09.20
  - Commit #237 - IMPROVEMENT: Add slightly more info on the "Force Scan All" button. Delayed auto-refresh and added a "Done" button.
 
