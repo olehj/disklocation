@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2023, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2024, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -139,7 +139,7 @@
 		";
 	}
 	
-	$smart_updates = cronjob_current();
+	$smart_updates_file = cronjob_current();
 	
 	//$plugin_update_scan = update_scan_toggle(0, 1);
 	
@@ -292,11 +292,11 @@ $(document).ready(function(){
 				-->
 				<p>
 					<b>S.M.A.R.T updates:</b><br />
-					<input type="radio" name="smart_updates" value="hourly" <?php if($smart_updates == "hourly") echo "checked"; ?> />Hourly
-					<input type="radio" name="smart_updates" value="daily" <?php if($smart_updates == "daily") echo "checked"; ?> />Daily
-					<input type="radio" name="smart_updates" value="weekly" <?php if($smart_updates == "weekly") echo "checked"; ?> />Weekly
-					<input type="radio" name="smart_updates" value="monthly" <?php if($smart_updates == "monthly") echo "checked"; ?> />Monthly
-					<input type="radio" name="smart_updates" value="disabled" <?php if($smart_updates == "disabled") echo "checked"; ?> />Disabled
+					<input type="radio" name="smart_updates" value="hourly" <?php if($smart_updates_file == "hourly") echo "checked"; ?> />Hourly
+					<input type="radio" name="smart_updates" value="daily" <?php if($smart_updates_file == "daily") echo "checked"; ?> />Daily
+					<input type="radio" name="smart_updates" value="weekly" <?php if($smart_updates_file == "weekly") echo "checked"; ?> />Weekly
+					<input type="radio" name="smart_updates" value="monthly" <?php if($smart_updates_file == "monthly") echo "checked"; ?> />Monthly
+					<input type="radio" name="smart_updates" value="disabled" <?php if($smart_updates_file == "disabled") echo "checked"; ?> />Disabled
 					<input type="hidden" name="smart_updates_url" value="<?php print($GLOBALS["nginx"]["NGINX_DEFAULTURL"]); ?>" />
 				</p>
 				<blockquote class='inline_help'>
