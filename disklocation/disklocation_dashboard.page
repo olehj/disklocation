@@ -3,7 +3,7 @@ Menu="Dashboard:0"
 ---
 <?php
 	/*
-	 *  Copyright 2019-2023, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2024, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -43,7 +43,7 @@ Menu="Dashboard:0"
 		";
 		
 		$disklocation_dash_out .= "
-			<div style=\"float: left; padding: 5px 10px 5px 10px;\">
+			<div style=\"float: left; padding: 5px 2px 5px 2px;\">
 				<div style=\"text-align: center;\"><b>" . stripslashes(htmlspecialchars($group_name)) . "</b></div>
 				<div class=\"grid-container\" style=\"$css_grid_group\">
 					$disklocation_dash[$gid]
