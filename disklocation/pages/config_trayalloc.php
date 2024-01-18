@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2023, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2024, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -45,12 +45,12 @@
 	$print_drives = array();
 	$datasql = array();
 	$custom_colors_array = array();
-	$warr_options = "";
 	
 	$results = $db->query($sql);	
 	//while($i < $total_disks) {
 	while($res = $results->fetchArray(1)) {
 		array_push($datasql, $res);
+		$warr_options = "";
 		
 		$data = $datasql[$i_drive-1];
 		
@@ -88,8 +88,6 @@
 		}
 		
 		$smart_rotation = get_smart_rotation($data["smart_rotation"]);
-		
-		
 		
 		$bgcolor = ( empty($data["color"]) ? $color_array[$data["hash"]] : $data["color"] );
 		

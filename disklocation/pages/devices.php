@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2023, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2024, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -110,11 +110,13 @@
 						$empty_tray = ( !isset($tray_number_override_start) ? --$tray_number_override[$tray_assign] : ($tray_number_override_start + $tray_number_override[$tray_assign] - 1));
 						$empty_tray_assign = $tray_number_override[$tray_assign];
 					}
-					
 					else {
 						$empty_tray = ( !isset($tray_number_override_start) ? --$tray_assign : $tray_number_override_start + $tray_assign -1);
 						$empty_tray_assign = $tray_assign;
 					}
+				}
+				else {
+					$empty_tray = "";
 				}
 				
 				if(isset($displayinfo["leddiskop"]) && $displayinfo["leddiskop"] == 1 && empty($displayinfo["hideemptycontents"])) {
@@ -204,7 +206,7 @@
 								<div class=\"flex-container-middle_" . $disk_tray_direction . "\" style=\"padding: 0 0 10px 0;\">
 								</div>
 								<div class=\"flex-container-end\">
-									<b>" . $empty_tray . "</b>
+									<a class=\"info none\" style=\"text-decoration: none;\"><b>" . $empty_tray . "</b><span>Unavailable</span></a>
 								</div>
 							</div>
 						</div>
@@ -318,6 +320,10 @@
 				if(isset($displayinfo["comment"])) {
 					$device_comment = ( !isset($data["comment"]) ? null : bscode2html(stripslashes(htmlspecialchars($data["comment"]))) );
 				}
+				
+				$unraid_array[$data["devicenode"]]["hotTemp"] = ( $unraid_array[$data["devicenode"]]["hotTemp"] ? $unraid_array[$data["devicenode"]]["hotTemp"] : $GLOBALS["display"]["hot"] );
+				$unraid_array[$data["devicenode"]]["maxTemp"] = ( $unraid_array[$data["devicenode"]]["maxTemp"] ? $unraid_array[$data["devicenode"]]["maxTemp"] : $GLOBALS["display"]["max"] );
+				
 				if(isset($displayinfo["temperature"]) || isset($displayinfo["ledtemp"])) {
 					if(is_numeric($unraid_array[$data["devicenode"]]["temp"]) && is_numeric($unraid_array[$devicenode]["temp"])) {
 						switch($display["unit"]) {
@@ -538,7 +544,7 @@
 									
 									$smart_modelfamily
 									$smart_modelname
-									$smart_serialnumber
+									<b>$smart_serialnumber</b>
 									$add_break_2
 									
 									$smart_temperature_text
@@ -628,7 +634,7 @@
 								<div class=\"flex-container-middle_" . $disk_tray_direction . "\" style=\"padding: 0 0 10px 0;\">
 								</div>
 								<div class=\"flex-container-end\">
-									<b>$physical_traynumber</b>
+									<a class=\"info none\" style=\"text-decoration: none;\"><b>$physical_traynumber</b><span>$smart_temperature_text</span></a>
 								</div>
 							</div>
 						</div>
