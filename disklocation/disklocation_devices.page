@@ -5,7 +5,7 @@ Title="Devices"
 ---
 <?php
 	/*
-	 *  Copyright 2019-2023, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2024, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -42,7 +42,7 @@ Title="Devices"
 		";
 		
 		$disklocation_page_out .= "
-			<div style=\"float: left; top; padding: 25px 50px 25px 50px;\">
+			<div style=\"float: left; top; padding: 0 10px 10px 10px;\">
 				<h2 style=\"text-align: center;\">" . stripslashes(htmlspecialchars($group_name)) . "</h2>
 				<div class=\"grid-container\" style=\"$css_grid_group\">
 					$disklocation_page[$gid]

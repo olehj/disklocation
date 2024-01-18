@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2023, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2024, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -228,10 +228,11 @@
 	<b>NB! Operations done on this page will execute without warning or confirmation and cannot be undone after execution!</b>
 </p>
 <form action="" method="post">
-	<b>When clicking "Force Scan All" the plugin starts collecting SMART data directly. Due to new system for compatibility with other controllers, the entire page must be loaded and will look like it's not doing anything. Just be patient, it will reload the page when it's done. It might take a few seconds to several minutes depending on the amount of devices it need to scan.</b>
-	<!--<input type='button' value='Force Scan All' onclick='openBox("/plugins/disklocation/pages/system.php?force_smart_scan=1","Force Scanning",600,1000,true,"loadlist",":return")'>-->
+	<b>When clicking "Force Scan All" the plugin starts collecting SMART data directly. It might take a few seconds to several minutes depending on the amount of devices it need to scan.</b>
 	<br />
-	<input type='submit' name="force_smart_scan" value="Force Scan All">
+	<input type='button' value='Force Scan All' onclick='openBox("<?php print(CRONJOB_URL) ;?>?force_smart_scan=1","Force Scanning",600,1000,true,"loadlist",":return")'>
+	<!--<br />
+	<input type='submit' name="force_smart_scan" value="Force Scan All">-->
 </form>
 <?php echo $print_list_backup ?>
 <?php echo $print_list_debug ?>
