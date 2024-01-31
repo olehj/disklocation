@@ -84,7 +84,7 @@
 			$warr_input = "<select name=\"warranty[" . $data["hash"] . "]\" style=\"min-width: 0; max-width: 80px; width: 80px;\"><option value=\"\" style=\"text-align: right;\">unknown</option>" . $warr_options . "</select>";
 		}
 		else {
-			$warr_input = "<input type=\"date\" name=\"warranty_date[" . $data["hash"] . "]\" value=\"" . $data["warranty_date"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" />";
+			$warr_input = "<input type=\"date\" name=\"warranty_date[" . $data["hash"] . "]\" max=\"9999-12-31\" value=\"" . $data["warranty_date"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" />";
 		}
 		
 		$smart_rotation = get_smart_rotation($data["smart_rotation"]);
@@ -104,7 +104,7 @@
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . human_filesize($data["smart_capacity"], 1, true) . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $smart_rotation . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $data["smart_formfactor"] . "</td>
-				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><input type=\"date\" name=\"purchased[" . $data["hash"] . "]\" value=\"" . $data["purchased"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" /></td>
+				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><input type=\"date\" name=\"purchased[" . $data["hash"] . "]\" max=\"9999-12-31\" value=\"" . $data["purchased"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" /></td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $warr_input . "</td>
 				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><input type=\"text\" name=\"comment[" . $data["hash"] . "]\" value=\"" . stripslashes(htmlspecialchars($data["comment"])) . "\" style=\"width: 150px;\" /></td>
 				<td style=\"padding: 0 10px 0 10px;\">
@@ -358,10 +358,7 @@
 					<ul>
 						<li>"Save" button will store all information entered.</li>
 						<!--<li>"Reset" will just revert changes if you changed any values before you saved them, it will not undo the last save.</li>-->
-						<li>"Force Scan All" button will force scan all drives for updated SMART data and move removed disks into the "lost" table under the "Information" tab. This button will and must wake up all drives into a spinning state and does so one by one. It might take a while to complete depending on your configuration.</li>
 					</ul>
-					<!--You can also run "Force Scan All" from the shell and get direct output which might be useful for debugging:<br />
-					<code style="white-space: nowrap;">php -f /usr/local/emhttp/plugins/disklocation/pages/system.php force</code>-->
 				</blockquote>
 			</td>
 		</tr>

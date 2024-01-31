@@ -186,7 +186,7 @@
 ?>
 <h2 style="margin-top: -10px; padding: 0 0 10px 0;">Disk Information</h2>
 <p style="margin-top: -10px; padding: 0 0 30px 0;">
-	<b>Warning! Please use "Force scan all" button under "Tray Allocation" tab before manually deleting and/or re-adding devices manually.</b><br />
+	<b>Warning! Please use "Force scan all" button under "System" tab before manually deleting and/or re-adding devices manually.</b><br />
 	The <i class="fa fa-minus-circle fa-lg"></i> button will force the drive to be moved to the "Devices not found or removed" section below. Use this if you have false drive(s) in your list.
 	If you accidentally click the button on the wrong drive you have to do a "Force scan all" and reassign the drive.
 </p>

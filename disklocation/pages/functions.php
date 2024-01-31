@@ -25,19 +25,16 @@
 	//error_reporting(E_ERROR | E_WARNING | E_PARSE);
 	error_reporting(E_ERROR);
 	
-	$get_page_info = array();
-	$get_page_info["Version"] = "";
-	$get_page_info = parse_ini_file("/usr/local/emhttp/plugins/disklocation/disklocation.page");
-	
 	// define constants
 	define("UNRAID_CONFIG_PATH", "/boot/config");
-	define("DISKLOCATION_DB", "/boot/config/plugins/disklocation/disklocation.sqlite");
-	define("DISKINFORMATION", "/var/local/emhttp/disks.ini");
 	define("DISKLOGFILE", "/boot/config/disk.log");
 	define("DISKLOCATION_VERSION", $get_page_info["Version"]);
 	define("DISKLOCATION_URL", "/Settings/disklocation");
 	define("DISKLOCATIONCONF_URL", "/Settings/disklocation");
 	define("DISKLOCATION_PATH", "/plugins/disklocation");
+	define("DISKLOCATION_CONF", "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.conf");
+	define("DISKLOCATION_DB_DEFAULT", "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.sqlite");
+	define("DISKINFORMATION", "/var/local/emhttp/disks.ini");
 	define("EMHTTP_ROOT", "/usr/local/emhttp");
 	define("CRONJOB_URL", DISKLOCATION_PATH . "/pages/cron_disklocation.php");
 	define("CRONJOB_FILE", EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/cron_disklocation.php");
@@ -46,6 +43,19 @@
 	define("UNRAID_DEVS_FILE", "devs.ini");
 	define("SMART_ALL_FILE", "smart-all.cfg");
 	define("SMART_ONE_FILE", "smart-one.cfg");
+	
+	if(file_exists(DISKLOCATION_CONF)) {
+		$get_disklocation_config = json_decode(file_get_contents(DISKLOCATION_CONF), true);
+		
+		define("DISKLOCATION_DB", $get_disklocation_config["database_location"]);
+	}
+	else {
+		define("DISKLOCATION_DB", DISKLOCATION_DB_DEFAULT);
+	}
+	
+	$get_page_info = array();
+	$get_page_info["Version"] = "";
+	$get_page_info = parse_ini_file("" . EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/disklocation.page");
 	
 	if(is_file(EMHTTP_VAR . "/" . UNRAID_DISKS_FILE)) {
 		$unraid_disks = parse_ini_file(EMHTTP_VAR . "/" . UNRAID_DISKS_FILE, true);
@@ -96,7 +106,13 @@
 	// get Unraid disks
 	$get_global_smType = ( isset($unraid_smart_all["smType"]) ? $unraid_smart_all["smType"] : null );
 	
-	$unraid_devs = array_values(array_merge($unraid_disks, $unraid_devs));
+	if(is_array($unraid_disks) && is_array($unraid_devs)) {
+		$unraid_devs = array_values(array_merge($unraid_disks, $unraid_devs));
+	}
+	else {
+		$unraid_devs = ( is_array($unraid_disks) ?? array_values($unraid_disks));
+		$unraid_devs = ( is_array($unraid_devs) ?? array_values($unraid_devs));
+	}
 	
 	// modify the array to suit our needs
 	
@@ -832,4 +848,74 @@
 		}
 		return $smart_rotation;
 	}
+	
+	function compress_file($src, $dst) {
+		$data = file_get_contents($src);
+		$gzdata = gzencode($data, 9);
+		file_put_contents($dst, $gzdata);
+	}
+	
+	function decompress_file($src, $dst) {
+		$data = file_get_contents($src);
+		$gzdata = gzdecode($data);
+		file_put_contents($dst, $gzdata);
+	}
+	
+	function database_location($cur, $new, $config) {
+		if($cur != $new) {
+			if(file_exists($cur) && !file_exists($new)) {
+				if(copy($cur, $new)) {
+					if(sha1_file($cur) == sha1_file($new)) {
+						if(!file_exists($config)) {
+							touch($config);
+						}
+						$config_json = file_get_contents($config);
+						$config_json = json_decode($config_json, true);
+						$config_json["database_location"] = $new;
+						$config_json = json_encode($config_json);
+						if(file_put_contents($config, $config_json)) {
+							unlink($cur);
+							return true;
+						}
+						else {
+							return "Failed updating the configuration file. Current database not deleted, but a copy might exist in the new location.";
+						}
+					}
+					else {
+						return "Failed moving the database, checksum on $cur and $new did not match. Check path, permissions and file system.";
+					}
+				}
+				else {
+					return "Failed to copy the database. Check path, permissions and file system.";
+				}
+			}
+			else {
+				return "File already exists in the new location.";
+			}
+		}
+		else {
+			return false;
+		}
+	}
+	
+	function database_backup($file, $backup_location) {
+		if(file_exists($file)) {
+			$datetime = date("Ymd-His");
+			mkdir($backup_location . "/" . $datetime, 0700, true);
+			compress_file($file, $backup_location . "/" . $datetime . "/disklocation.sqlite.gz");
+		}
+		else {
+			return "Database does not exist.";
+		}
+	}
+	
+	function database_restore($file, $restore_location) {
+		if(file_exists($file)) {
+			decompress_file($file, $restore_location);
+		}
+		else {
+			return "Database does not exist.";
+		}
+	}
+	
 ?>
