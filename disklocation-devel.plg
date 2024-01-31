@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2024.01.18b-dev">
+<!ENTITY version          "2024.01.31-dev">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -186,9 +186,14 @@ EOL
     logit "done and continue..."
   fi
   
-  if [[ -f "&pluginLOC;/disklocation.sqlite" &amp;&amp; ! -f "&pluginLOC;/disklocation_db_v7.sqlite.tar.bz2" ]]; then
-    tar jcf &pluginLOC;/disklocation_db_v7.sqlite.tar.bz2 &pluginLOC;/disklocation.sqlite
-    logit "Made backup of database (&pluginLOC;/disklocation_db_v7.sqlite.tar.bz2) before it will be upgraded to version 8"
+  if [[ ! -d "&pluginLOC;/backup" ]]; then
+    CURRENT_DATE=$(date +"%Y%m%d-%H%M%S")
+    mkdir -p "&pluginLOC;/backup/$CURRENT_DATE"
+    cp &pluginLOC;/disklocation.sqlite &pluginLOC;/backup/$CURRENT_DATE/disklocation.sqlite
+    bzip -N -9 &pluginLOC;/backup/$CURRENT_DATE/disklocation.sqlite
+    logit "Made backup of database (&pluginLOC;/backup/$CURRENT_DATE/disklocation.sqlite.gz)"
+    rm &pluginLOC;/disklocation_db_v*.sqlite.tar.bz2
+    logit "Deleted old obsolete backup files."
   fi
   logit "Package file &packagefile; extracted."
   
