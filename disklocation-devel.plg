@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2024.02.01b-dev">
+<!ENTITY version          "2024.02.01c-dev">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -173,9 +173,6 @@ EOL
   rm -Rf "/tmp/&name;-packages"
   rm -f "/tmp/&name;-install"
   
-  <!--# Disabled: Add crontab script -->
-  <!--# cp &emhttpLOC;/&name;.cron /etc/cron.hourly/disklocation.sh -->
-  
   if [[ "`pidof -x disklocation.sh`" ]]; then
     logit "Cronjob is already running... retrying every 5 seconds until it finish..."
     while [ "`pidof -x disklocation.sh`" ];
@@ -197,18 +194,9 @@ EOL
   fi
   logit "Package file &packagefile; extracted."
   
-   <!--
-  if [[ ! -f "&pluginLOC;/disklocation.noscan" ]]; then-->
-    logit "Adding disks into database, please wait... this might take a while..."
-    php -f /usr/local/emhttp/plugins/disklocation/pages/cron_disklocation.php cronjob
-  <!--else
-    logit "Device scanning during updates are disabled: No new devices will be detected and no data will be updated."
-  fi
+  logit "Adding devices into database, please wait... this might take a while..."
+  php -f /usr/local/emhttp/plugins/disklocation/pages/cron_disklocation.php cronjob install
   
-  logit "Automatic scanning of devices has been disabled, please use Force Scan All under System tab."
-    -->  
-  <!--# chmod +x /etc/cron.hourly/disklocation.sh -->
-  <!--# logit "Added cronjob script in cron.hourly." -->
   logit "Plugin installed successfully!"
   exit 0
 else
