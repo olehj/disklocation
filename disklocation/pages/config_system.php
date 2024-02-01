@@ -131,12 +131,12 @@
 	}
 	if(isset($_POST["move_db"])) {
 		$move_db = database_location($_POST["cur_db_location"], $_POST["new_db_location"], DISKLOCATION_CONF);
-		if($move_db) {
+		if($move_db === true) {
 			print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 			exit;
 		}
 		else {
-			$print_loc_db_err = "<p style=\"color: red;\">" . $move_db . "</p>";
+			$print_loc_db_err = "<h2 style=\"color: red;\">ERROR: " . $move_db . "</h2>";
 		}
 	}
 	if(isset($_POST["backup_db"])) {
@@ -160,7 +160,8 @@
 			Enter the full path including the filename! Make sure the path is accessible with the correct permissions.
 			Choose a location which will be accessible from early boot, not behind encrypted devices or devices not mounted at boot.
 			If stored behind e.g. Unraid shares, the plugin will not show any information at all until the array has started and mounted.
-			If no path is entered, the file will be stored at \"/usr/local/emhttp/\" and will be gone next reboot, do NOT store file without full path!<br />
+			You should disable the automatic system boot and update scan under \"Configuration\" if you anyway choose to do so, and rather rely on SMART updates and manual scans.
+			If no path is entered, the file will be stored at \"/usr/local/emhttp/\" and will be gone next reboot, do NOT store the file without a full path!<br />
 			Default plugin database file location: " . DISKLOCATION_DB_DEFAULT . "
 		</p>
 		<form action=\"\" method=\"post\">

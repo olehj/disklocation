@@ -131,7 +131,7 @@
 		$dashboard_widget_pos = $dashboard_widget_array["position"];
 		*/
 		cronjob_timer($_POST["smart_updates"],$_POST["smart_updates_url"]);
-		//update_scan_toggle($_POST["plugin_update_scan"]);
+		config(DISKLOCATION_CONF, 'w', 'database_noscan', $_POST["database_noscan"]);
 		
 		if(empty($disklocation_error)) {
 			$sql .= "

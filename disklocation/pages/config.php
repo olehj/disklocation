@@ -141,7 +141,7 @@
 	
 	$smart_updates_file = cronjob_current();
 	
-	//$plugin_update_scan = update_scan_toggle(0, 1);
+	$database_noscan = config(DISKLOCATION_CONF, 'r', 'database_noscan');
 	
 	/*
 	if(empty($dashboard_widget) || $dashboard_widget == "on" || $dashboard_widget == "off") {
@@ -280,16 +280,15 @@ $(document).ready(function(){
 			</td>
 			<td style="padding-left: 25px; vertical-align: top;">
 				<h2>Updates</h2>
-				<!--
 				<p>
-					<b>Disk Location plugin on update scan:</b><br />
-					<input type="radio" name="plugin_update_scan" value="1" <?php //if($plugin_update_scan == 1) echo "checked"; ?> />Enabled
-					<input type="radio" name="plugin_update_scan" value="0" <?php //if($plugin_update_scan == 0) echo "checked"; ?> />Disabled
+					<b>Automatic system boot and update scan:</b><br />
+					<input type="radio" name="database_noscan" value="0" <?php if($database_noscan == 0) echo "checked"; ?> />Enabled
+					<input type="radio" name="database_noscan" value="1" <?php if($database_noscan == 1) echo "checked"; ?> />Disabled
 				</p>
 				<blockquote class='inline_help'>
-					Enable or disable the auto scan during a plugin update. If it's disabled it will rely on manual updates (Force Scan All) and S.M.A.R.T update schedules.
+					Enable or disable the auto scan during a plugin installation, update or system boot. If it's disabled it will rely on manual updates (Force Scan All) and S.M.A.R.T update schedules (cronjob).
+					Should likely be disabled if using custom database location which requires Unraid to start and mount arrays.
 				</blockquote>
-				-->
 				<p>
 					<b>S.M.A.R.T updates:</b><br />
 					<input type="radio" name="smart_updates" value="hourly" <?php if($smart_updates_file == "hourly") echo "checked"; ?> />Hourly

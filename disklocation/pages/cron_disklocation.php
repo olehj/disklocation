@@ -18,7 +18,18 @@
 	 *  along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
 	 *
 	 */
-
+	require_once("functions.php");
+	
+	if(in_array("install", $argv)) {
+		if(file_exists(DISKLOCATION_CONF)) {
+			$config_json = file_get_contents(DISKLOCATION_CONF);
+			$config_json = json_decode($config_json, true);
+			if($config_json["database_noscan"] == 1) {
+				die("Scanning devices during installation and boot is disabled.\n");
+			}
+		}
+	}
+	
 	if(isset($_GET["force_smart_scan"])) {
 		$time_start = time();
 		if(!isset($argv) || !in_array("silent", $argv)) {
@@ -70,8 +81,6 @@
 			");
 		}
 	}
-	
-	require_once("functions.php");
 	
 	$force_scan = 0;
 	

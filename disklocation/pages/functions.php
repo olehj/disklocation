@@ -747,28 +747,36 @@
 				return false;
 		}
 	}
-/*
-	function update_scan_toggle($set = 0, $get_status = 0) {
-		$path = "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "";
-		
-		if(file_exists("" . $path . "/disklocation.noscan")) { 
-			$status = 0;
-			if($set == 1 && !$get_status) {
-				unlink("" . $path . "/disklocation.noscan");
-				$status = 1;
+	
+	function config($file, $operation, $key = '', $val = '') { // file, [r]ead/[w]rite, key (req. write), value (req. write)
+		if($operation == 'w') {
+			if(!file_exists($file)) {
+				touch($file);
+			}
+			$config_json = file_get_contents($file);
+			$config_json = json_decode($config_json, true);
+			$config_json[$key] = $val;
+			$config_json = json_encode($config_json);
+			if(file_put_contents($file, $config_json)) {
+				return true;
+			}
+			else {
+				return "Failed updating the configuration file.";
 			}
 		}
-		else {
-			$status = 1;
-			if(!$set && !$get_status) {
-				touch("" . $path . "/disklocation.noscan");
-				$status = 0;
+		if($operation == 'r') {
+			$config_json = file_get_contents($file);
+			$config_json = json_decode($config_json, true);
+			if($key) {
+				return $config_json[$key];
+			}
+			else {
+				return $config_json;
 			}
 		}
-		
-		return $status;
+		else return false;
 	}
-*/	
+	
 	function cronjob_timer($time) {
 		$path = "/etc/cron.";
 		$filename = "disklocation.sh";
@@ -784,6 +792,7 @@
 			chmod($path . "" . $time . "/" . $filename, 0777);
 		}
 	}
+	
 	function cronjob_current() {
 		$path = "/etc/cron.";
 		$filename = "disklocation.sh";
@@ -875,14 +884,7 @@
 			if(file_exists($cur) && !file_exists($new)) {
 				if(copy($cur, $new)) {
 					if(sha1_file($cur) == sha1_file($new)) {
-						if(!file_exists($config)) {
-							touch($config);
-						}
-						$config_json = file_get_contents($config);
-						$config_json = json_decode($config_json, true);
-						$config_json["database_location"] = $new;
-						$config_json = json_encode($config_json);
-						if(file_put_contents($config, $config_json)) {
+						if(config($config, 'w', 'database_location', $new)) {
 							unlink($cur);
 							return true;
 						}
@@ -926,5 +928,4 @@
 			return "Database does not exist.";
 		}
 	}
-	
 ?>
