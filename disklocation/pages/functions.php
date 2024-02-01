@@ -327,11 +327,19 @@
 			case 'OFFLINE': $orb = 'times'; $color = 'red'; $help = 'Device is offline'; break;
 		}
 		
-		if(!$output) {
-			return ("<a class='info'><i class='fa fa-$orb orb-disklocation $color-orb-disklocation'></i><span>$help</span></a>");
-		}
-		else if($output == "color") {
+		if($output == "color") {
 			return $color;
+		}
+		if($output == "array") {
+			$orb = "fa fa-".$orb." orb-disklocation ".$color."-orb-disklocation";
+			return array(
+				'orb'	=> $orb,
+				'color'	=> $color,
+				'text'	=> $help
+			);
+		}
+		else {
+			return ("<a class='info'><i class='fa fa-$orb orb-disklocation $color-orb-disklocation'></i><span>$help</span></a>");
 		}
 	}
 	

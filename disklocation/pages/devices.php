@@ -206,7 +206,7 @@
 								<div class=\"flex-container-middle_" . $disk_tray_direction . "\" style=\"padding: 0 0 10px 0;\">
 								</div>
 								<div class=\"flex-container-end\">
-									<a class=\"info none\" style=\"text-decoration: none;\"><b>" . $empty_tray . "</b><span>Unavailable</span></a>
+									<b>" . $empty_tray . "</b>
 								</div>
 							</div>
 						</div>
@@ -362,6 +362,7 @@
 				if(isset($displayinfo["leddiskop"])) {
 					if(isset($unraid_array[$devicenode]["color"]) && isset($unraid_array[$devicenode]["status"])) {
 						$unraid_array_icon = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"]);
+						$unraid_array_info = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"],'array');
 						$color_status = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"],'color');
 					}
 					else {
@@ -384,15 +385,18 @@
 							$unraid_disk_status_color = "grey-off";
 						}
 						
-						$unraid_array_icon = get_unraid_disk_status($unraid_disk_status_color);
-						$color_status = get_unraid_disk_status($unraid_disk_status_color,'','color');
-						
 						if(zfs_check()) {
 							$zfs_disk_status = zfs_disk("" . $data["smart_serialnumber"] . "");
 							if($zfs_disk_status) {
 								$unraid_array_icon = get_unraid_disk_status($zfs_disk_status[1]);
+								$unraid_array_info = get_unraid_disk_status($zfs_disk_status[1],'','array');
 								$color_status = get_unraid_disk_status($zfs_disk_status[1],'','color');
 							}
+						}
+						else {
+							$unraid_array_icon = get_unraid_disk_status($unraid_disk_status_color);
+							$unraid_array_info = get_unraid_disk_status($unraid_disk_status_color,'','array');
+							$color_status = get_unraid_disk_status($unraid_disk_status_color,'','color');
 						}
 					}
 				}
@@ -401,15 +405,18 @@
 				switch($smart_status) {
 					case 1:
 						$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation green-orb-disklocation'></i><span>S.M.A.R.T: Passed</span></a>";
+						$smart_status_info = array('orb' => 'fa fa-circle orb-disklocation green-orb-disklocation', 'color' => 'green', 'text' => 'Passed');
 						//$smart_status_icon = "<span class=\"green-on\" alt=\"S.M.A.R.T: Passed\" title=\"S.M.A.R.T: Passed\" />&#11044;</span>";
 						break;
 					case 0:
 						$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation red-orb-disklocation'></i><span>S.M.A.R.T: Failed!</span></a>";
+						$smart_status_info = array('orb' => 'fa fa-circle orb-disklocation red-orb-disklocation', 'color' => 'red', 'text' => 'Failed!');
 						//$smart_status_icon = "<span class=\"red-on\" alt=\"S.M.A.R.T: Failed!\" title=\"S.M.A.R.T: Failed!\" />&#11044;</span>";
 						break;
 					default:
+						$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation grey-orb-disklocation'></i><span>S.M.A.R.T: N/A</span></a>";
+						$smart_status_info = array('orb' => 'fa fa-circle orb-disklocation grey-orb-disklocation', 'color' => 'grey', 'text' => 'N/A');
 						//$smart_status_icon = "<span class=\"grey-off\" alt=\"S.M.A.R.T: Off/None\" title=\"S.M.A.R.T: Off/None\" />&#11044;</span>";
-						$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation grey-orb-disklocation'></i><span>S.M.A.R.T: Off/None</span></a>";
 				}
 				if(!isset($displayinfo["ledsmart"])) {
 					$smart_status_icon = "";
@@ -419,19 +426,23 @@
 					$unraid_array[$devicenode]["temp"] = 0;
 					
 					$temp_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation grey-orb-disklocation'></i><span>Temperature unavailable</span></a>";
+					$temp_status_info = array('orb' => 'fa fa-circle orb-disklocation grey-orb-disklocation', 'color' => 'grey', 'text' => 'N/A');
 					$temp_status = 0;
 				}
 				else {
 					if($unraid_array[$devicenode]["temp"] < $unraid_array[$devicenode]["hotTemp"]) {
 						$temp_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation green-orb-disklocation'></i><span>" . $smart_temperature . "</span></a>";
+						$temp_status_info = array('orb' => 'fa fa-circle orb-disklocation green-orb-disklocation', 'color' => 'green', 'text' => $smart_temperature);
 						$temp_status = 1;
 					}
 					if($unraid_array[$devicenode]["temp"] >= $unraid_array[$devicenode]["hotTemp"]) {
 						$temp_status_icon = "<a class='info' style=\"margin: 0; text-align:left;\"><i class='fa fa-fire yellow-orb-disklocation'></i><span>" . $smart_temperature . " (Warning: &gt;" . $smart_temperature_warning . ")</span></a>";
+						$temp_status_info = array('orb' => 'fa fa-fire yellow-orb-disklocation', 'color' => 'yellow', 'text' => $smart_temperature);
 						$temp_status = 2;
 					}
 					if($unraid_array[$devicenode]["temp"] >= $unraid_array[$devicenode]["maxTemp"]) {
 						$temp_status_icon = "<a class='info'><i class='fa fa-fire red-blink-disklocation'></i><span>" . $smart_temperature . " (Critical: &gt;" . $smart_temperature_critical . ")</span></a>";
+						$temp_status_info = array('orb' => 'fa fa-fire red-blink-disklocation', 'color' => 'red', 'text' => $smart_temperature);
 						$temp_status = 3;
 					}
 				}
@@ -614,27 +625,37 @@
 					</div>
 				";
 				
+				// SMART=PASS: show array LED
 				if($smart_status == 1) {
-					$dashboard_led = $unraid_array_icon;
+					//$dashboard_led = $unraid_array_icon;
+					$dashboard_orb = $unraid_array_info["orb"];
+					
 				}
-				else if(isset($smart_status)) {
-					$dashboard_led = $smart_status_icon;
+				// TEMP STATUS=warning|critical: show temp warning
+				if(isset($temp_status) && $temp_status > 1) { 
+					//$dashboard_led = $temp_status_icon;
+					$dashboard_orb = $temp_status_info["orb"];
+					
 				}
-				if(isset($temp_status) && $temp_status > 1) {
-					$dashboard_led = $temp_status_icon;
+				// SMART=FAIL: show SMART LED
+				if(isset($smart_status)) {
+					//$dashboard_led = $smart_status_icon;
+					$dashboard_orb = $smart_status_info["orb"];
+					
 				}
+				$dashboard_text = "" . $temp_status_info["text"] . " | SMART: " . $smart_status_info["text"] . ", " . $unraid_array_info["text"] . "";
 				
 				$disklocation_dash[$gid] .= "
 					<div style=\"order: " . $drive_tray_order[$hash] . "\">
 						<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
 							<div $add_anim_bg_class style=\"background-color: #" . ( !empty($add_anim_bg_class) ? $color_array_blinker : $color_array[$hash] ) . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
 								<div class=\"flex-container-start\" style=\"text-align: center;/*min-height: 15px;*/\">
-									$dashboard_led
+									<a class='info'><i class='" . $dashboard_orb . "'></i><span>" . $dashboard_text . "</span></a>
 								</div>
 								<div class=\"flex-container-middle_" . $disk_tray_direction . "\" style=\"padding: 0 0 10px 0;\">
 								</div>
 								<div class=\"flex-container-end\">
-									<a class=\"info none\" style=\"text-decoration: none;\"><b>$physical_traynumber</b><span>$smart_temperature_text</span></a>
+									<b>$physical_traynumber</b>
 								</div>
 							</div>
 						</div>

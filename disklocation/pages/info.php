@@ -141,6 +141,27 @@
 	$i++;
 ?>
 <h2 style="margin-top: -10px; padding: 0 0 25px 0;">Disk Information</h2>
+
+<table style="width: 800px; border-spacing: 3px; border-collapse: separate;">
+	<tr>
+		<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_parity); ?>">
+			<b><?php echo (!$dashboard_widget ? "Parity" : "Critical") ?></b>
+		</td>
+		<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_unraid); ?>">
+			<b><?php echo (!$dashboard_widget ? "Data" : "Warning") ?></b>
+		</td>
+		<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_cache); ?>">
+			<b><?php echo (!$dashboard_widget ? "Cache" : "Normal") ?></b>
+		</td>
+		<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_others); ?>">
+			<b><?php echo (!$dashboard_widget ? "Unassigned devices" : "Temperature N/A") ?></b>
+		</td>
+		<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_empty); ?>">
+			<b>Empty trays</b>
+		</td>
+	</tr>
+</table>
+<div><br /><br /><br /></div>
 <blockquote class='inline_help'>
 	<dt>"Power On Hours" and "Warranty" hover</dt>
 	<dd>Hover over text to get additional information or simpler readout.</dd>
