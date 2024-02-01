@@ -203,6 +203,7 @@
 		$text = preg_replace("/\[large\](.*)\[\/large\]/", "<span style=\"font-size: large;\">$1</span>", $text);
 		$text = preg_replace("/\[huge\](.*)\[\/huge\]/", "<span style=\"font-size: x-large;\">$1</span>", $text);
 		$text = preg_replace("/\[massive\](.*)\[\/massive\]/", "<span style=\"font-size: xx-large;\">$1</span>", $text);
+		$text = preg_replace("/\[color:((?:[0-9a-fA-F]{3}){1,2})\](.*)\[\/color\]/", "<span style=\"color: #$1;\">$2</span>", $text);
 		$text = preg_replace("/\[br\]/", "<br />", $text);
 		
 		if($text) {

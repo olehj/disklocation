@@ -349,9 +349,12 @@
 						<span style="font-size: x-large">huge</span>
 						<span style="font-size: xx-large">massive</span>
 						<br />
-						Ex: [large]text[/large]<br />
+						E.g. [large]text[/large]<br />
 						<br />
-						Force break: [br]
+						Force break: [br]<br />
+						<br />
+						Color: [color:HEX]text[/color]<br />
+						E.g. [color:0000FF][b]text[/b][/color] = <span style="color: #0000FF;"><b>text</b></span>
 					</dd>
 					
 					<dt>Custom Color</dt>
