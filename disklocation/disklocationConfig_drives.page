@@ -1,8 +1,0 @@
-Menu="disklocation:5"
-Icon="icon-disk"
-Tag="icon-disk"
-Title="Drives"
----
-<?php
-	require_once("/usr/local/emhttp/plugins/disklocation/pages/config_drives.php");
-?>
