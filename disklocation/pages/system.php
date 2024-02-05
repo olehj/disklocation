@@ -21,11 +21,11 @@
 	
 	require_once("functions.php");
 	
-	if(isset($_POST["delete"])) {
+	if(isset($_POST["hash_delete"])) {
 		$sql = "
 			UPDATE disks SET
 				status = 'd'
-			WHERE hash = '" . SQLite3::escapeString($_POST["hash"]) . "'
+			WHERE hash = '" . SQLite3::escapeString($_POST["hash_delete"]) . "'
 			;
 		";
 		
@@ -41,18 +41,18 @@
 		exit;
 	}
 	
-	if(isset($_POST["remove"])) {
-		if(!force_set_removed_device_status($db, $_POST["hash"])) { die("<p style=\"color: red;\">ERROR: Could not set status for the drive with hash: " . $_POST["hash"] . "</p>"); }
+	if(isset($_POST["hash_remove"])) {
+		if(!force_set_removed_device_status($db, $_POST["hash_remove"])) { die("<p style=\"color: red;\">ERROR: Could not set status for the drive with hash: " . $_POST["hash_remove"] . "</p>"); }
 		
 		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
 		exit;
 	}
 	
-	if(isset($_POST["add"])) {
+	if(isset($_POST["hash_add"])) {
 		$sql = "
 			UPDATE disks SET
 				status = 'h'
-			WHERE hash = '" . SQLite3::escapeString($_POST["hash"]) . "'
+			WHERE hash = '" . SQLite3::escapeString($_POST["hash_add"]) . "'
 			;
 		";
 		
@@ -133,6 +133,30 @@
 		cronjob_timer($_POST["smart_updates"],$_POST["smart_updates_url"]);
 		config(DISKLOCATION_CONF, 'w', 'database_noscan', $_POST["database_noscan"]);
 		
+		if(empty($_POST["select_db_info"])) { $_POST["select_db_info"] = $select_db_info_default; }
+		if(empty($_POST["sort_db_info"])) { $_POST["sort_db_info"] = $sort_db_info_default; }
+		$get_table_order_info = get_table_order($_POST["select_db_info"], $_POST["sort_db_info"], 2, "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1");
+		$get_table_order_info .= get_table_order($_POST["select_db_info"], $_POST["sort_db_info"], 3, "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1");
+		if($get_table_order_info) { $disklocation_error[] = "Table \"Information\": " . $get_table_order_info; }
+		
+		if(empty($_POST["select_db_trayalloc"])) { $_POST["select_db_trayalloc"] = $select_db_trayalloc_default; }
+		if(empty($_POST["sort_db_trayalloc"])) { $_POST["sort_db_trayalloc"] = $sort_db_trayalloc_default; }
+		$get_table_order_trayalloc = get_table_order($_POST["select_db_trayalloc"], $_POST["sort_db_trayalloc"], 2, "0,0,1,1,1,1,1,0,1,0,0,0,1,1,1,0,0,0,0,0,1,1,1,1");
+		$get_table_order_trayalloc .= get_table_order($_POST["select_db_trayalloc"], $_POST["sort_db_trayalloc"], 3, "1,1,1,1,1,1,1,0,1,0,0,0,1,1,1,0,0,0,0,0,1,1,1,1");
+		if($get_table_order_trayalloc) { $disklocation_error[] = "Table \"Tray Allocations\": " . $get_table_order_trayalloc; }
+		
+		if(empty($_POST["select_db_drives"])) { $_POST["select_db_drives"] = $select_db_drives_default; }
+		if(empty($_POST["sort_db_drives"])) { $_POST["sort_db_drives"] = $sort_db_drives_default; }
+		$get_table_order_drives = get_table_order($_POST["select_db_drives"], $_POST["sort_db_drives"], 2, "0,0,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1");
+		$get_table_order_drives .= get_table_order($_POST["select_db_drives"], $_POST["sort_db_drives"], 3, "0,0,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1");
+		if($get_table_order_drives) { $disklocation_error[] = "Table \"History\": " . $get_table_order_drives; }
+		
+		/* // Currently not in use
+		if(empty($_POST["select_db_devices"])) { $_POST["select_db_devices"] = $select_db_devices_default; }
+		if(empty($_POST["sort_db_devices"])) { $_POST["sort_db_devices"] = $sort_db_devices_default; }
+		$get_table_order_devices = get_table_order($_POST["select_db_devices"], $_POST["sort_db_devices"]);
+		if(!is_array($get_table_order_devices)) { $disklocation_error[] = "Table \"Devices\": " . $get_table_order_devices; }
+		*/
 		if(empty($disklocation_error)) {
 			$sql .= "
 				REPLACE INTO
@@ -149,7 +173,15 @@
 						warranty_field,
 						dashboard_widget,
 						dashboard_widget_pos,
-						displayinfo
+						displayinfo,
+						select_db_info,
+						sort_db_info,
+						select_db_trayalloc,
+						sort_db_trayalloc,
+						select_db_drives,
+						sort_db_drives,
+						select_db_devices,
+						sort_db_devices
 					)
 					VALUES(
 						'1',
@@ -164,7 +196,15 @@
 						'" . $_POST["warranty_field"] . "',
 						'" . SQLite3::escapeString($_POST["dashboard_widget"] ?? null) . "',
 						'" . $_POST["dashboard_widget_pos"] . "',
-						'" . $post_info . "'
+						'" . $post_info . "',
+						'" . SQLite3::escapeString($_POST["select_db_info"] ?? $select_db_info_default) . "',
+						'" . SQLite3::escapeString($_POST["sort_db_info"] ?? $sort_db_info_default) . "',
+						'" . SQLite3::escapeString($_POST["select_db_trayalloc"] ?? $select_db_trayalloc_default) . "',
+						'" . SQLite3::escapeString($_POST["sort_db_trayalloc"] ?? $sort_db_trayalloc_default) . "',
+						'" . SQLite3::escapeString($_POST["select_db_drives"] ?? $select_db_drives_default) . "',
+						'" . SQLite3::escapeString($_POST["sort_db_drives"] ?? $sort_db_drives_default) . "',
+						'" . SQLite3::escapeString($_POST["select_db_devices"] ?? $select_db_devices_default) . "',
+						'" . SQLite3::escapeString($_POST["sort_db_devices"] ?? $sort_db_devices_default) . "'
 					)
 				;
 			";
@@ -294,6 +334,7 @@
 			for($i=0; $i < count($keys_drives); ++$i) {
 				$sql .= "
 					UPDATE disks SET
+						manufactured = '" . SQLite3::escapeString($_POST["manufactured"][$keys_drives[$i]]) . "',
 						purchased = '" . SQLite3::escapeString($_POST["purchased"][$keys_drives[$i]]) . "',
 				";
 				if($_POST["current_warranty_field"] == "u") {
@@ -323,6 +364,24 @@
 			if(!$ret) {
 				echo $db->lastErrorMsg();
 			}
+		}
+	}
+	
+	if(isset($_POST["sort"])) {
+		debug_print($debugging_active, __LINE__, "POST", "Button: SORT has been pressed.");
+		$sql = "";
+		print($_POST["sort"]);
+		list($table, $dir, $column) = explode(":", $_POST["sort"]);
+		
+		$sort = $dir . ":" . $column;
+		
+		$sql = "UPDATE settings SET sort_db_" . $table . " = '" . SQLite3::escapeString($sort ?? $sort_db_info_default) . "' WHERE id = '1';";
+		
+		debug_print($debugging_active, __LINE__, "SQL", "SETTINGS: <pre>" . $sql . "</pre>");
+		
+		$ret = $db->exec($sql);
+		if(!$ret) {
+			echo $db->lastErrorMsg();
 		}
 	}
 	
@@ -380,6 +439,15 @@
 	//}
 	
 	if(isset($_POST["reset_all_colors"])) {
-		force_reset_color($db, "*");
+		if(force_reset_color($db, "*")) {
+			print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
+			exit;
+		}
+	}
+	if(isset($_POST["reset_common_colors"])) {
+		if(force_reset_color($db)) {
+			print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
+			exit;
+		}
 	}
 ?>

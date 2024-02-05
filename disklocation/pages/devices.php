@@ -638,7 +638,7 @@
 					
 				}
 				// SMART=FAIL: show SMART LED
-				if(isset($smart_status)) {
+				if(isset($smart_status) && $smart_status == 0) {
 					//$dashboard_led = $smart_status_icon;
 					$dashboard_orb = $smart_status_info["orb"];
 					

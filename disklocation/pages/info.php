@@ -20,11 +20,14 @@
 	 */
 	unset($print_drives);
 	
+	$get_info_select = get_table_order($select_db_info, $sort_db_info, 1);
+	
 	if(!$total_groups) {
 		$sql = "SELECT * FROM disks WHERE status IS NULL;";
 	}
 	else {
-		$sql = "SELECT * FROM disks JOIN location ON disks.hash=location.hash WHERE status IS NULL ORDER BY groupid,tray ASC;";
+		//$sql = "SELECT * FROM disks JOIN location ON disks.hash=location.hash WHERE status IS NULL ORDER BY groupid,tray ASC;";
+		$sql = "SELECT disks.id,location.id,disks.hash,location.hash,color,warranty," . implode(",", $get_info_select["sql_select"]) . " FROM disks JOIN location ON disks.hash=location.hash WHERE status IS NULL ORDER BY " . $get_info_select["sql_sort"] . " " . $get_info_select["sql_dir"] . ";";
 	}
 	
 	$i=1;
@@ -33,7 +36,20 @@
 	
 	$print_drives = array();
 	$datasql = array();
-	$results = $db->query($sql);	
+	
+	list($table_info_order_user, $table_info_order_system, $table_info_order_name, $table_info_order_forms) = get_table_order($select_db_info, $sort_db_info);
+	
+	$arr_length = count($table_info_order_user);
+	for($i=0;$i<$arr_length;$i++) {
+		$table_info_order_name_html .= "
+		<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">
+			<b>" . $table_info_order_name[$i] . "</b>
+			<button type=\"submit\" name=\"sort\" value=\"info:asc:" . $table_info_order_user[$i] . "\" style=\"margin: 0; padding: 0; min-width: 0; width: 20px; height: 20px;\" /><i style=\"font-size: 15px;\" class=\"fa fa-solid fa-sort-up\"/></i></button>
+			<button type=\"submit\" name=\"sort\" value=\"info:desc:" . $table_info_order_user[$i] . "\" style=\"margin: 0; padding: 0; min-width: 0; width: 20px; height: 20px;\" /><i style=\"font-size: 15px;\" class=\"fa fa-solid fa-sort-down\"/></i></button>
+		</td>";
+	}
+	
+	$results = $db->query($sql);
 	//while($i < $total_disks) {
 	while($res = $results->fetchArray(1)) {
 		array_push($datasql, $res);
@@ -113,35 +129,46 @@
 			}
 		}
 		
-		$print_drives[$i_drive] = "
-			<tr style=\"background: #" . $color_array[$data["hash"]] . ";\">
-				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . stripslashes(htmlspecialchars($group_assign)) . "</td>
-				<!--<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $tray_assign . "</td>-->
-				<td style=\"padding: 0 10px 0 10px;\">" . $data["device"] . "</td>
-				<!--<td style=\"padding: 0 10px 0 10px;\">" . $data["luname"] . "</td>-->
-				<td style=\"padding: 0 10px 0 10px;\">" . $data["model_family"] . "</td>
-				<td style=\"padding: 0 10px 0 10px;\">" . $data["model_name"] . "</td>
-				<td style=\"padding: 0 10px 0 10px;\">" . $data["smart_serialnumber"] . "</td>
-				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $smart_capacity . "</td>
-				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $smart_rotation . "</td>
-				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . str_replace(" inches", "&quot;", $data["smart_formfactor"]) . "</td>
-				<td style=\"padding: 0 10px 0 10px; text-align: center;\">" . ( empty($data["smart_status"]) ? "FAIL" : "OK" ) . "</td>
-				<td style=\"padding: 0 10px 0 10px; text-align: left;\">" . $smart_temperature . " (" . $smart_temperature_warning . "/" . $smart_temperature_critical . ")</td>
-				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><span style=\"cursor: help;\" title=\"" . $smart_powerontime . "\">" . $data["smart_powerontime"] . "</span></td>
-				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . ( isset($data["smart_loadcycle"]) ? $data["smart_loadcycle"] : "" ) . "" . ( is_numeric($data["smart_nvme_percentage_used"]) ? $data["smart_nvme_percentage_used"] . "%" : "" ) . "</td>
-				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $smart_nvme_data_units_read . "</td>
-				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $smart_nvme_data_units_written . "</td>
-				<td style=\"padding: 0 10px 0 10px; text-align: right;\">" . $data["purchased"] . "</td>
-				<td style=\"padding: 0 10px 0 10px; text-align: right;\"><span style=\"cursor: help;\" title=\"Warranty: " . $date_warranty . " Expires: " . $warranty_left . "\">" . $warranty_expire . "</span></td>
-				<td style=\"padding: 0 10px 0 10px;\">" . bscode2html(stripslashes(htmlspecialchars($data["comment"]))) . "</td>
-			</tr>
-		";
+		$columns_info_out = array(
+			"groupid" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . stripslashes(htmlspecialchars($group_assign)) . "</td>",
+			"tray" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $tray_assign . "</td>",
+			"device" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $data["device"] . "</td>",
+			"devicenode" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $data["devicenode"] . "</td>",
+			"luname" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $data["luname"] . "</td>",
+			"model_family" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $data["model_family"] . "</td>",
+			"model_name" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $data["model_name"] . "</td>",
+			"smart_serialnumber" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $data["smart_serialnumber"] . "</td>",
+			"smart_capacity" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $smart_capacity . "</td>",
+			"smart_rotation" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $smart_rotation . "</td>",
+			"smart_formfactor" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . str_replace(" inches", "&quot;", $data["smart_formfactor"]) . "</td>",
+			"smart_status" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: center;\">" . ( empty($data["smart_status"]) ? "FAIL" : "OK" ) . "</td>",
+			"smart_temperature" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: left;\">" . $smart_temperature . " (" . $smart_temperature_warning . "/" . $smart_temperature_critical . ")</td>",
+			"smart_powerontime" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><span style=\"cursor: help;\" title=\"" . $smart_powerontime . "\">" . $data["smart_powerontime"] . "</span></td>",
+			"smart_loadcycle" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . ( isset($data["smart_loadcycle"]) ? $data["smart_loadcycle"] : "" ) . "</td>",
+			"smart_nvme_percentage_used" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . ( is_numeric($data["smart_nvme_percentage_used"]) ? $data["smart_nvme_percentage_used"] . "%" : "" ) . "</td>",
+			"smart_nvme_data_units_read" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $smart_nvme_data_units_read . "</td>",
+			"smart_nvme_data_units_written" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $smart_nvme_data_units_written . "</td>",
+			"smart_nvme_available_spare" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . ( is_numeric($data["smart_nvme_available_spare"]) ? $data["smart_nvme_available_spare"] . "%" : "" ) . "</td>",
+			"smart_nvme_available_spare_threshold" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . ( is_numeric($data["smart_nvme_available_spare_threshold"]) ? $data["smart_nvme_available_spare_threshold"] . "%" : "" ) . "</td>",
+			"manufactured" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $data["manufactured"] . "</td>",
+			"purchased" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $data["purchased"] . "</td>",
+			"warranty_date" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><span style=\"cursor: help;\" title=\"Warranty: " . $date_warranty . " Expires: " . $warranty_left . "\">" . $warranty_expire . "</span></td>",
+			"comment" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . bscode2html(stripslashes(htmlspecialchars($data["comment"]))) . "</td>"
+		);
+		
+		$print_drives[$i_drive] = "<tr style=\"background: #" . $color_array[$data["hash"]] . ";\">";
+		$arr_length = count($table_info_order_system);
+		for($i=0;$i<$arr_length;$i++) {
+			$print_drives[$i_drive] .= $columns_info_out[$table_info_order_system[$i]];
+		}
+		$print_drives[$i_drive] .= "</tr>";
+		
 		$i_drive++;
 	}
 	$i++;
 ?>
 <h2 style="margin-top: -10px; padding: 0 0 25px 0;">Disk Information</h2>
-
+<form action="" method="post">
 <table style="width: 800px; border-spacing: 3px; border-collapse: separate;">
 	<tr>
 		<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_parity); ?>">
@@ -167,12 +194,13 @@
 	<dd>Hover over text to get additional information or simpler readout.</dd>
 	<br />
 </blockquote>
-<table>
+<table style="width: 0;">
 	<tr style="border: solid 1px #000000;">
-		<td style="padding: 0 10px 0 10px;"><b>Group</b></td>
-		<!--<td style="padding: 0 10px 0 10px;"><b>TrayID</b></td>-->
+		<?php print($table_info_order_name_html); ?>
+		<!--<td style="padding: 0 10px 0 10px;"><b>Group</b></td>
+		!--<td style="padding: 0 10px 0 10px;"><b>TrayID</b></td>--
 		<td style="padding: 0 10px 0 10px;"><b>Path</b></td>
-		<!--<td style="padding: 0 10px 0 10px;"><b>Logical Unit Name</b></td>-->
+		!--<td style="padding: 0 10px 0 10px;"><b>Logical Unit Name</b></td>--
 		<td style="padding: 0 10px 0 10px;"><b>Manufacturer</b></td>
 		<td style="padding: 0 10px 0 10px;"><b>Device Model</b></td>
 		<td style="padding: 0 10px 0 10px;"><b>Serial Number</b></td>
@@ -188,6 +216,7 @@
 		<td style="padding: 0 10px 0 10px;"><b>Purchased</b></td>
 		<td style="padding: 0 10px 0 10px;"><b>Warranty</b></td>
 		<td style="padding: 0 10px 0 10px;"><b>Comment</b></td>
+		-->
 	</tr>
 	<?php 
 		$i=1;
@@ -197,3 +226,4 @@
 		}
 	?>
 </table>
+</form>

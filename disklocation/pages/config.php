@@ -28,12 +28,12 @@
 	
 	if(!empty($disklocation_error)) {
 		$i=0;
-		print("<p style=\"color: #FF0000; font-weight: bold;\">");
+		print("<h2 style=\"color: #FF0000; font-weight: bold;\">");
 		while($i < count($disklocation_error)) {
-			print("&middot;" . $disklocation_error[$i] . "<br />");
+			print("&middot; ERROR: " . $disklocation_error[$i] . "<br />");
 			$i++;
 		}
-		print("</p><hr />");
+		print("</h2><hr style=\"border: 1px solid #FF0000;\" /><br /><br />");
 	}
 	
 	$sql = "SELECT * FROM settings_group ORDER BY id ASC";
@@ -148,6 +148,13 @@
 		$dashboard_widget = 0;
 	}
 	*/
+	
+	list($table_order_user, $table_order_system, $table_order_name) = get_table_order("all", 0);
+	
+	$arr_length = count($table_order_user);
+	for($i=0;$i<$arr_length;$i++) {
+		$inlinehelp_table_order .= "<tr style=\"border: 1px solid black;\"><td style=\"margin: 0; padding: 0 0 0 0;\">" . $table_order_user[$i] . "</td><td style=\"margin: 0; padding: 0 0 0 0;\">" . $table_order_name[$i] . "</td></tr>";
+	}
 ?>
 <datalist id="disklocationColorsDef">
 	<option>#<?php echo $bgcolor_parity ?></option>
@@ -155,11 +162,11 @@
 	<option>#<?php echo $bgcolor_cache ?></option>
 	<option>#<?php echo $bgcolor_others ?></option>
 	<option>#<?php echo $bgcolor_empty ?></option>
-	<?php echo ( $bgcolor_parity != "eb4f41" ? "<option>#eb4f41</option>" : null ) ?>
-	<?php echo ( $bgcolor_unraid != "ef6441" ? "<option>#ef6441</option>" : null ) ?>
-	<?php echo ( $bgcolor_cache != "ff884c" ? "<option>#ff884c</option>" : null ) ?>
-	<?php echo ( $bgcolor_others != "41b5ef" ? "<option>#41b5ef</option>" : null ) ?>
-	<?php echo ( $bgcolor_empty != "aaaaaa" ? "<option>#aaaaaa</option>" : null ) ?>
+	<?php echo ( $bgcolor_parity != $bgcolor_parity_default ? "<option>#" . $bgcolor_parity_default . "</option>" : null ) ?>
+	<?php echo ( $bgcolor_unraid != $bgcolor_unraid_default ? "<option>#" . $bgcolor_unraid_default . "</option>" : null ) ?>
+	<?php echo ( $bgcolor_cache != $bgcolor_cache_default ? "<option>#" . $bgcolor_cache_default . "</option>" : null ) ?>
+	<?php echo ( $bgcolor_others != $bgcolor_others_default ? "<option>#" . $bgcolor_others_default . "</option>" : null ) ?>
+	<?php echo ( $bgcolor_empty != $bgcolor_empty_default ? "<option>#" . $bgcolor_empty_default . "</option>" : null ) ?>
 </datalist>
 <script>
 $(document).ready(function(){
@@ -312,12 +319,6 @@ $(document).ready(function(){
 				<blockquote class='inline_help'>
 					This is a delay for execution of the next smartctl command in a loop, this might be necessary to be able to read all the S.M.A.R.T data from all the drives. Default value is 200ms, and seems to work very well. If you realize it won't detect all the data you can increase this value, but hardly any point decreasing it.
 				</blockquote>
-				<p style="position: relative; bottom: 0;">
-					<input type="submit" name="save_settings" value="Save" /><!--<input type="reset" value="Reset" />-->
-					<blockquote class='inline_help'>
-						<p>Save the Common Configuration and the Visible Frontpage Information. This does not save the Disk Tray Layout.</p>
-					</blockquote>
-				</p>
 			</td>
 			<td style="padding-left: 25px; vertical-align: top;">
 				<h2 style="padding-bottom: 25px;">Visible Frontpage Information</h2>
@@ -436,15 +437,124 @@ $(document).ready(function(){
 				</table>
 			</td>
 		</tr>
-		<!--<tr>
-			<td colspan="3" style="padding-left: 25px; vertical-align: top;">
-				<input type="submit" name="save_settings" value="Save" /><input type="reset" value="Reset" />
+	</table>
+	<hr />
+	<table style="width: 100%;">
+		<tr>
+			<td colspan="3"><h2>Sorting of tables</h2></td>
+		</tr>
+		<tr>
+			<td><b>Table</b></td>
+			<td><b>Sort</b></td>
+			<td><b>Column</b></td>
+		</tr>
+		<tr>
+			<td>
+				Information
+			</td>
+			<td>
+				<input type="text" name="sort_db_info" value="<?php print($sort_db_info); ?>" style="width: 95%;" />
+			</td>
+			<td style="width: 75%">
+				<input type="text" name="select_db_info" value="<?php print($select_db_info); ?>" style="width: 95%;" />
+			</td>
+		</tr>
+		<tr>
+			<td colspan="3" style="margin: 0; padding: 0 0 0 0 ;">
+				<blockquote class='inline_help'>
+					<ul>
+						<li><b>Possible selectors:</b> group, tray, device, node, lun, manufacturer, model, status, serial, temp, powerontime, loadcycle, capacity, rotation, formfactor, nvme_spare, nvme_spare_thres, nvme_used, nvme_unit_r, nvme_unit_w, manufactured, purchased, warranty, comment</li>
+					</ul>
+				</blockquote>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				Tray Allocations / Unassigned Devices
+			</td>
+			<td>
+				<input type="text" name="sort_db_trayalloc" value="<?php print($sort_db_trayalloc); ?>" style="width: 95%;" />
+			</td>
+			<td style="width: 75%">
+				<input type="text" name="select_db_trayalloc" value="<?php print($select_db_trayalloc); ?>" style="width: 95%;" />
+			</td>
+		</tr>
+		<tr>
+			<td colspan="3" style="margin: 0; padding: 0 0 0 0 ;">
+				<blockquote class='inline_help'>
+					<ul>
+						<li><b>Possible selectors:</b> (group, tray)*, device, node, lun, manufacturer, model, serial, capacity, rotation, formfactor, manufactured, purchased, warranty, comment</li>
+						<li><b>Sort:</b> "Unassigned Devices" will only sort by an internal ID, but will follow the set direction, ascending or descending. *) Sorting by group and tray is therefore possible with "Tray Allocations", but not to be included in columns.</li>
+					</ul>
+				</blockquote>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				History
+			</td>
+			<td>
+				<input type="text" name="sort_db_drives" value="<?php print($sort_db_drives); ?>" style="width: 95%;" />
+			</td>
+			<td style="width: 75%">
+				<input type="text" name="select_db_drives" value="<?php print($select_db_drives); ?>" style="width: 95%;" />
+			</td>
+		</tr>
+		<tr>
+			<td colspan="3" style="margin: 0; padding: 0 0 0 0 ;">
+				<blockquote class='inline_help'>
+					<ul>
+						<li><b>Possible selectors:</b> device, node, lun, manufacturer, model, status, serial, powerontime, loadcycle, capacity, rotation, formfactor, nvme_spare, nvme_spare_thres, nvme_used, nvme_unit_r, nvme_unit_w, manufactured, purchased, warranty, comment</li>
+					</ul>
+				</blockquote>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="3">
+				<blockquote class='inline_help'>
+					<p>
+						<b>Sort format: direction:column1[,column2]</b><br />
+						<br />
+						direction: asc or desc (ascending/descending)<br />
+						column?: see the table reference for valid inputs.<br />
+						<br />
+						Valid sort selectors are the same as the allowed columns. With an exception for "Tray Allocations" which can include "group" and "tray"
+					</p>
+					<p>
+						<b>Column format: column1,column2,column3</b><br />
+						<br />
+						column?: see the table reference for valid inputs. Columns can be repeated, and any order is possible. Columns containing input data will erase contents from database if disabled (e.g. Tray Allocations). 
+						Tray Allocations will always have "group,tray" at the beginning including the "Locate" button. No elements with input forms should be duplicated even if it's possible to do it.
+						Only selectors underneath each section is possible to use, others will show the column with "unavailable".
+					</p>
+					<p style="padding: 0 0 50px 0;">
+						<b>Reset</b><br />
+						Values can be reset to default by deleting the contents and saving it.
+					</p>
+					
+					<table style="background: none; border-spacing: 0px;; width: 300px;">
+						<tr style="border: 1px solid black;">
+							<td style="margin: 0; padding: 0 0 0 0;"><b>Input</b></td>
+							<td style="margin: 0; padding: 0 0 0 0;"><b>Display name</b></td>
+						</tr>
+						<?php print($inlinehelp_table_order); ?>
+					</table>
+				</blockquote>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="3" style="vertical-align: top;">
+				<span style="padding: 0 0 0 75px;">
+					<input type="submit" name="save_settings" value="Save" />
+					<span style="padding-left: 50px;"></span>
+					<input type="submit" name="reset_common_colors" value="Reset Common Colors" />
+					<!--<input type="reset" value="Reset" />-->
+				</span>
 				<blockquote class='inline_help'>
 					<p>Save the Common Configuration and the Visible Frontpage Information. This does not save the Disk Tray Layout.</p>
 				</blockquote>
 			</td>
 		</tr>
-		-->
 	</table>
 </form>
 <hr style="border: 1px solid black; height: 0!important;" />

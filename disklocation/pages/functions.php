@@ -101,6 +101,21 @@
 	
 	require_once("sqlite_tables.php");
 	
+	$select_db_info_default = $select_db_info;
+	$sort_db_info_default = $sort_db_info;
+
+	$select_db_trayalloc_default = $select_db_trayalloc;
+	$sort_db_trayalloc_default = $sort_db_trayalloc;
+	
+	$select_db_drives_default = $select_db_drives;
+	$sort_db_drives_default = $sort_db_drives;
+	
+	$bgcolor_parity_default = $bgcolor_parity;
+	$bgcolor_unraid_default = $bgcolor_unraid;
+	$bgcolor_cache_default = $bgcolor_cache;
+	$bgcolor_others_default = $bgcolor_others;
+	$bgcolor_empty_default = $bgcolor_empty;
+	
 	$sql_status = "";
 
 	// get Unraid disks
@@ -211,6 +226,121 @@
 		}
 		else {
 			return false;
+		}
+	}
+	
+	function get_table_order($select, $sort, $return = '0', $test = '') { // $return = 0: list() = multi-arrays || 1: SQL command variables || 2(column)/3(sort): validation + $test = string of valid inputs (eg. '1,1,0,0,....0')
+		$select = preg_replace('/\s+/', '', $select);
+		$sort = preg_replace('/\s+/', '', $sort);
+		$table = array( // Table names:
+			"groupid", "tray", "device", "devicenode", "luname", "model_family", "model_name", "smart_status", "smart_serialnumber", "smart_temperature", "smart_powerontime", "smart_loadcycle", "smart_capacity", "smart_rotation", "smart_formfactor", "smart_nvme_available_spare", "smart_nvme_available_spare_threshold", "smart_nvme_percentage_used", "smart_nvme_data_units_read", "smart_nvme_data_units_written", "manufactured", "purchased", "warranty_date", "comment"
+		);
+		$input = array( // User input names - must also match $sort:
+			"group", "tray", "device", "node", "lun", "manufacturer", "model", "status", "serial", "temp", "powerontime", "loadcycle", "capacity", "rotation", "formfactor", "nvme_spare", "nvme_spare_thres", "nvme_used", "nvme_unit_r", "nvme_unit_w", "manufactured", "purchased", "warranty", "comment"
+		);
+		$nice_names = array(
+			"Group", "TrayID", "Path", "Node", "Logic Unit Name", "Manufacturer", "Device Model", "SMART", "Serial Number", "Temperature", "Power On", "Cycles", "Capacity", "Rotation", "Size", "Spare", "Spare Threshold", "Used", "Read", "Written", "Manufactured", "Purchased", "Warranty", "Comment"
+		);
+		$input_form = array(
+			1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1
+		);
+		
+		if($select == "all") {
+			$select = implode(",", $input);
+			$sort = "asc:group";
+		}
+		
+		$table_sql = array_combine($table, $input);
+		$table_user = array_combine($input, $table);
+		$table_names = array_combine($nice_names, $input);
+		$table_forms = array_combine($input, $input_form);
+		if($return >= 2 && !empty($test)) {
+			$allowed_inputs = explode(",", $test);
+			$table_allowed = array_combine($input, $allowed_inputs);
+		}
+		
+		$select = explode(",", $select);
+		$sort_dir = explode(":", $sort);
+		$sort_col = explode(",", $sort_dir[1]);
+		
+		$return_table = array();
+		$return_names = array();
+		$return_forms = array();
+		$return_allow_colm = array();
+		$return_allow_sort = array();
+		
+		if($return != 3) {
+			$arr_length = count($select);
+			for($i=0;$i<$arr_length;$i++) {
+				$return_table[$i] = array_search($select[$i], $table_sql);
+				$return_names[$i] = array_search($select[$i], $table_names);
+				$return_forms[$i] = $table_forms[$select[$i]];
+				if($return == 2 && !empty($test)) {
+					if($table_allowed[$select[$i]] == 0) {
+						$return_allow_colm[$select[$i]] = $table_allowed[$select[$i]];
+					}
+				}
+				
+				if($return_table[$i] === false) { 
+					return "Table column \"" . $select[$i] . "\" does not exist.\n";
+					break;
+				}
+			}
+		}
+		
+		if($return != 2) {
+			$return_sort = array();
+			$arr_length = count($sort_col);
+			for($i=0;$i<$arr_length;$i++) {
+				$check_sort = array_search($sort_col[$i], $input);
+				$return_sort[] = $table_user[$sort_col[$i]];
+				if($return == 3 && !empty($test)) {
+					if($table_allowed[$sort_col[$i]] == 0) {
+						$return_allow_sort[$sort_col[$i]] = $table_allowed[$sort_col[$i]];
+					}
+				}
+				if($check_sort === false) { 
+					return "Sort value does not exist.\n";
+					break;
+				}
+			}
+		}
+		
+		if($sort_dir[0] != "asc" && $sort_dir[0] != "desc") {
+			return "Sort direction is invalid.\n";
+		}
+		
+		switch($return) {
+			case 0:
+				return [$select, $return_table, $return_names, $return_forms]; // user, column, gui, forms
+				break;
+			case 1:
+				return array(
+					"sql_select" => $return_table,
+					"sql_sort" => implode(",", $return_sort),
+					"sql_dir" => strtoupper($sort_dir[0])
+				);
+				break;
+			case 2:
+				if($return_allow_colm) {
+					$return_allow_colm = array_keys($return_allow_colm, '0');
+					return "Table column [" . implode(",", $return_allow_colm) . "] not allowed to use for this table.\n";
+				}
+				else {
+					return false;
+				}
+				break;
+			case 3:
+				if($return_allow_sort) {
+					$return_allow_sort = array_keys($return_allow_sort, '0');
+					return "Table sort [" . implode(",", $return_allow_sort) . "] not allowed to use for this table.\n";
+				}
+				else {
+					return false;
+				}
+				break;
+			default:
+				return false;
 		}
 	}
 	
@@ -549,7 +679,9 @@
 		}
 	}
 	
-	function force_reset_color($db, $hash) {
+	function force_reset_color($db, $hash = 0) {
+		global $bgcolor_parity_default, $bgcolor_unraid_default, $bgcolor_cache_default, $bgcolor_others_default, $bgcolor_empty_default;
+		
 		if($hash == '*' || $hash == 'all') {
 			$sql_status = "
 				UPDATE disks SET
@@ -557,13 +689,26 @@
 				;
 			";
 		}
-		else {
+		else if($hash) {
 			$sql_status .= "
 				UPDATE disks SET
 					color = ''
 				;
 				WHERE hash = '" . $hash . "';
 			";
+		}
+		else {
+			$sql_status = "
+				UPDATE settings SET
+					bgcolor_parity = '" . $bgcolor_parity_default . "',
+					bgcolor_unraid = '" . $bgcolor_unraid_default . "',
+					bgcolor_cache = '" . $bgcolor_cache_default . "',
+					bgcolor_others = '" . $bgcolor_others_default . "',
+					bgcolor_empty = '" . $bgcolor_empty_default . "'
+				;
+				WHERE id = '1';
+			";
+			$hash = 1;
 		}
 		
 		$ret = $db->exec($sql_status);
