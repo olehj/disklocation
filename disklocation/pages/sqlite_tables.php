@@ -73,7 +73,7 @@
 	//	"group", "tray", "device", "node", "lun", "manufacturer", "model", "status", "serial", "temp", "powerontime", "loadcycle", "capacity",
 	//	"rotation", "formfactor", "nvme_spare", "nvme_spare_thres", "nvme_used", "nvme_unit_r", "nvme_unit_w", "manufactured", "purchased", "warranty", "comment"
 	
-	$select_db_info = "group,node,manufacturer,model,serial,status,temp,powerontime,loadcycle,capacity,rotation,formfactor,nvme_used,nvme_unit_r,nvme_unit_w,manufactured,purchased,warranty,comment";
+	$select_db_info = "group,tray,node,manufacturer,model,serial,status,temp,powerontime,loadcycle,capacity,rotation,formfactor,nvme_used,nvme_unit_r,nvme_unit_w,manufactured,purchased,warranty,comment";
 	$sort_db_info = "asc:group,tray";
 	
 	// mandatory: group,tray,locate,color
