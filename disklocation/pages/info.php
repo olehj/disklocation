@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2023, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2024, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -137,7 +137,7 @@
 			"luname" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $data["luname"] . "</td>",
 			"model_family" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $data["model_family"] . "</td>",
 			"model_name" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $data["model_name"] . "</td>",
-			"smart_serialnumber" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $data["smart_serialnumber"] . "</td>",
+			"smart_serialnumber" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . substr($data["smart_serialnumber"], $dashboard_widget_pos) . "</td>",
 			"smart_capacity" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $smart_capacity . "</td>",
 			"smart_rotation" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $smart_rotation . "</td>",
 			"smart_formfactor" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . str_replace(" inches", "&quot;", $data["smart_formfactor"]) . "</td>",
@@ -197,26 +197,6 @@
 <table style="width: 0;">
 	<tr style="border: solid 1px #000000;">
 		<?php print($table_info_order_name_html); ?>
-		<!--<td style="padding: 0 10px 0 10px;"><b>Group</b></td>
-		!--<td style="padding: 0 10px 0 10px;"><b>TrayID</b></td>--
-		<td style="padding: 0 10px 0 10px;"><b>Path</b></td>
-		!--<td style="padding: 0 10px 0 10px;"><b>Logical Unit Name</b></td>--
-		<td style="padding: 0 10px 0 10px;"><b>Manufacturer</b></td>
-		<td style="padding: 0 10px 0 10px;"><b>Device Model</b></td>
-		<td style="padding: 0 10px 0 10px;"><b>Serial Number</b></td>
-		<td style="padding: 0 10px 0 10px;"><b>Capacity</b></td>
-		<td style="padding: 0 10px 0 10px;"><b>Rotation</b></td>
-		<td style="padding: 0 10px 0 10px;"><b>Size</b></td>
-		<td style="padding: 0 10px 0 10px;"><b>SMART</b></td>
-		<td style="padding: 0 10px 0 10px;"><b>Temp (Warn/Crit)</b></td>
-		<td style="padding: 0 10px 0 10px;"><b>Power On</b></td>
-		<td style="padding: 0 10px 0 10px;"><b>Cycles/% Used</b></td>
-		<td style="padding: 0 10px 0 10px;"><b>Read</b></td>
-		<td style="padding: 0 10px 0 10px;"><b>Written</b></td>
-		<td style="padding: 0 10px 0 10px;"><b>Purchased</b></td>
-		<td style="padding: 0 10px 0 10px;"><b>Warranty</b></td>
-		<td style="padding: 0 10px 0 10px;"><b>Comment</b></td>
-		-->
 	</tr>
 	<?php 
 		$i=1;

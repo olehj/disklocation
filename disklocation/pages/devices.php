@@ -270,7 +270,7 @@
 					$smart_modelname = $data["model_name"];
 				}
 				if(isset($displayinfo["serialnumber"])) {
-					$smart_serialnumber = ( isset($data["smart_serialnumber"]) ? "<span style=\"white-space: nowrap;\">(" . $data["smart_serialnumber"] . ")</span>" : null );
+					$smart_serialnumber = ( isset($data["smart_serialnumber"]) ? "<span style=\"white-space: nowrap;\">(" . substr($data["smart_serialnumber"], $dashboard_widget_pos) . ")</span>" : null );
 				}
 				if(isset($displayinfo["powerontime"])) {
 					$smart_powerontime = ( !is_numeric($data["smart_powerontime"]) ? null : "<span style=\"cursor: help;\" title=\"" . seconds_to_time($data["smart_powerontime"] * 60 * 60) . "\">" . $data["smart_powerontime"] . "h</span>" );

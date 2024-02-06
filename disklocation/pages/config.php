@@ -270,20 +270,19 @@ $(document).ready(function(){
 					<input type="radio" name="warranty_field" value="u" <?php if($warranty_field == "u") echo "checked"; ?> />Unraid
 					<input type="radio" name="warranty_field" value="m" <?php if($warranty_field == "m") echo "checked"; ?>/>Manual ISO
 				</p>
-				<!--
+				
 				<blockquote class='inline_help'>
 					Select how you want to enter the warranty date: the Unraid way of selecting amount of months, or manual ISO date for specific dates. Both values can be stored, but only one can be visible at a time.
 				</blockquote>
 				<p>
-					<b>Dashboard plugin:</b><br />
-					<input type="radio" name="dashboard_widget_pos" value="0" <?php if(!$dashboard_widget_pos) echo "checked"; ?> />Off
-					<input type="radio" name="dashboard_widget_pos" value="1" <?php if($dashboard_widget_pos == 1) echo "checked"; ?> />On
+					<b>Trim serial numbers:</b><br />
+					<input type="number" required min="-99" max="99" step="1" name="dashboard_widget_pos" value="<?php print($dashboard_widget_pos); ?>" style="width: 50px;" />
 				</p>
 				<blockquote class='inline_help'>
-					Choose if you want to display this plugin in the Unraid Dashboard, "Enable" or "Disable"<br />
+					Serial number will be cut either the first or last part of this value, 0 does nothing. Negative number will display X last characters, positive the X first characters.
+					The sort function will still sort after the actual serial number, and not the shortened ones.
+					<br />
 				</blockquote>
-				-->
-				<input type="hidden" name="dashboard_widget_pos" value="0" /> <!-- new Dashboard system, just leaving this to disabled by default -->
 			</td>
 			<td style="padding-left: 25px; vertical-align: top;">
 				<h2>Updates</h2>

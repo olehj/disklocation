@@ -35,7 +35,7 @@
 	$tray_reduction_factor =	'10';		// set the scale divider for the mini tray layout
 	$warranty_field =		'u';		// choose [u]nraid's way of entering warranty date (12/24/36... months) or enter [m]anual ISO dates.
 	$dashboard_widget =		'1';		// choose background for the drives, Drive Type (0) or Heat Map (1)
-	$dashboard_widget_pos = 	'0';		// not in use anymore
+	$dashboard_widget_pos = 	'0';		// make serial number friendlier, substr() value -99 - 99.
 	$displayinfo =	json_encode(array(		// this will store an json_encoded array of display settings for the "Device" page.
 		'tray' => 1,
 		'leddiskop' => 1,
@@ -98,7 +98,7 @@
 	$tray_start_num = 	'1';		// tray count start number, 0 or 1
 	$tray_width =		'400';		// the pixel width of the hard drive tray: in the horizontal direction ===
 	$tray_height =		'70';		// the pixel height of the hard drive tray: in the horizontal direction ===
-
+	
 //	Create database
 	
 	$sql_create_disks = "
