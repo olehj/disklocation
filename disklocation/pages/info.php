@@ -50,7 +50,6 @@
 	}
 	
 	$results = $db->query($sql);
-	//while($i < $total_disks) {
 	while($res = $results->fetchArray(1)) {
 		array_push($datasql, $res);
 		
@@ -60,16 +59,48 @@
 		$results2 = $db->query($sql);
 		
 		while($datagroup = $results2->fetchArray(1)) {
+			extract($datagroup);
 			$group_name = $datagroup["group_name"];
-			//$tray_start_num = $datagroup["tray_start_num"];
 		}
 		$group_assign = ( empty($group_name) ? $data["groupid"] : $group_name );
 		
 		$tray_assign = ( empty($data["tray"]) ? $i : $data["tray"] );
-		//if(!isset($tray_start_num)) { $tray_start_num = 1; }
-		//$tray_assign = ( empty($tray_start_num) ? --$data["tray"] : $data["tray"]);
 		
 		$hash = $data["hash"];
+		$gid = $data["groupid"];
+
+		$total_trays = ( empty($grid_trays) ? $grid_columns * $grid_rows : $grid_trays );
+		$total_trays_group += $total_trays;
+		
+		if($biggest_tray_group < $total_trays) {
+			$biggest_tray_group = $total_trays;
+		}
+		
+		if(!$tray_direction) { $tray_direction = 1; }
+		$tray_number_override = tray_number_assign($grid_columns, $grid_rows, $tray_direction, $grid_count);
+		
+		if(!isset($tray_start_num)) { $tray_start_num = 1; }
+		$tray_number_override_start = $tray_start_num;
+		
+		$total_main_trays = 0;
+		if($total_trays > ($grid_columns * $grid_rows)) {
+			$total_main_trays = $grid_columns * $grid_rows;
+			$total_rows_override_trays = ($total_trays - $total_main_trays) / $grid_columns;
+			$grid_columns_override_styles = str_repeat(" auto", $total_rows_override_trays);
+		}
+		
+		$drive_tray_order[$hash] = get_tray_location($db, $hash, $gid);
+		$drive_tray_order[$hash] = ( !isset($drive_tray_order[$hash]) ? $tray_assign : $drive_tray_order[$hash] );
+		
+		if($tray_number_override[$drive_tray_order[$hash]]) {
+			$drive_tray_order_assign = $tray_number_override[$drive_tray_order[$hash]];
+			$physical_traynumber = ( !isset($tray_number_override_start) ? --$tray_number_override[$drive_tray_order[$hash]] : ($tray_number_override_start + $tray_number_override[$drive_tray_order[$hash]] - 1));
+		}
+		else {
+			$drive_tray_order_assign = $drive_tray_order[$hash];
+			$physical_traynumber = ( !isset($tray_number_override_start) ? --$drive_tray_order[$hash] : $drive_tray_order[$hash]);
+		}
+		
 		$smart_powerontime = ( empty($data["smart_powerontime"]) ? null : seconds_to_time($data["smart_powerontime"] * 60 * 60) );
 		$smart_capacity = ( empty($data["smart_capacity"]) ? null : human_filesize($data["smart_capacity"], 1, true) );
 		
@@ -131,7 +162,7 @@
 		
 		$columns_info_out = array(
 			"groupid" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . stripslashes(htmlspecialchars($group_assign)) . "</td>",
-			"tray" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $tray_assign . "</td>",
+			"tray" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $physical_traynumber . "</td>",
 			"device" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $data["device"] . "</td>",
 			"devicenode" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $data["devicenode"] . "</td>",
 			"luname" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $data["luname"] . "</td>",
@@ -165,7 +196,6 @@
 		
 		$i_drive++;
 	}
-	$i++;
 ?>
 <h2 style="margin-top: -10px; padding: 0 0 25px 0;">Disk Information</h2>
 <form action="" method="post">
@@ -206,4 +236,9 @@
 		}
 	?>
 </table>
+</form>
+<form action="<?php echo DISKLOCATION_PATH ?>/pages/export_tsv.php" method="post">
+<p>
+	<input type="submit" name="download_csv" value="Download TSV" />
+</p>
 </form>

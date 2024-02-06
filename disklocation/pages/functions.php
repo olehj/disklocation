@@ -28,7 +28,6 @@
 	// define constants
 	define("UNRAID_CONFIG_PATH", "/boot/config");
 	define("DISKLOGFILE", "/boot/config/disk.log");
-	define("DISKLOCATION_VERSION", $get_page_info["Version"]);
 	define("DISKLOCATION_URL", "/Settings/disklocation");
 	define("DISKLOCATIONCONF_URL", "/Settings/disklocation");
 	define("DISKLOCATION_PATH", "/plugins/disklocation");
@@ -44,6 +43,11 @@
 	define("SMART_ALL_FILE", "smart-all.cfg");
 	define("SMART_ONE_FILE", "smart-one.cfg");
 	
+	$get_page_info = array();
+	$get_page_info["Version"] = "";
+	$get_page_info = parse_ini_file("" . EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/disklocation.page");
+	define("DISKLOCATION_VERSION", $get_page_info["Version"]);
+	
 	if(file_exists(DISKLOCATION_CONF)) {
 		$get_disklocation_config = json_decode(file_get_contents(DISKLOCATION_CONF), true);
 		
@@ -52,10 +56,6 @@
 	else {
 		define("DISKLOCATION_DB", DISKLOCATION_DB_DEFAULT);
 	}
-	
-	$get_page_info = array();
-	$get_page_info["Version"] = "";
-	$get_page_info = parse_ini_file("" . EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/disklocation.page");
 	
 	if(is_file(EMHTTP_VAR . "/" . UNRAID_DISKS_FILE)) {
 		$unraid_disks = parse_ini_file(EMHTTP_VAR . "/" . UNRAID_DISKS_FILE, true);
@@ -239,7 +239,7 @@
 			"group", "tray", "device", "node", "lun", "manufacturer", "model", "status", "serial", "temp", "powerontime", "loadcycle", "capacity", "rotation", "formfactor", "nvme_spare", "nvme_spare_thres", "nvme_used", "nvme_unit_r", "nvme_unit_w", "manufactured", "purchased", "warranty", "comment"
 		);
 		$nice_names = array(
-			"Group", "TrayID", "Path", "Node", "Logic Unit Name", "Manufacturer", "Device Model", "SMART", "Serial Number", "Temperature", "Power On", "Cycles", "Capacity", "Rotation", "Size", "Spare", "Spare Threshold", "Used", "Read", "Written", "Manufactured", "Purchased", "Warranty", "Comment"
+			"Group", "Tray", "Path", "Node", "Logic Unit Name", "Manufacturer", "Device Model", "SMART", "Serial Number", "Temperature", "Power On", "Cycles", "Capacity", "Rotation", "Size", "Spare", "Spare Threshold", "Used", "Read", "Written", "Manufactured", "Purchased", "Warranty", "Comment"
 		);
 		$input_form = array(
 			1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1
@@ -342,6 +342,26 @@
 			default:
 				return false;
 		}
+	}
+	
+	// function from: https://stackoverflow.com/questions/16251625/how-to-create-and-download-a-csv-file-from-php-script
+	function array_to_csv_download($array, $filename = "output.tsv", $delimiter="\t") {
+		// open raw memory as file so no temp files needed, you might run out of memory though
+		$f = fopen('php://memory', 'w'); 
+		// loop over the input array
+		foreach ($array as $line) { 
+			// generate csv lines from the inner arrays
+			fputcsv($f, $line, $delimiter); 
+		}
+		// reset the file pointer to the start of the file
+		fseek($f, 0);
+		// tell the browser it's going to be a csv file
+		//header('Content-Type: text/csv');
+		header('Content-Type: application/csv');
+		// tell the browser we want to save it instead of displaying it
+		header('Content-Disposition: attachment; filename="'.$filename.'";');
+		// make php send the generated csv lines to the browser
+		fpassthru($f);
 	}
 	
 	function is_tray_allocated($db, $tray, $gid) {
