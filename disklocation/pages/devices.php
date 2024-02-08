@@ -545,7 +545,7 @@
 				if($smart_modelfamily || $smart_modelname || $smart_serialnumber) {
 					$add_break_2 = "<br />";
 				}
-				if($smart_temperature || $smart_powerontime || $smart_loadcycle || $warranty_page || $smart_nvme_available_spare || $smart_nvme_available_spare_threshold || $smart_nvme_percentage_used || $smart_nvme_data_units_read || $smart_nvme_data_units_written) {
+				if($smart_temperature_text || $smart_powerontime || $smart_loadcycle || $warranty_page || $manufactured_page || $smart_nvme_available_spare || $smart_nvme_percentage_used || $smart_units_read || $smart_units_written || $smart_reallocated_sector_count || $smart_reported_uncorrectable_errors || $smart_command_timeout || $smart_current_pending_sector_count || $smart_offline_uncorrectable) {
 					$add_break_3 = "<br />";
 				}
 				

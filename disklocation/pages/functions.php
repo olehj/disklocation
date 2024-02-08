@@ -50,8 +50,12 @@
 	
 	if(file_exists(DISKLOCATION_CONF)) {
 		$get_disklocation_config = json_decode(file_get_contents(DISKLOCATION_CONF), true);
-		
-		define("DISKLOCATION_DB", $get_disklocation_config["database_location"]);
+		if(isset($get_disklocation_config["database_location"])) {
+			define("DISKLOCATION_DB", $get_disklocation_config["database_location"]);
+		}
+		else {
+			define("DISKLOCATION_DB", DISKLOCATION_DB_DEFAULT);
+		}
 	}
 	else {
 		define("DISKLOCATION_DB", DISKLOCATION_DB_DEFAULT);
