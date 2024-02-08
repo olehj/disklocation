@@ -18,7 +18,7 @@
 	 *  along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
 	 *
 	 */
-	$vi_width = 150;
+	$vi_width = 180;
 	
 	/*
 	$dashboard_widget_array = dashboard_toggle("info");
@@ -149,11 +149,11 @@
 	}
 	*/
 	
-	list($table_order_user, $table_order_system, $table_order_name) = get_table_order("all", 0);
+	list($table_order_user, $table_order_system, $table_order_name, $table_order_full) = get_table_order("all", 0);
 	
 	$arr_length = count($table_order_user);
 	for($i=0;$i<$arr_length;$i++) {
-		$inlinehelp_table_order .= "<tr style=\"border: 1px solid black;\"><td style=\"margin: 0; padding: 0 0 0 0;\">" . $table_order_user[$i] . "</td><td style=\"margin: 0; padding: 0 0 0 0;\">" . $table_order_name[$i] . "</td></tr>";
+		$inlinehelp_table_order .= "<tr style=\"white-space: nowrap; border: 1px solid black;\"><td style=\"white-space: nowrap;margin: 0; padding: 0 5px 0 5px;\">" . $table_order_user[$i] . "</td><td style=\"white-space: nowrap;margin: 0; padding: 0 5px 0 5px;\">" . $table_order_name[$i] . "</td><td style=\"margin: 0; padding: 0 5px 0 5px;\">" . $table_order_full[$i] . "</td></tr>";
 	}
 ?>
 <datalist id="disklocationColorsDef">
@@ -277,6 +277,7 @@ $(document).ready(function(){
 				<p>
 					<b>Trim serial numbers:</b><br />
 					<input type="number" required min="-99" max="99" step="1" name="dashboard_widget_pos" value="<?php print($dashboard_widget_pos); ?>" style="width: 50px;" />
+					<!-- reusing the deprecated dashboard_pos variable instead of messing with the database -->
 				</p>
 				<blockquote class='inline_help'>
 					Serial number will be cut either the first or last part of this value, 0 does nothing. Negative number will display X last characters, positive the X first characters.
@@ -318,111 +319,102 @@ $(document).ready(function(){
 				<blockquote class='inline_help'>
 					This is a delay for execution of the next smartctl command in a loop, this might be necessary to be able to read all the S.M.A.R.T data from all the drives. Default value is 200ms, and seems to work very well. If you realize it won't detect all the data you can increase this value, but hardly any point decreasing it.
 				</blockquote>
+				<table style="table-layout: auto; padding: 20px 0 0 0; margin: 0; width: 0;">
+					<tr>
+						<td style="white-space: nowrap;"><b>Reallocated sector count:</b></td>
+						<td><input type="number" required min="0" max="9999" name="reallocated_sector_w" value="<?php print($reallocated_sector_w); ?>" style="width: 50px;" /></td>
+					</tr>
+					<tr>
+						<td style="white-space: nowrap;"><b>Reported uncorrectable_errors:</b></td>
+						<td><input type="number" required min="0" max="9999" name="reported_uncorr_w" value="<?php print($reported_uncorr_w); ?>" style="width: 50px;" /></td>
+					</tr>
+					<tr>
+						<td style="white-space: nowrap;"><b>Command timeout:</b></td>
+						<td><input type="number" required min="0" max="9999" name="command_timeout_w" value="<?php print($command_timeout_w); ?>" style="width: 50px;" /></td>
+					</tr>
+					<tr>
+						<td style="white-space: nowrap;"><b>Current pending sector count:</b></td>
+						<td><input type="number" required min="0" max="9999" name="pending_sector_w" value="<?php print($pending_sector_w); ?>" style="width: 50px;" /></td>
+					</tr>
+					<tr>
+						<td style="white-space: nowrap;"><b>Offline uncorrectable sectors:</b></td>
+						<td><input type="number" required min="0" max="9999" name="offline_uncorr_w" value="<?php print($offline_uncorr_w); ?>" style="width: 50px;" /></td>
+					</tr>
+				</table>
+				<blockquote class='inline_help'>
+					Set the RAW limit when the SMART warning should trigger, this is only valid for SATA drives.
+				</blockquote>
 			</td>
 			<td style="padding-left: 25px; vertical-align: top;">
 				<h2 style="padding-bottom: 25px;">Visible Frontpage Information</h2>
 				<table style="width: auto;">
 					<tr>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[tray]" value="1" <?php if(isset($displayinfo["tray"])) echo "checked"; ?> />Tray number
+						<td style="vertical-align: top; width: <?php echo $vi_width ?>px;">
+							<b>LED array:</b><br />
+							<input type="checkbox" name="displayinfo[tray]" value="1" <?php if(isset($displayinfo["tray"])) echo "checked"; ?> />Tray number<br />
+							<input type="checkbox" name="displayinfo[leddiskop]" value="1" <?php if(isset($displayinfo["leddiskop"])) echo "checked"; ?> />Disk Operation LED<br />
+							<input type="checkbox" name="displayinfo[ledsmart]" value="1" <?php if(isset($displayinfo["ledsmart"])) echo "checked"; ?> />SMART Status LED<br />
+							<input type="checkbox" name="displayinfo[ledtemp]" value="1" <?php if(isset($displayinfo["ledtemp"])) echo "checked"; ?> />Temperature LED<br />
 						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[leddiskop]" value="1" <?php if(isset($displayinfo["leddiskop"])) echo "checked"; ?> />Disk Operation LED
+						<td style="vertical-align: top; width: <?php echo $vi_width ?>px;">
+							<b>Common logic info:</b><br />
+							<input type="checkbox" name="displayinfo[unraidinfo]" value="1" <?php if(isset($displayinfo["unraidinfo"])) echo "checked"; ?> />Unraid info<br />
+							<input type="checkbox" name="displayinfo[path]" value="1" <?php if(isset($displayinfo["path"])) echo "checked"; ?> />Path<br />
+							<input type="checkbox" name="displayinfo[devicenode]" value="1" <?php if(isset($displayinfo["devicenode"])) echo "checked"; ?> />Device Node<br />
+							<input type="checkbox" name="displayinfo[luname]" value="1" <?php if(isset($displayinfo["luname"])) echo "checked"; ?> />Logical Unit Number<br />
 						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[ledsmart]" value="1" <?php if(isset($displayinfo["ledsmart"])) echo "checked"; ?> />SMART Status LED
+						<td style="vertical-align: top; width: <?php echo $vi_width ?>px;">
+							<b>Drive manufacturer info:</b><br />
+							<input type="checkbox" name="displayinfo[manufacturer]" value="1" <?php if(isset($displayinfo["manufacturer"])) echo "checked"; ?> />Manufacturer<br />
+							<input type="checkbox" name="displayinfo[devicemodel]" value="1" <?php if(isset($displayinfo["devicemodel"])) echo "checked"; ?> />Device Model<br />
+							<input type="checkbox" name="displayinfo[serialnumber]" value="1" <?php if(isset($displayinfo["serialnumber"])) echo "checked"; ?> />Serial Number<br />
+							<input type="checkbox" name="displayinfo[capacity]" value="1" <?php if(isset($displayinfo["capacity"])) echo "checked"; ?> />Capacity<br />
+							<input type="checkbox" name="displayinfo[rotation]" value="1" <?php if(isset($displayinfo["rotation"])) echo "checked"; ?> />Rotation<br />
+							<input type="checkbox" name="displayinfo[formfactor]" value="1" <?php if(isset($displayinfo["formfactor"])) echo "checked"; ?> />Form Factor<br />
 						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[ledtemp]" value="1" <?php if(isset($displayinfo["ledtemp"])) echo "checked"; ?> />Temperature LED
-						</td>
-					</tr>
-					<tr>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[unraidinfo]" value="1" <?php if(isset($displayinfo["unraidinfo"])) echo "checked"; ?> />Unraid info
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[path]" value="1" <?php if(isset($displayinfo["path"])) echo "checked"; ?> />Path
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[devicenode]" value="1" <?php if(isset($displayinfo["devicenode"])) echo "checked"; ?> />Device Node
-						</td>
-						<!--
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[luname]" value="1" <?php if(isset($displayinfo["luname"])) echo "checked"; ?> />Logical Unit Name
-						</td>
-						-->
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[capacity]" value="1" <?php if(isset($displayinfo["capacity"])) echo "checked"; ?> />Capacity
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[formfactor]" value="1" <?php if(isset($displayinfo["formfactor"])) echo "checked"; ?> />Form Factor
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[rotation]" value="1" <?php if(isset($displayinfo["rotation"])) echo "checked"; ?> />Rotation
+						<td style="vertical-align: top; width: <?php echo $vi_width ?>px;">
+							<b>Common SMART info:</b><br />
+							<input type="checkbox" name="displayinfo[temperature]" value="1" <?php if(isset($displayinfo["temperature"])) echo "checked"; ?> />Temperature<br />
+							<input type="checkbox" name="displayinfo[powerontime]" value="1" <?php if(isset($displayinfo["powerontime"])) echo "checked"; ?> />Power On Time<br />
+							<input type="checkbox" name="displayinfo[units_read]" value="1" <?php if(isset($displayinfo["units_read"])) echo "checked"; ?> />Data Read<br />
+							<input type="checkbox" name="displayinfo[units_written]" value="1" <?php if(isset($displayinfo["units_written"])) echo "checked"; ?> />Data Written<br />
 						</td>
 					</tr>
 					<tr>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[manufacturer]" value="1" <?php if(isset($displayinfo["manufacturer"])) echo "checked"; ?> />Manufacturer
+						<td style="vertical-align: top; width: <?php echo $vi_width ?>px;">
+							<b>SATA drives info (HDD/SSD):</b><br />
+							<input type="checkbox" name="displayinfo[loadcycle]" value="1" <?php if(isset($displayinfo["loadcycle"])) echo "checked"; ?> />Load Cycles<br />
+							<input type="checkbox" name="displayinfo[reallocated_sector_count]" value="1" <?php if(isset($displayinfo["reallocated_sector_count"])) echo "checked"; ?> />Reallocated Sector<br />
+							<input type="checkbox" name="displayinfo[reported_uncorrectable_errors]" value="1" <?php if(isset($displayinfo["reported_uncorrectable_errors"])) echo "checked"; ?> />Reported Uncorrectable<br />
+							<input type="checkbox" name="displayinfo[command_timeout]" value="1" <?php if(isset($displayinfo["command_timeout"])) echo "checked"; ?> />Command Timeout<br />
+							<input type="checkbox" name="displayinfo[current_pending_sector_count]" value="1" <?php if(isset($displayinfo["current_pending_sector_count"])) echo "checked"; ?> />Current Pending Sectors<br />
+							<input type="checkbox" name="displayinfo[offline_uncorrectable]" value="1" <?php if(isset($displayinfo["offline_uncorrectable"])) echo "checked"; ?> />Offline Uncorrectable<br />
 						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[devicemodel]" value="1" <?php if(isset($displayinfo["devicemodel"])) echo "checked"; ?> />Device Model
+						<td style="vertical-align: top; width: <?php echo $vi_width ?>px;">
+							<b>PCIE drives info (NVMe):</b><br />
+							<input type="checkbox" name="displayinfo[available_spare]" value="1" <?php if(isset($displayinfo["available_spare"])) echo "checked"; ?> />Spare<br />
+							<input type="checkbox" name="displayinfo[percentage_used]" value="1" <?php if(isset($displayinfo["percentage_used"])) echo "checked"; ?> />Percentage Used<br />
 						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[serialnumber]" value="1" <?php if(isset($displayinfo["serialnumber"])) echo "checked"; ?> />Serial Number
+						<td style="vertical-align: top; width: <?php echo $vi_width ?>px;">
+							<b>User inputs:</b><br />
+							<input type="checkbox" name="displayinfo[manufactured]" value="1" <?php if(isset($displayinfo["manufactured"])) echo "checked"; ?> />Manufacture Date<br />
+							<input type="checkbox" name="displayinfo[warranty]" value="1" <?php if(isset($displayinfo["warranty"])) echo "checked"; ?> />Warranty Left<br />
+							<input type="checkbox" name="displayinfo[comment]" value="1" <?php if(isset($displayinfo["comment"])) echo "checked"; ?> />Comment<br />
 						</td>
-					</tr>
-					<tr>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[temperature]" value="1" <?php if(isset($displayinfo["temperature"])) echo "checked"; ?> />Temperature
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[powerontime]" value="1" <?php if(isset($displayinfo["powerontime"])) echo "checked"; ?> />Power On Time
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[loadcyclecount]" value="1" <?php if(isset($displayinfo["loadcyclecount"])) echo "checked"; ?> />Load Cycle Count
-						</td>
-					</tr>
-					<tr>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[available_spare]" value="1" <?php if(isset($displayinfo["available_spare"])) echo "checked"; ?> />Spare
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[available_spare_threshold]" value="1" <?php if(isset($displayinfo["available_spare_threshold"])) echo "checked"; ?> />Spare Threshold
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[percentage_used]" value="1" <?php if(isset($displayinfo["percentage_used"])) echo "checked"; ?> />Percentage Used
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[data_units_read]" value="1" <?php if(isset($displayinfo["data_units_read"])) echo "checked"; ?> />Data Read
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[data_units_written]" value="1" <?php if(isset($displayinfo["data_units_written"])) echo "checked"; ?> />Data Written
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[warranty]" value="1" <?php if(isset($displayinfo["warranty"])) echo "checked"; ?> />Warranty Left
+						<td style="vertical-align: top; width: <?php echo $vi_width ?>px;">
+							<b>Other configurations:</b><br />
+							<input type="checkbox" name="displayinfo[hideemptycontents]" value="1" <?php if(isset($displayinfo["hideemptycontents"])) echo "checked"; ?> />Hide empty tray contents<br />
+							<input type="checkbox" name="displayinfo[flashwarning]" value="1" <?php if(isset($displayinfo["flashwarning"])) echo "checked"; ?> />Flash warning<br />
+							<input type="checkbox" name="displayinfo[flashcritical]" value="1" <?php if(isset($displayinfo["flashcritical"])) echo "checked"; ?> />Flash critical<br />
 						</td>
 					</tr>
 					<tr>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[comment]" value="1" <?php if(isset($displayinfo["comment"])) echo "checked"; ?> />Comment
-						</td>
-					</tr>
-					<tr>
-						<td style="width: <?php echo $vi_width ?>px;" colspan="2">
-							<input type="checkbox" name="displayinfo[hideemptycontents]" value="1" <?php if(isset($displayinfo["hideemptycontents"])) echo "checked"; ?> />Hide empty tray contents
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[flashwarning]" value="1" <?php if(isset($displayinfo["flashwarning"])) echo "checked"; ?> />Flash warning
-						</td>
-						<td style="width: <?php echo $vi_width ?>px;">
-							<input type="checkbox" name="displayinfo[flashcritical]" value="1" <?php if(isset($displayinfo["flashcritical"])) echo "checked"; ?> />Flash critical 
-						</td>
-					</tr>
-					<tr>
-						<td colspan="7">
+						<td colspan="8">
 							<blockquote class='inline_help'>
-								<p>Select the information you want to display on the "Devices" page. Each row is based upon the layout.</p>
+								<p>
+									Select the information you want to display on the "Devices" page. Each row is based upon the layout.
+									Either SATA or PCIE is shown depending on what the drive is detected as.
+								</p>
 							</blockquote>
 							<blockquote class='inline_help'>
 								<p>
@@ -462,7 +454,8 @@ $(document).ready(function(){
 			<td colspan="3" style="margin: 0; padding: 0 0 0 0 ;">
 				<blockquote class='inline_help'>
 					<ul>
-						<li><b>Possible selectors:</b> group, tray, device, node, lun, manufacturer, model, status, serial, temp, powerontime, loadcycle, capacity, rotation, formfactor, nvme_spare, nvme_spare_thres, nvme_used, nvme_unit_r, nvme_unit_w, manufactured, purchased, warranty, comment</li>
+						<li><b>Possible selectors:</b> group, tray, device, node, lun, manufacturer, model, status, serial, temp, powerontime, loadcycle, reallocated, reported, timeout, pending, offline, capacity, rotation, formfactor, nvme_spare, nvme_spare_thres, nvme_used, read, written, manufactured, purchased, warranty, comment</li>
+						<li>Sort: The "tray" sorting does sort by "TrayID" and not the physical tray. If the tray count is backwards or or have different starting points, it might affect this and show a weird behaviour. It's not a bug nor a feature, it just is what it is.</li>
 					</ul>
 				</blockquote>
 			</td>
@@ -503,7 +496,7 @@ $(document).ready(function(){
 			<td colspan="3" style="margin: 0; padding: 0 0 0 0 ;">
 				<blockquote class='inline_help'>
 					<ul>
-						<li><b>Possible selectors:</b> device, node, lun, manufacturer, model, status, serial, powerontime, loadcycle, capacity, rotation, formfactor, nvme_spare, nvme_spare_thres, nvme_used, nvme_unit_r, nvme_unit_w, manufactured, purchased, warranty, comment</li>
+						<li><b>Possible selectors:</b> device, node, lun, manufacturer, model, status, serial, powerontime, loadcycle, reallocated, reported, timeout, pending, offline, capacity, rotation, formfactor, nvme_spare, nvme_spare_thres, nvme_used, read, written, manufactured, purchased, warranty, comment</li>
 					</ul>
 				</blockquote>
 			</td>
@@ -534,7 +527,8 @@ $(document).ready(function(){
 					<table style="background: none; border-spacing: 0px;; width: 300px;">
 						<tr style="border: 1px solid black;">
 							<td style="margin: 0; padding: 0 0 0 0;"><b>Input</b></td>
-							<td style="margin: 0; padding: 0 0 0 0;"><b>Display name</b></td>
+							<td style="margin: 0; padding: 0 0 0 0;"><b>Table name</b></td>
+							<td style="margin: 0; padding: 0 0 0 0;"><b>Full name</b></td>
 						</tr>
 						<?php print($inlinehelp_table_order); ?>
 					</table>

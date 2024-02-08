@@ -36,15 +36,20 @@
 	$warranty_field =		'u';		// choose [u]nraid's way of entering warranty date (12/24/36... months) or enter [m]anual ISO dates.
 	$dashboard_widget =		'1';		// choose background for the drives, Drive Type (0) or Heat Map (1)
 	$dashboard_widget_pos = 	'0';		// make serial number friendlier, substr() value -99 - 99.
+	$reallocated_sector_w =		'100';		// SMART warnings (RAW)
+	$reported_uncorr_w =		'1';		// -
+	$command_timeout_w =		'5';		// -
+	$pending_sector_w =		'1';		// -
+	$offline_uncorr_w =		'1';		// -
 	$displayinfo =	json_encode(array(		// this will store an json_encoded array of display settings for the "Device" page.
 		'tray' => 1,
 		'leddiskop' => 1,
 		'ledsmart' => 1,
 		'ledtemp' => 1,
 		'unraidinfo' => 1,
-		'path' => 1,
-		'devicenode' => 1,
-		'luname' => 1,
+		'path' => 0,
+		'devicenode' => 0,
+		'luname' => 0,
 		'manufacturer' => 1,
 		'devicemodel' => 1,
 		'serialnumber' => 1,
@@ -54,26 +59,24 @@
 		'capacity' => 1,
 		'rotation' => 1,
 		'formfactor' => 1,
-		'available_spare' => 0,
-		'available_spare_threshold' => 0,
+		'reallocated_sector_count' => 0,
+		'reported_uncorrectable_errors' => 0,
+		'command_timeout' => 0,
+		'current_pending_sector_count' => 0,
+		'offline_uncorrectable' => 0,
+		'available_spare' => 1,
 		'percentage_used' => 1,
-		'data_units_read' => 1,
-		'data_units_written' => 1,
-		'warranty' => 1,
+		'units_read' => 1,
+		'units_written' => 1,
+		'manufactured' => 0,
+		'warranty' => 0,
 		'comment' => 0,
 		'hideemptycontents' => 0,
 		'flashwarning' => 0,
 		'flashcritical' => 1
 	));
 	
-	// Table names:
-	//	"groupid", "tray", "device", "devicenode", "luname", "model_family", "model_name", "smart_status", "smart_serialnumber", "smart_temperature", "smart_powerontime", "smart_loadcycle", "smart_capacity", "smart_rotation", 
-	//	"smart_formfactor", "smart_nvme_available_spare", "smart_nvme_available_spare_threshold", "smart_nvme_percentage_used", "smart_nvme_data_units_read", "smart_nvme_data_units_written", "manufactured", "purchased", "warranty_date", "comment"
-	// User input names - must also match $sort:
-	//	"group", "tray", "device", "node", "lun", "manufacturer", "model", "status", "serial", "temp", "powerontime", "loadcycle", "capacity",
-	//	"rotation", "formfactor", "nvme_spare", "nvme_spare_thres", "nvme_used", "nvme_unit_r", "nvme_unit_w", "manufactured", "purchased", "warranty", "comment"
-	
-	$select_db_info = "group,tray,node,manufacturer,model,serial,status,temp,powerontime,loadcycle,capacity,rotation,formfactor,nvme_used,nvme_unit_r,nvme_unit_w,manufactured,purchased,warranty,comment";
+	$select_db_info = "group,tray,manufacturer,model,serial,capacity,rotation,formfactor,read,written,manufactured,purchased,warranty,comment";
 	$sort_db_info = "asc:group,tray";
 	
 	// mandatory: group,tray,locate,color
@@ -81,7 +84,7 @@
 	$sort_db_trayalloc = "asc:group,tray";
 	
 	$select_db_drives = "device,manufacturer,model,serial,capacity,rotation,formfactor,manufactured,purchased,warranty,comment";
-	$sort_db_drives = "asc:device";
+	$sort_db_drives = "asc:serial";
 	
 	//not used, but prepared just in case it will be added in the future:
 	$select_db_devices = "";
@@ -116,11 +119,17 @@
 		smart_capacity INT,
 		smart_rotation INT,
 		smart_formfactor VARCHAR(16),
+		smart_reallocated_sector_count INT,
+		smart_reported_uncorrectable_errors INT,
+		smart_command_timeout INT,
+		smart_current_pending_sector_count INT,
+		smart_offline_uncorrectable INT,
+		smart_logical_block_size INT,
 		smart_nvme_available_spare INT,
 		smart_nvme_available_spare_threshold INT,
 		smart_nvme_percentage_used INT,
-		smart_nvme_data_units_read INT,
-		smart_nvme_data_units_written INT,
+		smart_units_read INT,
+		smart_units_written INT,
 		status CHAR(1),
 		manufactured DATE,
 		purchased DATE,
@@ -145,11 +154,17 @@
 		smart_capacity,
 		smart_rotation,
 		smart_formfactor,
+		smart_reallocated_sector_count,
+		smart_reported_uncorrectable_errors,
+		smart_command_timeout,
+		smart_current_pending_sector_count,
+		smart_offline_uncorrectable,
+		smart_logical_block_size,
 		smart_nvme_available_spare,
 		smart_nvme_available_spare_threshold,
 		smart_nvme_percentage_used,
-		smart_nvme_data_units_read,
-		smart_nvme_data_units_written,
+		smart_units_read,
+		smart_units_written,
 		status,
 		manufactured,
 		purchased,
@@ -186,6 +201,11 @@
 		warranty_field CHAR(1) NOT NULL DEFAULT '$warranty_field',
 		dashboard_widget CHAR(3) NOT NULL DEFAULT '$dashboard_widget',
 		dashboard_widget_pos INT NULL,
+		reallocated_sector_w INT NOT NULL DEFAULT '$reallocated_sector_w',
+		reported_uncorr_w INT NOT NULL DEFAULT '$reported_uncorr_w',
+		command_timeout_w INT NOT NULL DEFAULT '$command_timeout_w',
+		pending_sector_w INT NOT NULL DEFAULT '$pending_sector_w',
+		offline_uncorr_w INT NOT NULL DEFAULT '$offline_uncorr_w',
 		displayinfo VARCHAR(1023),
 		select_db_info VARCHAR(1023) NOT NULL DEFAULT '$select_db_info',
 		sort_db_info VARCHAR(1023) NOT NULL DEFAULT '$sort_db_info',
@@ -209,6 +229,11 @@
 		warranty_field,
 		dashboard_widget,
 		dashboard_widget_pos,
+		reallocated_sector_w,
+		reported_uncorr_w,
+		command_timeout_w,
+		pending_sector_w,
+		offline_uncorr_w,
 		displayinfo,
 		select_db_info,
 		sort_db_info,
@@ -270,8 +295,6 @@
 		smart_nvme_available_spare,
 		smart_nvme_available_spare_threshold,
 		smart_nvme_percentage_used,
-		smart_nvme_data_units_read,
-		smart_nvme_data_units_written,
 		status,
 		purchased,
 		warranty,

@@ -167,16 +167,51 @@
 						
 						$smart_i=0;
 						$smart_loadcycle_find = "";
+						$smart_reallocated_sector_count = "";
+						$smart_reported_uncorrectable_errors = "";
+						$smart_command_timeout = "";
+						$smart_current_pending_sector_count = "";
+						$smart_offline_uncorrectable = "";
+						$smart_units_written = "";
+						$smart_units_read = "";
+						
 						if(isset($smart_array["ata_smart_attributes"]["table"])) {
 							while($smart_i < count($smart_array["ata_smart_attributes"]["table"])) {
 								if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Load_Cycle_Count") {
 									$smart_loadcycle_find = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"];
 									$smart_i = count($smart_array["ata_smart_attributes"]["table"]);
 								}
+								if($smart_array["ata_smart_attributes"]["table"][$smart_i]["id"] == 5) {
+									$smart_reallocated_sector_count = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"];
+									$smart_i = count($smart_array["ata_smart_attributes"]["table"]);
+								}
+								if($smart_array["ata_smart_attributes"]["table"][$smart_i]["id"] == 187) {
+									$smart_reported_uncorrectable_errors = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"];
+									$smart_i = count($smart_array["ata_smart_attributes"]["table"]);
+								}
+								if($smart_array["ata_smart_attributes"]["table"][$smart_i]["id"] == 188) {
+									$smart_command_timeout = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"];
+									$smart_i = count($smart_array["ata_smart_attributes"]["table"]);
+								}
+								if($smart_array["ata_smart_attributes"]["table"][$smart_i]["id"] == 197) {
+									$smart_current_pending_sector_count = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"];
+									$smart_i = count($smart_array["ata_smart_attributes"]["table"]);
+								}
+								if($smart_array["ata_smart_attributes"]["table"][$smart_i]["id"] == 198) {
+									$smart_offline_uncorrectable = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"];
+									$smart_i = count($smart_array["ata_smart_attributes"]["table"]);
+								}
+								if($smart_array["ata_smart_attributes"]["table"][$smart_i]["id"] == 241) {
+									$smart_units_written = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"];
+									$smart_i = count($smart_array["ata_smart_attributes"]["table"]);
+								}
+								if($smart_array["ata_smart_attributes"]["table"][$smart_i]["id"] == 242) {
+									$smart_units_read = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"];
+									$smart_i = count($smart_array["ata_smart_attributes"]["table"]);
+								}
 								$smart_i++;
 							}
 						}
-						
 						debug_print($debugging_active, __LINE__, "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "|PROTOCOL=" . ( isset($smart_array["device"]["protocol"]) ? $smart_array["device"]["protocol"] : null . ""));
 					}
 					
@@ -196,6 +231,11 @@
 						if(!isset($argv) || !in_array("silent", $argv)) {
 							print("CTRL CMD: " . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " ");
 						}
+					}
+					
+					if(!$smart_units_read && !$smart_units_written && $smart_array["rotation_rate"] = -2) {
+						$smart_units_read = $smart_array["nvme_smart_health_information_log"]["data_units_read"];
+						$smart_units_written = $smart_array["nvme_smart_health_information_log"]["data_units_written"];
 					}
 					
 					debug_print($debugging_active, __LINE__, "HASH", "#:" . $i . ":" . $deviceid[$i] . "");
@@ -219,11 +259,17 @@
 									smart_capacity,
 									smart_rotation,
 									smart_formfactor,
+									smart_reallocated_sector_count,
+									smart_reported_uncorrectable_errors,
+									smart_command_timeout,
+									smart_current_pending_sector_count,
+									smart_offline_uncorrectable,
+									smart_logical_block_size,
 									smart_nvme_available_spare,
 									smart_nvme_available_spare_threshold,
 									smart_nvme_percentage_used,
-									smart_nvme_data_units_read,
-									smart_nvme_data_units_written,
+									smart_units_read,
+									smart_units_written,
 									status,
 									hash
 								)
@@ -241,11 +287,17 @@
 									'" . ($smart_array["user_capacity"]["bytes"] ?? null) . "',
 									'" . ($smart_array["rotation_rate"] ?? null) . "',
 									'" . ($smart_array["form_factor"]["name"] ?? null) . "',
+									'" . ($smart_reallocated_sector_count ?? null) . "',
+									'" . ($smart_reported_uncorrectable_errors ?? null) . "',
+									'" . ($smart_command_timeout ?? null) . "',
+									'" . ($smart_current_pending_sector_count ?? null) . "',
+									'" . ($smart_offline_uncorrectable ?? null) . "',
+									'" . ($smart_array["logical_block_size"] ?? null) . "',
 									'" . ($smart_array["nvme_smart_health_information_log"]["available_spare"] ?? null) . "',
 									'" . ($smart_array["nvme_smart_health_information_log"]["available_spare_threshold"] ?? null) . "',
 									'" . ($smart_array["nvme_smart_health_information_log"]["percentage_used"] ?? null) . "',
-									'" . ($smart_array["nvme_smart_health_information_log"]["data_units_read"] ?? null) . "',
-									'" . ($smart_array["nvme_smart_health_information_log"]["data_units_written"] ?? null) . "',
+									'" . ($smart_units_read ?? null) . "',
+									'" . ($smart_units_written ?? null) . "',
 									'h',
 									'" . ($deviceid[$i] ?? null) . "'
 								)
@@ -259,11 +311,17 @@
 									smart_powerontime='" . ($smart_array["power_on_time"]["hours"] ?? null) . "',
 									smart_loadcycle='" . ($smart_loadcycle_find ?? null) . "',
 									smart_rotation='" . ($smart_array["rotation_rate"] ?? null) . "',
+									smart_reallocated_sector_count='" . ($smart_reallocated_sector_count ?? null) . "',
+									smart_reported_uncorrectable_errors='" . ($smart_reported_uncorrectable_errors ?? null) . "',
+									smart_command_timeout='" . ($smart_command_timeout ?? null) . "',
+									smart_current_pending_sector_count='" . ($smart_current_pending_sector_count ?? null) . "',
+									smart_offline_uncorrectable='" . ($smart_offline_uncorrectable ?? null) . "',
+									smart_logical_block_size='" . ($smart_array["logical_block_size"] ?? null) . "',
 									smart_nvme_available_spare='" . ($smart_array["nvme_smart_health_information_log"]["available_spare"] ?? null) . "',
 									smart_nvme_available_spare_threshold='" . ($smart_array["nvme_smart_health_information_log"]["available_spare_threshold"] ?? null) . "',
 									smart_nvme_percentage_used='" . ($smart_array["nvme_smart_health_information_log"]["percentage_used"] ?? null) . "',
-									smart_nvme_data_units_read='" . ($smart_array["nvme_smart_health_information_log"]["data_units_read"] ?? null) . "',
-									smart_nvme_data_units_written='" . ($smart_array["nvme_smart_health_information_log"]["data_units_written"] ?? null) . "'
+									smart_units_read='" . ($smart_units_read ?? null) . "',
+									smart_units_written='" . ($smart_units_written ?? null) . "'
 									
 								WHERE hash='" . $deviceid[$i] . "'
 								;

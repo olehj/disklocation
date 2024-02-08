@@ -62,11 +62,11 @@
 	$datasql = array();
 	$custom_colors_array = array();
 	
-	list($table_trayalloc_order_user, $table_trayalloc_order_system, $table_trayalloc_order_name, $table_trayalloc_order_forms) = get_table_order($select_db_trayalloc, $sort_db_trayalloc);
+	list($table_trayalloc_order_user, $table_trayalloc_order_system, $table_trayalloc_order_name, $table_trayalloc_order_full, $table_trayalloc_order_forms) = get_table_order($select_db_trayalloc, $sort_db_trayalloc);
 	
 	$arr_length = count($table_trayalloc_order_user);
 	for($i=0;$i<$arr_length;$i++) {
-		$table_trayalloc_order_name_html .= "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\"><b>" . $table_trayalloc_order_name[$i] . "</b></td>";
+		$table_trayalloc_order_name_html .= "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\"><b style=\"cursor: help;\" title=\"" . $table_trayalloc_order_full[$i] . "\">" . $table_trayalloc_order_name[$i] . "</b></td>";
 	}
 	
 	$results = $db->query($sql);
@@ -116,12 +116,12 @@
 		
 		$print_drives[$i_drive] .= "<tr style=\"background: #" . $color_array[$data["hash"]] . ";\">";
 		$print_drives[$i_drive] .= "
-				<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: left;\">
+				<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px; text-align: left;\">
 					<button type=\"submit\" name=\"hash_remove\" value=\"" . $data["hash"] . "\" title=\"This will force move the drive to the &quot;History&quot; section.\" style=\"margin: 0; padding: 0; min-width: 0; width: 20px; height: 20px; background-color: #FFFFFF;\"><i style=\"font-size: 15px;\" class=\"fa fa-minus-circle fa-lg\"/></i></button>
 				</td>
-				<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><select name=\"groups[" . $data["hash"] . "]\" dir=\"rtl\" style=\"min-width: 0; max-width: 150px; min-width: 40px;\"><option value=\"\" selected style=\"text-align: right;\">--</option>" . $group_options . "</select></td>
-				<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><select name=\"drives[" . $data["hash"] . "]\" dir=\"rtl\" style=\"min-width: 0; max-width: 50px; width: 40px;\"><option value=\"\" selected style=\"text-align: right;\">--</option>" . $tray_options . "</select></td>
-				<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: center;\"><input type=\"button\" class=\"diskLocation\" style=\"transform: none;\" onclick=\"locateStart()\" value=\"Locate\" id=\"" . $data["device"] . "\" name=\"" . $data["device"] . "\" /></td>
+				<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><select name=\"groups[" . $data["hash"] . "]\" dir=\"rtl\" style=\"min-width: 0; max-width: 150px; min-width: 40px;\"><option value=\"\" selected style=\"text-align: right;\">--</option>" . $group_options . "</select></td>
+				<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><select name=\"drives[" . $data["hash"] . "]\" dir=\"rtl\" style=\"min-width: 0; max-width: 50px; width: 40px;\"><option value=\"\" selected style=\"text-align: right;\">--</option>" . $tray_options . "</select></td>
+				<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px; text-align: center;\"><input type=\"button\" class=\"diskLocation\" style=\"transform: none;\" onclick=\"locateStart()\" value=\"Locate\" id=\"" . $data["device"] . "\" name=\"" . $data["device"] . "\" /></td>
 		";
 		
 		$columns_trayalloc_out = array(
@@ -205,27 +205,18 @@
 			$warr_input = "<input type=\"date\" name=\"warranty_date[" . $data["hash"] . "]\" max=\"9999-12-31\" value=\"" . $data["warranty_date"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" />";
 		}
 		
-		switch($data["smart_rotation"]) {
-			case -1:
-				$smart_rotation = "SSD";
-				break;
-			case 0:
-				$smart_rotation = "";
-				break;
-			default:
-				$smart_rotation = $data["smart_rotation"] . "rpm";
-		}
+		$smart_rotation = get_smart_rotation($data["smart_rotation"]);
 		
 		$bgcolor = ( empty($data["color"]) ? $bgcolor_empty : $data["color"] );
 		
 		$print_add_drives .= "<tr style=\"background: #" . $color_array[$data["hash"]] . ";\">";
 		$print_add_drives .= "
-				<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: left;\">
+				<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px; text-align: left;\">
 					<button type=\"submit\" name=\"hash_remove\" value=\"" . $data["hash"] . "\" title=\"This will force move the drive to the &quot;History&quot; section.\" style=\"margin: 0; padding: 0; min-width: 0; width: 20px; height: 20px; background-color: #FFFFFF;\"><i style=\"font-size: 15px;\" class=\"fa fa-minus-circle fa-lg\"/></i></button>
 				</td>
-				<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><select name=\"groups[" . $data["hash"] . "]\" dir=\"rtl\" style=\"min-width: 0; max-width: 150px; min-width: 40px;\"><option value=\"\" selected style=\"text-align: right;\">--</option>" . $group_options . "</select></td>
-				<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><select name=\"drives[" . $data["hash"] . "]\" dir=\"rtl\" style=\"min-width: 0; max-width: 50px; width: 40px;\"><option value=\"\" selected style=\"text-align: right;\">--</option>" . $tray_options . "</select></td>
-				<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: center;\"><input type=\"button\" class=\"diskLocation\" style=\"transform: none;\" onclick=\"locateStart()\" value=\"Locate\" id=\"" . $data["device"] . "\" name=\"" . $data["device"] . "\" /></td>
+				<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><select name=\"groups[" . $data["hash"] . "]\" dir=\"rtl\" style=\"min-width: 0; max-width: 150px; min-width: 40px;\"><option value=\"\" selected style=\"text-align: right;\">--</option>" . $group_options . "</select></td>
+				<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><select name=\"drives[" . $data["hash"] . "]\" dir=\"rtl\" style=\"min-width: 0; max-width: 50px; width: 40px;\"><option value=\"\" selected style=\"text-align: right;\">--</option>" . $tray_options . "</select></td>
+				<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px; text-align: center;\"><input type=\"button\" class=\"diskLocation\" style=\"transform: none;\" onclick=\"locateStart()\" value=\"Locate\" id=\"" . $data["device"] . "\" name=\"" . $data["device"] . "\" /></td>
 		";
 		// "device" "devicenode" "luname" "model_family" "model_name" "smart_serial" "smart_capacity" "smart_rotation" "manufactured" "purchased" "warranty_date" "comment"
 		$columns_drives_out = array(
@@ -272,13 +263,13 @@
 	
 	$data = "";
 	
-	list($table_drives_order_user, $table_drives_order_system, $table_drives_order_name, $table_drives_order_forms) = get_table_order($select_db_drives, $sort_db_drives);
+	list($table_drives_order_user, $table_drives_order_system, $table_drives_order_name, $table_drives_order_full, $table_drives_order_forms) = get_table_order($select_db_drives, $sort_db_drives);
 	
 	$arr_length = count($table_drives_order_user);
 	for($i=0;$i<$arr_length;$i++) {
 		$table_drives_order_name_html .= "
 			<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">
-				<b>" . $table_drives_order_name[$i] . "</b>
+				<b style=\"cursor: help;\" title=\"" . $table_drives_order_full[$i] . "\">" . $table_drives_order_name[$i] . "</b>
 				<button type=\"submit\" name=\"sort\" value=\"drives:asc:" . $table_drives_order_user[$i] . "\" style=\"margin: 0; padding: 0; min-width: 0; width: 20px; height: 20px;\" /><i style=\"font-size: 15px;\" class=\"fa fa-solid fa-sort-up\"/></i></button>
 				<button type=\"submit\" name=\"sort\" value=\"drives:desc:" . $table_drives_order_user[$i] . "\" style=\"margin: 0; padding: 0; min-width: 0; width: 20px; height: 20px;\" /><i style=\"font-size: 15px;\" class=\"fa fa-solid fa-sort-down\"/></i></button>
 			</td>
@@ -286,7 +277,7 @@
 	}
 	
 	//$sql = "SELECT * FROM disks WHERE status = 'r' ORDER BY ID DESC;";
-	$sql = "SELECT id,hash,color,warranty," . implode(",", $get_drives_select["sql_select"]) . " FROM disks WHERE status = 'r' ORDER BY " . $get_drives_select["sql_sort"] . " " . $get_drives_select["sql_dir"] . ";";
+	$sql = "SELECT id,hash,smart_logical_block_size,color,warranty," . implode(",", $get_drives_select["sql_select"]) . " FROM disks WHERE status = 'r' ORDER BY " . $get_drives_select["sql_sort"] . " " . $get_drives_select["sql_dir"] . ";";
 	
 	$results = $db->query($sql);
 	$print_removed_drives = "";
@@ -304,19 +295,16 @@
 			$warr_input = "<input type=\"date\" name=\"warranty_date[" . $data["hash"] . "]\" value=\"" . $data["warranty_date"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" />";
 		}
 		
-		switch($data["smart_rotation"]) {
-			case -1:
-				$smart_rotation = "SSD";
-				break;
-			case 0:
-				$smart_rotation = "";
-				break;
-			default:
-				$smart_rotation = $data["smart_rotation"] . "rpm";
-		}
+		$smart_rotation = get_smart_rotation($data["smart_rotation"]);
 		
-		$smart_nvme_data_units_read = ( empty($data["smart_nvme_data_units_read"]) ? null : human_filesize(smart_units_to_bytes($data["smart_nvme_data_units_read"]), 1, true) );
-		$smart_nvme_data_units_written = ( empty($data["smart_nvme_data_units_written"]) ? null : human_filesize(smart_units_to_bytes($data["smart_nvme_data_units_written"]), 1, true) );
+		if($data["smart_rotation"] == -2) {
+			$smart_units_read = ( empty($data["smart_units_read"]) ? null : human_filesize(smart_units_to_bytes($data["smart_units_read"], $data["smart_logical_block_size"], true), 1, true) );
+			$smart_units_written = ( empty($data["smart_units_written"]) ? null : human_filesize(smart_units_to_bytes($data["smart_units_written"], $data["smart_logical_block_size"], true), 1, true) );
+		}
+		else {
+			$smart_units_read = ( empty($data["smart_units_read"]) ? null : human_filesize(smart_units_to_bytes($data["smart_units_read"], $data["smart_logical_block_size"], true, true), 1, true) );
+			$smart_units_written = ( empty($data["smart_units_written"]) ? null : human_filesize(smart_units_to_bytes($data["smart_units_written"], $data["smart_logical_block_size"], true, true), 1, true) );
+		}
 		
 		$warranty_expire = "";
 		$warranty_left = "";
@@ -349,9 +337,14 @@
 			"smart_temperature" => "<td><i>unavailable</i></td>",
 			"smart_powerontime" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><span style=\"cursor: help;\" title=\"" . $smart_powerontime . "\">" . $data["smart_powerontime"] . "</span></td>",
 			"smart_loadcycle" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . ( isset($data["smart_loadcycle"]) ? $data["smart_loadcycle"] : "" ) . "</td>",
+			"smart_reallocated_sector_count" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . ( isset($data["smart_reallocated_sector_count"]) ? $data["smart_reallocated_sector_count"] : "" ) . "</td>",
+			"smart_reported_uncorrectable_errors" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . ( isset($data["smart_reported_uncorrectable_errors"]) ? $data["smart_reported_uncorrectable_errors"] : "" ) . "</td>",
+			"smart_command_timeout" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . ( isset($data["smart_command_timeout"]) ? $data["smart_command_timeout"] : "" ) . "</td>",
+			"smart_current_pending_sector_count" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . ( isset($data["smart_current_pending_sector_count"]) ? $data["smart_current_pending_sector_count"] : "" ) . "</td>",
+			"smart_offline_uncorrectable" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . ( isset($data["smart_offline_uncorrectable"]) ? $data["smart_offline_uncorrectable"] : "" ) . "</td>",
 			"smart_nvme_percentage_used" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . ( is_numeric($data["smart_nvme_percentage_used"]) ? $data["smart_nvme_percentage_used"] . "%" : "" ) . "</td>",
-			"smart_nvme_data_units_read" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $smart_nvme_data_units_read . "</td>",
-			"smart_nvme_data_units_written" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $smart_nvme_data_units_written . "</td>",
+			"smart_units_read" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $smart_units_read . "</td>",
+			"smart_units_written" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $smart_units_written . "</td>",
 			"smart_nvme_available_spare" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . ( is_numeric($data["smart_nvme_available_spare"]) ? $data["smart_nvme_available_spare"] . "%" : "" ) . "</td>",
 			"smart_nvme_available_spare_threshold" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . ( is_numeric($data["smart_nvme_available_spare_threshold"]) ? $data["smart_nvme_available_spare_threshold"] . "%" : "" ) . "</td>",
 			"manufactured" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $data["manufactured"] . "</td>",
@@ -459,10 +452,10 @@
 		</tr>
 	</table>
 	<div><br /><br /></div>
-	<table style="width: 0;">
+	<table style="table-layout: auto; width: 0;">
 		<tr>
 			<td style="vertical-align: top; padding-left: 20px;">
-				<table style="width: 0; border-spacing: 2px; border-collapse: separate;">
+				<table style="table-layout: auto; width: 0; border-spacing: 2px; border-collapse: separate;">
 					<tr>
 						<td style="padding: 10px 10px 0 10px;" colspan="15">
 							<h2>Allocations</h2>
@@ -474,12 +467,12 @@
 						</td>
 					</tr>
 					<tr>
-						<td style="padding: 0 10px 0 10px;"><b>#</b></td>
-						<td style="padding: 0 10px 0 10px;"><b>Group</b></td>
-						<td style="padding: 0 10px 0 10px;"><b>TrayID</b></td>
-						<td style="padding: 0 10px 0 10px;"><b>Locate</b></td>
+						<td style="width: 0; padding: 0 10px 0 10px;"><b>#</b></td>
+						<td style="width: 0; padding: 0 10px 0 10px;"><b>Group</b></td>
+						<td style="width: 0; padding: 0 10px 0 10px;"><b>TrayID</b></td>
+						<td style="width: 0; padding: 0 10px 0 10px;"><b>Locate</b></td>
 						<?php print($table_trayalloc_order_name_html); ?>
-						<td style="padding: 0 10px 0 10px;"><b>Custom Color</b></td>
+						<td style="width: 0; padding: 0 10px 0 10px;"><b>Custom Color</b></td>
 					</tr>
 
 					<?php 
@@ -488,45 +481,46 @@
 							print($print_drives[$i]);
 							$i++;
 						}
-						if(isset($print_add_drives)) {
+						if(!empty($print_add_drives)) {
 							print("
-
-								<tr>
-									<td style=\"padding: 10px 10px 0 10px;\" colspan=\"15\">
-										<h2>Unassigned Devices</h2>
-									</td>
-								</tr>
-								<tr style=\"border: solid 1px #000000;\">
-									<td style=\"white-space: nowrap;padding: 0 10px 0 10px;\"><b>#</b></td>
-									<td style=\"white-space: nowrap;padding: 0 10px 0 10px;\"><b>Group</b></td>
-									<td style=\"white-space: nowrap;padding: 0 10px 0 10px;\"><b>TrayID</b></td>
-									<td style=\"white-space: nowrap;padding: 0 10px 0 10px;\"><b>Locate</b></td>
-									$table_trayalloc_order_name_html
-									<td style=\"white-space: nowrap;padding: 0 10px 0 10px;\"><b>Custom Color</b></td>
-								</tr>
-								$print_add_drives
-								<tr>
-									<td colspan=\"15\">
-										<hr />
-										<input type=\"hidden\" name=\"current_warranty_field\" value=\"<?php echo $warranty_field ?>\" />
-										<input type=\"submit\" name=\"save_allocations\" value=\"Save\" /><!--<input type=\"reset\" value=\"Reset\" />-->
-										<!--<input type=\"submit\" name=\"force_smart_scan\" value=\"Force Scan All\" />-->
-										<span style=\"padding-left: 50px;\"></span>
-										<input type=\"submit\" name=\"reset_all_colors\" value=\"Reset All Custom Colors\" /> <b>or choose \"Empty\" color (first color listed) per device under \"Custom Color\" to reset, and then hit the \"Save\" button.</b>
-										<blockquote class='inline_help'>
-											<ul>
-												<li>\"Save\" button will store all information entered.</li>
-												<li>\"Reset All Custom Colors\" will delete all custome stored colors from the database.</li>
-												<!--<li>\"Reset\" will just revert changes if you changed any values before you saved them, it will not undo the last save.</li>-->
-											</ul>
-										</blockquote>
-									</td>
-								</tr>
+									<tr>
+										<td style=\"padding: 10px 10px 0 10px;\" colspan=\"15\">
+											<h2>Unassigned Devices</h2>
+										</td>
+									</tr>
+									<tr style=\"border: solid 1px #000000;\">
+										<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px;\"><b>#</b></td>
+										<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px;\"><b>Group</b></td>
+										<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px;\"><b>TrayID</b></td>
+										<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px;\"><b>Locate</b></td>
+										$table_trayalloc_order_name_html
+										<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px;\"><b>Custom Color</b></td>
+									</tr>
+									$print_add_drives
 							");
 						}
-						if(isset($print_removed_drives)) {
-							print("
-								
+					?>
+					<tr>
+						<td style="padding: 10px 10px 0 10px;" colspan="15">
+							<hr />
+							<input type="hidden" name="current_warranty_field" value="<?php echo $warranty_field ?>" />
+							<input type="submit" name="save_allocations" value="Save" /><!--<input type="reset" value="Reset" />-->
+							<span style="padding-left: 50px;"></span>
+							<input type="submit" name="reset_all_colors" value="Reset All Custom Colors" /> <b>or choose "Empty" color (first color listed) per device under "Custom Color" to reset, and then hit the "Save" button.</b>
+							<blockquote class='inline_help'>
+								<ul>
+									<li>"Save" button will store all information entered.</li>
+									<li>"Reset All Custom Colors" will delete all custome stored colors from the database.</li>
+									<!--<li>"Reset" will just revert changes if you changed any values before you saved them, it will not undo the last save.</li>-->
+								</ul>
+							</blockquote>
+						</td>
+					</tr>
+				</table>
+				<?php
+					if(isset($print_removed_drives)) {
+						print("
+							<table style=\"table-layout: auto; width: 0; border-spacing: 2px; border-collapse: separate;\">
 								<tr>
 									<td style=\"padding: 10px 10px 0 10px;\" colspan=\"15\">
 										<h2>History</h2>
@@ -537,15 +531,14 @@
 									</td>
 								</tr>
 								<tr style=\"border: solid 1px #000000;\">
-									<td style=\"white-space: nowrap;padding: 0 10px 0 10px;\"><b>#</b></td>
+									<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\"><b>#</b></td>
 									$table_drives_order_name_html
 								</tr>
 								$print_removed_drives
-
-							");
-						}
-					?>
-				</table>
+							</table>
+						");
+					}
+				?>
 				<blockquote class='inline_help'>
 					<dt>Tray allocations</dt>
 					<dd>Select where to assign the drives and the empty trays, be sure to select a unique tray slot number. It will detect failure and none of the new settings will be saved.</dd>

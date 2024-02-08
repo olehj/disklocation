@@ -221,7 +221,6 @@
 				$device = $data["device"];
 				$devicenode = $data["devicenode"];
 				$luname = $data["luname"];
-				$luname_page = "";
 				$hash = $data["hash"];
 				$color_override = $data["color"];
 				$warranty_page = "";
@@ -233,16 +232,21 @@
 				$smart_powerontime = "";
 				$smart_loadcycle = "";
 				$smart_capacity = "";
+				$smart_reallocated_sector_count = "";
+				$smart_reported_uncorrectable_errors = "";
+				$smart_command_timeout = "";
+				$smart_current_pending_sector_count = "";
+				$smart_offline_uncorrectable = "";
 				$device_comment = "";
 				$smart_rotation = "";
 				$smart_formfactor = "";
 				$smart_temperature = 0;
 				$smart_temperature_text = "";
-				$smart_nvme_data_units_read = "";
-				$smart_nvme_data_units_written = "";
+				$smart_units_read = "";
+				$smart_units_written = "";
 				$smart_nvme_percentage_used = "";
-				$smart_nvme_available_spare = "";
-				$smart_nvme_available_spare_threshold = "";
+				$smart_nvme_available_spare = null;
+				$smart_nvme_available_spare_threshold = null;
 				$temp_status = 0;
 				$temp_status_icon = "";
 				$color_status = "";
@@ -281,20 +285,42 @@
 				if(isset($displayinfo["capacity"])) {
 					$smart_capacity = ( !is_numeric($data["smart_capacity"]) ? null : human_filesize($data["smart_capacity"], 1, true) );
 				}
-				if(isset($displayinfo["available_spare"])) {
-					$smart_nvme_available_spare = ( !is_numeric($data["smart_nvme_available_spare"]) ? null : "Spare: " . $data["smart_nvme_available_spare"] . "%" );
+				if(isset($displayinfo["reallocated_sector_count"])) {
+					$smart_reallocated_sector_count = "Reallocated: " . ( isset($data["smart_reallocated_sector_count"]) ? $data["smart_reallocated_sector_count"] : "" );
 				}
-				if(isset($displayinfo["available_spare_threshold"])) {
-					$smart_nvme_available_spare_threshold = ( !is_numeric($data["smart_nvme_available_spare_threshold"]) ? null : "Spare threshold: " . $data["smart_nvme_available_spare_threshold"] . "%" );
+				if(isset($displayinfo["reported_uncorrectable_errors"])) {
+					$smart_reported_uncorrectable_errors = "Reported: " . ( isset($data["smart_reported_uncorrectable_errors"]) ? $data["smart_reported_uncorrectable_errors"] : "" );
+				}
+				if(isset($displayinfo["command_timeout"])) {
+					$smart_command_timeout = "Timeout: " . ( isset($data["smart_command_timeout"]) ? $data["smart_command_timeout"] : "" );
+				}
+				if(isset($displayinfo["current_pending_sector_count"])) {
+					$smart_current_pending_sector_count = "Pending: " . ( isset($data["smart_current_pending_sector_count"]) ? $data["smart_current_pending_sector_count"] : "" );
+				}
+				if(isset($displayinfo["offline_uncorrectable"])) {
+					$smart_offline_uncorrectable = "Offline: " . ( isset($data["smart_offline_uncorrectable"]) ? $data["smart_offline_uncorrectable"] : "" );
 				}
 				if(isset($displayinfo["percentage_used"])) {
 					$smart_nvme_percentage_used = ( !is_numeric($data["smart_nvme_percentage_used"]) ? null : $data["smart_nvme_percentage_used"] . "%" );
 				}
-				if(isset($displayinfo["data_units_read"])) {
-					$smart_nvme_data_units_read = ( !is_numeric($data["smart_nvme_data_units_read"]) ? null : "R:" . human_filesize(smart_units_to_bytes($data["smart_nvme_data_units_read"]), 1, true) . "" );
+				if($data["smart_rotation"] == -2) {
+					if(isset($displayinfo["units_read"])) {
+						$smart_units_read = ( empty($data["smart_units_read"]) ? null : "R:" . human_filesize(smart_units_to_bytes($data["smart_units_read"], $data["smart_logical_block_size"], true), 1, true) );
+					}
+					if(isset($displayinfo["units_written"])) {
+						$smart_units_written = ( empty($data["smart_units_written"]) ? null : "W:" . human_filesize(smart_units_to_bytes($data["smart_units_written"], $data["smart_logical_block_size"], true), 1, true) );
+					}
 				}
-				if(isset($displayinfo["data_units_written"])) {
-					$smart_nvme_data_units_written = ( !is_numeric($data["smart_nvme_data_units_written"]) ? null : "W:" . human_filesize(smart_units_to_bytes($data["smart_nvme_data_units_written"]), 1, true) . "" );
+				else {
+					if(isset($displayinfo["units_read"])) {
+						$smart_units_read = ( empty($data["smart_units_read"]) ? null : "R:" . human_filesize(smart_units_to_bytes($data["smart_units_read"], $data["smart_logical_block_size"], true, true), 1, true) );
+					}
+					if(isset($displayinfo["units_written"])) {
+						$smart_units_written = ( empty($data["smart_units_written"]) ? null : "W:" . human_filesize(smart_units_to_bytes($data["smart_units_written"], $data["smart_logical_block_size"], true, true), 1, true) );
+					}
+				}
+				if(isset($displayinfo["manufactured"])) {
+					$manufactured_page = $data["manufactured"];
 				}
 				if(isset($displayinfo["warranty"]) && ($data["purchased"] && ($data["warranty"] || $data["warranty_date"]))) {
 					$warranty_start = strtotime($data["purchased"]);
@@ -410,7 +436,7 @@
 						break;
 					case 0:
 						$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation red-orb-disklocation'></i><span>S.M.A.R.T: Failed!</span></a>";
-						$smart_status_info = array('orb' => 'fa fa-circle orb-disklocation red-orb-disklocation', 'color' => 'red', 'text' => 'Failed!');
+						$smart_status_info = array('orb' => 'fa fa-circle orb-disklocation red-orb-disklocation', 'color' => 'red', 'text' => 'Failed');
 						//$smart_status_icon = "<span class=\"red-on\" alt=\"S.M.A.R.T: Failed!\" title=\"S.M.A.R.T: Failed!\" />&#11044;</span>";
 						break;
 					default:
@@ -418,6 +444,44 @@
 						$smart_status_info = array('orb' => 'fa fa-circle orb-disklocation grey-orb-disklocation', 'color' => 'grey', 'text' => 'N/A');
 						//$smart_status_icon = "<span class=\"grey-off\" alt=\"S.M.A.R.T: Off/None\" title=\"S.M.A.R.T: Off/None\" />&#11044;</span>";
 				}
+				// Set warning if available spare has reached the threshold and overwrite the smart_status if "PASSED":
+				if($smart_status == 1) {
+					if((is_numeric($data["smart_nvme_available_spare"]) && is_numeric($data["smart_nvme_available_spare_threshold"])) && ($data["smart_nvme_available_spare"] <= $data["smart_nvme_available_spare_threshold"])) { // Available spare is less than or equal to the threshold, set warning:
+						$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation yellow-orb-disklocation'></i><span>S.M.A.R.T: Warning! Available spare has reached or exceeded the threshold.</span></a>";
+						$smart_status_info = array('orb' => 'fa fa-circle orb-disklocation yellow-orb-disklocation', 'color' => 'yellow', 'text' => 'Warning');
+						$smart_status = 2;
+					}
+					if((is_numeric($data["smart_reallocated_sector_count"]) && ($data["smart_reallocated_sector_count"] > $reallocated_sector_w))) {
+						$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation yellow-orb-disklocation'></i><span>S.M.A.R.T: Warning! Reallocated sector count is above " . $reallocated_sector_w . ".</span></a>";
+						$smart_status_info = array('orb' => 'fa fa-circle orb-disklocation yellow-orb-disklocation', 'color' => 'yellow', 'text' => 'Warning');
+						$smart_status = 2;
+					}
+					if((is_numeric($data["smart_reported_uncorrectable_errors"]) && ($data["smart_reported_uncorrectable_errors"] > $reported_uncorr_w))) {
+						$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation yellow-orb-disklocation'></i><span>S.M.A.R.T: Warning! Reported uncorrectable errors is above " . $reported_uncorr_w . ".</span></a>";
+						$smart_status_info = array('orb' => 'fa fa-circle orb-disklocation yellow-orb-disklocation', 'color' => 'yellow', 'text' => 'Warning');
+						$smart_status = 2;
+					}
+					if((is_numeric($data["smart_command_timeout"]) && ($data["smart_command_timeout"] > $command_timeout_w))) {
+						$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation yellow-orb-disklocation'></i><span>S.M.A.R.T: Warning! Command timeout is above " . $command_timeout_w . ".</span></a>";
+						$smart_status_info = array('orb' => 'fa fa-circle orb-disklocation yellow-orb-disklocation', 'color' => 'yellow', 'text' => 'Warning');
+						$smart_status = 2;
+					}
+					if((is_numeric($data["smart_current_pending_sector_count"]) && ($data["smart_current_pending_sector_count"] > $pending_sector_w))) {
+						$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation yellow-orb-disklocation'></i><span>S.M.A.R.T: Warning! Current pending sector count is above " . $pending_sector_w . ".</span></a>";
+						$smart_status_info = array('orb' => 'fa fa-circle orb-disklocation yellow-orb-disklocation', 'color' => 'yellow', 'text' => 'Warning');
+						$smart_status = 2;
+					}
+					if((is_numeric($data["smart_offline_uncorrectable"]) && ($data["smart_offline_uncorrectable"] > $offline_uncorr_w))) {
+						$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation yellow-orb-disklocation'></i><span>S.M.A.R.T: Warning! Offline uncorrectable is above " . $offline_uncorr_w . ".</span></a>";
+						$smart_status_info = array('orb' => 'fa fa-circle orb-disklocation yellow-orb-disklocation', 'color' => 'yellow', 'text' => 'Warning');
+						$smart_status = 2;
+					}
+				}
+				
+				if(isset($displayinfo["available_spare"])) {
+					$smart_nvme_available_spare = ( !is_numeric($data["smart_nvme_available_spare"]) ? null : "Spare: " . $data["smart_nvme_available_spare"] . "% (" . $data["smart_nvme_available_spare_threshold"] . "%)" );
+				}
+				
 				if(!isset($displayinfo["ledsmart"])) {
 					$smart_status_icon = "";
 				}
@@ -524,7 +588,7 @@
 				
 				$add_anim_bg_class = "";
 				$color_array_blinker = "";
-				if(isset($displayinfo["flashwarning"]) && ($temp_status == 2 || $color_status == "yellow")) { // warning
+				if(isset($displayinfo["flashwarning"]) && ($temp_status == 2 || $smart_status == 2 || $color_status == "yellow")) { // warning
 					$color_array_blinker = "blinker-disklocation-yellow-bg";
 					$add_anim_bg_class = "class=\"yellow-blink-disklocation-bg\"";
 				}
@@ -547,35 +611,36 @@
 									$unraid_dev
 									$device_page
 									$devicenode_page
-									<!--$luname_page-->
+									$luname_page
 									$smart_capacity
-									$smart_formfactor
 									$smart_rotation
+									$smart_formfactor
 									$add_break_1
 									
 									$smart_modelfamily
 									$smart_modelname
-									<b>$smart_serialnumber</b>
+									$smart_serialnumber
 									$add_break_2
 									
 									$smart_temperature_text
 									$smart_powerontime
-									$smart_loadcycle
-									$smart_nvme_available_spare
-									$smart_nvme_available_spare_threshold
-									$smart_nvme_percentage_used
-									$smart_nvme_data_units_read
-									$smart_nvme_data_units_written
+									$smart_units_read
+									$smart_units_written
+									
+									" . ( $data["smart_rotation"] == -2 ? $smart_nvme_available_spare : null ) . "
+									" . ( $data["smart_rotation"] == -2 ? $smart_nvme_percentage_used : null ) . "
+									" . ( $data["smart_rotation"] > -2 ? $smart_loadcycle : null ) . "
+									" . ( $data["smart_rotation"] > -2 ? $smart_reallocated_sector_count : null ) . "
+									" . ( $data["smart_rotation"] > -2 ? $smart_reported_uncorrectable_errors : null ) . "
+									" . ( $data["smart_rotation"] > -2 ? $smart_command_timeout : null ) . "
+									" . ( $data["smart_rotation"] > -2 ? $smart_current_pending_sector_count : null ) . "
+									" . ( $data["smart_rotation"] > -2 ? $smart_offline_uncorrectable : null ) . "
+									$manufactured_page
 									$warranty_page
 									$add_break_3
 									
 									$device_comment
 								</div>
-								<!--
-								<div class=\"flex-container-end\">
-									<input type=\"button\" class=\"diskLocation_" . $disk_tray_direction . "\" onclick=\"locateStart()\" value=\"Locate\" id=\"" . $device . "\" name=\"" . $device . "\" />
-								</div>
-								-->
 							</div>
 						</div>
 					</div>
@@ -637,8 +702,8 @@
 					$dashboard_orb = $temp_status_info["orb"];
 					
 				}
-				// SMART=FAIL: show SMART LED
-				if(isset($smart_status) && $smart_status == 0) {
+				// SMART=FAIL/WARN: show SMART LED
+				if(isset($smart_status) && ($smart_status == 0 || $smart_status == 2)) {
 					//$dashboard_led = $smart_status_icon;
 					$dashboard_orb = $smart_status_info["orb"];
 					

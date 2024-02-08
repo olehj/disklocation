@@ -233,16 +233,19 @@
 		$select = preg_replace('/\s+/', '', $select);
 		$sort = preg_replace('/\s+/', '', $sort);
 		$table = array( // Table names:
-			"groupid", "tray", "device", "devicenode", "luname", "model_family", "model_name", "smart_status", "smart_serialnumber", "smart_temperature", "smart_powerontime", "smart_loadcycle", "smart_capacity", "smart_rotation", "smart_formfactor", "smart_nvme_available_spare", "smart_nvme_available_spare_threshold", "smart_nvme_percentage_used", "smart_nvme_data_units_read", "smart_nvme_data_units_written", "manufactured", "purchased", "warranty_date", "comment"
+			"groupid", "tray", "device", "devicenode", "luname", "model_family", "model_name", "smart_status", "smart_serialnumber", "smart_temperature", "smart_powerontime", "smart_loadcycle", "smart_reallocated_sector_count", "smart_reported_uncorrectable_errors", "smart_command_timeout", "smart_current_pending_sector_count", "smart_offline_uncorrectable", "smart_capacity", "smart_rotation", "smart_formfactor", "smart_nvme_available_spare", "smart_nvme_available_spare_threshold", "smart_nvme_percentage_used", "smart_units_read", "smart_units_written", "manufactured", "purchased", "warranty_date", "comment"
 		);
 		$input = array( // User input names - must also match $sort:
-			"group", "tray", "device", "node", "lun", "manufacturer", "model", "status", "serial", "temp", "powerontime", "loadcycle", "capacity", "rotation", "formfactor", "nvme_spare", "nvme_spare_thres", "nvme_used", "nvme_unit_r", "nvme_unit_w", "manufactured", "purchased", "warranty", "comment"
+			"group", "tray", "device", "node", "lun", "manufacturer", "model", "status", "serial", "temp", "powerontime", "loadcycle", "reallocated", "reported", "timeout", "pending", "offline", "capacity", "rotation", "formfactor", "nvme_spare", "nvme_spare_thres", "nvme_used", "read", "written", "manufactured", "purchased", "warranty", "comment"
 		);
 		$nice_names = array(
-			"Group", "Tray", "Path", "Node", "Logic Unit Name", "Manufacturer", "Device Model", "SMART", "Serial Number", "Temperature", "Power On", "Cycles", "Capacity", "Rotation", "Size", "Spare", "Spare Threshold", "Used", "Read", "Written", "Manufactured", "Purchased", "Warranty", "Comment"
+			"Group", "Tray", "Path", "Node", "LUN", "Manufacturer", "Device Model", "SMART", "S/N", "Temperature", "Powered", "Cycles", "Reallocated", "Reported", "Timeout", "Pending", "Offline", "Capacity", "Rotation", "FF", "Spare", "Spare Threshold", "Used", "Read", "Written", "Manufactured", "Purchased", "Warranty", "Comment"
+		);
+		$full_names = array(
+			"Group", "Tray", "Path", "Node", "Logic Unit Number", "Manufacturer", "Device Model", "SMART", "Serial Number", "Temperature", "Power On Time", "Load Cycle Count", "Reallocated Sector Count", "Reported Uncorrectable Errors", "Command Timeout", "Current Pending Sector Count", "Offline Uncorrectable", "Capacity", "Rotation", "Form Factor", "Available Spare", "Available Spare Threshold", "Percentage Used", "Data Units Read", "Data Units Written", "Manufactured Date", "Purchased Date", "Warranty Date", "Comment"
 		);
 		$input_form = array(
-			1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1
+			1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1
 		);
 		
 		if($select == "all") {
@@ -253,6 +256,7 @@
 		$table_sql = array_combine($table, $input);
 		$table_user = array_combine($input, $table);
 		$table_names = array_combine($nice_names, $input);
+		$table_full = array_combine($full_names, $input);
 		$table_forms = array_combine($input, $input_form);
 		if($return >= 2 && !empty($test)) {
 			$allowed_inputs = explode(",", $test);
@@ -265,6 +269,7 @@
 		
 		$return_table = array();
 		$return_names = array();
+		$return_full = array();
 		$return_forms = array();
 		$return_allow_colm = array();
 		$return_allow_sort = array();
@@ -274,6 +279,7 @@
 			for($i=0;$i<$arr_length;$i++) {
 				$return_table[$i] = array_search($select[$i], $table_sql);
 				$return_names[$i] = array_search($select[$i], $table_names);
+				$return_full[$i] = array_search($select[$i], $table_full);
 				$return_forms[$i] = $table_forms[$select[$i]];
 				if($return == 2 && !empty($test)) {
 					if($table_allowed[$select[$i]] == 0) {
@@ -312,7 +318,7 @@
 		
 		switch($return) {
 			case 0:
-				return [$select, $return_table, $return_names, $return_forms]; // user, column, gui, forms
+				return [$select, $return_table, $return_names, $return_full, $return_forms]; // user, column, gui, fulltext(hover), forms
 				break;
 			case 1:
 				return array(
@@ -389,7 +395,7 @@
 		return ( isset($data[0]) ? $data[0] : 0 );
 	}
 	
-	function human_filesize($bytes, $decimals = 2, $unit = '') {
+	function human_filesize($bytes, $decimals = 2, $unit = false) {
 		if($bytes) {
 			if(!$unit) {
 				$size = array('iB','kiB','MiB','GiB','TiB','PiB','EiB','ZiB','YiB');
@@ -408,8 +414,18 @@
 		}
 	}
 	
-	function smart_units_to_bytes($units) {
-		return $units * 512 * 1024;
+	function smart_units_to_bytes($units, $block, $unit = false, $lba = false) {
+		if($lba) {
+			return $units * $block;
+		}
+		else {
+			if(!$unit) {
+				return $units * $block * 1024;
+			}
+			else {
+				return $units * $block * 1000;
+			}
+		}
 	}
 	
 	function temperature_conv($float, $input, $output) {
@@ -1024,7 +1040,10 @@
 				$smart_rotation = "SSD";
 				break;
 			case 0:
-				$smart_rotation = "";
+				$smart_rotation = "N/A";
+				break;
+			case null:
+				$smart_rotation = "N/A";
 				break;
 			default:
 				$smart_rotation = $input . " RPM";

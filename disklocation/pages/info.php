@@ -27,7 +27,7 @@
 	}
 	else {
 		//$sql = "SELECT * FROM disks JOIN location ON disks.hash=location.hash WHERE status IS NULL ORDER BY groupid,tray ASC;";
-		$sql = "SELECT disks.id,location.id,disks.hash,location.hash,color,warranty," . implode(",", $get_info_select["sql_select"]) . " FROM disks JOIN location ON disks.hash=location.hash WHERE status IS NULL ORDER BY " . $get_info_select["sql_sort"] . " " . $get_info_select["sql_dir"] . ";";
+		$sql = "SELECT disks.id,location.id,disks.hash,location.hash,smart_logical_block_size,color,warranty," . implode(",", $get_info_select["sql_select"]) . " FROM disks JOIN location ON disks.hash=location.hash WHERE status IS NULL ORDER BY " . $get_info_select["sql_sort"] . " " . $get_info_select["sql_dir"] . ";";
 	}
 	
 	$i=1;
@@ -37,13 +37,13 @@
 	$print_drives = array();
 	$datasql = array();
 	
-	list($table_info_order_user, $table_info_order_system, $table_info_order_name, $table_info_order_forms) = get_table_order($select_db_info, $sort_db_info);
+	list($table_info_order_user, $table_info_order_system, $table_info_order_name, $table_info_order_full, $table_info_order_forms) = get_table_order($select_db_info, $sort_db_info);
 	
 	$arr_length = count($table_info_order_user);
 	for($i=0;$i<$arr_length;$i++) {
 		$table_info_order_name_html .= "
 		<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">
-			<b>" . $table_info_order_name[$i] . "</b>
+			<b style=\"cursor: help;\" title=\"" . $table_info_order_full[$i] . "\">" . $table_info_order_name[$i] . "</b>
 			<button type=\"submit\" name=\"sort\" value=\"info:asc:" . $table_info_order_user[$i] . "\" style=\"margin: 0; padding: 0; min-width: 0; width: 20px; height: 20px;\" /><i style=\"font-size: 15px;\" class=\"fa fa-solid fa-sort-up\"/></i></button>
 			<button type=\"submit\" name=\"sort\" value=\"info:desc:" . $table_info_order_user[$i] . "\" style=\"margin: 0; padding: 0; min-width: 0; width: 20px; height: 20px;\" /><i style=\"font-size: 15px;\" class=\"fa fa-solid fa-sort-down\"/></i></button>
 		</td>";
@@ -106,8 +106,14 @@
 		
 		$smart_rotation = get_smart_rotation($data["smart_rotation"]);
 		
-		$smart_nvme_data_units_read = ( empty($data["smart_nvme_data_units_read"]) ? null : human_filesize(smart_units_to_bytes($data["smart_nvme_data_units_read"]), 1, true) );
-		$smart_nvme_data_units_written = ( empty($data["smart_nvme_data_units_written"]) ? null : human_filesize(smart_units_to_bytes($data["smart_nvme_data_units_written"]), 1, true) );
+		if($data["smart_rotation"] == -2) {
+			$smart_units_read = ( empty($data["smart_units_read"]) ? null : human_filesize(smart_units_to_bytes($data["smart_units_read"], $data["smart_logical_block_size"], true), 1, true) );
+			$smart_units_written = ( empty($data["smart_units_written"]) ? null : human_filesize(smart_units_to_bytes($data["smart_units_written"], $data["smart_logical_block_size"], true), 1, true) );
+		}
+		else {
+			$smart_units_read = ( empty($data["smart_units_read"]) ? null : human_filesize(smart_units_to_bytes($data["smart_units_read"], $data["smart_logical_block_size"], true, true), 1, true) );
+			$smart_units_written = ( empty($data["smart_units_written"]) ? null : human_filesize(smart_units_to_bytes($data["smart_units_written"], $data["smart_logical_block_size"], true, true), 1, true) );
+		}
 		
 		$date_warranty = "";
 		$warranty_expire = "";
@@ -176,9 +182,14 @@
 			"smart_temperature" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: left;\">" . $smart_temperature . " (" . $smart_temperature_warning . "/" . $smart_temperature_critical . ")</td>",
 			"smart_powerontime" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><span style=\"cursor: help;\" title=\"" . $smart_powerontime . "\">" . $data["smart_powerontime"] . "</span></td>",
 			"smart_loadcycle" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . ( isset($data["smart_loadcycle"]) ? $data["smart_loadcycle"] : "" ) . "</td>",
+			"smart_reallocated_sector_count" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . ( isset($data["smart_reallocated_sector_count"]) ? $data["smart_reallocated_sector_count"] : "" ) . "</td>",
+			"smart_reported_uncorrectable_errors" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . ( isset($data["smart_reported_uncorrectable_errors"]) ? $data["smart_reported_uncorrectable_errors"] : "" ) . "</td>",
+			"smart_command_timeout" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . ( isset($data["smart_command_timeout"]) ? $data["smart_command_timeout"] : "" ) . "</td>",
+			"smart_current_pending_sector_count" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . ( isset($data["smart_current_pending_sector_count"]) ? $data["smart_current_pending_sector_count"] : "" ) . "</td>",
+			"smart_offline_uncorrectable" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . ( isset($data["smart_offline_uncorrectable"]) ? $data["smart_offline_uncorrectable"] : "" ) . "</td>",
 			"smart_nvme_percentage_used" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . ( is_numeric($data["smart_nvme_percentage_used"]) ? $data["smart_nvme_percentage_used"] . "%" : "" ) . "</td>",
-			"smart_nvme_data_units_read" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $smart_nvme_data_units_read . "</td>",
-			"smart_nvme_data_units_written" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $smart_nvme_data_units_written . "</td>",
+			"smart_units_read" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $smart_units_read . "</td>",
+			"smart_units_written" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $smart_units_written . "</td>",
 			"smart_nvme_available_spare" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . ( is_numeric($data["smart_nvme_available_spare"]) ? $data["smart_nvme_available_spare"] . "%" : "" ) . "</td>",
 			"smart_nvme_available_spare_threshold" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . ( is_numeric($data["smart_nvme_available_spare_threshold"]) ? $data["smart_nvme_available_spare_threshold"] . "%" : "" ) . "</td>",
 			"manufactured" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $data["manufactured"] . "</td>",
@@ -241,4 +252,7 @@
 <p>
 	<input type="submit" name="download_csv" value="Download TSV" />
 </p>
+<blockquote class='inline_help'>
+	<p>Download a TSV file based upon the selection and ordering of the Information table above. If you're using HTML in the comment section, it will include HTML code if inserted and will not parse it anyhow. TSV is the same as CSV, but the extension for TAB delimited instead of COMMA.</p>
+</blockquote>
 </form>

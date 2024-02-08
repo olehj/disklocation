@@ -29,7 +29,7 @@
 		}
 		else {
 			//$sql = "SELECT * FROM disks JOIN location ON disks.hash=location.hash WHERE status IS NULL ORDER BY groupid,tray ASC;";
-			$sql = "SELECT disks.id,location.id,disks.hash,location.hash,color,warranty," . implode(",", $get_info_select["sql_select"]) . " FROM disks JOIN location ON disks.hash=location.hash WHERE status IS NULL ORDER BY " . $get_info_select["sql_sort"] . " " . $get_info_select["sql_dir"] . ";";
+			$sql = "SELECT disks.id,location.id,disks.hash,location.hash,smart_logical_block_size,color,warranty," . implode(",", $get_info_select["sql_select"]) . " FROM disks JOIN location ON disks.hash=location.hash WHERE status IS NULL ORDER BY " . $get_info_select["sql_sort"] . " " . $get_info_select["sql_dir"] . ";";
 		}
 		
 		$i=1;
@@ -39,7 +39,7 @@
 		$print_csv = array();
 		$datasql = array();
 		
-		list($table_info_order_user, $table_info_order_system, $table_info_order_name, $table_info_order_forms) = get_table_order($select_db_info, $sort_db_info);
+		list($table_info_order_user, $table_info_order_system, $table_info_order_name, $table_info_order_full ,$table_info_order_forms) = get_table_order($select_db_info, $sort_db_info);
 		
 		$arr_length = count($table_info_order_user);
 		for($i=0;$i<$arr_length;$i++) {
@@ -102,9 +102,15 @@
 			
 			$smart_rotation = get_smart_rotation($data["smart_rotation"]);
 			
-			$smart_nvme_data_units_read = ( empty($data["smart_nvme_data_units_read"]) ? null : human_filesize(smart_units_to_bytes($data["smart_nvme_data_units_read"]), 1, true) );
-			$smart_nvme_data_units_written = ( empty($data["smart_nvme_data_units_written"]) ? null : human_filesize(smart_units_to_bytes($data["smart_nvme_data_units_written"]), 1, true) );
-			
+			if($data["smart_rotation"] == -2) {
+				$smart_units_read = ( empty($data["smart_units_read"]) ? null : human_filesize(smart_units_to_bytes($data["smart_units_read"], $data["smart_logical_block_size"], true), 1, true) );
+				$smart_units_written = ( empty($data["smart_units_written"]) ? null : human_filesize(smart_units_to_bytes($data["smart_units_written"], $data["smart_logical_block_size"], true), 1, true) );
+			}
+			else {
+				$smart_units_read = ( empty($data["smart_units_read"]) ? null : human_filesize(smart_units_to_bytes($data["smart_units_read"], $data["smart_logical_block_size"], true, true), 1, true) );
+				$smart_units_written = ( empty($data["smart_units_written"]) ? null : human_filesize(smart_units_to_bytes($data["smart_units_written"], $data["smart_logical_block_size"], true, true), 1, true) );
+			}
+		
 			$date_warranty = "";
 			$warranty_expire = "";
 			$warranty_left = "";
@@ -166,9 +172,14 @@
 				"smart_temperature" => $smart_temperature . "/" . $smart_temperature_warning . "/" . $smart_temperature_critical,
 				"smart_powerontime" => $data["smart_powerontime"],
 				"smart_loadcycle" => ( isset($data["smart_loadcycle"]) ? $data["smart_loadcycle"] : "N/A" ),
+				"smart_reallocated_sector_count" => ( isset($data["smart_reallocated_sector_count"]) ? $data["smart_reallocated_sector_count"] : "" ),
+				"smart_reported_uncorrectable_errors" => ( isset($data["smart_reported_uncorrectable_errors"]) ? $data["smart_reported_uncorrectable_errors"] : "" ),
+				"smart_command_timeout" => ( isset($data["smart_command_timeout"]) ? $data["smart_command_timeout"] : "" ),
+				"smart_current_pending_sector_count" => ( isset($data["smart_current_pending_sector_count"]) ? $data["smart_current_pending_sector_count"] : "" ),
+				"smart_offline_uncorrectable" => ( isset($data["smart_offline_uncorrectable"]) ? $data["smart_offline_uncorrectable"] : "" ),
 				"smart_nvme_percentage_used" => ( is_numeric($data["smart_nvme_percentage_used"]) ? $data["smart_nvme_percentage_used"] . "%" : "N/A" ),
-				"smart_nvme_data_units_read" => $smart_nvme_data_units_read,
-				"smart_nvme_data_units_written" => $smart_nvme_data_units_written,
+				"smart_units_read" => $smart_units_read,
+				"smart_units_written" => $smart_units_written,
 				"smart_nvme_available_spare" => ( is_numeric($data["smart_nvme_available_spare"]) ? $data["smart_nvme_available_spare"] . "%" : "N/A" ),
 				"smart_nvme_available_spare_threshold" => ( is_numeric($data["smart_nvme_available_spare_threshold"]) ? $data["smart_nvme_available_spare_threshold"] . "%" : "N/A" ),
 				"manufactured" => $data["manufactured"],
