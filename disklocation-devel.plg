@@ -195,7 +195,7 @@ EOL
       mv &pluginLOC;/disklocation_db_v0.sqlite.tar.bz2 &pluginLOC;/backup/
       tar jxf &pluginLOC;/backup/disklocation_db_v0.sqlite.tar.bz2
       mkdir &pluginLOC;/backup/20190130-000000
-      mv &pluginLOC;/backup/boot/config/plugins/disklocation/disklocation.sqlite &pluginLOC;/backup/20190130-000000/
+      mv &pluginLOC;/boot/config/plugins/disklocation/disklocation.sqlite &pluginLOC;/backup/20190130-000000/
       gzip -N -9 &pluginLOC;/backup/20190130-000000/disklocation.sqlite
       rm &pluginLOC;/backup/disklocation_db_v0.sqlite.tar.bz2
       logit "Made backup of database (&pluginLOC;/backup/20190130-000000/disklocation.sqlite.gz)"
@@ -204,7 +204,7 @@ EOL
       mv &pluginLOC;/disklocation_db_v1.sqlite.tar.bz2 &pluginLOC;/backup/
       tar jxf &pluginLOC;/backup/disklocation_db_v1.sqlite.tar.bz2
       mkdir &pluginLOC;/backup/20190203-000000
-      mv &pluginLOC;/backup/boot/config/plugins/disklocation/disklocation.sqlite &pluginLOC;/backup/20190203-000000/
+      mv &pluginLOC;/boot/config/plugins/disklocation/disklocation.sqlite &pluginLOC;/backup/20190203-000000/
       gzip -N -9 &pluginLOC;/backup/20190203-000000/disklocation.sqlite
       rm &pluginLOC;/backup/disklocation_db_v1.sqlite.tar.bz2
       logit "Made backup of database (&pluginLOC;/backup/20190203-000000/disklocation.sqlite.gz)"
@@ -213,7 +213,7 @@ EOL
       mv &pluginLOC;/disklocation_db_v2.sqlite.tar.bz2 &pluginLOC;/backup/
       tar jxf &pluginLOC;/backup/disklocation_db_v2.sqlite.tar.bz2
       mkdir &pluginLOC;/backup/20190619-000000
-      mv &pluginLOC;/backup/boot/config/plugins/disklocation/disklocation.sqlite &pluginLOC;/backup/20190619-000000/
+      mv &pluginLOC;/boot/config/plugins/disklocation/disklocation.sqlite &pluginLOC;/backup/20190619-000000/
       gzip -N -9 &pluginLOC;/backup/20190619-000000/disklocation.sqlite
       rm &pluginLOC;/backup/disklocation_db_v2.sqlite.tar.bz2
       logit "Made backup of database (&pluginLOC;/backup/20190619-000000/disklocation.sqlite.gz)"
@@ -222,7 +222,7 @@ EOL
       mv &pluginLOC;/disklocation_db_v3.sqlite.tar.bz2 &pluginLOC;/backup/
       tar jxf &pluginLOC;/backup/disklocation_db_v3.sqlite.tar.bz2
       mkdir &pluginLOC;/backup/20190628-000000
-      mv &pluginLOC;/backup/boot/config/plugins/disklocation/disklocation.sqlite &pluginLOC;/backup/20190628-000000/
+      mv &pluginLOC;/boot/config/plugins/disklocation/disklocation.sqlite &pluginLOC;/backup/20190628-000000/
       gzip -N -9 &pluginLOC;/backup/20190628-000000/disklocation.sqlite
       rm &pluginLOC;/backup/disklocation_db_v3.sqlite.tar.bz2
       logit "Made backup of database (&pluginLOC;/backup/20190628-000000/disklocation.sqlite.gz)"
@@ -231,7 +231,7 @@ EOL
       mv &pluginLOC;/disklocation_db_v4.sqlite.tar.bz2 &pluginLOC;/backup/
       tar jxf &pluginLOC;/backup/disklocation_db_v4.sqlite.tar.bz2
       mkdir &pluginLOC;/backup/20200222-000000
-      mv &pluginLOC;/backup/boot/config/plugins/disklocation/disklocation.sqlite &pluginLOC;/backup/20200222-000000/
+      mv &pluginLOC;/boot/config/plugins/disklocation/disklocation.sqlite &pluginLOC;/backup/20200222-000000/
       gzip -N -9 &pluginLOC;/backup/20200222-000000/disklocation.sqlite
       rm &pluginLOC;/backup/disklocation_db_v4.sqlite.tar.bz2
       logit "Made backup of database (&pluginLOC;/backup/20200222-000000/disklocation.sqlite.gz)"
@@ -240,7 +240,7 @@ EOL
       mv &pluginLOC;/disklocation_db_v5.sqlite.tar.bz2 &pluginLOC;/backup/
       tar jxf &pluginLOC;/backup/disklocation_db_v5.sqlite.tar.bz2
       mkdir &pluginLOC;/backup/20200304-000000
-      mv &pluginLOC;/backup/boot/config/plugins/disklocation/disklocation.sqlite &pluginLOC;/backup/20200304-000000/
+      mv &pluginLOC;/boot/config/plugins/disklocation/disklocation.sqlite &pluginLOC;/backup/20200304-000000/
       gzip -N -9 &pluginLOC;/backup/20200304-000000/disklocation.sqlite
       rm &pluginLOC;/backup/disklocation_db_v5.sqlite.tar.bz2
       logit "Made backup of database (&pluginLOC;/backup/20200304-000000/disklocation.sqlite.gz)"
@@ -249,7 +249,7 @@ EOL
       mv &pluginLOC;/disklocation_db_v6.sqlite.tar.bz2 &pluginLOC;/backup/
       tar jxf &pluginLOC;/backup/disklocation_db_v6.sqlite.tar.bz2
       mkdir &pluginLOC;/backup/20200908-000000
-      mv &pluginLOC;/backup/boot/config/plugins/disklocation/disklocation.sqlite &pluginLOC;/backup/20200908-000000/
+      mv &pluginLOC;/boot/config/plugins/disklocation/disklocation.sqlite &pluginLOC;/backup/20200908-000000/
       gzip -N -9 &pluginLOC;/backup/20200908-000000/disklocation.sqlite
       rm &pluginLOC;/backup/disklocation_db_v6.sqlite.tar.bz2
       logit "Made backup of database (&pluginLOC;/backup/20200908-000000/disklocation.sqlite.gz)"
@@ -258,13 +258,13 @@ EOL
       mv &pluginLOC;/disklocation_db_v7.sqlite.tar.bz2 &pluginLOC;/backup/
       tar jxf &pluginLOC;/backup/disklocation_db_v7.sqlite.tar.bz2
       mkdir &pluginLOC;/backup/20230913-000000
-      mv &pluginLOC;/backup/boot/config/plugins/disklocation/disklocation.sqlite &pluginLOC;/backup/20230913-000000/
+      mv &pluginLOC;/boot/config/plugins/disklocation/disklocation.sqlite &pluginLOC;/backup/20230913-000000/
       gzip -N -9 &pluginLOC;/backup/20230913-000000/disklocation.sqlite
       rm &pluginLOC;/backup/disklocation_db_v7.sqlite.tar.bz2
       logit "Made backup of database (&pluginLOC;/backup/20230913-000000/disklocation.sqlite.gz)"
     fi
     
-    rm -rf &pluginLOC;/backup/boot/config/plugins/disklocation
+    rm -rf &pluginLOC;/boot/config/plugins/disklocation
     rm &pluginLOC;/disklocation_db_v*.sqlite.tar.bz2
     logit "Deleted old backup files after archiving them in a new place."
   fi
