@@ -87,8 +87,8 @@ Title="Devices"
 	<dt>The tray lights</dt>
 	<dd>Hover your cursor above the lights to display a tooltip to see what's going on. The color and if it flashes will indicate various scenarios. Ex:</dd>
 	<ul>
-		<li><b>Upper LED</b> indicates the validity set by Unraid array and the current activity, like active/idle (green) or standby (green blink).</li>
-		<li><b>Middle LED</b> indicates the SMART check, failed (red) or passed (green).</li>
+		<li><b>Upper LED</b> indicates the validity set by Unraid or ZFS array and the current activity, like active/idle (green) or standby (green blink).</li>
+		<li><b>Middle LED</b> indicates the SMART check, failed (red), warning (yellow), passed (green).</li>
 		<li><b>Lower LED</b> indicates the temperature, critical (red), warning (orange) or OK (green).</li>
 	</ul>
 	<br /><br />
