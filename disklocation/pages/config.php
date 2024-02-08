@@ -39,7 +39,14 @@
 	$sql = "SELECT * FROM settings_group ORDER BY id ASC";
 	$results = $db->query($sql);
 	
+	$group_ids = array();
+	$last_group_id = 0;
 	$disk_layouts_config = "";
+	$count_groups = 0;
+	
+	while($data = $results->fetchArray(1)) {
+		$group_ids[] = $data["id"];
+	}
 	
 	while($data = $results->fetchArray(1)) {
 		extract($data);
@@ -53,8 +60,18 @@
 		
 		$tray_direction = ( empty($tray_direction) ? 1 : $tray_direction);
 		
+		if($count_groups > 0) {
+			$disk_layouts_config .= "
+				<td style=\"max-width: 80px; vertical-align: middle; position: relative; top: -10px;\">
+					<form action=\"" . DISKLOCATION_PATH . "/pages/system.php\" method=\"post\">
+						<button type=\"submit\" name=\"group_swap\" title=\"Swap groups\" value=\"" . $group_ids[($count_groups-1)] . ":" . $gid . "\" style=\"background-size: 0;\"><i style=\"font-size: 500%;\" class=\"fa fa-exchange fa-lg\"></i></button>
+					</form>
+				</td>
+			";
+		}
+		
 		$disk_layouts_config .= "
-			<td style=\"min-width: 240px; vertical-align: top; border-left: 1px solid black;\">
+			<td style=\"min-width: 240px; vertical-align: top;\">
 				<form action=\"\" method=\"post\">
 					<p>
 						<b>Name:</b><br />
@@ -137,6 +154,8 @@
 				</form>
 			</td>
 		";
+		$last_group_id = $gid;
+		$count_groups++;
 	}
 	
 	$smart_updates_file = cronjob_current();
@@ -282,6 +301,14 @@ $(document).ready(function(){
 				<blockquote class='inline_help'>
 					Serial number will be cut either the first or last part of this value, 0 does nothing. Negative number will display X last characters, positive the X first characters.
 					The sort function will still sort after the actual serial number, and not the shortened ones.
+					<br />
+				</blockquote>
+				<p>
+					<b>User styles for serial numbers:</b><br />
+					<input type="text" maxlenght="1000" name="css_serial_number_highlight" value="<?php print($css_serial_number_highlight); ?>" style="width: 250px;" />
+				</p>
+				<blockquote class='inline_help'>
+					Styles for serial number, pure CSS expected.
 					<br />
 				</blockquote>
 			</td>
@@ -567,11 +594,11 @@ $(document).ready(function(){
 		<td style="padding-left: 20px;">
 			<table style="width: 0;">
 				<tr>
-					<td>
+					<td style="vertical-align: middle;">
 						<form action="<?php echo DISKLOCATION_PATH ?>/pages/system.php" method="post">
 							<input type="hidden" name="last_group_id" value="<?php echo $last_group_id ?>" />
 							<button type="submit" name="group_add" title="Add a new group" style="background-size: 0;"><i style="font-size: 600%;" class="fa fa-plus-circle fa-lg"></i></button><br />
-							<?php if($total_groups > 1) { print("<button type=\"submit\" name=\"group_del\" title=\"Remove last group\" style=\"background-size: 0;\"><i style=\"font-size: 600%;\" class=\"fa fa-minus-circle fa-lg\"></i></button>"); } ?>
+							<?php if($total_groups > 1) { print("<button type=\"submit\" name=\"group_del\" title=\"Remove last group\" style=\"background-size: 0;\"><i style=\"font-size: 600%;\" class=\"fa fa-trash fa-lg\"></i></button>"); } ?>
 						</form>
 					</td>
 				</tr>

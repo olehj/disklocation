@@ -110,6 +110,8 @@
 	$select_db_drives_default = $select_db_drives;
 	$sort_db_drives_default = $sort_db_drives;
 	
+	$css_serial_number_highlight_default = $css_serial_number_highlight;
+	
 	$bgcolor_parity_default = $bgcolor_parity;
 	$bgcolor_unraid_default = $bgcolor_unraid;
 	$bgcolor_cache_default = $bgcolor_cache;

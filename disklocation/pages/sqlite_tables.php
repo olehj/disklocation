@@ -23,25 +23,26 @@
 	$current_db_ver = 9;
 
 //	Common settings
-//	Variable name		Default value	Description
+//	Variable name		Default value			Description
 //	--------------------------------------------------------------------------------
-	$smart_exec_delay =		'200';		// set milliseconds for next execution for SMART shell_exec - needed to actually grab all the information for unassigned devices. Default: 200
-	$smart_updates =		'disabled';	// set how often to update the cronjob [hourly|daily|weekly|monthly|disabled]
-	$bgcolor_parity =		'ca3f33';	// background color for Unraid parity disks / critical temp
-	$bgcolor_unraid =		'ca7233';	// background color for Unraid data disks / warning temp // old default: ef6441
-	$bgcolor_cache =		'cabd33';	// background color for Unraid cache disks / normal temp // old default: ff884c
-	$bgcolor_others =		'3398ca';	// background color for unassigned/other disks / unknown temp // old default: 41b5ef
-	$bgcolor_empty =		'7c7c7c';	// background color for empty trays // old default: aaaaaa
-	$tray_reduction_factor =	'10';		// set the scale divider for the mini tray layout
-	$warranty_field =		'u';		// choose [u]nraid's way of entering warranty date (12/24/36... months) or enter [m]anual ISO dates.
-	$dashboard_widget =		'1';		// choose background for the drives, Drive Type (0) or Heat Map (1)
-	$dashboard_widget_pos = 	'0';		// make serial number friendlier, substr() value -99 - 99.
-	$reallocated_sector_w =		'100';		// SMART warnings (RAW)
-	$reported_uncorr_w =		'1';		// -
-	$command_timeout_w =		'5';		// -
-	$pending_sector_w =		'1';		// -
-	$offline_uncorr_w =		'1';		// -
-	$displayinfo =	json_encode(array(		// this will store an json_encoded array of display settings for the "Device" page.
+	$smart_exec_delay =		'200';			// set milliseconds for next execution for SMART shell_exec - needed to actually grab all the information for unassigned devices. Default: 200
+	$smart_updates =		'disabled';		// set how often to update the cronjob [hourly|daily|weekly|monthly|disabled]
+	$bgcolor_parity =		'ca3f33';		// background color for Unraid parity disks / critical temp
+	$bgcolor_unraid =		'ca7233';		// background color for Unraid data disks / warning temp // old default: ef6441
+	$bgcolor_cache =		'cabd33';		// background color for Unraid cache disks / normal temp // old default: ff884c
+	$bgcolor_others =		'3398ca';		// background color for unassigned/other disks / unknown temp // old default: 41b5ef
+	$bgcolor_empty =		'7c7c7c';		// background color for empty trays // old default: aaaaaa
+	$tray_reduction_factor =	'10';			// set the scale divider for the mini tray layout
+	$warranty_field =		'u';			// choose [u]nraid's way of entering warranty date (12/24/36... months) or enter [m]anual ISO dates.
+	$dashboard_widget =		'1';			// choose background for the drives, Drive Type (0) or Heat Map (1)
+	$dashboard_widget_pos = 	'0';			// make serial number friendlier, substr() value -99 - 99.
+	$reallocated_sector_w =		'100';			// SMART warnings (RAW)
+	$reported_uncorr_w =		'1';			// -
+	$command_timeout_w =		'5';			// -
+	$pending_sector_w =		'1';			// -
+	$offline_uncorr_w =		'1';			// -
+	$css_serial_number_highlight =	'font-weight: bold;';	// user styles for serial number
+	$displayinfo =	json_encode(array(			// this will store an json_encoded array of display settings for the "Device" page.
 		'tray' => 1,
 		'leddiskop' => 1,
 		'ledsmart' => 1,
@@ -206,6 +207,7 @@
 		command_timeout_w INT NOT NULL DEFAULT '$command_timeout_w',
 		pending_sector_w INT NOT NULL DEFAULT '$pending_sector_w',
 		offline_uncorr_w INT NOT NULL DEFAULT '$offline_uncorr_w',
+		css_serial_number_highlight VARCHAR(1023) NOT NULL DEFAULT '$css_serial_number_highlight',
 		displayinfo VARCHAR(1023),
 		select_db_info VARCHAR(1023) NOT NULL DEFAULT '$select_db_info',
 		sort_db_info VARCHAR(1023) NOT NULL DEFAULT '$sort_db_info',
@@ -234,6 +236,7 @@
 		command_timeout_w,
 		pending_sector_w,
 		offline_uncorr_w,
+		css_serial_number_highlight,
 		displayinfo,
 		select_db_info,
 		sort_db_info,
@@ -295,6 +298,8 @@
 		smart_nvme_available_spare,
 		smart_nvme_available_spare_threshold,
 		smart_nvme_percentage_used,
+		smart_units_read,
+		smart_units_written,
 		status,
 		purchased,
 		warranty,
@@ -942,6 +947,8 @@
 				
 				ALTER TABLE settings RENAME TO old_settings;
 				ALTER TABLE disks RENAME TO old_disks;
+				ALTER TABLE old_disks RENAME COLUMN smart_nvme_data_units_read TO smart_units_read;
+				ALTER TABLE old_disks RENAME COLUMN smart_nvme_data_units_written TO smart_units_written;
 				
 				CREATE TABLE settings($sql_create_settings);
 				CREATE TABLE disks($sql_create_disks);

@@ -84,10 +84,10 @@
 		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
 		exit;
 	}
-	if(isset($_POST["group_del"])) {
+	if(isset($_POST["group_del"]) && isset($_POST["last_group_id"])) {
 		$sql = "
-			DELETE FROM settings_group WHERE id = (SELECT MAX(id) FROM settings_group);
-			DELETE FROM location WHERE groupid = '" . SQLite3::escapeString($_POST["last_group_id"]) . "';
+			DELETE FROM settings_group WHERE id = '" . $_POST["last_group_id"] . "';
+			DELETE FROM location WHERE groupid = '" . $_POST["last_group_id"] . "';
 		";
 		
 		$ret = $db->exec($sql);
@@ -97,8 +97,35 @@
 		
 		$db->close();
 		
-		//header("Location: " . DISKLOCATION_URL);
-		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
+		header("Location: " . DISKLOCATION_URL);
+		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
+		exit;
+	}
+	if(isset($_POST["group_swap"])) {
+		list($group_left, $group_right) = explode(":", $_POST["group_swap"]);
+		$sql = "
+			UPDATE location SET
+				groupid = (CASE WHEN groupid = '" . $group_left . "' THEN '" . $group_right . "' ELSE '" . $group_left . "' END) WHERE groupid IN (" . $group_left . ", " . $group_right . ")
+			;
+			BEGIN;
+			CREATE TEMPORARY TABLE tmp_sg AS SELECT * FROM settings_group WHERE id = '" . $group_left . "';
+			DELETE FROM settings_group WHERE id = '" . $group_left . "';
+			UPDATE settings_group SET id = '" . $group_left . "' WHERE id = " . $group_right . ";
+			UPDATE tmp_sg SET id = " . $group_right . " WHERE id = '" . $group_left . "';
+			INSERT INTO settings_group SELECT * FROM tmp_sg;
+			DROP TABLE tmp_sg;
+			COMMIT;
+		";
+		
+		$ret = $db->exec($sql);
+		if(!$ret) {
+			echo $db->lastErrorMsg();
+		}
+		
+		$db->close();
+		
+		header("Location: " . DISKLOCATION_URL);
+		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
 		exit;
 	}
 	
@@ -184,6 +211,7 @@
 						command_timeout_w,
 						pending_sector_w,
 						offline_uncorr_w,
+						css_serial_number_highlight,
 						displayinfo,
 						select_db_info,
 						sort_db_info,
@@ -209,9 +237,10 @@
 						'" . $_POST["dashboard_widget_pos"] . "',
 						'" . $_POST["reallocated_sector_w"] . "',
 						'" . $_POST["reported_uncorr_w"] . "',
-						'" . $_POST["command_timeout_"] . "',
+						'" . $_POST["command_timeout_w"] . "',
 						'" . $_POST["pending_sector_w"] . "',
 						'" . $_POST["offline_uncorr_w"] . "',
+						'" . SQLite3::escapeString($_POST["css_serial_number_highlight"] ?? $css_serial_number_highlight_default) . "',
 						'" . $post_info . "',
 						'" . SQLite3::escapeString($_POST["select_db_info"] ?? $select_db_info_default) . "',
 						'" . SQLite3::escapeString($_POST["sort_db_info"] ?? $sort_db_info_default) . "',

@@ -274,7 +274,7 @@
 					$smart_modelname = $data["model_name"];
 				}
 				if(isset($displayinfo["serialnumber"])) {
-					$smart_serialnumber = ( isset($data["smart_serialnumber"]) ? "<span style=\"white-space: nowrap;\">(" . substr($data["smart_serialnumber"], $dashboard_widget_pos) . ")</span>" : null );
+					$smart_serialnumber = ( isset($data["smart_serialnumber"]) ? "<span style=\"white-space: nowrap; " . $css_serial_number_highlight . "\">" . substr($data["smart_serialnumber"], $dashboard_widget_pos) . "</span>" : null );
 				}
 				if(isset($displayinfo["powerontime"])) {
 					$smart_powerontime = ( !is_numeric($data["smart_powerontime"]) ? null : "<span style=\"cursor: help;\" title=\"" . seconds_to_time($data["smart_powerontime"] * 60 * 60) . "\">" . $data["smart_powerontime"] . "h</span>" );
@@ -286,19 +286,19 @@
 					$smart_capacity = ( !is_numeric($data["smart_capacity"]) ? null : human_filesize($data["smart_capacity"], 1, true) );
 				}
 				if(isset($displayinfo["reallocated_sector_count"])) {
-					$smart_reallocated_sector_count = "Reallocated: " . ( isset($data["smart_reallocated_sector_count"]) ? $data["smart_reallocated_sector_count"] : "" );
+					$smart_reallocated_sector_count = "RSC:" . ( isset($data["smart_reallocated_sector_count"]) ? "<span style=\"cursor: help;\" title=\"Reallocated sector count\">" . $data["smart_reallocated_sector_count"] . "</span>" : "" );
 				}
 				if(isset($displayinfo["reported_uncorrectable_errors"])) {
-					$smart_reported_uncorrectable_errors = "Reported: " . ( isset($data["smart_reported_uncorrectable_errors"]) ? $data["smart_reported_uncorrectable_errors"] : "" );
+					$smart_reported_uncorrectable_errors = "RUE: " . ( isset($data["smart_reported_uncorrectable_errors"]) ? "<span style=\"cursor: help;\" title=\"Reported uncorrectable errors\">" . $data["smart_reported_uncorrectable_errors"] . "</span>" : "" );
 				}
 				if(isset($displayinfo["command_timeout"])) {
-					$smart_command_timeout = "Timeout: " . ( isset($data["smart_command_timeout"]) ? $data["smart_command_timeout"] : "" );
+					$smart_command_timeout = "T/O:" . ( isset($data["smart_command_timeout"]) ? "<span style=\"cursor: help;\" title=\"Command timeout\">" . $data["smart_command_timeout"] . "</span>" : "" );
 				}
 				if(isset($displayinfo["current_pending_sector_count"])) {
-					$smart_current_pending_sector_count = "Pending: " . ( isset($data["smart_current_pending_sector_count"]) ? $data["smart_current_pending_sector_count"] : "" );
+					$smart_current_pending_sector_count = "PSC:" . ( isset($data["smart_current_pending_sector_count"]) ? "<span style=\"cursor: help;\" title=\"Current pending sector count\">" . $data["smart_current_pending_sector_count"] . "</span>" : "" );
 				}
 				if(isset($displayinfo["offline_uncorrectable"])) {
-					$smart_offline_uncorrectable = "Offline: " . ( isset($data["smart_offline_uncorrectable"]) ? $data["smart_offline_uncorrectable"] : "" );
+					$smart_offline_uncorrectable = "OU:" . ( isset($data["smart_offline_uncorrectable"]) ? "<span style=\"cursor: help;\" title=\"Offline uncorrectable\">" . $data["smart_offline_uncorrectable"] . "</span>" : "" );
 				}
 				if(isset($displayinfo["percentage_used"])) {
 					$smart_nvme_percentage_used = ( !is_numeric($data["smart_nvme_percentage_used"]) ? null : $data["smart_nvme_percentage_used"] . "%" );
@@ -627,14 +627,14 @@
 									$smart_units_read
 									$smart_units_written
 									
-									" . ( $data["smart_rotation"] == -2 ? $smart_nvme_available_spare : null ) . "
-									" . ( $data["smart_rotation"] == -2 ? $smart_nvme_percentage_used : null ) . "
-									" . ( $data["smart_rotation"] > -2 ? $smart_loadcycle : null ) . "
-									" . ( $data["smart_rotation"] > -2 ? $smart_reallocated_sector_count : null ) . "
-									" . ( $data["smart_rotation"] > -2 ? $smart_reported_uncorrectable_errors : null ) . "
-									" . ( $data["smart_rotation"] > -2 ? $smart_command_timeout : null ) . "
-									" . ( $data["smart_rotation"] > -2 ? $smart_current_pending_sector_count : null ) . "
-									" . ( $data["smart_rotation"] > -2 ? $smart_offline_uncorrectable : null ) . "
+									" . ( ($data["smart_rotation"] == -2) ? $smart_nvme_available_spare : null ) . "
+									" . ( ($data["smart_rotation"] == -2) ? $smart_nvme_percentage_used : null ) . "
+									" . ( ($data["smart_rotation"] > -2) ? $smart_loadcycle : null ) . "
+									" . ( ($data["smart_rotation"] > -2) ? $smart_reallocated_sector_count : null ) . "
+									" . ( ($data["smart_rotation"] > -2) ? $smart_reported_uncorrectable_errors : null ) . "
+									" . ( ($data["smart_rotation"] > -2) ? $smart_command_timeout : null ) . "
+									" . ( ($data["smart_rotation"] > -2) ? $smart_current_pending_sector_count : null ) . "
+									" . ( ($data["smart_rotation"] > -2) ? $smart_offline_uncorrectable : null ) . "
 									$manufactured_page
 									$warranty_page
 									$add_break_3
