@@ -69,7 +69,7 @@ Title="Devices"
 <blockquote class='inline_help'>
 	<h3><b><?php echo $get_page_info["Title"] ?> ver. <?php echo DISKLOCATION_VERSION ?></b></h3>
 	<p>
-		Made by <?php echo $get_page_info["Author"] ?>. Copyright ©2018-2023. All rights reserved.
+		Made by <?php echo $get_page_info["Author"] ?>. Copyright ©2018-2024. All rights reserved.
 	</p>
 	<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
 		<input type="hidden" name="cmd" value="_donations" />
@@ -87,8 +87,9 @@ Title="Devices"
 	<dt>The tray lights</dt>
 	<dd>Hover your cursor above the lights to display a tooltip to see what's going on. The color and if it flashes will indicate various scenarios. Ex:</dd>
 	<ul>
-		<li><b>Upper LED</b> indicates the validity set by Unraid array and the current activity, like active/idle (green) or standby (green blink).</li>
-		<li><b>Lower LED</b> indicates the SMART check, failed (red) or passed (green).</li>
+		<li><b>Upper LED</b> indicates the validity set by Unraid or ZFS array and the current activity, like active/idle (green) or standby (green blink).</li>
+		<li><b>Middle LED</b> indicates the SMART check, failed (red), warning (yellow), passed (green).</li>
+		<li><b>Lower LED</b> indicates the temperature, critical (red), warning (orange) or OK (green).</li>
 	</ul>
 	<br /><br />
 </blockquote>
@@ -97,45 +98,25 @@ Title="Devices"
 	
 	<h3>Installation</h3>
 	<dl>
-		<!--
-		<dt>Why does this plugin require smartmontools 7.0+?</dt>
-		<dd>During installation, smartmontools 7.0 will be installed for Unraid 6.6.x (it is included in Unraid 6.7+ as default). This is required for JSON-output for the smartctl command.</dd>
-		-->
-		
-		<!--
-		<dt>Why does this plugin require GIT tools?</dt>
-		<dd>This needs to be installed via the Nerd Pack plugin or other methods. During installation the package is cloned from a git repository and archived for later use locally, this simplifies the install updates a bit.</dd>
-		-->
-		
 		<dt>What else does it install in the system?</dt>
-		<dd>It will install a smartlocate script in /usr/local/bin/, this is needed for the "Locate" function. It will also add a script for cronjob in /etc/cron.hourly/</dd>
+		<dd>It will install a smartlocate script in /usr/local/bin/, this is needed for the "Locate" function. It will also add a script for cronjob in /etc/cron.[time]/</dd>
 		
 		<dt>How is the versioning working?</dt>
 		<dd>The digits are as following: the first is the year, second the month, and third the day. Technically an ISO date. Multiple updates at the same day will get a letter behind the date increasing from [a]. First version released was 2019.01.22</dd>
 		
 		<dt>What's the requirements?</dt>
 		<dd>A newer browser supporting HTML5, tested with Chrome-based browsers and Firefox.</dd>
-		
-		<dt>It takes a long time to open the page!</dt>
-		<dd>The first install will wake up all the drives and force scan SMART data to insert into a database, this might take a while. You can redo this later by clicking the "Force Scan All" button. The automagic cronjob will only scan drives which is already spinning (hopefully).</dd>
 	</dl>
-	
-	<h3>Configuration</h3>
-	<dl>
-		<dt>Removed devices shows up in the "Configuration" area, it didn't before.</dt>
-		<dd>The new system runs in the background and therefore does not run a function to remove these disks, but you can use the "Force Scan All" button to run it. NB! It will wake up all disks!</dd>
-	</dl>
-	
 	<h3>Other</h3>
 	<dl>
 		<dt>Why did you make this when it already exists something similar?</dt>
 		<dd>The other script which inspired me creating this one, does not support drives not directly attached to Unraid. And since I have several attached to a hardware raid card, I found it useful to be able to list all the drives regardless.</dd>
 		
 		<dt>How and where is the configuration file stored?</dt>
-		<dd>The configration is stored in a SQLite database and is located at: /boot/config/plugins/disklocation/disklocation.sqlite</dd>
+		<dd>The configration are stored in a SQLite database and is located by default at: /boot/config/plugins/disklocation/disklocation.sqlite</dd>
 		
 		<dt>I want to reset everything to "Factory defaults", how?</dt>
-		<dd>You can delete the database under "System Files" tab. This will be recreated with blank defaults when you enter the plugin page next. Remember, all settings and tray allocations will be deleted for this plugin.</dd>
+		<dd>You can delete the database under "System" tab. This will be recreated with blank defaults when you enter the plugin page next. Remember, all settings and tray allocations will be deleted for this plugin.</dd>
 	</dl>
 </blockquote>
 <?php print($disklocation_page_out); ?>

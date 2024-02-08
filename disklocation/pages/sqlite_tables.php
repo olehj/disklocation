@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2023, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2024, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -20,31 +20,37 @@
 	 */
 
 //	Database Version:
-	$current_db_ver = 8;
+	$current_db_ver = 9;
 
 //	Common settings
-//	Variable name		Default value	Description
+//	Variable name		Default value			Description
 //	--------------------------------------------------------------------------------
-	$smart_exec_delay =		'200';		// set milliseconds for next execution for SMART shell_exec - needed to actually grab all the information for unassigned devices. Default: 200
-	$smart_updates =		'disabled';	// set how often to update the cronjob [hourly|daily|weekly|monthly|disabled]
-	$bgcolor_parity =		'eb4f41';	// background color for Unraid parity disks / critical temp
-	$bgcolor_unraid =		'ef6441';	// background color for Unraid data disks / warning temp
-	$bgcolor_cache =		'ff884c';	// background color for Unraid cache disks / normal temp
-	$bgcolor_others =		'41b5ef';	// background color for unassigned/other disks / unknown temp
-	$bgcolor_empty =		'aaaaaa';	// background color for empty trays
-	$tray_reduction_factor =	'10';		// set the scale divider for the mini tray layout
-	$warranty_field =		'u';		// choose [u]nraid's way of entering warranty date (12/24/36... months) or enter [m]anual ISO dates.
-	$dashboard_widget =		'1';		// choose background for the drives, Drive Type (0) or Heat Map (1)
-	$dashboard_widget_pos = 	'0';		// not in use anymore
-	$displayinfo =	json_encode(array(		// this will store an json_encoded array of display settings for the "Device" page.
+	$smart_exec_delay =		'200';			// set milliseconds for next execution for SMART shell_exec - needed to actually grab all the information for unassigned devices. Default: 200
+	$smart_updates =		'disabled';		// set how often to update the cronjob [hourly|daily|weekly|monthly|disabled]
+	$bgcolor_parity =		'ca3f33';		// background color for Unraid parity disks / critical temp
+	$bgcolor_unraid =		'ca7233';		// background color for Unraid data disks / warning temp // old default: ef6441
+	$bgcolor_cache =		'cabd33';		// background color for Unraid cache disks / normal temp // old default: ff884c
+	$bgcolor_others =		'3398ca';		// background color for unassigned/other disks / unknown temp // old default: 41b5ef
+	$bgcolor_empty =		'7c7c7c';		// background color for empty trays // old default: aaaaaa
+	$tray_reduction_factor =	'10';			// set the scale divider for the mini tray layout
+	$warranty_field =		'u';			// choose [u]nraid's way of entering warranty date (12/24/36... months) or enter [m]anual ISO dates.
+	$dashboard_widget =		'1';			// choose background for the drives, Drive Type (0) or Heat Map (1)
+	$dashboard_widget_pos = 	'0';			// make serial number friendlier, substr() value -99 - 99.
+	$reallocated_sector_w =		'100';			// SMART warnings (RAW)
+	$reported_uncorr_w =		'1';			// -
+	$command_timeout_w =		'5';			// -
+	$pending_sector_w =		'1';			// -
+	$offline_uncorr_w =		'1';			// -
+	$css_serial_number_highlight =	'font-weight: bold;';	// user styles for serial number
+	$displayinfo =	json_encode(array(			// this will store an json_encoded array of display settings for the "Device" page.
 		'tray' => 1,
 		'leddiskop' => 1,
 		'ledsmart' => 1,
 		'ledtemp' => 1,
 		'unraidinfo' => 1,
-		'path' => 1,
-		'devicenode' => 1,
-		'luname' => 1,
+		'path' => 0,
+		'devicenode' => 0,
+		'luname' => 0,
 		'manufacturer' => 1,
 		'devicemodel' => 1,
 		'serialnumber' => 1,
@@ -54,17 +60,36 @@
 		'capacity' => 1,
 		'rotation' => 1,
 		'formfactor' => 1,
-		'available_spare' => 0,
-		'available_spare_threshold' => 0,
+		'reallocated_sector_count' => 0,
+		'reported_uncorrectable_errors' => 0,
+		'command_timeout' => 0,
+		'current_pending_sector_count' => 0,
+		'offline_uncorrectable' => 0,
+		'available_spare' => 1,
 		'percentage_used' => 1,
-		'data_units_read' => 1,
-		'data_units_written' => 1,
-		'warranty' => 1,
+		'units_read' => 1,
+		'units_written' => 1,
+		'manufactured' => 0,
+		'warranty' => 0,
 		'comment' => 0,
 		'hideemptycontents' => 0,
 		'flashwarning' => 0,
 		'flashcritical' => 1
 	));
+	
+	$select_db_info = "group,tray,manufacturer,model,serial,capacity,rotation,formfactor,read,written,manufactured,purchased,warranty,comment";
+	$sort_db_info = "asc:group,tray";
+	
+	// mandatory: group,tray,locate,color
+	$select_db_trayalloc = "device,node,lun,manufacturer,model,serial,capacity,rotation,formfactor,manufactured,purchased,warranty,comment";
+	$sort_db_trayalloc = "asc:group,tray";
+	
+	$select_db_drives = "device,manufacturer,model,serial,capacity,rotation,formfactor,manufactured,purchased,warranty,comment";
+	$sort_db_drives = "asc:serial";
+	
+	//not used, but prepared just in case it will be added in the future:
+	$select_db_devices = "";
+	$sort_db_devices = "";
 	
 //	Group settings
 	
@@ -77,7 +102,7 @@
 	$tray_start_num = 	'1';		// tray count start number, 0 or 1
 	$tray_width =		'400';		// the pixel width of the hard drive tray: in the horizontal direction ===
 	$tray_height =		'70';		// the pixel height of the hard drive tray: in the horizontal direction ===
-
+	
 //	Create database
 	
 	$sql_create_disks = "
@@ -95,12 +120,19 @@
 		smart_capacity INT,
 		smart_rotation INT,
 		smart_formfactor VARCHAR(16),
+		smart_reallocated_sector_count INT,
+		smart_reported_uncorrectable_errors INT,
+		smart_command_timeout INT,
+		smart_current_pending_sector_count INT,
+		smart_offline_uncorrectable INT,
+		smart_logical_block_size INT,
 		smart_nvme_available_spare INT,
 		smart_nvme_available_spare_threshold INT,
 		smart_nvme_percentage_used INT,
-		smart_nvme_data_units_read INT,
-		smart_nvme_data_units_written INT,
+		smart_units_read INT,
+		smart_units_written INT,
 		status CHAR(1),
+		manufactured DATE,
 		purchased DATE,
 		warranty SMALLINT,
 		warranty_date DATE,
@@ -123,12 +155,19 @@
 		smart_capacity,
 		smart_rotation,
 		smart_formfactor,
+		smart_reallocated_sector_count,
+		smart_reported_uncorrectable_errors,
+		smart_command_timeout,
+		smart_current_pending_sector_count,
+		smart_offline_uncorrectable,
+		smart_logical_block_size,
 		smart_nvme_available_spare,
 		smart_nvme_available_spare_threshold,
 		smart_nvme_percentage_used,
-		smart_nvme_data_units_read,
-		smart_nvme_data_units_written,
+		smart_units_read,
+		smart_units_written,
 		status,
+		manufactured,
 		purchased,
 		warranty,
 		warranty_date,
@@ -152,18 +191,32 @@
 	";
 	$sql_create_settings = "
 		id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-		smart_exec_delay INT NOT NULL DEFAULT '200',
-		smart_updates VARCHAR(8) NOT NULL DEFAULT 'disabled',
-		bgcolor_parity CHAR(6) NOT NULL DEFAULT 'eb4f41',
-		bgcolor_unraid CHAR(6) NOT NULL DEFAULT 'ef6441',
-		bgcolor_cache CHAR(6) NOT NULL DEFAULT 'ff884c',
-		bgcolor_others CHAR(6) NOT NULL DEFAULT '41b5ef',
-		bgcolor_empty CHAR(6) NOT NULL DEFAULT 'aaaaaa',
-		tray_reduction_factor FLOAT NOT NULL DEFAULT '10',
-		warranty_field CHAR(1) NOT NULL DEFAULT 'u',
-		dashboard_widget CHAR(3) NOT NULL DEFAULT 'on',
+		smart_exec_delay INT NOT NULL DEFAULT '$smart_exec_delay',
+		smart_updates VARCHAR(8) NOT NULL DEFAULT '$smart_updates',
+		bgcolor_parity CHAR(6) NOT NULL DEFAULT '$bgcolor_parity',
+		bgcolor_unraid CHAR(6) NOT NULL DEFAULT '$bgcolor_unraid',
+		bgcolor_cache CHAR(6) NOT NULL DEFAULT '$bgcolor_cache',
+		bgcolor_others CHAR(6) NOT NULL DEFAULT '$bgcolor_others',
+		bgcolor_empty CHAR(6) NOT NULL DEFAULT '$bgcolor_empty',
+		tray_reduction_factor FLOAT NOT NULL DEFAULT '$tray_reduction_factor',
+		warranty_field CHAR(1) NOT NULL DEFAULT '$warranty_field',
+		dashboard_widget CHAR(3) NOT NULL DEFAULT '$dashboard_widget',
 		dashboard_widget_pos INT NULL,
-		displayinfo VARCHAR(1023)
+		reallocated_sector_w INT NOT NULL DEFAULT '$reallocated_sector_w',
+		reported_uncorr_w INT NOT NULL DEFAULT '$reported_uncorr_w',
+		command_timeout_w INT NOT NULL DEFAULT '$command_timeout_w',
+		pending_sector_w INT NOT NULL DEFAULT '$pending_sector_w',
+		offline_uncorr_w INT NOT NULL DEFAULT '$offline_uncorr_w',
+		css_serial_number_highlight VARCHAR(1023) NOT NULL DEFAULT '$css_serial_number_highlight',
+		displayinfo VARCHAR(1023),
+		select_db_info VARCHAR(1023) NOT NULL DEFAULT '$select_db_info',
+		sort_db_info VARCHAR(1023) NOT NULL DEFAULT '$sort_db_info',
+		select_db_trayalloc VARCHAR(1023) NOT NULL DEFAULT '$select_db_trayalloc',
+		sort_db_trayalloc VARCHAR(1023) NOT NULL DEFAULT '$sort_db_trayalloc',
+		select_db_drives VARCHAR(1023) NOT NULL DEFAULT '$select_db_drives',
+		sort_db_drives VARCHAR(1023) NOT NULL DEFAULT '$sort_db_drives',
+		select_db_devices VARCHAR(1023) NOT NULL DEFAULT '$select_db_devices',
+		sort_db_devices VARCHAR(1023) NOT NULL DEFAULT '$sort_db_devices'
 	";
 	$sql_tables_settings = "
 		id,
@@ -178,7 +231,21 @@
 		warranty_field,
 		dashboard_widget,
 		dashboard_widget_pos,
-		displayinfo
+		reallocated_sector_w,
+		reported_uncorr_w,
+		command_timeout_w,
+		pending_sector_w,
+		offline_uncorr_w,
+		css_serial_number_highlight,
+		displayinfo,
+		select_db_info,
+		sort_db_info,
+		select_db_trayalloc,
+		sort_db_trayalloc,
+		select_db_drives,
+		sort_db_drives,
+		select_db_devices,
+		sort_db_devices
 	";
 	$sql_create_settings_group = "
 		id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
@@ -209,6 +276,54 @@
 		tray_height
 	";
 
+	/*
+		Database Version: 8
+	*/
+	
+	$sql_tables_disks_v8 = "
+		id,
+		device,
+		devicenode,
+		luname,
+		model_family,
+		model_name,
+		smart_status,
+		smart_serialnumber,
+		smart_temperature,
+		smart_powerontime,
+		smart_loadcycle,
+		smart_capacity,
+		smart_rotation,
+		smart_formfactor,
+		smart_nvme_available_spare,
+		smart_nvme_available_spare_threshold,
+		smart_nvme_percentage_used,
+		smart_units_read,
+		smart_units_written,
+		status,
+		purchased,
+		warranty,
+		warranty_date,
+		comment,
+		color,
+		hash
+	";
+	$sql_tables_settings_v8 = "
+		id,
+		smart_exec_delay,
+		smart_updates,
+		bgcolor_parity,
+		bgcolor_unraid,
+		bgcolor_cache,
+		bgcolor_others,
+		bgcolor_empty,
+		tray_reduction_factor,
+		warranty_field,
+		dashboard_widget,
+		dashboard_widget_pos,
+		displayinfo
+	";
+	
 	/*
 		Database Version: 7
 	*/
@@ -813,6 +928,41 @@
 				
 				PRAGMA foreign_keys = on;
 				PRAGMA user_version = '8';
+				
+				VACUUM;
+			";
+			$ret = $db->exec($sql);
+			if(!$ret) {
+				$db_update = 0;
+				echo $db->lastErrorMsg();
+			}
+		}
+		
+		if($database_version < 9) {
+			$db_update = 1;
+			$sql = "
+				PRAGMA foreign_keys = off;
+				
+				BEGIN TRANSACTION;
+				
+				ALTER TABLE settings RENAME TO old_settings;
+				ALTER TABLE disks RENAME TO old_disks;
+				ALTER TABLE old_disks RENAME COLUMN smart_nvme_data_units_read TO smart_units_read;
+				ALTER TABLE old_disks RENAME COLUMN smart_nvme_data_units_written TO smart_units_written;
+				
+				CREATE TABLE settings($sql_create_settings);
+				CREATE TABLE disks($sql_create_disks);
+				
+				INSERT INTO settings ($sql_tables_settings_v8) SELECT $sql_tables_settings_v8 FROM old_settings;
+				INSERT INTO disks ($sql_tables_disks_v8) SELECT $sql_tables_disks_v8 FROM old_disks;
+				
+				DROP TABLE old_settings;
+				DROP TABLE old_disks;
+				
+				COMMIT;
+				
+				PRAGMA foreign_keys = on;
+				PRAGMA user_version = '9';
 				
 				VACUUM;
 			";
