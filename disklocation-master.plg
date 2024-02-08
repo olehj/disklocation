@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2024.01.18b">
+<!ENTITY version          "2024.02.XX">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -27,7 +27,7 @@
 
 <!--
 
-    Copyright 2019-2023, Ole-Henrik Jakobsen
+    Copyright 2019-2024, Ole-Henrik Jakobsen
 
     This file is part of Disk Location for Unraid.
 
@@ -46,6 +46,20 @@
 
 -->
 <CHANGES>
+###2024.02.XX
+ - Commit #256 - FEATURE: Added critical SMART warnings, configurable with RAW data (for SATA devices). NVMe uses spare threshold. Also added data units read and written for both SATA (LBAs) and NVMe.
+ - Commit #254 - FEATURE: Added the ability to create a list to be downloaded (TSV), following the Information selection and sort.
+ - Commit #253 - FEATURE: Added possibility to use colors in "comments", see Help under "Tray Allocations"
+ - Commit #252 - FEATURE: Database management and cleanup of System. Creating, restoring and deleting backups, moving the database to another location possible. Old backups are now obsolete and will be deleted when the first backup has been created during installation/upgrade.
+ - Commit #251 - IMPROVEMENT: Inconsistent action when filling dates occured in the ISO date format (and probably some others). Limited the max year to 9999.
+ - Commit #250 - FEATURE: Sort information by fields has been implented (in combination with #245).
+ - Commit #249 - FEATURE: Database field for 'Date of Manufacture' has been implemented. Might need to enable it manually.
+ - Commit #248 - MINOR ISSUE: Lagging Documentation: 'Force Scan All' button is now on System tab. Went through and updated the text on multiple pages and updated the Help sections.
+ - Commit #247 - FEATURE: Include legend for color coding on pages where it's used has been added to Info, Tray Allocations and Drives tabs.
+ - Commit #246 - FEATURE: Algorithmically abbreviate serial numbers as 'friendly name' has been implemented. Trimming of serial numbers available.
+ - Commit #245 - FEATURE: Turn off / rearrange columns has been implemented. (in combination with #250).
+ - Commit #242 - IMPROVEMENT: "hover" on the tray number has been moved to the LED, also attached all info to one LED. The worst warning will be shown on the LED, but info from all stages visible.
+
 ###2024.01.18
  - Commit #242 - IMPROVEMENT: Rewrote-ish the cronjob script, works as earlier in the plugin GUI. Also added back the possibility to run it via CLI again:
                               php -f /usr/local/emhttp/plugins/disklocation/pages/cron_disklocation.php cronjob|force [silent]
@@ -507,9 +521,6 @@ EOL
   rm -Rf "/tmp/&name;-packages"
   rm -f "/tmp/&name;-install"
   
-  <!--# Disabled: Add crontab script -->
-  <!--# cp &emhttpLOC;/&name;.cron /etc/cron.hourly/disklocation.sh -->
-  
   if [[ "`pidof -x disklocation.sh`" ]]; then
     logit "Cronjob is already running... retrying every 5 seconds until it finish..."
     while [ "`pidof -x disklocation.sh`" ];
@@ -520,24 +531,20 @@ EOL
     logit "done and continue..."
   fi
   
-  if [[ -f "&pluginLOC;/disklocation.sqlite" &amp;&amp; ! -f "&pluginLOC;/disklocation_db_v7.sqlite.tar.bz2" ]]; then
-    tar jcf &pluginLOC;/disklocation_db_v7.sqlite.tar.bz2 &pluginLOC;/disklocation.sqlite
-    logit "Made backup of database (&pluginLOC;/disklocation_db_v7.sqlite.tar.bz2) before it will be upgraded to version 8"
+  if [[ ! -d "&pluginLOC;/backup" ]]; then
+    CURRENT_DATE=$(date +"%Y%m%d-%H%M%S")
+    mkdir -p "&pluginLOC;/backup/$CURRENT_DATE"
+    cp &pluginLOC;/disklocation.sqlite &pluginLOC;/backup/$CURRENT_DATE/disklocation.sqlite
+    gzip -N -9 &pluginLOC;/backup/$CURRENT_DATE/disklocation.sqlite
+    logit "Made backup of database (&pluginLOC;/backup/$CURRENT_DATE/disklocation.sqlite.gz)"
+    rm &pluginLOC;/disklocation_db_v*.sqlite.tar.bz2
+    logit "Deleted old obsolete backup files."
   fi
   logit "Package file &packagefile; extracted."
   
-  <!--
-  if [[ ! -f "&pluginLOC;/disklocation.noscan" ]]; then-->
-    logit "Adding disks into database, please wait... this might take a while..."
-    php -f /usr/local/emhttp/plugins/disklocation/pages/cron_disklocation.php cronjob
-  <!--else
-    logit "Device scanning during updates are disabled: No new devices will be detected and no data will be updated."
-  fi
+  logit "Adding devices into database, please wait... this might take a while..."
+  php -f /usr/local/emhttp/plugins/disklocation/pages/cron_disklocation.php cronjob install
   
-  logit "Automatic scanning of devices has been disabled, please use Force Scan All under System tab."
-    -->  
-  <!--# chmod +x /etc/cron.hourly/disklocation.sh -->
-  <!--# logit "Added cronjob script in cron.hourly." -->
   logit "Plugin installed successfully!"
   exit 0
 else
