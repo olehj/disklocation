@@ -372,7 +372,7 @@ $(document).ready(function(){
 					</tr>
 				</table>
 				<blockquote class='inline_help'>
-					Set the RAW limit when the SMART warning should trigger, this is only valid for SATA drives.
+					Set the RAW limit when the SMART warning should trigger, this is only valid for SATA drives. 0 disables the warning.
 				</blockquote>
 			</td>
 			<td style="padding-left: 25px; vertical-align: top;">
