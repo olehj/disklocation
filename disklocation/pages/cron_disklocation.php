@@ -160,7 +160,7 @@
 					}
 					else {
 						if(isset($smart_array["wwn"])) {
-							$smart_lun = "" . $smart_array["wwn"]["naa"] ?? null . " " . $smart_array["wwn"]["oui"] ?? null . " " . $smart_array["wwn"]["id"] ?? null . "";
+							$smart_lun = "" . ($smart_array["wwn"]["naa"] ?? null) . " " . ($smart_array["wwn"]["oui"] ?? null) . " " . ($smart_array["wwn"]["id"] ?? null) . "";
 						}
 						$smart_model_family = $smart_array["model_family"] ?? null;
 						$smart_model_name = $smart_array["model_name"] ?? null;
