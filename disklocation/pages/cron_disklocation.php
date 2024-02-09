@@ -331,7 +331,8 @@
 							$sql .= "
 								UPDATE disks SET
 									purchased='" . $unraid_disklog["" . str_replace(" ", "_", $smart_model_name) . "_" . str_replace(" ", "_", $smart_array["serial_number"]) . ""]["purchase"] . "',
-									warranty='" . $unraid_disklog["" . str_replace(" ", "_", $smart_model_name) . "_" . str_replace(" ", "_", $smart_array["serial_number"]) . ""]["warranty"] . "'
+									warranty='" . $unraid_disklog["" . str_replace(" ", "_", $smart_model_name) . "_" . str_replace(" ", "_", $smart_array["serial_number"]) . ""]["warranty"] . "',
+									manufactured='" . $unraid_disklog["" . str_replace(" ", "_", $smart_model_name) . "_" . str_replace(" ", "_", $smart_array["serial_number"]) . ""]["date"] . "'
 								WHERE hash = '" . $deviceid[$i] . "'
 							";
 						}
