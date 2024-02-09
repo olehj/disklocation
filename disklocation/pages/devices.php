@@ -286,19 +286,19 @@
 					$smart_capacity = ( !is_numeric($data["smart_capacity"]) ? null : human_filesize($data["smart_capacity"], 1, true) );
 				}
 				if(isset($displayinfo["reallocated_sector_count"])) {
-					$smart_reallocated_sector_count = "RSC:" . ( isset($data["smart_reallocated_sector_count"]) ? "<span style=\"cursor: help;\" title=\"Reallocated sector count\">" . $data["smart_reallocated_sector_count"] . "</span>" : "" );
+					$smart_reallocated_sector_count = "" . ( !empty($data["smart_reallocated_sector_count"]) ? "<span style=\"cursor: help;\" title=\"Reallocated sector count\">RSC:" . $data["smart_reallocated_sector_count"] . "</span>" : "<span style=\"cursor: help;\" title=\"Reallocated sector count\">RSC:0</span>" );
 				}
 				if(isset($displayinfo["reported_uncorrectable_errors"])) {
-					$smart_reported_uncorrectable_errors = "RUE: " . ( isset($data["smart_reported_uncorrectable_errors"]) ? "<span style=\"cursor: help;\" title=\"Reported uncorrectable errors\">" . $data["smart_reported_uncorrectable_errors"] . "</span>" : "" );
+					$smart_reported_uncorrectable_errors = "" . ( !empty($data["smart_reported_uncorrectable_errors"]) ? "<span style=\"cursor: help;\" title=\"Reported uncorrectable errors\">RUE:" . $data["smart_reported_uncorrectable_errors"] . "</span>" : "<span style=\"cursor: help;\" title=\"Reported uncorrectable errors\">RUE:0</span>" );
 				}
 				if(isset($displayinfo["command_timeout"])) {
-					$smart_command_timeout = "T/O:" . ( isset($data["smart_command_timeout"]) ? "<span style=\"cursor: help;\" title=\"Command timeout\">" . $data["smart_command_timeout"] . "</span>" : "" );
+					$smart_command_timeout = "" . ( !empty($data["smart_command_timeout"]) ? "<span style=\"cursor: help;\" title=\"Command timeout\">T/O:" . $data["smart_command_timeout"] . "</span>" : "<span style=\"cursor: help;\" title=\"Command timeout\">T/O:0</span>" );
 				}
 				if(isset($displayinfo["current_pending_sector_count"])) {
-					$smart_current_pending_sector_count = "PSC:" . ( isset($data["smart_current_pending_sector_count"]) ? "<span style=\"cursor: help;\" title=\"Current pending sector count\">" . $data["smart_current_pending_sector_count"] . "</span>" : "" );
+					$smart_current_pending_sector_count = "" . ( !empty($data["smart_current_pending_sector_count"]) ? "<span style=\"cursor: help;\" title=\"Current pending sector count\">PSC:" . $data["smart_current_pending_sector_count"] . "</span>" : "<span style=\"cursor: help;\" title=\"Current pending sector count\">PSC:0</span>" );
 				}
 				if(isset($displayinfo["offline_uncorrectable"])) {
-					$smart_offline_uncorrectable = "OU:" . ( isset($data["smart_offline_uncorrectable"]) ? "<span style=\"cursor: help;\" title=\"Offline uncorrectable\">" . $data["smart_offline_uncorrectable"] . "</span>" : "" );
+					$smart_offline_uncorrectable = "" . ( !empty($data["smart_offline_uncorrectable"]) ? "<span style=\"cursor: help;\" title=\"Offline uncorrectable\">OU:" . $data["smart_offline_uncorrectable"] . "</span>" : "<span style=\"cursor: help;\" title=\"Offline uncorrectable\">OU:0</span>" );
 				}
 				if(isset($displayinfo["percentage_used"])) {
 					$smart_nvme_percentage_used = ( !is_numeric($data["smart_nvme_percentage_used"]) ? null : $data["smart_nvme_percentage_used"] . "%" );
