@@ -301,7 +301,7 @@
 					$smart_offline_uncorrectable = "" . ( !empty($data["smart_offline_uncorrectable"]) ? "<span style=\"cursor: help;\" title=\"Offline uncorrectable\">OU:" . $data["smart_offline_uncorrectable"] . "</span>" : "<span style=\"cursor: help;\" title=\"Offline uncorrectable\">OU:0</span>" );
 				}
 				if(isset($displayinfo["percentage_used"])) {
-					$smart_nvme_percentage_used = ( !is_numeric($data["smart_nvme_percentage_used"]) ? null : $data["smart_nvme_percentage_used"] . "%" );
+					$smart_nvme_percentage_used = ( !is_numeric($data["smart_nvme_percentage_used"]) ? null : "Used: " . $data["smart_nvme_percentage_used"] . "%" );
 				}
 				if($data["smart_rotation"] == -2) {
 					if(isset($displayinfo["units_read"])) {
