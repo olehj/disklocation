@@ -410,14 +410,14 @@
 						else {
 							$unraid_disk_status_color = "grey-off";
 						}
-						
+						$zfs_disk_status = "";
 						if(zfs_check()) {
 							$zfs_disk_status = zfs_disk("" . $data["smart_serialnumber"] . "");
-							if($zfs_disk_status) {
-								$unraid_array_icon = get_unraid_disk_status($zfs_disk_status[1]);
-								$unraid_array_info = get_unraid_disk_status($zfs_disk_status[1],'','array');
-								$color_status = get_unraid_disk_status($zfs_disk_status[1],'','color');
-							}
+						}
+						if($zfs_disk_status) {
+							$unraid_array_icon = get_unraid_disk_status($zfs_disk_status[1]);
+							$unraid_array_info = get_unraid_disk_status($zfs_disk_status[1],'','array');
+							$color_status = get_unraid_disk_status($zfs_disk_status[1],'','color');
 						}
 						else {
 							$unraid_array_icon = get_unraid_disk_status($unraid_disk_status_color);
