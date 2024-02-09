@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2024.02.09-o24">
+<!ENTITY version          "2024.02.10-o24">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -46,13 +46,17 @@
 
 -->
 <CHANGES>
+###2024.02.10
+ - Commit #262 - IMPROVEMENT: Use manufacture dates from Unraid if they exists instead of just own values. Values written in Unraid will be prioritized and overwrite dates in the plugins database if they exists.
+ - Commit #261 - BUG: Unassigned devices missing LED for disk OP has been fixed.
+
 ###2024.02.09
  - Commit #256 - FEATURE: Added critical SMART warnings, configurable with RAW data (for SATA devices). NVMe uses spare threshold. Also added data units read and written for both SATA (LBAs) and NVMe.
  - Commit #147 - (includes #256)
  - Commit #255 - FEATURE: Added the ability to re-arrange groups. You can now swap between two groups, but only the last one can still be deleted.
  - Commit #254 - FEATURE: Added the ability to create a list to be downloaded (TSV), following the Information selection and sort.
  - Commit #253 - FEATURE: Added possibility to use colors in "comments", see Help under "Tray Allocations"
- - Commit #252 - FEATURE: Database management and cleanup of System. Creating, restoring and deleting backups, moving the database to another location possible. Old backups are now obsolete and will be deleted when the first backup has been created during installation/upgrade.
+ - Commit #252 - FEATURE: Database management and cleanup of System. Creating, restoring and deleting backups, moving the database to another location possible. Old backups are converted to the new system.
  - Commit #251 - IMPROVEMENT: Inconsistent action when filling dates occured in the ISO date format (and probably some others). Limited the max year to 9999.
  - Commit #250 - FEATURE: Sort information by fields has been implented (in combination with #245).
  - Commit #249 - FEATURE: Database field for 'Date of Manufacture' has been implemented. Might need to enable it manually.
