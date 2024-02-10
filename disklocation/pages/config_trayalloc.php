@@ -269,7 +269,7 @@
 	for($i=0;$i<$arr_length;$i++) {
 		$table_drives_order_name_html .= "
 			<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">
-				<b style=\"cursor: help;\" title=\"" . $table_drives_order_full[$i] . "\">" . $table_drives_order_name[$i] . "</b>
+				<b style=\"cursor: help;\" title=\"" . $table_drives_order_full[$i] . "\">" . $table_drives_order_name[$i] . "</b><br />
 				<button type=\"submit\" name=\"sort\" value=\"drives:asc:" . $table_drives_order_user[$i] . "\" style=\"margin: 0; padding: 0; min-width: 0; width: 20px; height: 20px;\" /><i style=\"font-size: 15px;\" class=\"fa fa-solid fa-sort-up\"/></i></button>
 				<button type=\"submit\" name=\"sort\" value=\"drives:desc:" . $table_drives_order_user[$i] . "\" style=\"margin: 0; padding: 0; min-width: 0; width: 20px; height: 20px;\" /><i style=\"font-size: 15px;\" class=\"fa fa-solid fa-sort-down\"/></i></button>
 			</td>
