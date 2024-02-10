@@ -38,7 +38,7 @@
 	$dashboard_widget_pos = 	'0';			// make serial number friendlier, substr() value -99 - 99.
 	$reallocated_sector_w =		'100';			// SMART warnings (RAW)
 	$reported_uncorr_w =		'1';			// -
-	$command_timeout_w =		'5';			// -
+	$command_timeout_w =		'0';			// '-> disabled by default as Seagate devices reports this different from other manufacturers.
 	$pending_sector_w =		'1';			// -
 	$offline_uncorr_w =		'1';			// -
 	$css_serial_number_highlight =	'font-weight: bold;';	// user styles for serial number
