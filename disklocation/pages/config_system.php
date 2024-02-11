@@ -18,6 +18,121 @@
 	 *  along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
 	 *
 	 */
+	if(strstr($_SERVER["SCRIPT_NAME"], "config_system.php")) {
+		// Set warning level
+		//error_reporting(E_ERROR | E_WARNING | E_PARSE);
+		error_reporting(E_ALL);
+		
+		define("UNRAID_CONFIG_PATH", "/boot/config");
+		define("DISKLOCATION_PATH", "/plugins/disklocation");
+		define("DISKLOCATION_URL", "/Settings/disklocation");
+		define("DISKLOCATION_CONF", "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.conf");
+		define("DISKLOCATION_DB_DEFAULT", "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.sqlite");
+		
+		if(file_exists(DISKLOCATION_CONF)) {
+			$get_disklocation_config = json_decode(file_get_contents(DISKLOCATION_CONF), true);
+			if(isset($get_disklocation_config["database_location"])) {
+				define("DISKLOCATION_DB", $get_disklocation_config["database_location"]);
+			}
+			else {
+				define("DISKLOCATION_DB", DISKLOCATION_DB_DEFAULT);
+			}
+		}
+		else {
+			define("DISKLOCATION_DB", DISKLOCATION_DB_DEFAULT);
+		}
+		
+		function config($file, $operation, $key = '', $val = '') { // file, [r]ead/[w]rite, key (req. write), value (req. write)
+			if($operation == 'w') {
+				if(!file_exists($file)) {
+					touch($file);
+				}
+				$config_json = file_get_contents($file);
+				$config_json = json_decode($config_json, true);
+				$config_json[$key] = $val;
+				$config_json = json_encode($config_json);
+				if(file_put_contents($file, $config_json)) {
+					return true;
+				}
+				else {
+					return "Failed updating the configuration file.";
+				}
+			}
+			if($operation == 'r') {
+				$config_json = file_get_contents($file);
+				$config_json = json_decode($config_json, true);
+				if($key) {
+					return $config_json[$key];
+				}
+				else {
+					return $config_json;
+				}
+			}
+			else return false;
+		}
+	}
+	
+	$print_loc_db_err = "";
+	
+	function compress_file($src, $dst) {
+		$data = file_get_contents($src);
+		$gzdata = gzencode($data, 9);
+		file_put_contents($dst, $gzdata);
+	}
+	
+	function decompress_file($src, $dst) {
+		$data = file_get_contents($src);
+		$gzdata = gzdecode($data);
+		file_put_contents($dst, $gzdata);
+	}
+	
+	function database_location($cur, $new, $config) {
+		if($cur != $new) {
+			if(file_exists($cur) && !file_exists($new)) {
+				if(copy($cur, $new)) {
+					if(sha1_file($cur) == sha1_file($new)) {
+						if(config($config, 'w', 'database_location', $new)) {
+							unlink($cur);
+							return true;
+						}
+						else {
+							return "Failed updating the configuration file. Current database not deleted, but a copy might exist in the new location.";
+						}
+					}
+					else {
+						return "Failed moving the database, checksum on $cur and $new did not match. Check path, permissions and file system.";
+					}
+				}
+				else {
+					return "Failed to copy the database. Check path, permissions and file system.";
+				}
+			}
+			else {
+				return "File already exists in the new location.";
+			}
+		}
+		else {
+			return false;
+		}
+	}
+	function database_backup($file, $backup_location) {
+		if(file_exists($file)) {
+			$datetime = date("Ymd-His");
+			mkdir($backup_location . "/" . $datetime, 0700, true);
+			compress_file($file, $backup_location . "/" . $datetime . "/disklocation.sqlite.gz");
+		}
+		else {
+			return "Database does not exist.";
+		}
+	}
+	function database_restore($file, $restore_location) {
+		if(file_exists($file)) {
+			decompress_file($file, $restore_location);
+		}
+		else {
+			return "Database does not exist.";
+		}
+	}
 	function disklocation_system($type, $operation, $file = "") {
 		$array = array();
 		if($type == "backup") {
@@ -92,47 +207,59 @@
 			}
 		}
 	}
-	
 	if(isset($_POST["res_backup"])) {
 		disklocation_system("backup", "restore", $_POST["backup_file_list"]);
-		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+		header("Location: " . DISKLOCATION_URL . "");
+		//print("<meta http-equiv=\"refresh\" content=\"5;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
 	if(isset($_POST["del_backup"])) {
 		disklocation_system("backup", "delete", $_POST["backup_file_list"]);
-		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+		header("Location: " . DISKLOCATION_URL . "");
+		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
 	if(isset($_POST["del_backup_all"])) {
 		disklocation_system("backup", "delete_all");
-		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+		header("Location: " . DISKLOCATION_URL . "");
+		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
 	if(isset($_POST["del_debug"])) {
 		disklocation_system("debug", "delete");
-		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+		header("Location: " . DISKLOCATION_URL . "");
+		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
 	if(isset($_POST["del_database"])) {
 		disklocation_system("database", "delete");
-		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+		header("Location: " . DISKLOCATION_URL . "");
+		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
 	if(isset($_POST["undelete_devices"])) {
 		force_undelete_devices($db, 'm');
-		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+		header("Location: " . DISKLOCATION_URL . "");
+		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
 	if(isset($_POST["del_ldashleft"])) {
 		disklocation_system("ldashleft", "delete");
+		header("Location: " . DISKLOCATION_URL . "");
+		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+		exit;
 	}
 	if(isset($_POST["add_ldashleft"])) {
 		disklocation_system("ldashleft", "create");
+		header("Location: " . DISKLOCATION_URL . "");
+		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+		exit;
 	}
 	if(isset($_POST["move_db"])) {
 		$move_db = database_location($_POST["cur_db_location"], $_POST["new_db_location"], DISKLOCATION_CONF);
 		if($move_db === true) {
-			print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+			header("Location: " . DISKLOCATION_URL . "");
+			//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 			exit;
 		}
 		else {
@@ -141,9 +268,13 @@
 	}
 	if(isset($_POST["backup_db"])) {
 		database_backup(DISKLOCATION_DB, "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/");
+		header("Location: " . DISKLOCATION_URL . "");
+		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+		exit;
 	}
-
+	
 	$print_loc_db = "";
+	$print_force_scan = "";
 	$print_list_backup = "";
 	$print_list_debug = "";
 	$print_list_database = "";
@@ -164,7 +295,7 @@
 			If no path is entered, the file will be stored at \"/usr/local/emhttp/\" and will be gone next reboot, do NOT store the file without a full path!<br />
 			Default plugin database file location: " . DISKLOCATION_DB_DEFAULT . "
 		</p>
-		<form action=\"\" method=\"post\">
+		<form action=\"" . DISKLOCATION_PATH . "/pages/config_system.php\" method=\"post\">
 			<input type=\"text\" name=\"new_db_location\" value=\"" . DISKLOCATION_DB . "\" style=\"width: 400px;\" />
 			<input type=\"hidden\" name=\"cur_db_location\" value=\"" . DISKLOCATION_DB . "\" style=\"width: 400px;\" />
 			<br />
@@ -173,11 +304,11 @@
 			<input type=\"submit\" name=\"backup_db\" value=\"Backup database\" />
 		</form>
 	";
-
+	
 	$list_backup = disklocation_system("backup", "list");
 	if($list_backup) {
 		$print_list_backup .= "
-			<form action=\"\" method=\"post\">
+			<form action=\"" . DISKLOCATION_PATH . "/pages/config_system.php\" method=\"post\">
 				<h3>Database backups</h3><br />
 				<table style=\"width: 0;\">
 					<tr>
@@ -222,7 +353,7 @@
 		$print_list_debug = "
 			<h3>Debug file</h3>
 			<p>Debug filesize: " . $list_debug . "</p>
-			<form action=\"\" method=\"post\">
+			<form action=\"" . DISKLOCATION_PATH . "/pages/config_system.php\" method=\"post\">
 				<input type=\"submit\" name=\"del_debug\" value=\"Delete debug file\" />
 			</form>
 			<blockquote class='inline_help'>
@@ -230,69 +361,79 @@
 			</blockquote>
 		";
 	}
-	
-	$list_undelete = force_undelete_devices($db, 'r');
-	if($list_undelete) {
-		$print_list_undelete = "
-			<h3>Undelete devices</h3>
-			<p>" . $list_undelete . " deleted devices found</p>
-			<form action=\"\" method=\"post\">
-				<input type=\"submit\" name=\"undelete_devices\" value=\"Undelete all devices\" />
+	if(!strstr($_SERVER["SCRIPT_NAME"], "config_system.php") && $db_update != 2) {
+		$list_undelete = force_undelete_devices($db, 'r');
+		if($list_undelete) {
+			$print_list_undelete = "
+				<h3>Undelete devices</h3>
+				<p>" . $list_undelete . " deleted devices found</p>
+				<form action=\"" . DISKLOCATION_PATH . "/pages/config_system.php\" method=\"post\">
+					<input type=\"submit\" name=\"undelete_devices\" value=\"Undelete all devices\" />
+				</form>
+				<blockquote class='inline_help'>
+					This will undelete devices that has been manually marked for deletion. The drives will be assigned under \"Devices not found or removed\" under the \"Drives\" tab.
+				</blockquote>
+			";
+		}
+		if(version_compare($GLOBALS["var"]["version"], "6.11.9", "<")) {
+			$list_ldashleft = disklocation_system("ldashleft", "list");
+			$print_list_ldashleft = "
+				<h3>Legacy Dashboard location</h3>
+				<p>
+					This setting is only visible and usable for Unraid version below 6.12.
+				</p>
+			";
+			if($list_ldashleft) {
+				$print_list_ldashleft .= "
+					<form action=\"" . DISKLOCATION_PATH . "/pages/config_system.php\" method=\"post\">
+						<input type=\"submit\" name=\"del_ldashleft\" value=\"Move to right\" />
+					</form>
+				";
+			}
+			else {
+				$print_list_ldashleft .= "
+					<form action=\"" . DISKLOCATION_PATH . "/pages/config_system.php\" method=\"post\">
+						<input type=\"submit\" name=\"add_ldashleft\" value=\"Move to left\" />
+					</form>
+				";
+			}
+		}
+		else { // delete a file that's not required anymore, if it exists.
+			if(disklocation_system("ldashleft", "list")) {
+				disklocation_system("ldashleft", "delete");
+			}
+		}
+		
+		$print_force_scan = "
+			<form action=\"" . DISKLOCATION_PATH . "/pages/config_system.php\" method=\"post\">
+				<b>When clicking \"Force Scan All\" the plugin starts collecting SMART data directly. It might take a few seconds to several minutes depending on the amount of devices it need to scan.</b>
+				<br />
+				<input type='button' value='Force Scan All' onclick='openBox(\"" . CRONJOB_URL . "?force_smart_scan=1\",\"Force Scanning\",600,1000,true,\"loadlist\",\":return\")'>
+				<!--<br />
+				<input type='submit' name=\"force_smart_scan\" value=\"Force Scan All\">-->
+				<blockquote class='inline_help'>
+					<ul>
+						<li>\"Force Scan All\" button will force scan all drives for updated SMART data and move removed disks into the \"lost\" table under the \"Information\" tab. This button will and must wake up all drives into a spinning state and does so one by one. It might take a while to complete depending on your configuration.</li>
+						<li>You can also run \"Force Scan All\" from the shell and get direct output which might be useful for debugging:<br />
+						<code style=\"white-space: nowrap;\">php -f /usr/local/emhttp/plugins/disklocation/pages/cron_disklocation.php cronjob|force [silent]</code></li>
+					</ul>
+				</blockquote>
 			</form>
-			<blockquote class='inline_help'>
-				This will undelete devices that has been manually marked for deletion. The drives will be assigned under \"Devices not found or removed\" under the \"Drives\" tab.
-			</blockquote>
 		";
 	}
-	
-	if(version_compare($GLOBALS["var"]["version"], "6.11.9", "<")) {
-		$list_ldashleft = disklocation_system("ldashleft", "list");
-		$print_list_ldashleft = "
-			<h3>Legacy Dashboard location</h3>
-			<p>
-				This setting is only visible and usable for Unraid version below 6.12.
-			</p>
-		";
-		if($list_ldashleft) {
-			$print_list_ldashleft .= "
-				<form action=\"\" method=\"post\">
-					<input type=\"submit\" name=\"del_ldashleft\" value=\"Move to right\" />
-				</form>
-			";
-		}
-		else {
-			$print_list_ldashleft .= "
-				<form action=\"\" method=\"post\">
-					<input type=\"submit\" name=\"add_ldashleft\" value=\"Move to left\" />
-				</form>
-			";
+	else if(strstr($_SERVER["SCRIPT_NAME"], "config_system.php")) {
+		function autov($foo) {
+			return $foo;
 		}
 	}
-	else { // delete a file that's not required anymore, if it exists.
-		if(disklocation_system("ldashleft", "list")) {
-			disklocation_system("ldashleft", "delete");
-		}
-	}
+	if($db_update == 2) { $system_limited_text = " - limited page during database error."; }
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/help.css")?>">
-<h2>System</h2>
+<h2>System<?php print($system_limited_text); ?></h2>
 <p style="color: red;">
 	<b>NB! Operations done on this page will execute without warning or confirmation and cannot be undone after execution!</b>
 </p>
-<form action="" method="post">
-	<b>When clicking "Force Scan All" the plugin starts collecting SMART data directly. It might take a few seconds to several minutes depending on the amount of devices it need to scan.</b>
-	<br />
-	<input type='button' value='Force Scan All' onclick='openBox("<?php print(CRONJOB_URL) ;?>?force_smart_scan=1","Force Scanning",600,1000,true,"loadlist",":return")'>
-	<!--<br />
-	<input type='submit' name="force_smart_scan" value="Force Scan All">-->
-	<blockquote class='inline_help'>
-		<ul>
-			<li>"Force Scan All" button will force scan all drives for updated SMART data and move removed disks into the "lost" table under the "Information" tab. This button will and must wake up all drives into a spinning state and does so one by one. It might take a while to complete depending on your configuration.</li>
-			<li>You can also run "Force Scan All" from the shell and get direct output which might be useful for debugging:<br />
-			<code style="white-space: nowrap;">php -f /usr/local/emhttp/plugins/disklocation/pages/cron_disklocation.php cronjob|force [silent]</code></li>
-		</ul>
-	</blockquote>
-</form>
+<?php echo $print_force_scan ?>
 <?php echo $print_list_backup ?>
 <?php echo $print_list_debug ?>
 <?php echo $print_list_database ?>

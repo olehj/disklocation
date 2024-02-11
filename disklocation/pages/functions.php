@@ -61,6 +61,9 @@
 		define("DISKLOCATION_DB", DISKLOCATION_DB_DEFAULT);
 	}
 	
+	$unraid_disks = array();
+	$unraid_devs = array();
+	
 	if(is_file(EMHTTP_VAR . "/" . UNRAID_DISKS_FILE)) {
 		$unraid_disks = parse_ini_file(EMHTTP_VAR . "/" . UNRAID_DISKS_FILE, true);
 	}
@@ -131,8 +134,12 @@
 		$unraid_devs = array_values(array_merge($unraid_disks, $unraid_devs));
 	}
 	else {
-		$unraid_devs = ( is_array($unraid_disks) ?? array_values($unraid_disks));
-		$unraid_devs = ( is_array($unraid_devs) ?? array_values($unraid_devs));
+		if(is_array($unraid_disks)) {
+			$unraid_devs = array_values($unraid_disks);
+		}
+		else if(is_array($unraid_devs)) {
+			$unraid_devs = array_values($unraid_devs);
+		}
 	}
 	
 	// modify the array to suit our needs
@@ -1055,67 +1062,5 @@
 				$smart_rotation = $input . " RPM";
 		}
 		return $smart_rotation;
-	}
-	
-	function compress_file($src, $dst) {
-		$data = file_get_contents($src);
-		$gzdata = gzencode($data, 9);
-		file_put_contents($dst, $gzdata);
-	}
-	
-	function decompress_file($src, $dst) {
-		$data = file_get_contents($src);
-		$gzdata = gzdecode($data);
-		file_put_contents($dst, $gzdata);
-	}
-	
-	function database_location($cur, $new, $config) {
-		if($cur != $new) {
-			if(file_exists($cur) && !file_exists($new)) {
-				if(copy($cur, $new)) {
-					if(sha1_file($cur) == sha1_file($new)) {
-						if(config($config, 'w', 'database_location', $new)) {
-							unlink($cur);
-							return true;
-						}
-						else {
-							return "Failed updating the configuration file. Current database not deleted, but a copy might exist in the new location.";
-						}
-					}
-					else {
-						return "Failed moving the database, checksum on $cur and $new did not match. Check path, permissions and file system.";
-					}
-				}
-				else {
-					return "Failed to copy the database. Check path, permissions and file system.";
-				}
-			}
-			else {
-				return "File already exists in the new location.";
-			}
-		}
-		else {
-			return false;
-		}
-	}
-	
-	function database_backup($file, $backup_location) {
-		if(file_exists($file)) {
-			$datetime = date("Ymd-His");
-			mkdir($backup_location . "/" . $datetime, 0700, true);
-			compress_file($file, $backup_location . "/" . $datetime . "/disklocation.sqlite.gz");
-		}
-		else {
-			return "Database does not exist.";
-		}
-	}
-	
-	function database_restore($file, $restore_location) {
-		if(file_exists($file)) {
-			decompress_file($file, $restore_location);
-		}
-		else {
-			return "Database does not exist.";
-		}
 	}
 ?>

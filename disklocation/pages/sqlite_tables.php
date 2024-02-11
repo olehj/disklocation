@@ -298,6 +298,34 @@
 		smart_nvme_available_spare,
 		smart_nvme_available_spare_threshold,
 		smart_nvme_percentage_used,
+		smart_nvme_data_units_read,
+		smart_nvme_data_units_written,
+		status,
+		purchased,
+		warranty,
+		warranty_date,
+		comment,
+		color,
+		hash
+	";
+	$sql_tables_disks_v8_conv_v9 = "
+		id,
+		device,
+		devicenode,
+		luname,
+		model_family,
+		model_name,
+		smart_status,
+		smart_serialnumber,
+		smart_temperature,
+		smart_powerontime,
+		smart_loadcycle,
+		smart_capacity,
+		smart_rotation,
+		smart_formfactor,
+		smart_nvme_available_spare,
+		smart_nvme_available_spare_threshold,
+		smart_nvme_percentage_used,
 		smart_units_read,
 		smart_units_written,
 		status,
@@ -470,106 +498,9 @@
 		comment,
 		hash
 	";
-	
-	/*
-		Database Version: 2
-	*/
-	
-	$sql_tables_settings_v2 = "
-		smart_exec_delay,
-		bgcolor_unraid,
-		bgcolor_others,
-		bgcolor_empty,
-		grid_count,
-		grid_columns,
-		grid_rows,
-		grid_trays,
-		disk_tray_direction,
-		tray_width,
-		tray_height,
-		warranty_field,
-		tempunit,
-		displayinfo
-	";
-	
-	/*
-		Database Version: 1
-	*/
-	
-	$sql_tables_disks_v1 = "
-		id,
-		device,
-		devicenode,
-		luname,
-		model_family,
-		model_name,
-		smart_status,
-		smart_serialnumber,
-		smart_temperature,
-		smart_powerontime,
-		smart_loadcycle,
-		smart_capacity,
-		smart_rotation,
-		smart_formfactor,
-		status,
-		purchased,
-		warranty,
-		warranty_date,
-		comment
-	";
-	$sql_tables_location_v1 = "
-		id,
-		luname,
-		empty,
-		tray
-	";
-	$sql_tables_location_conv_v2 = "
-		id,
-		hash,
-		empty,
-		tray
-	";
-	
-	/*
-		Database Version: 0
-	*/
-	
-	$sql_tables_disks_v0 = "
-		id,
-		device,
-		devicenode,
-		luname,
-		model_family,
-		model_name,
-		smart_status,
-		smart_serialnumber,
-		smart_temperature,
-		smart_powerontime,
-		smart_loadcycle,
-		smart_capacity,
-		smart_rotation,
-		smart_formfactor,
-		status,
-		purchased,
-		warranty,
-		comment
-	";
-	$sql_tables_settings_v0 = "
-		smart_exec_delay,
-		bgcolor_unraid,
-		bgcolor_others,
-		bgcolor_empty,
-		grid_count,
-		grid_columns,
-		grid_rows,
-		grid_trays,
-		disk_tray_direction,
-		tray_width,
-		tray_height
-	";
 
 // Create and update database
-
+	print("<h3 style=\"color: #FF0000;\">");
 	if(filesize(DISKLOCATION_DB) === 0) {
 		$sql = "
 			CREATE TABLE disks(
@@ -597,122 +528,14 @@
 		
 		$db_update = 0;
 		
-		if($database_version < 1) {
-			$db_update = 1;
-			$sql = "
-				PRAGMA foreign_keys = off;
-				
-				BEGIN TRANSACTION;
-				
-				ALTER TABLE disks RENAME TO old_disks;
-				ALTER TABLE settings RENAME TO old_settings;
-				
-				CREATE TABLE disks($sql_create_disks);
-				CREATE TABLE settings($sql_create_settings);
-				
-				INSERT INTO disks ($sql_tables_disks_v0) SELECT $sql_tables_disks_v0 FROM old_disks;
-				INSERT INTO settings ($sql_tables_settings_v0) SELECT $sql_tables_settings_v0 FROM old_settings;
-				
-				DROP TABLE old_disks;
-				DROP TABLE old_settings;
-				
-				COMMIT;
-				
-				PRAGMA foreign_keys = on;
-				PRAGMA user_version = '1';
-				
-				VACUUM;
-			";
-			$ret = $db->exec($sql);
-			if(!$ret) {
-				$db_update = 0;
-				echo $db->lastErrorMsg();
-			}
-		}
-		
-		if($database_version < 2) {
-			$db_update = 1;
-			$sql = "
-				PRAGMA foreign_keys = off;
-				
-				BEGIN TRANSACTION;
-				
-				ALTER TABLE disks RENAME TO old_disks;
-				ALTER TABLE location RENAME TO old_location;
-				
-				CREATE TABLE disks($sql_create_disks);
-				CREATE TABLE location($sql_create_location);
-				
-				INSERT INTO disks ($sql_tables_disks_v1) SELECT $sql_tables_disks_v1 FROM old_disks;
-				INSERT INTO location ($sql_tables_location_conv_v2) SELECT $sql_tables_location_v1 FROM old_location;
-				
-				DROP TABLE old_disks;
-				DROP TABLE old_location;
-				
-				COMMIT;
-				
-				PRAGMA foreign_keys = on;
-				PRAGMA user_version = '2';
-				
-				VACUUM;
-			";
-			$ret = $db->exec($sql);
-			if(!$ret) {
-				$db_update = 0;
-				echo $db->lastErrorMsg();
-			}
-			
-			// Create hashes for devices and insert them into the database
-			$sql = "SELECT luname,model_family,model_name,smart_serialnumber,hash FROM disks";
-			$results = $db->query($sql);
-			while($data = $results->fetchArray(1)) {
-				$create_deviceid_sha256 = hash('sha256', $data["model_name"] . $data["smart_serialnumber"]);
-				$sql_update_v2 .= "
-					UPDATE location SET
-						hash = '" . $create_deviceid_sha256 . "'
-					WHERE hash = '" . $data["luname"] . "'
-					;
-					
-					UPDATE disks SET
-						hash = '" . $create_deviceid_sha256 . "'
-					WHERE luname = '" . $data["luname"] . "'
-					;
-				";
-			}
-			$ret = $db->exec($sql_update_v2);
-			if(!$ret) {
-				$db_update = 0;
-				echo $db->lastErrorMsg();
-			}
-		}
+		// Version below "next" is not supported anymore:
 		
 		if($database_version < 3) {
-			$db_update = 1;
-			$sql = "
-				PRAGMA foreign_keys = off;
-				
-				BEGIN TRANSACTION;
-				
-				ALTER TABLE settings RENAME TO old_settings;
-				
-				CREATE TABLE settings($sql_create_settings);
-				
-				INSERT INTO settings ($sql_tables_settings_v2) SELECT $sql_tables_settings_v2 FROM old_settings;
-				
-				DROP TABLE old_settings;
-				
-				COMMIT;
-				
-				PRAGMA foreign_keys = on;
-				PRAGMA user_version = '3';
-				
-				VACUUM;
-			";
-			$ret = $db->exec($sql);
-			if(!$ret) {
-				$db_update = 0;
-				echo $db->lastErrorMsg();
-			}
+			// database to old, deleting to create a new one...
+			unlink(DISKLOCATION_DB);
+			print("<h3 style=\"color: #FF0000;\">Database too old, a new fresh one will be created. </h3><meta http-equiv=\"refresh\" content=\"3;url=" . DISKLOCATION_URL . "\" /><br />Refreshing...");
+			exit;
+			
 		}
 		
 		if($database_version < 4) {
@@ -812,7 +635,7 @@
 			";
 			$ret = $db->exec($sql);
 			if(!$ret) {
-				$db_update = 0;
+				$db_update = 2;
 				echo $db->lastErrorMsg();
 			}
 		
@@ -842,7 +665,7 @@
 			";
 			$ret = $db->exec($sql);
 			if(!$ret) {
-				$db_update = 0;
+				$db_update = 2;
 				echo $db->lastErrorMsg();
 			}
 		}
@@ -875,7 +698,7 @@
 			";
 			$ret = $db->exec($sql);
 			if(!$ret) {
-				$db_update = 0;
+				$db_update = 2;
 				echo $db->lastErrorMsg();
 			}
 		}
@@ -904,7 +727,7 @@
 			";
 			$ret = $db->exec($sql);
 			if(!$ret) {
-				$db_update = 0;
+				$db_update = 2;
 				echo $db->lastErrorMsg();
 			}
 		}
@@ -933,13 +756,31 @@
 			";
 			$ret = $db->exec($sql);
 			if(!$ret) {
-				$db_update = 0;
+				$db_update = 2;
 				echo $db->lastErrorMsg();
 			}
 		}
 		
 		if($database_version < 9) {
 			$db_update = 1;
+			$insert_sql = "";
+			
+			$sql = "SELECT smart_nvme_data_units_read FROM disks;";
+			$results = $db->exec($sql);
+			
+			if(!$results) {
+				// did not find the old name for smart_units_*
+				$insert_sql = "INSERT INTO disks ($sql_tables_disks_v8_conv_v9) SELECT $sql_tables_disks_v8_conv_v9 FROM old_disks;";
+			}
+			else {
+				$insert_sql = "
+					ALTER TABLE old_disks RENAME COLUMN smart_nvme_data_units_read TO smart_units_read;
+					ALTER TABLE old_disks RENAME COLUMN smart_nvme_data_units_written TO smart_units_written;
+					
+					INSERT INTO disks ($sql_tables_disks_v8_conv_v9) SELECT $sql_tables_disks_v8_conv_v9 FROM old_disks;
+				";
+			}
+			
 			$sql = "
 				PRAGMA foreign_keys = off;
 				
@@ -947,14 +788,12 @@
 				
 				ALTER TABLE settings RENAME TO old_settings;
 				ALTER TABLE disks RENAME TO old_disks;
-				ALTER TABLE old_disks RENAME COLUMN smart_nvme_data_units_read TO smart_units_read;
-				ALTER TABLE old_disks RENAME COLUMN smart_nvme_data_units_written TO smart_units_written;
 				
 				CREATE TABLE settings($sql_create_settings);
 				CREATE TABLE disks($sql_create_disks);
 				
 				INSERT INTO settings ($sql_tables_settings_v8) SELECT $sql_tables_settings_v8 FROM old_settings;
-				INSERT INTO disks ($sql_tables_disks_v8) SELECT $sql_tables_disks_v8 FROM old_disks;
+				" . $insert_sql . "
 				
 				DROP TABLE old_settings;
 				DROP TABLE old_disks;
@@ -968,15 +807,18 @@
 			";
 			$ret = $db->exec($sql);
 			if(!$ret) {
-				$db_update = 0;
+				$db_update = 2;
 				echo $db->lastErrorMsg();
 			}
 		}
-		
-		if($db_update) {
-			//$db->close();
-			print("<h3>Database successfully updated</h3><!-- ', refreshing...'+ <meta http-equiv=\"refresh\" content=\"3;url=" . DISKLOCATION_URL . "\" />-->");
-			//exit;
+		print("</h3>");
+		if($db_update == 1) {
+			print("<h3>Database successfully updated</h3>");
+			if(!in_array("cronjob", $argv)) {
+				$db->close();
+					print("<meta http-equiv=\"refresh\" content=\"3;url=" . DISKLOCATION_URL . "\" /><br />refreshing...");
+				exit;
+			}
 		}
 	}
 ?>
