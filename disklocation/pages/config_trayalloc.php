@@ -411,14 +411,9 @@
 		}
 	}
 ?>
+<?php if($db_update == 2) { print("<h3>Page unavailable due to database error.</h3><!--"); } ?>
 <datalist id="disklocationColors">
 	<option>#<?php echo $bgcolor_empty ?></option>
-	<!--
-	<option>#<?php echo $bgcolor_parity ?></option>
-	<option>#<?php echo $bgcolor_unraid ?></option>
-	<option>#<?php echo $bgcolor_cache ?></option>
-	<option>#<?php echo $bgcolor_others ?></option>
-	-->
 	<?php echo $bgcolor_custom_array ?>
 </datalist>
 <form action="" method="post">
@@ -504,14 +499,13 @@
 						<td style="padding: 10px 10px 0 10px;" colspan="15">
 							<hr />
 							<input type="hidden" name="current_warranty_field" value="<?php echo $warranty_field ?>" />
-							<input type="submit" name="save_allocations" value="Save" /><!--<input type="reset" value="Reset" />-->
+							<input type="submit" name="save_allocations" value="Save" />
 							<span style="padding-left: 50px;"></span>
 							<input type="submit" name="reset_all_colors" value="Reset All Custom Colors" /> <b>or choose "Empty" color (first color listed) per device under "Custom Color" to reset, and then hit the "Save" button.</b>
 							<blockquote class='inline_help'>
 								<ul>
 									<li>"Save" button will store all information entered.</li>
 									<li>"Reset All Custom Colors" will delete all custome stored colors from the database.</li>
-									<!--<li>"Reset" will just revert changes if you changed any values before you saved them, it will not undo the last save.</li>-->
 								</ul>
 							</blockquote>
 						</td>
@@ -578,7 +572,7 @@
 					<dd>The "Locate" button will make your harddisk blink on the LED, this is mainly useful for typical hotswap trays with a LED per tray.</dd>
 					
 					<dt>"Locate" button does not work</dt>
-					<dd>This might not work on all devices, like SSD's. <!--Also check the "Devices" page if the button is really active or not if you started it from the "Configuration" page. The button on the "Configuration" page will not change when pressed, but it will activate it.--></dd>
+					<dd>This might not work on all devices, like SSD's.</dd>
 					
 					<dt>LED is blinking continously after using "Locate"</dt>
 					<dd>Just enter the plugin from the Unraid settings page and it should automatically shut down the locate script. Else it will run continously until stopped or rebooted.</dd>
@@ -595,3 +589,4 @@
 	</table>
 </form>
 <script type="text/javascript" src="<?autov("" . DISKLOCATION_PATH . "/pages/script/locate_script_bottom.js")?>"></script>
+<?php if($db_update == 2) { print("-->"); } ?>

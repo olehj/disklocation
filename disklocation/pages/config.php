@@ -129,17 +129,13 @@
 					<p>
 						<b>Tray count start:</b><br />
 						<input type=\"number\" required min=\"0\" max=\"9999999\" name=\"tray_start_num\" value=\"$tray_start_num\" style=\"width: 50px;\" />
-						<!--
-						<input type=\"radio\" name=\"tray_start_num\" value=\"0\" " . ( ($tray_start_num == 0) ? "checked" : null ) . " />0
-						<input type=\"radio\" name=\"tray_start_num\" value=\"1\" " . ( ($tray_start_num == 1) ? "checked" : null ) . " />1
-						-->
 					</p>
 					<blockquote class=\"inline_help\">
 						<p>Start counting tray from the entered number.</p>
 					</blockquote>
 					<p style=\"text-align: center;\">
 						<input type=\"hidden\" name=\"groupid\" value=\"$gid\" />
-						<input type=\"submit\" name=\"save_groupsettings\" value=\"Save\" /><!--<input type=\"reset\" value=\"Reset\" />-->
+						<input type=\"submit\" name=\"save_groupsettings\" value=\"Save\" />
 					</p>
 					<blockquote class=\"inline_help\">
 						<p>Save the Disk Tray Layout. This does not save the Common Configuration and the Visible Frontpage Information.</p>
@@ -175,6 +171,7 @@
 		$inlinehelp_table_order .= "<tr style=\"white-space: nowrap; border: 1px solid black;\"><td style=\"white-space: nowrap;margin: 0; padding: 0 5px 0 5px;\">" . $table_order_user[$i] . "</td><td style=\"white-space: nowrap;margin: 0; padding: 0 5px 0 5px;\">" . $table_order_name[$i] . "</td><td style=\"margin: 0; padding: 0 5px 0 5px;\">" . $table_order_full[$i] . "</td></tr>";
 	}
 ?>
+<?php if($db_update == 2) { print("<h3>Page unavailable due to database error.</h3><!--"); } ?>
 <datalist id="disklocationColorsDef">
 	<option>#<?php echo $bgcolor_parity ?></option>
 	<option>#<?php echo $bgcolor_unraid ?></option>
@@ -217,9 +214,8 @@ $(document).ready(function(){
 					<b>Change background colors:</b>
 				</p>
 				<p>
-					<input type="radio" name="dashboard_widget" id="bgcolor_display_0" value="0" <?php if($dashboard_widget == "0") echo "checked"; ?> />Disk Type
-					<input type="radio" name="dashboard_widget" id="bgcolor_display_1" value="1" <?php if($dashboard_widget == "1") echo "checked"; ?> />Heat Map
-					<!-- reusing the deprecated dashboard variable instead of messing with the database -->
+					<input type="radio" name="dashboard_widget" id="bgcolor_display_0" value="0" <?php if($dashboard_widget == "0") echo "checked"; // reusing the deprecated dashboard variable instead of messing with the database ?> />Disk Type
+					<input type="radio" name="dashboard_widget" id="bgcolor_display_1" value="1" <?php if($dashboard_widget == "1") echo "checked"; // reusing the deprecated dashboard variable instead of messing with the database ?> />Heat Map
 				</p>
 				<blockquote class='inline_help'>
 					Choose "Disk Type" for the traditional color scheme over the array and disk type.<br />
@@ -295,8 +291,7 @@ $(document).ready(function(){
 				</blockquote>
 				<p>
 					<b>Trim serial numbers:</b><br />
-					<input type="number" required min="-99" max="99" step="1" name="dashboard_widget_pos" value="<?php print($dashboard_widget_pos); ?>" style="width: 50px;" />
-					<!-- reusing the deprecated dashboard_pos variable instead of messing with the database -->
+					<input type="number" required min="-99" max="99" step="1" name="dashboard_widget_pos" value="<?php print($dashboard_widget_pos); // reusing the deprecated dashboard_pos variable instead of messing with the database ?>" style="width: 50px;" />
 				</p>
 				<blockquote class='inline_help'>
 					Serial number will be cut either the first or last part of this value, 0 does nothing. Negative number will display X last characters, positive the X first characters.
@@ -571,7 +566,6 @@ $(document).ready(function(){
 					<input type="submit" name="save_settings" value="Save" />
 					<span style="padding-left: 50px;"></span>
 					<input type="submit" name="reset_common_colors" value="Reset Common Colors" />
-					<!--<input type="reset" value="Reset" />-->
 				</span>
 				<blockquote class='inline_help'>
 					<p>Save the Common Configuration and the Visible Frontpage Information. This does not save the Disk Tray Layout.</p>
@@ -606,3 +600,4 @@ $(document).ready(function(){
 		</td>
 	</tr>
 </table>
+<?php if($db_update == 2) { print("-->"); } ?>

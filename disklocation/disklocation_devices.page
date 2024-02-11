@@ -59,6 +59,10 @@ Title="Devices"
 			<!--Go to <a href=\"" . DISKLOCATIONCONF_URL . "\">Disk Location Configuration</a>-->
 		";
 	}
+	
+	if($db_update == 2) {
+		print("<!--");
+	}
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/signals.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/help.css")?>">
@@ -119,4 +123,11 @@ Title="Devices"
 		<dd>You can delete the database under "System" tab. This will be recreated with blank defaults when you enter the plugin page next. Remember, all settings and tray allocations will be deleted for this plugin.</dd>
 	</dl>
 </blockquote>
-<?php print($disklocation_page_out); ?>
+<?php 
+	if($db_update == 2) {
+		print("-->");
+	}
+	else {
+		print($disklocation_page_out);
+	}
+?>

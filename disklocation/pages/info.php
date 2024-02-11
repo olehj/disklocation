@@ -208,6 +208,7 @@
 		$i_drive++;
 	}
 ?>
+<?php if($db_update == 2) { print("<h3>Page unavailable due to database error.</h3><!--"); } ?>
 <h2 style="margin-top: -10px; padding: 0 0 25px 0;">Disk Information</h2>
 <form action="" method="post">
 <table style="width: 800px; border-spacing: 3px; border-collapse: separate;">
@@ -256,3 +257,4 @@
 	<p>Download a TSV file based upon the selection and ordering of the Information table above. If you're using HTML in the comment section, it will include HTML code if inserted and will not parse it anyhow. TSV is the same as CSV, but the extension for TAB delimited instead of COMMA.</p>
 </blockquote>
 </form>
+<?php if($db_update == 2) { print("-->"); } ?>
