@@ -47,9 +47,7 @@
 -->
 <CHANGES>
 ###2024.02.12
- - Commit #271 - BUG: Due to a bug in the database upgrade, I have now checked multiple scenarios why it happened. It should be solved. Also made it possible to access limited functions during database errors for restoring older databases. Version 2 and below is not supported anymore (very old databases: 2019-06-19 and earlier). They will be deleted (but not from the backup) and a new fresh database will be created.
-
-Changed an IF statement in functions.php to address an issue with two arrays.
+ - Commit #271 - BUG: Due to a bug in the database upgrade, I have now checked multiple scenarios why it happened. It should be solved. Also made it possible to access limited functions during database errors for restoring older databases. Version 2 and below is not supported anymore (very old databases: 2019-06-19 and earlier). They will be deleted (but not from the backup) and a new fresh database will be created. Changed an IF statement in functions.php to address an issue with two arrays.
 
 ###2024.02.11
  - Commit #269 - Set SMART "command timeout" to disabled by default. Because of Seagate drives it makes more sense to disable this monitoring by default, like Unraid does.
