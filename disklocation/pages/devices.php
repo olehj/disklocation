@@ -407,6 +407,9 @@
 						else if(strstr($smart_powermode, "STANDBY")) {
 							$unraid_disk_status_color = "green-blink";
 						}
+						else if($data["smart_rotation"] != -2) { // NVMe devices probably doesn't sleep, so leave as "ACTIVE" regardless as it's not detected on some/all NVMe devjces. This is mainly valid for unassigned devices.
+							$unraid_disk_status_color = "green-on";
+						}
 						else {
 							$unraid_disk_status_color = "grey-off";
 						}
