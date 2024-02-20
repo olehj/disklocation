@@ -945,6 +945,7 @@
 	function config($file, $operation, $key = '', $val = '') { // file, [r]ead/[w]rite, key (req. write), value (req. write)
 		if($operation == 'w') {
 			if(!file_exists($file)) {
+				mkdir(dirname($file), 0755, true);
 				touch($file);
 			}
 			$config_json = file_get_contents($file);

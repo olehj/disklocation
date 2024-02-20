@@ -130,7 +130,34 @@
 				//$smart_check_operation = shell_exec("smartctl -n standby $lsscsi_devicenodesg[$i] | egrep 'ACTIVE|IDLE|NVMe'");
 				$smart_check_operation = shell_exec("smartctl -n standby " . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . " | egrep 'ACTIVE|IDLE|NVMe'");
 				
+				$smart_powermode_shell = shell_exec("smartctl -n standby " . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . " | grep -i 'Device'");
+				$smart_powermode = (isset($smart_powermode_shell) ? trim($smart_powermode_shell) : '');
+				
+				switch(true) {
+					case strstr($smart_powermode, "ACTIVE"):
+						$smart_powermode_status = "ACTIVE";
+						break;
+					case strstr($smart_powermode, "IDLE"):
+						$smart_powermode_status = "IDLE";
+						break;
+					case strstr($smart_powermode, "STANDBY"):
+						$smart_powermode_status = "STANDBY";
+						break;
+					case strstr($smart_powermode, "NVMe"):
+						$smart_powermode_status = "ACTIVE";
+						break;
+					default:
+						$smart_powermode_status = "UNKNOWN";
+				}
+				
+				config("/tmp/disklocation/powermode.ini", 'w', $lsscsi_device[$i], $smart_powermode_status);
+				
 				usleep($smart_exec_delay . 000); // delay script to get the output of the next shell_exec()
+				
+				if(in_array("status", $argv)) {
+					$i++;
+					continue;
+				}
 				
 				if(!isset($argv) || !in_array("silent", $argv)) {
 					print("SMART: " . $lsscsi_devicenodesg[$i] . " ");
