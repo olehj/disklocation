@@ -85,6 +85,14 @@ else
   logit "Plugin folder &pluginLOC; already exists"
 fi
 
+<!--# Create plugin-branch folder if needed -->
+if [ ! -d "&pluginLOC;-&branch;" ] ; then
+  logit "Creating plugin folder &pluginLOC;-&branch;"
+  mkdir -p "&pluginLOC;-&branch;"
+else
+  logit "Plugin folder &pluginLOC;-&branch; already exists"
+fi
+
 <!--# Check local package file -->
 logit "Checking existing package &pluginLOC;/&packagefile;..."
 if [ -f "&pluginLOC;/&packagefile;" ] ; then
