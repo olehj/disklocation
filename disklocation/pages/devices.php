@@ -226,6 +226,7 @@
 				$warranty_page = "";
 				$smart_status = 0;
 				$smart_status_icon = "";
+				$smart_powermode = "";
 				$smart_modelfamily = "";
 				$smart_modelname = "";
 				$smart_serialnumber = "";
@@ -392,27 +393,24 @@
 						$color_status = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"],'color');
 					}
 					else {
-						$device_lsscsi = lsscsi_parser(shell_exec("lsscsi -b -g " . $device . ""));
-						usleep($smart_exec_delay . 000); // delay script to get the output of the next shell_exec()
+						$smart_powermode = config("/tmp/disklocation/powermode.ini", 'r', $device);
+						switch($smart_powermode) {
+							case "ACTIVE":
+								$unraid_disk_status_color = "green-on";
+								break;
+							case "IDLE":
+								$unraid_disk_status_color = "green-on";
+								break;
+							case "STANDBY":
+								$unraid_disk_status_color = "green-blink";
+								break;
+							case "UNKNOWN":
+								$unraid_disk_status_color = "grey-off";
+								break;
+							default:
+								$unraid_disk_status_color = "grey-off";
+						}
 						
-						$smart_powermode_shell = shell_exec("smartctl -n standby " . $device_lsscsi["sgnode"] . " | grep Device");
-						$smart_powermode = (isset($smart_powermode_shell) ? trim($smart_powermode_shell) : '');
-						
-						if(strstr($smart_powermode, "ACTIVE")) {
-							$unraid_disk_status_color = "green-on";
-						}
-						else if(strstr($smart_powermode, "IDLE")) {
-							$unraid_disk_status_color = "green-on";
-						}
-						else if(strstr($smart_powermode, "STANDBY")) {
-							$unraid_disk_status_color = "green-blink";
-						}
-						else if($data["smart_rotation"] != -2) { // NVMe devices probably doesn't sleep, so leave as "ACTIVE" regardless as it's not detected on some/all NVMe devjces. This is mainly valid for unassigned devices.
-							$unraid_disk_status_color = "green-on";
-						}
-						else {
-							$unraid_disk_status_color = "grey-off";
-						}
 						$zfs_disk_status = "";
 						if(zfs_check()) {
 							$zfs_disk_status = zfs_disk("" . $data["smart_serialnumber"] . "");

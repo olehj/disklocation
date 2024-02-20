@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2024.02.19">
+<!ENTITY version          "2024.02.20">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -46,6 +46,9 @@
 
 -->
 <CHANGES>
+###2024.02.20
+ - Commit #278 - BUG: Commit #274 should be fixed, turned around some variables, but also added the checks as a background tasks instead of loading and checking every refresh. The status of the devices is checked every 5 minutes instead.
+
 ###2024.02.19
  - Commit #274 - ISSUE: As some or all NVMe devices does not output standby mode on SMART info, I have set the drive to be overridden as "ACTIVE" regardless as long as it is a  NVMe device and is detected by SMART and the system at all.
 
@@ -637,6 +640,16 @@ EOL
   logit "Adding devices into database, please wait... this might take a while..."
   php -f /usr/local/emhttp/plugins/disklocation/pages/cron_disklocation.php cronjob install
   
+  logit "Installing cronjob..."
+  <!--# Add cronjob for powermode -->
+  cat &gt;&pluginLOC;-&branch;/powermode.sh &lt;&lt;EOL
+# Crontab for Disk Location plugin to retrieve SMART power status in the background
+*/5 * * * * php -f /usr/local/emhttp/plugins/disklocation/pages/cron_disklocation.php cronjob status &amp;&gt; /dev/null
+EOL
+  php -f /usr/local/emhttp/plugins/disklocation/pages/cron_disklocation.php cronjob status
+  chmod +x &pluginLOC;-&branch;/powermode.sh
+  /usr/local/sbin/update_cron
+  
   logit "Plugin installed successfully!"
   exit 0
 else
@@ -687,6 +700,8 @@ logit "Removing plugin..."
 [ -f "/etc/cron.daily/disklocation.sh" ] &amp;&amp; rm -f "/etc/etc.daily/disklocation.sh"
 [ -f "/etc/cron.weekly/disklocation.sh" ] &amp;&amp; rm -f "/etc/etc.weekly/disklocation.sh"
 [ -f "/etc/cron.monthly/disklocation.sh" ] &amp;&amp; rm -f "/etc/etc.monthly/disklocation.sh"
+[ -f "&pluginLOC;-&branch;/powermode.sh" ] &amp;&amp; rm -f "&pluginLOC;-&branch;/powermode.sh"
+/usr/local/sbin/update_cron
 rm -f &pluginLOC;/disklocation.*.tar.bz2
 rm -f &pluginLOC;/disklocation.*.zip
 logit "Plugin stopped and removed, package files removed from &pluginLOC;, database, settings and the backups are not removed."
