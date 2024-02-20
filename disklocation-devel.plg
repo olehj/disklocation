@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2024.02.20-dev">
+<!ENTITY version          "2024.02.21-dev">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -283,12 +283,12 @@ EOL
   
   logit "Installing cronjob..."
   <!--# Add cronjob for powermode -->
-  cat &gt;&pluginLOC;-&branch;/powermode.sh &lt;&lt;EOL
+  cat &gt;&pluginLOC;-&branch;/powermode.cron &lt;&lt;EOL
 # Crontab for Disk Location plugin to retrieve SMART power status in the background
 */5 * * * * php -f /usr/local/emhttp/plugins/disklocation/pages/cron_disklocation.php cronjob status &amp;&gt; /dev/null
 EOL
   php -f /usr/local/emhttp/plugins/disklocation/pages/cron_disklocation.php cronjob status
-  chmod +x &pluginLOC;-&branch;/powermode.sh
+  chmod +x &pluginLOC;-&branch;/powermode.cron
   /usr/local/sbin/update_cron
   
   logit "Plugin installed successfully!"
@@ -341,7 +341,7 @@ logit "Removing plugin..."
 [ -f "/etc/cron.daily/disklocation.sh" ] &amp;&amp; rm -f "/etc/etc.daily/disklocation.sh"
 [ -f "/etc/cron.weekly/disklocation.sh" ] &amp;&amp; rm -f "/etc/etc.weekly/disklocation.sh"
 [ -f "/etc/cron.monthly/disklocation.sh" ] &amp;&amp; rm -f "/etc/etc.monthly/disklocation.sh"
-[ -f "&pluginLOC;-&branch;/powermode.sh" ] &amp;&amp; rm -f "&pluginLOC;-&branch;/powermode.sh"
+[ -f "&pluginLOC;-&branch;/powermode.cron" ] &amp;&amp; rm -f "&pluginLOC;-&branch;/powermode.cron"
 /usr/local/sbin/update_cron
 rm -f &pluginLOC;/disklocation.*.tar.bz2
 rm -f &pluginLOC;/disklocation.*.zip
