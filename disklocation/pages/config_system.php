@@ -25,7 +25,7 @@
 		
 		define("UNRAID_CONFIG_PATH", "/boot/config");
 		define("DISKLOCATION_PATH", "/plugins/disklocation");
-		define("DISKLOCATION_URL", "/Settings/disklocation");
+		define("DISKLOCATION_URL", "/Tools/disklocation");
 		define("DISKLOCATION_CONF", "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.conf");
 		define("DISKLOCATION_DB_DEFAULT", "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.sqlite");
 		
@@ -408,8 +408,8 @@
 			<form action=\"" . DISKLOCATION_PATH . "/pages/config_system.php\" method=\"post\">
 				<b>Clicking the buttons will start collecting SMART data directly. It might take a few seconds to several minutes depending on the amount of devices it need to scan.</b>
 				<br />
-				<input type='button' value='Update Active' onclick='openBox(\"" . CRONJOB_URL . "?active_smart_scan=1\",\"Updating Active Devices\",600,1000,true,\"loadlist\",\":return\")'>
-				<input type='button' value='Force Update All' onclick='openBox(\"" . CRONJOB_URL . "?force_smart_scan=1\",\"Force Updating All Devices\",600,1000,true,\"loadlist\",\":return\")'>
+				<input type='button' value='Update Active' onclick='openBox(\"" . CRONJOB_URL . "?active_smart_scan=1\",\"Updating Active Devices\",600,800,true,\"loadlist\",\":return\")'>
+				<input type='button' value='Force Update All' onclick='openBox(\"" . CRONJOB_URL . "?force_smart_scan=1\",\"Force Updating All Devices\",600,800,true,\"loadlist\",\":return\")'>
 				<!--<br />
 				<input type='submit' name=\"active_smart_scan\" value=\"Update Active\">
 				<input type='submit' name=\"force_smart_scan\" value=\"Force Update All\">-->
