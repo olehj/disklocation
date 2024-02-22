@@ -28,8 +28,8 @@
 	// define constants
 	define("UNRAID_CONFIG_PATH", "/boot/config");
 	define("DISKLOGFILE", "/boot/config/disk.log");
-	define("DISKLOCATION_URL", "/Settings/disklocation");
-	define("DISKLOCATIONCONF_URL", "/Settings/disklocation");
+	define("DISKLOCATION_URL", "/Tools/disklocation");
+	define("DISKLOCATIONCONF_URL", "/Tools/disklocation");
 	define("DISKLOCATION_PATH", "/plugins/disklocation");
 	define("DISKLOCATION_CONF", "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.conf");
 	define("DISKLOCATION_DB_DEFAULT", "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.sqlite");
@@ -640,7 +640,7 @@
 				UPDATE disks SET
 					status = 'r',
 					removed = '" . date("Y-m-d") . "'
-				WHERE hash = '" . $old_hash[$i] . "'
+				WHERE status IS NOT 'r' AND hash = '" . $old_hash[$i] . "'
 				;
 				DELETE FROM location WHERE hash = '" . $old_hash[$i] . "';
 			";

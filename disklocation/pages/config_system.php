@@ -25,7 +25,7 @@
 		
 		define("UNRAID_CONFIG_PATH", "/boot/config");
 		define("DISKLOCATION_PATH", "/plugins/disklocation");
-		define("DISKLOCATION_URL", "/Settings/disklocation");
+		define("DISKLOCATION_URL", "/Tools/disklocation");
 		define("DISKLOCATION_CONF", "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.conf");
 		define("DISKLOCATION_DB_DEFAULT", "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.sqlite");
 		
@@ -406,16 +406,23 @@
 		
 		$print_force_scan = "
 			<form action=\"" . DISKLOCATION_PATH . "/pages/config_system.php\" method=\"post\">
-				<b>When clicking \"Force Scan All\" the plugin starts collecting SMART data directly. It might take a few seconds to several minutes depending on the amount of devices it need to scan.</b>
+				<b>Clicking the buttons will start collecting SMART data directly. It might take a few seconds to several minutes depending on the amount of devices it need to scan.</b>
 				<br />
-				<input type='button' value='Force Scan All' onclick='openBox(\"" . CRONJOB_URL . "?force_smart_scan=1\",\"Force Scanning\",600,1000,true,\"loadlist\",\":return\")'>
+				<input type='button' value='Update Active' onclick='openBox(\"" . CRONJOB_URL . "?active_smart_scan=1\",\"Updating Active Devices\",600,800,true,\"loadlist\",\":return\")'>
+				<input type='button' value='Force Update All' onclick='openBox(\"" . CRONJOB_URL . "?force_smart_scan=1\",\"Force Updating All Devices\",600,800,true,\"loadlist\",\":return\")'>
 				<!--<br />
-				<input type='submit' name=\"force_smart_scan\" value=\"Force Scan All\">-->
+				<input type='submit' name=\"active_smart_scan\" value=\"Update Active\">
+				<input type='submit' name=\"force_smart_scan\" value=\"Force Update All\">-->
 				<blockquote class='inline_help'>
 					<ul>
-						<li>\"Force Scan All\" button will force scan all drives for updated SMART data and move removed disks into the \"lost\" table under the \"Information\" tab. This button will and must wake up all drives into a spinning state and does so one by one. It might take a while to complete depending on your configuration.</li>
-						<li>You can also run \"Force Scan All\" from the shell and get direct output which might be useful for debugging:<br />
-						<code style=\"white-space: nowrap;\">php -f /usr/local/emhttp/plugins/disklocation/pages/cron_disklocation.php cronjob|force [silent]</code></li>
+						<li>\"Update Active\" button will update only active (spinning) drives for SMART data, It might take a while to complete depending on your configuration.</li>
+						<li>You can also run \"Update Active\" from the shell and get direct output which might be useful for debugging:<br />
+						<code style=\"white-space: nowrap;\">php -f /usr/local/emhttp/plugins/disklocation/pages/cron_disklocation.php cronjob [silent]</code></li>
+					</ul>
+					<ul>
+						<li>\"Force Update All\" button will force update all drives for SMART data and move removed disks into the \"lost\" table under the \"Information\" tab. This button will and must wake up all drives into a spinning state and does so one by one. It might take a while to complete depending on your configuration.</li>
+						<li>You can also run \"Force Update All\" from the shell and get direct output which might be useful for debugging:<br />
+						<code style=\"white-space: nowrap;\">php -f /usr/local/emhttp/plugins/disklocation/pages/cron_disklocation.php force [silent]</code></li>
 					</ul>
 				</blockquote>
 			</form>
