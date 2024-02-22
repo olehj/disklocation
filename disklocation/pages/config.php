@@ -408,6 +408,7 @@ $(document).ready(function(){
 					<tr>
 						<td style="vertical-align: top; width: <?php echo $vi_width ?>px;">
 							<b>SATA drives info (HDD/SSD):</b><br />
+							<input type="checkbox" name="displayinfo[cache]" value="1" <?php if(isset($displayinfo["cache"])) echo "checked"; ?> />Drive Cache<br />
 							<input type="checkbox" name="displayinfo[loadcycle]" value="1" <?php if(isset($displayinfo["loadcycle"])) echo "checked"; ?> />Load Cycles<br />
 							<input type="checkbox" name="displayinfo[reallocated_sector_count]" value="1" <?php if(isset($displayinfo["reallocated_sector_count"])) echo "checked"; ?> />Reallocated Sector<br />
 							<input type="checkbox" name="displayinfo[reported_uncorrectable_errors]" value="1" <?php if(isset($displayinfo["reported_uncorrectable_errors"])) echo "checked"; ?> />Reported Uncorrectable<br />
@@ -423,6 +424,8 @@ $(document).ready(function(){
 						<td style="vertical-align: top; width: <?php echo $vi_width ?>px;">
 							<b>User inputs:</b><br />
 							<input type="checkbox" name="displayinfo[manufactured]" value="1" <?php if(isset($displayinfo["manufactured"])) echo "checked"; ?> />Manufacture Date<br />
+							<input type="checkbox" name="displayinfo[purchased]" value="1" <?php if(isset($displayinfo["purchased"])) echo "checked"; ?> />Purchase Date<br />
+							<input type="checkbox" name="displayinfo[installed]" value="1" <?php if(isset($displayinfo["installed"])) echo "checked"; ?> />Installation Date<br />
 							<input type="checkbox" name="displayinfo[warranty]" value="1" <?php if(isset($displayinfo["warranty"])) echo "checked"; ?> />Warranty Left<br />
 							<input type="checkbox" name="displayinfo[comment]" value="1" <?php if(isset($displayinfo["comment"])) echo "checked"; ?> />Comment<br />
 						</td>
@@ -479,7 +482,7 @@ $(document).ready(function(){
 			<td colspan="3" style="margin: 0; padding: 0 0 0 0 ;">
 				<blockquote class='inline_help'>
 					<ul>
-						<li><b>Possible selectors:</b> group, tray, device, node, lun, manufacturer, model, status, serial, temp, powerontime, loadcycle, reallocated, reported, timeout, pending, offline, capacity, rotation, formfactor, nvme_spare, nvme_spare_thres, nvme_used, read, written, manufactured, purchased, warranty, comment</li>
+						<li><b>Possible selectors:</b> group, tray, device, node, lun, manufacturer, model, status, serial, temp, powerontime, loadcycle, reallocated, reported, timeout, pending, offline, capacity, cache, rotation, formfactor, nvme_spare, nvme_spare_thres, nvme_used, read, written, <!-- bench_r, bench_w, --> manufactured, purchased, installed, warranty, comment</li>
 						<li>Sort: The "tray" sorting does sort by "TrayID" and not the physical tray. If the tray count is backwards or or have different starting points, it might affect this and show a weird behaviour. It's not a bug nor a feature, it just is what it is.</li>
 					</ul>
 				</blockquote>
@@ -500,7 +503,7 @@ $(document).ready(function(){
 			<td colspan="3" style="margin: 0; padding: 0 0 0 0 ;">
 				<blockquote class='inline_help'>
 					<ul>
-						<li><b>Possible selectors:</b> (group, tray)*, device, node, lun, manufacturer, model, serial, capacity, rotation, formfactor, manufactured, purchased, warranty, comment</li>
+						<li><b>Possible selectors:</b> (group, tray)*, device, node, lun, manufacturer, model, serial, capacity, cache, rotation, formfactor, manufactured, purchased, installed, warranty, comment</li>
 						<li><b>Sort:</b> "Unassigned Devices" will only sort by an internal ID, but will follow the set direction, ascending or descending. *) Sorting by group and tray is therefore possible with "Tray Allocations", but not to be included in columns.</li>
 					</ul>
 				</blockquote>
@@ -521,7 +524,7 @@ $(document).ready(function(){
 			<td colspan="3" style="margin: 0; padding: 0 0 0 0 ;">
 				<blockquote class='inline_help'>
 					<ul>
-						<li><b>Possible selectors:</b> device, node, lun, manufacturer, model, status, serial, powerontime, loadcycle, reallocated, reported, timeout, pending, offline, capacity, rotation, formfactor, nvme_spare, nvme_spare_thres, nvme_used, read, written, manufactured, purchased, warranty, comment</li>
+						<li><b>Possible selectors:</b> device, node, lun, manufacturer, model, status, serial, powerontime, loadcycle, reallocated, reported, timeout, pending, offline, capacity, cache, rotation, formfactor, nvme_spare, nvme_spare_thres, nvme_used, read, written, <!-- bench_r, bench_w, --> manufactured, purchased, installed, removed, warranty, comment</li>
 					</ul>
 				</blockquote>
 			</td>
@@ -544,11 +547,13 @@ $(document).ready(function(){
 						Tray Allocations will always have "group,tray" at the beginning including the "Locate" button. No elements with input forms should be duplicated even if it's possible to do it.
 						Only selectors underneath each section is possible to use, others will show the column with "unavailable".
 					</p>
-					<p style="padding: 0 0 50px 0;">
+					<p>
 						<b>Reset</b><br />
 						Values can be reset to default by deleting the contents and saving it.
 					</p>
-					
+					<p style="padding: 0 0 50px 0;">
+						NB! "bench_r" and "bench_w" are not supported yet but prepared for future project.
+					</p>
 					<table style="background: none; border-spacing: 0px;; width: 300px;">
 						<tr style="border: 1px solid black;">
 							<td style="margin: 0; padding: 0 0 0 0;"><b>Input</b></td>
