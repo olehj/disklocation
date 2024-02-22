@@ -224,6 +224,8 @@
 				$hash = $data["hash"];
 				$color_override = $data["color"];
 				$warranty_page = "";
+				$purchased_date = "";
+				$installed_date = "";
 				$smart_status = 0;
 				$smart_status_icon = "";
 				$smart_powermode = "";
@@ -233,6 +235,7 @@
 				$smart_powerontime = "";
 				$smart_loadcycle = "";
 				$smart_capacity = "";
+				$smart_cache = "";
 				$smart_reallocated_sector_count = "";
 				$smart_reported_uncorrectable_errors = "";
 				$smart_command_timeout = "";
@@ -286,6 +289,9 @@
 				if(isset($displayinfo["capacity"])) {
 					$smart_capacity = ( !is_numeric($data["smart_capacity"]) ? null : human_filesize($data["smart_capacity"], 1, true) );
 				}
+				if(isset($displayinfo["cache"])) {
+					$smart_cache = ($data["smart_cache"] ? $data["smart_cache"] . "MB" : "");
+				}
 				if(isset($displayinfo["reallocated_sector_count"])) {
 					$smart_reallocated_sector_count = "" . ( !empty($data["smart_reallocated_sector_count"]) ? "<span style=\"cursor: help;\" title=\"Reallocated sector count\">RSC:" . $data["smart_reallocated_sector_count"] . "</span>" : "<span style=\"cursor: help;\" title=\"Reallocated sector count\">RSC:0</span>" );
 				}
@@ -322,6 +328,12 @@
 				}
 				if(isset($displayinfo["manufactured"])) {
 					$manufactured_page = $data["manufactured"];
+				}
+				if(isset($displayinfo["manufactured"])) {
+					$purchased_date = $data["purchased"];
+				}
+				if(isset($displayinfo["manufactured"])) {
+					$installed_date = $data["installed"];
 				}
 				if(isset($displayinfo["warranty"]) && ($data["purchased"] && ($data["warranty"] || $data["warranty_date"]))) {
 					$warranty_start = strtotime($data["purchased"]);
@@ -614,6 +626,7 @@
 									$devicenode_page
 									$luname_page
 									$smart_capacity
+									" . ( ($data["smart_rotation"] > -2) ? $smart_cache : null ) . "
 									$smart_rotation
 									$smart_formfactor
 									$add_break_1
@@ -627,7 +640,6 @@
 									$smart_powerontime
 									$smart_units_read
 									$smart_units_written
-									
 									" . ( ($data["smart_rotation"] == -2) ? $smart_nvme_available_spare : null ) . "
 									" . ( ($data["smart_rotation"] == -2) ? $smart_nvme_percentage_used : null ) . "
 									" . ( ($data["smart_rotation"] > -2) ? $smart_loadcycle : null ) . "
@@ -637,6 +649,8 @@
 									" . ( ($data["smart_rotation"] > -2) ? $smart_current_pending_sector_count : null ) . "
 									" . ( ($data["smart_rotation"] > -2) ? $smart_offline_uncorrectable : null ) . "
 									$manufactured_page
+									$purchased_date
+									$installed_date
 									$warranty_page
 									$add_break_3
 									

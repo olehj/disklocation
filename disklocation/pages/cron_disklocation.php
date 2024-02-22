@@ -128,6 +128,8 @@
 				//debug_print($debugging_active, __LINE__, "loop", "Scanning " . $lsscsi_type[$i] . ": " . $lsscsi_device[$i] . " LUN: " . $lsscsi_luname[$i] . " Node: " . $lsscsi_devicenodesg[$i] . "");
 				debug_print($debugging_active, __LINE__, "loop", "Scanning: " . $lsscsi_device[$i] . " Node: " . $lsscsi_devicenodesg[$i] . "");
 				//$smart_check_operation = shell_exec("smartctl -n standby $lsscsi_devicenodesg[$i] | egrep 'ACTIVE|IDLE|NVMe'");
+				$smart_cache = get_smart_cache("" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . "");
+				
 				$smart_check_operation = shell_exec("smartctl -n standby " . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . " | egrep 'ACTIVE|IDLE|NVMe'");
 				
 				$smart_powermode_shell = shell_exec("smartctl -n standby " . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . " | grep -i 'Device'");
@@ -284,6 +286,7 @@
 									smart_powerontime,
 									smart_loadcycle,
 									smart_capacity,
+									smart_cache,
 									smart_rotation,
 									smart_formfactor,
 									smart_reallocated_sector_count,
@@ -312,6 +315,7 @@
 									'" . ($smart_array["power_on_time"]["hours"] ?? null) . "',
 									'" . ($smart_loadcycle_find ?? null) . "',
 									'" . ($smart_array["user_capacity"]["bytes"] ?? null) . "',
+									'" . ($smart_cache ?? null) . "',
 									'" . ($smart_array["rotation_rate"] ?? null) . "',
 									'" . ($smart_array["form_factor"]["name"] ?? null) . "',
 									'" . ($smart_reallocated_sector_count ?? null) . "',
@@ -337,7 +341,10 @@
 									smart_temperature='" . ($smart_array["temperature"]["current"] ?? null) . "',
 									smart_powerontime='" . ($smart_array["power_on_time"]["hours"] ?? null) . "',
 									smart_loadcycle='" . ($smart_loadcycle_find ?? null) . "',
+									smart_capacity='" . ($smart_array["user_capacity"]["bytes"] ?? null) . "',
+									smart_cache='" . ($smart_cache ?? null) . "',
 									smart_rotation='" . ($smart_array["rotation_rate"] ?? null) . "',
+									smart_formfactor='" . ($smart_array["form_factor"]["name"] ?? null) . "',
 									smart_reallocated_sector_count='" . ($smart_reallocated_sector_count ?? null) . "',
 									smart_reported_uncorrectable_errors='" . ($smart_reported_uncorrectable_errors ?? null) . "',
 									smart_command_timeout='" . ($smart_command_timeout ?? null) . "',

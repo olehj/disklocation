@@ -20,7 +20,7 @@
 	 */
 
 //	Database Version:
-	$current_db_ver = 9;
+	$current_db_ver = 10;
 
 //	Common settings
 //	Variable name		Default value			Description
@@ -58,6 +58,7 @@
 		'powerontime' => 1,
 		'loadcyclecount' => 1,
 		'capacity' => 1,
+		'cache' => 1,
 		'rotation' => 1,
 		'formfactor' => 1,
 		'reallocated_sector_count' => 0,
@@ -70,6 +71,8 @@
 		'units_read' => 1,
 		'units_written' => 1,
 		'manufactured' => 0,
+		'purchased' => 0,
+		'installed' => 0,
 		'warranty' => 0,
 		'comment' => 0,
 		'hideemptycontents' => 0,
@@ -77,14 +80,14 @@
 		'flashcritical' => 1
 	));
 	
-	$select_db_info = "group,tray,manufacturer,model,serial,capacity,rotation,formfactor,read,written,manufactured,purchased,warranty,comment";
+	$select_db_info = "group,tray,manufacturer,model,serial,capacity,cache,rotation,formfactor,read,written,manufactured,purchased,installed,warranty,comment";
 	$sort_db_info = "asc:group,tray";
 	
 	// mandatory: group,tray,locate,color
-	$select_db_trayalloc = "device,node,lun,manufacturer,model,serial,capacity,rotation,formfactor,manufactured,purchased,warranty,comment";
+	$select_db_trayalloc = "device,node,lun,manufacturer,model,serial,capacity,rotation,formfactor,manufactured,purchased,installed,warranty,comment";
 	$sort_db_trayalloc = "asc:group,tray";
 	
-	$select_db_drives = "device,manufacturer,model,serial,capacity,rotation,formfactor,manufactured,purchased,warranty,comment";
+	$select_db_drives = "device,manufacturer,model,serial,capacity,cache,rotation,formfactor,manufactured,purchased,installed,removed,warranty,comment";
 	$sort_db_drives = "asc:serial";
 	
 	//not used, but prepared just in case it will be added in the future:
@@ -118,6 +121,7 @@
 		smart_powerontime INT,
 		smart_loadcycle INT,
 		smart_capacity INT,
+		smart_cache INT,
 		smart_rotation INT,
 		smart_formfactor VARCHAR(16),
 		smart_reallocated_sector_count INT,
@@ -132,8 +136,12 @@
 		smart_units_read INT,
 		smart_units_written INT,
 		status CHAR(1),
+		benchmark_r INT,
+		benchmark_w INT,
 		manufactured DATE,
 		purchased DATE,
+		installed DATE,
+		removed DATE,
 		warranty SMALLINT,
 		warranty_date DATE,
 		comment VARCHAR(255),
@@ -153,6 +161,7 @@
 		smart_powerontime,
 		smart_loadcycle,
 		smart_capacity,
+		smart_cache,
 		smart_rotation,
 		smart_formfactor,
 		smart_reallocated_sector_count,
@@ -167,8 +176,12 @@
 		smart_units_read,
 		smart_units_written,
 		status,
+		benchmark_r,
+		benchmark_w,
 		manufactured,
 		purchased,
+		installed,
+		removed,
 		warranty,
 		warranty_date,
 		comment,
@@ -275,7 +288,47 @@
 		tray_width,
 		tray_height
 	";
-
+	
+	/*
+		Database Version: 9
+	*/
+	
+	$sql_tables_disks_v9 = "
+		id,
+		device,
+		devicenode,
+		luname,
+		model_family,
+		model_name,
+		smart_status,
+		smart_serialnumber,
+		smart_temperature,
+		smart_powerontime,
+		smart_loadcycle,
+		smart_capacity,
+		smart_rotation,
+		smart_formfactor,
+		smart_reallocated_sector_count,
+		smart_reported_uncorrectable_errors,
+		smart_command_timeout,
+		smart_current_pending_sector_count,
+		smart_offline_uncorrectable,
+		smart_logical_block_size,
+		smart_nvme_available_spare,
+		smart_nvme_available_spare_threshold,
+		smart_nvme_percentage_used,
+		smart_units_read,
+		smart_units_written,
+		status,
+		manufactured,
+		purchased,
+		warranty,
+		warranty_date,
+		comment,
+		color,
+		hash
+	";
+	
 	/*
 		Database Version: 8
 	*/
@@ -527,6 +580,18 @@
 		$database_version = $db->querySingle($sql);
 		
 		$db_update = 0;
+		
+		// make automatic backup if the database is being upgraded:
+		if($database_version < $current_db_ver) {
+			if(file_exists(DISKLOCATION_DB)) {
+				$datetime = date("Ymd-His");
+				mkdir(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/" . $datetime, 0700, true);
+				
+				$sqlite_db = file_get_contents(DISKLOCATION_DB);
+				$sqlite_db_gzdata = gzencode($sqlite_db, 9);
+				file_put_contents(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/" . $datetime . "/disklocation.sqlite.gz", $sqlite_db_gzdata);
+			}
+		}
 		
 		// Version below "next" is not supported anymore:
 		
@@ -811,6 +876,36 @@
 				echo $db->lastErrorMsg();
 			}
 		}
+		
+		if($database_version < 10) {
+			$db_update = 1;
+			$sql = "
+				PRAGMA foreign_keys = off;
+				
+				BEGIN TRANSACTION;
+				
+				ALTER TABLE disks RENAME TO old_disks;
+				
+				CREATE TABLE disks($sql_create_disks);
+				
+				INSERT INTO disks ($sql_tables_disks_v9) SELECT $sql_tables_disks_v9 FROM old_disks;
+				
+				DROP TABLE old_disks;
+				
+				COMMIT;
+				
+				PRAGMA foreign_keys = on;
+				PRAGMA user_version = '10';
+				
+				VACUUM;
+			";
+			$ret = $db->exec($sql);
+			if(!$ret) {
+				$db_update = 2;
+				echo $db->lastErrorMsg();
+			}
+		}
+		
 		if(!in_array("cronjob", $argv)) { print("</h3>"); }
 		if($db_update == 1) {
 			print("<h3>Database successfully updated</h3>");

@@ -246,19 +246,20 @@
 		$select = preg_replace('/\s+/', '', $select);
 		$sort = preg_replace('/\s+/', '', $sort);
 		$table = array( // Table names:
-			"groupid", "tray", "device", "devicenode", "luname", "model_family", "model_name", "smart_status", "smart_serialnumber", "smart_temperature", "smart_powerontime", "smart_loadcycle", "smart_reallocated_sector_count", "smart_reported_uncorrectable_errors", "smart_command_timeout", "smart_current_pending_sector_count", "smart_offline_uncorrectable", "smart_capacity", "smart_rotation", "smart_formfactor", "smart_nvme_available_spare", "smart_nvme_available_spare_threshold", "smart_nvme_percentage_used", "smart_units_read", "smart_units_written", "manufactured", "purchased", "warranty_date", "comment"
+			"groupid", "tray", "device", "devicenode", "luname", "model_family", "model_name", "smart_status", "smart_serialnumber", "smart_temperature", "smart_powerontime", "smart_loadcycle", "smart_reallocated_sector_count", "smart_reported_uncorrectable_errors", "smart_command_timeout", "smart_current_pending_sector_count", "smart_offline_uncorrectable", "smart_capacity", "smart_cache", "smart_rotation", "smart_formfactor", "smart_nvme_available_spare", "smart_nvme_available_spare_threshold", "smart_nvme_percentage_used", "smart_units_read", "smart_units_written", "benchmark_r", "benchmark_w", "manufactured", "purchased", "installed", "removed", "warranty_date", "comment"
 		);
 		$input = array( // User input names - must also match $sort:
-			"group", "tray", "device", "node", "lun", "manufacturer", "model", "status", "serial", "temp", "powerontime", "loadcycle", "reallocated", "reported", "timeout", "pending", "offline", "capacity", "rotation", "formfactor", "nvme_spare", "nvme_spare_thres", "nvme_used", "read", "written", "manufactured", "purchased", "warranty", "comment"
+			"group", "tray", "device", "node", "lun", "manufacturer", "model", "status", "serial", "temp", "powerontime", "loadcycle", "reallocated", "reported", "timeout", "pending", "offline", "capacity", "cache", "rotation", "formfactor", "nvme_spare", "nvme_spare_thres", "nvme_used", "read", "written", "bench_r", "bench_w", "manufactured", "purchased", "installed", "removed", "warranty", "comment"
 		);
 		$nice_names = array(
-			"Group", "Tray", "Path", "Node", "LUN", "Manufacturer", "Device Model", "SMART", "S/N", "Temperature", "Powered", "Cycles", "Reallocated", "Reported", "Timeout", "Pending", "Offline", "Capacity", "Rotation", "FF", "Spare", "Spare Threshold", "Used", "Read", "Written", "Manufactured", "Purchased", "Warranty", "Comment"
+			"Group", "Tray", "Path", "Node", "LUN", "Manufacturer", "Device Model", "SMART", "S/N", "Temperature", "Powered", "Cycles", "Reallocated", "Reported", "Timeout", "Pending", "Offline", "Capacity", "Cache", "Rotation", "FF", "Spare", "Spare Threshold", "Used", "Read", "Written", "Read Speed", "Write Speed", "Manufactured", "Purchased", "Installed", "Removed", "Warranty", "Comment"
 		);
 		$full_names = array(
-			"Group", "Tray", "Path", "Node", "Logic Unit Number", "Manufacturer", "Device Model", "SMART", "Serial Number", "Temperature", "Power On Time", "Load Cycle Count", "Reallocated Sector Count", "Reported Uncorrectable Errors", "Command Timeout", "Current Pending Sector Count", "Offline Uncorrectable", "Capacity", "Rotation", "Form Factor", "Available Spare", "Available Spare Threshold", "Percentage Used", "Data Units Read", "Data Units Written", "Manufactured Date", "Purchased Date", "Warranty Date", "Comment"
+			"Group", "Tray", "Path", "Node", "Logic Unit Number", "Manufacturer", "Device Model", "SMART", "Serial Number", "Temperature", "Power On Time", "Load Cycle Count", "Reallocated Sector Count", "Reported Uncorrectable Errors", "Command Timeout", "Current Pending Sector Count", "Offline Uncorrectable", "Capacity", "Cache Size", "Rotation", "Form Factor", "Available Spare", "Available Spare Threshold", "Percentage Used", "Data Units Read", "Data Units Written", "Benchmark Read Speed", "Benchmark Write Speed", "Manufactured Date", "Purchased Date", "Installed Date", "Removed Date", "Warranty Date", "Comment"
 		);
 		$input_form = array(
-			1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1
+			//                10                  20                  30
+			1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1
 		);
 		
 		if($select == "all") {
@@ -637,7 +638,8 @@
 		for($i=0; $i < count($old_hash); ++$i) {
 			$sql_status .= "
 				UPDATE disks SET
-					status = 'r'
+					status = 'r',
+					removed = '" . date("Y-m-d") . "'
 				WHERE hash = '" . $old_hash[$i] . "'
 				;
 				DELETE FROM location WHERE hash = '" . $old_hash[$i] . "';
@@ -666,7 +668,8 @@
 		if(empty($location)) {
 			$sql_status .= "
 				UPDATE disks SET
-					status = 'h'
+					status = 'h',
+					removed = ''
 				WHERE hash = '" . $hash . "'
 				;
 			";
@@ -687,7 +690,8 @@
 	function force_set_removed_device_status($db, $hash) {
 		$sql_status .= "
 			UPDATE disks SET
-				status = 'r'
+				status = 'r',
+				removed = '" . date("Y-m-d") . "'
 			WHERE hash = '" . SQLite3::escapeString($hash) . "'
 			;
 			DELETE FROM location WHERE hash = '" . SQLite3::escapeString($hash) . "';
@@ -1063,5 +1067,15 @@
 				$smart_rotation = $input . " RPM";
 		}
 		return $smart_rotation;
+	}
+	
+	function get_smart_cache($device) { // output MB
+		$smart_id_data = shell_exec("smartctl " . $device . " -l gplog,0x30,2 | grep 0000420");
+		$values = array();
+		$values = explode(" ", $smart_id_data);
+		
+		$bytes = hexdec($values[4].$values[5].$values[6].$values[7]);
+		
+		return $bytes / 1024 / 1024;
 	}
 ?>
