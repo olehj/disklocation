@@ -47,7 +47,7 @@
 -->
 <CHANGES>
 ###2024.02.23
- - Commit #285 - IMPROVEMENT: Moved the plugin to "Tools" instead of "Settings" as it makes more sense. Renamed "Force Scan All" to "Force Update All" and added "Update Active" button to update active (spinning) devices only.
+ - Commit #285 - IMPROVEMENT: Moved the plugin to "Tools" instead of "Settings" as it makes more sense. Renamed "Force Scan All" to "Force Update All" and added "Update Active" button to update active (spinning) devices only. Updated the output format of update buttons and CLI.
  - Commit #284 - BUG: Cache size from commit #277 caused drives to spin up, moved the check to the correct location so it won't spin up devices unless a "Force Update All" has been executed.
 
 ###2024.02.22
