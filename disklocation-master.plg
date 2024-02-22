@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2024.02.21">
+<!ENTITY version          "2024.02.22">
 <!ENTITY launch           "Settings/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -46,6 +46,11 @@
 
 -->
 <CHANGES>
+###2024.02.22
+ - Commit #282 - FEATURE: Added automatic backup of the database if a newer version is to be installed.
+ - Commit #277 - FEATURE: Added Cache size into the table as I googled my way to find it via SMART. Prepared database for benchmarking of drives, but not implemented yet.
+ - Commit #276 - FEATURE: Added "Installed" date field and also "Removed", the removed will automatically be populated with a date when it detects the drive is gone (eg. during a force scan all or deleting the drive manually).
+
 ###2024.02.21
  - Commit #278 - BUG: Commit #274 should be fixed, turned around some variables, but also added the checks as a background tasks instead of loading and checking every refresh. The status of the devices is checked every 5 minutes instead.
 
