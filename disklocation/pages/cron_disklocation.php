@@ -30,7 +30,7 @@
 		}
 	}
 	
-	if(isset($_GET["force_smart_scan"])) {
+	if(isset($_GET["force_smart_scan"]) || isset($_GET["active_smart_scan"])) {
 		$time_start = time();
 		if(!isset($argv) || !in_array("silent", $argv)) {
 			print("
@@ -95,7 +95,7 @@
 	}
 	*/
 	
-	if($force_scan || in_array("cronjob", $argv)) {
+	if($force_scan || in_array("cronjob", $argv) || $_GET["active_smart_scan"] || $_POST["active_smart_scan"]) {
 		// wait until the cronjob has finished.
 		while(shell_exec("pgrep -f disklocation.sh")) {
 			$pid_cron_script = ( shell_exec("pgrep -f disklocation.sh") ? trim(shell_exec("pgrep -f disklocation.sh")) : 0 );
@@ -125,15 +125,13 @@
 			$lsscsi_devicenodesg[$i] = $lsscsi_parser_array["sgnode"];				// get the full path to SCSI Generic device node: "/dev/sg1|/dev/nvme*"
 			
 			if($lsscsi_device[$i] && $lsscsi_devicenodesg[$i]) {
-				//debug_print($debugging_active, __LINE__, "loop", "Scanning " . $lsscsi_type[$i] . ": " . $lsscsi_device[$i] . " LUN: " . $lsscsi_luname[$i] . " Node: " . $lsscsi_devicenodesg[$i] . "");
 				debug_print($debugging_active, __LINE__, "loop", "Scanning: " . $lsscsi_device[$i] . " Node: " . $lsscsi_devicenodesg[$i] . "");
 				//$smart_check_operation = shell_exec("smartctl -n standby $lsscsi_devicenodesg[$i] | egrep 'ACTIVE|IDLE|NVMe'");
-				$smart_cache = get_smart_cache("" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . "");
 				
 				$smart_check_operation = shell_exec("smartctl -n standby " . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . " | egrep 'ACTIVE|IDLE|NVMe'");
 				
-				$smart_powermode_shell = shell_exec("smartctl -n standby " . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . " | grep -i 'Device'");
-				$smart_powermode = (isset($smart_powermode_shell) ? trim($smart_powermode_shell) : '');
+				$smart_check_operation = shell_exec("smartctl -n standby " . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . " | grep -i 'Device'");
+				$smart_powermode = (isset($smart_check_operation) ? trim($smart_check_operation) : '');
 				
 				switch(true) {
 					case strstr($smart_powermode, "ACTIVE"):
@@ -165,11 +163,12 @@
 					print("SMART: " . $lsscsi_devicenodesg[$i] . " ");
 				}
 				
-				if(!empty($smart_check_operation) || $force_scan) { // only get SMART data if the disk is spinning, if it is a new install/empty database, or if scan is forced.
+				if(($smart_check_operation != "STANDBY") || $force_scan) { // only get SMART data if the disk is spinning, if it is a new install/empty database, or if scan is forced.
 					$smart_standby_cmd = "";
 					if(!$force_scan) {
 						$smart_standby_cmd = "-n standby";
 					}
+					
 					$smart_cmd[$i] = shell_exec("smartctl $smart_standby_cmd -x --json --quietmode=silent " . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . ""); // get all SMART data for this device, we grab it ourselves to get all drives also attached to hardware raid cards.
 					$smart_array = json_decode($smart_cmd[$i], true);
 					debug_print($debugging_active, __LINE__, "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "=" . ( is_array($smart_array) ? "array" : "empty" ) . "");
@@ -193,6 +192,7 @@
 						}
 						$smart_model_family = $smart_array["model_family"] ?? null;
 						$smart_model_name = $smart_array["model_name"] ?? null;
+						$smart_cache = get_smart_cache("" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . "");
 						
 						$smart_i=0;
 						$smart_loadcycle_find = "";
@@ -403,7 +403,7 @@
 			find_and_set_removed_devices_status($db, $deviceid); 		// tags removed devices 'r', delete device from location
 		}
 	}
-	if(isset($_GET["force_smart_scan"]) || isset($_POST["force_smart_scan"])) {
+	if(isset($_GET["force_smart_scan"]) || isset($_GET["active_smart_scan"])) {
 		$time_end = time();
 		$total_exec_time = $time_end - $time_start;
 		
