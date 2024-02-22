@@ -640,7 +640,7 @@
 				UPDATE disks SET
 					status = 'r',
 					removed = '" . date("Y-m-d") . "'
-				WHERE hash = '" . $old_hash[$i] . "'
+				WHERE status IS NOT 'r' AND hash = '" . $old_hash[$i] . "'
 				;
 				DELETE FROM location WHERE hash = '" . $old_hash[$i] . "';
 			";
