@@ -103,13 +103,19 @@
 	
 	$db = new DLDB();
 	
-	function database_lock($lockfile, $retry) {
+	function database_lock($lockfile, $retry, $maxtime = 60) {
+		$time_start = time();
 		while(file_exists($lockfile)) {
 			sleep($retry);
+			
+			if(time()-$time_start > $maxtime) {
+				unlink($lockfile);
+				return false;
+			}
 		}
 		return true;
 	}
-	database_lock(DISKLOCATION_LOCK_FILE, 1);
+	database_lock(DISKLOCATION_LOCK_FILE, 1, 120);
 	
 	if(!$db) {
 		echo $db->lastErrorMsg();
