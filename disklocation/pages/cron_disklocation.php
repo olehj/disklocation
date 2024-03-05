@@ -95,25 +95,27 @@
 	*/
 	
 	if($force_scan || in_array("cronjob", $argv) || $_GET["active_smart_scan"] || $_POST["active_smart_scan"]) {
-		// wait until the cronjob has finished.
-		$retry_delay = 5;
-		if(file_exists(DISKLOCATION_LOCK_FILE)) {
-			print("Disk Location cronjob is running, waiting for it to complete. Please wait. Retrying every $retry_delay seconds.");
-		}
-		while(file_exists(DISKLOCATION_LOCK_FILE)) {
-			debug_print($debugging_active, __LINE__, "delay", "PGREP: Cronjob running, retry: $retry_delay");
-			if(!isset($argv) || !in_array("silent", $argv)) {
-				print(".");
+		if(!in_array("status", $argv)) {
+			// wait until the cronjob has finished.
+			$retry_delay = 5;
+			if(file_exists(DISKLOCATION_LOCK_FILE)) {
+				print("Disk Location cronjob is running, waiting for it to complete. Please wait. Retrying every $retry_delay seconds.");
+			}
+			while(file_exists(DISKLOCATION_LOCK_FILE)) {
+				debug_print($debugging_active, __LINE__, "delay", "PGREP: Cronjob running, retry: $retry_delay");
+				if(!isset($argv) || !in_array("silent", $argv)) {
+					print(".");
+				}
+				
+				flush();
+				sleep($retry_delay);
 			}
 			
-			flush();
-			sleep($retry_delay);
-		}
-		
-		if(!file_exists(DISKLOCATION_LOCK_FILE)) {
-			mkdir(dirname(DISKLOCATION_LOCK_FILE), 0755, true);
-			touch(DISKLOCATION_LOCK_FILE);
-			print("\n");
+			if(!file_exists(DISKLOCATION_LOCK_FILE)) {
+				mkdir(dirname(DISKLOCATION_LOCK_FILE), 0755, true);
+				touch(DISKLOCATION_LOCK_FILE);
+				print("\n");
+			}
 		}
 		
 		$i=0;
