@@ -33,6 +33,7 @@
 	define("DISKLOCATION_PATH", "/plugins/disklocation");
 	define("DISKLOCATION_CONF", "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.conf");
 	define("DISKLOCATION_DB_DEFAULT", "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.sqlite");
+	define("DISKLOCATION_LOCK_FILE", "/tmp/disklocation/db.lock");
 	define("DISKINFORMATION", "/var/local/emhttp/disks.ini");
 	define("EMHTTP_ROOT", "/usr/local/emhttp");
 	define("CRONJOB_URL", DISKLOCATION_PATH . "/pages/cron_disklocation.php");
@@ -219,6 +220,13 @@
 	}
 	
 	debug_print($debugging_active, __LINE__, "functions", "Debug function active.");
+
+	function database_lock($lockfile, $retry) {
+		while(file_exists($lockfile)) {
+			sleep($retry);
+		}
+		return true;
+	}
 	
 	function bscode2html($text) {
 		$text = preg_replace("/\*(.*?)\*/", "<b>$1</b>", $text);
@@ -575,9 +583,7 @@
 		return $result;
 	}
 	
-	function zfs_node($disk) {
-		$array = json_decode(shell_exec("lsblk -p -o NAME,MOUNTPOINT,SERIAL,PATH --json"), true);
-		
+	function zfs_node($disk, $array) {
 		$key = array_search($disk, array_column($array["blockdevices"], 'serial'));
 		
 		$results = array(
@@ -590,20 +596,16 @@
 		return $results;
 	}
 	
-	function zfs_disk($disk) {
-		$zfs_config = zfs_parser();
-		$zfs_node = zfs_node($disk);
+	function zfs_disk($disk, $zfs_config, $lsblk_array, $config = 0) {
+		$zfs_node = zfs_node($disk, $lsblk_array);
 		
 		$i_loop = 0;
 		while($i_loop < count($zfs_config)) {
 			$disks = explode("\n", $zfs_config[$i_loop]["config"]);
 			// Array $match: 0 = disk-by-id | 1 = state | 2 = read | 3 = write | 4 = cksum
 			for($i=0; $i < count($disks); ++$i) {
-				if(preg_match("/" . $disk . "/", $disks[$i])) {
-					return explode(":", preg_replace("/\s+/", ":", trim($disks[$i])));
-				}
-				else if(preg_match("/" . $zfs_node["node"] . "/", $disks[$i])) {
-					return explode(":", preg_replace("/\s+/", ":", trim($disks[$i])));
+				if(preg_match("/(".$disk."|".$zfs_node["node"].")/", $disks[$i])) {
+					return ( !empty($config) ? $zfs_config[$i_loop] : explode(":", preg_replace("/\s+/", ":", trim($disks[$i]))) );
 				}
 			}
 			$i_loop++;
