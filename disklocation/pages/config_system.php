@@ -372,12 +372,12 @@
 	if($list_database_lock) {
 		$print_list_database_lock = "
 			<h3>Lock file</h3>
+			<p style=\"color: red;\">
+				This will delete the database lock file and should delete itself automatigally. Only delete this if you know that the database is not updating in the background.
+			</p>
 			<form action=\"" . DISKLOCATION_PATH . "/pages/config_system.php\" method=\"post\">
 				<input type=\"submit\" name=\"del_database_lock\" value=\"Delete Lock file\" />
 			</form>
-			<blockquote class='inline_help'>
-				This will delete the database lock file. Only delete this if you know that the database is not updating in the background.
-			</blockquote>
 		";
 	}	
 	$list_debug = disklocation_system("debug", "list");
