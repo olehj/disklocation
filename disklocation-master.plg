@@ -48,7 +48,7 @@
 <CHANGES>
 ###2024.03.06
  - Commit #291 - MINOR: Some group names got swapped under selection forms are now fixed.
- - Commit #290 - ISSUE: To prevent database corruption, a forced lock has been implemented during an update. This will also delay any changes saved during configuration if the updater runs in the background.
+ - Commit #290 - ISSUE: To prevent database corruption, a forced lock has been implemented during an update. This will also delay page loading if the updater runs in the background. If it will take more than 2 minutes, the lock file will automagically delete itself so it won't prevent Unraid to function normally. It can also be manually deleted under /tmp/disklocation/db.lock if required.
  - Commit #289 - IMPROVEMENT: Made the plugin recognize multiple ZFS pools. Defaulting to Unraid status. Pool names are displayed as "Unraid info" if it exists. Also optimized the code a bit to respond faster.
 
 ###2024.02.23b
