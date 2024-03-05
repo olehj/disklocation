@@ -21,8 +21,6 @@
 	unset($disklocation_page);
 	unset($disklocation_layout);
 	
-	database_lock(DISKLOCATION_LOCK_FILE, 1); // do not load the plugin GUI while the database is updating, it can apparently corrupt it.
-	
 	$biggest_tray_group = 0;
 	
 	$sql = "SELECT * FROM settings_group ORDER BY id ASC";
