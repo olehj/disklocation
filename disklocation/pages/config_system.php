@@ -28,6 +28,7 @@
 		define("DISKLOCATION_URL", "/Tools/disklocation");
 		define("DISKLOCATION_CONF", "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.conf");
 		define("DISKLOCATION_DB_DEFAULT", "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.sqlite");
+		define("DISKLOCATION_LOCK_FILE", "/tmp/disklocation/db.lock");
 		
 		if(file_exists(DISKLOCATION_CONF)) {
 			$get_disklocation_config = json_decode(file_get_contents(DISKLOCATION_CONF), true);
@@ -368,7 +369,7 @@
 			</blockquote>
 		";
 	}
-	$list_database_lock = disklocation_system("database_lock", "list");
+	//$list_database_lock = disklocation_system("database_lock", "list");
 	if($list_database_lock) {
 		$print_list_database_lock = "
 			<h3>Lock file</h3>

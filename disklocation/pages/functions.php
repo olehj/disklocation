@@ -103,8 +103,22 @@
 	
 	$db = new DLDB();
 	
+	function database_lock($lockfile, $retry) {
+		while(file_exists($lockfile)) {
+			sleep($retry);
+		}
+		return true;
+	}
+	database_lock(DISKLOCATION_LOCK_FILE, 1);
+	
 	if(!$db) {
 		echo $db->lastErrorMsg();
+	}
+	else {
+		if(!in_array("cronjob", $argv) && !in_array("status", $argv) && !file_exists(DISKLOCATION_LOCK_FILE)) {
+			mkdir(dirname(DISKLOCATION_LOCK_FILE), 0755, true);
+			touch(DISKLOCATION_LOCK_FILE);
+		}
 	}
 	
 	require_once("sqlite_tables.php");
@@ -221,13 +235,6 @@
 	
 	debug_print($debugging_active, __LINE__, "functions", "Debug function active.");
 
-	function database_lock($lockfile, $retry) {
-		while(file_exists($lockfile)) {
-			sleep($retry);
-		}
-		return true;
-	}
-	
 	function bscode2html($text) {
 		$text = preg_replace("/\*(.*?)\*/", "<b>$1</b>", $text);
 		$text = preg_replace("/_(.*?)_/", "<i>$1</i>", $text);

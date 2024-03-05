@@ -21,11 +21,7 @@
 	
 	require_once("functions.php");
 	
-	$lock_retry = 1;
-	
 	if(isset($_POST["hash_delete"])) {
-		database_lock(DISKLOCATION_LOCK_FILE, $lock_retry);
-		
 		$sql = "
 			UPDATE disks SET
 				status = 'd'
@@ -46,8 +42,6 @@
 	}
 	
 	if(isset($_POST["hash_remove"])) {
-		database_lock(DISKLOCATION_LOCK_FILE, $lock_retry);
-		
 		if(!force_set_removed_device_status($db, $_POST["hash_remove"])) { die("<p style=\"color: red;\">ERROR: Could not set status for the drive with hash: " . $_POST["hash_remove"] . "</p>"); }
 		
 		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
@@ -55,8 +49,6 @@
 	}
 	
 	if(isset($_POST["hash_add"])) {
-		database_lock(DISKLOCATION_LOCK_FILE, $lock_retry);
-		
 		$sql = "
 			UPDATE disks SET
 				status = 'h'
@@ -77,8 +69,6 @@
 	}
 	
 	if(isset($_POST["group_add"])) {
-		database_lock(DISKLOCATION_LOCK_FILE, $lock_retry);
-		
 		$sql = "
 			INSERT INTO settings_group(group_name) VALUES('');
 		";
@@ -95,8 +85,6 @@
 		exit;
 	}
 	if(isset($_POST["group_del"]) && isset($_POST["last_group_id"])) {
-		database_lock(DISKLOCATION_LOCK_FILE, $lock_retry);
-		
 		$sql = "
 			DELETE FROM settings_group WHERE id = '" . $_POST["last_group_id"] . "';
 			DELETE FROM location WHERE groupid = '" . $_POST["last_group_id"] . "';
@@ -114,8 +102,6 @@
 		exit;
 	}
 	if(isset($_POST["group_swap"])) {
-		database_lock(DISKLOCATION_LOCK_FILE, $lock_retry);
-		
 		list($group_left, $group_right) = explode(":", $_POST["group_swap"]);
 		$sql = "
 			UPDATE location SET
@@ -144,8 +130,6 @@
 	}
 	
 	if(isset($_POST["save_settings"])) {
-		database_lock(DISKLOCATION_LOCK_FILE, $lock_retry);
-		
 		debug_print($debugging_active, __LINE__, "POST", "Button: SAVE SETTINGS has been pressed.");
 		$sql = "";
 		
@@ -283,8 +267,6 @@
 	}
 	
 	if(isset($_POST["save_groupsettings"]) && isset($_POST["groupid"])) {
-		database_lock(DISKLOCATION_LOCK_FILE, $lock_retry);
-		
 		debug_print($debugging_active, __LINE__, "POST", "Button: SAVE GROUP SETTINGS has been pressed.");
 		$sql = "";
 		
@@ -327,8 +309,6 @@
 	}
 	
 	if(isset($_POST["save_allocations"])) {
-		database_lock(DISKLOCATION_LOCK_FILE, $lock_retry);
-		
 		debug_print($debugging_active, __LINE__, "POST", "Button: SAVE ALLOCATIONS has been pressed.");
 		// trays
 		$sql = "";
@@ -437,8 +417,6 @@
 	}
 	
 	if(isset($_POST["sort"])) {
-		database_lock(DISKLOCATION_LOCK_FILE, $lock_retry);
-		
 		debug_print($debugging_active, __LINE__, "POST", "Button: SORT has been pressed.");
 		$sql = "";
 		print($_POST["sort"]);
@@ -510,17 +488,15 @@
 	//}
 	
 	if(isset($_POST["reset_all_colors"])) {
-		database_lock(DISKLOCATION_LOCK_FILE, $lock_retry);
-		
 		if(force_reset_color($db, "*")) {
+			$db->close();
 			print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
 			exit;
 		}
 	}
 	if(isset($_POST["reset_common_colors"])) {
-		database_lock(DISKLOCATION_LOCK_FILE, $lock_retry);
-		
 		if(force_reset_color($db)) {
+			$db->close();
 			print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
 			exit;
 		}
