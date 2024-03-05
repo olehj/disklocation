@@ -28,6 +28,7 @@
 		define("DISKLOCATION_URL", "/Tools/disklocation");
 		define("DISKLOCATION_CONF", "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.conf");
 		define("DISKLOCATION_DB_DEFAULT", "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.sqlite");
+		define("DISKLOCATION_LOCK_FILE", "/tmp/disklocation/db.lock");
 		
 		if(file_exists(DISKLOCATION_CONF)) {
 			$get_disklocation_config = json_decode(file_get_contents(DISKLOCATION_CONF), true);
@@ -176,6 +177,20 @@
 			}
 		}
 		
+		if($type == "database_lock") {
+			if($operation == "list") {
+				if(file_exists(DISKLOCATION_LOCK_FILE)) {
+					return true;
+				}
+				else {
+					return false;
+				}
+			}
+			if($operation == "delete") {
+				unlink(DISKLOCATION_LOCK_FILE);
+			}
+		}
+		
 		if($type == "debug") {
 			if($operation == "list") {
 				if(file_exists("" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/debugging.html")) {
@@ -237,6 +252,12 @@
 		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
+	if(isset($_POST["del_database_lock"])) {
+		disklocation_system("database_lock", "delete");
+		header("Location: " . DISKLOCATION_URL . "");
+		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+		exit;
+	}
 	if(isset($_POST["undelete_devices"])) {
 		force_undelete_devices($db, 'm');
 		header("Location: " . DISKLOCATION_URL . "");
@@ -278,6 +299,7 @@
 	$print_list_backup = "";
 	$print_list_debug = "";
 	$print_list_database = "";
+	$print_list_database_lock = "";
 	$print_list_undelete = "";
 	$print_list_ldashleft = "";
 
@@ -347,7 +369,18 @@
 			</blockquote>
 		";
 	}
-	
+	//$list_database_lock = disklocation_system("database_lock", "list");
+	if($list_database_lock) {
+		$print_list_database_lock = "
+			<h3>Lock file</h3>
+			<p style=\"color: red;\">
+				This will delete the database lock file and should delete itself automatigally. Only delete this if you know that the database is not updating in the background.
+			</p>
+			<form action=\"" . DISKLOCATION_PATH . "/pages/config_system.php\" method=\"post\">
+				<input type=\"submit\" name=\"del_database_lock\" value=\"Delete Lock file\" />
+			</form>
+		";
+	}	
 	$list_debug = disklocation_system("debug", "list");
 	if($list_debug) {
 		$print_list_debug = "
@@ -444,6 +477,7 @@
 <?php echo $print_list_backup ?>
 <?php echo $print_list_debug ?>
 <?php echo $print_list_database ?>
+<?php echo $print_list_database_lock ?>
 <?php echo $print_list_undelete ?>
 <?php echo $print_list_ldashleft ?>
 <?php echo $print_loc_db ?>

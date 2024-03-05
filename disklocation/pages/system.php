@@ -489,12 +489,14 @@
 	
 	if(isset($_POST["reset_all_colors"])) {
 		if(force_reset_color($db, "*")) {
+			$db->close();
 			print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
 			exit;
 		}
 	}
 	if(isset($_POST["reset_common_colors"])) {
 		if(force_reset_color($db)) {
+			$db->close();
 			print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
 			exit;
 		}
