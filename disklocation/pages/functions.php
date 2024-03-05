@@ -526,8 +526,12 @@
 	
 	function zfs_check() {
 		if(is_file("/usr/sbin/zpool")) {
-			if(preg_match("/\bstate\b/i", ( shell_exec("/usr/sbin/zpool status") ? shell_exec("/usr/sbin/zpool status") : "none" ))) {
+			$status = shell_exec("/usr/sbin/zpool status");
+			if(preg_match("/\bstate\b/i", $status)) {
 				return 1;
+			}
+			else {
+				return 0;
 			}
 		}
 		else {
@@ -535,40 +539,74 @@
 		}
 	}
 	
+	function zfs_pools() {
+		$str = shell_exec("/usr/sbin/zpool list");
+		$matches = preg_split("/\r\n|\n|\r/", $str);
+		$result = array();
+		
+		$i = 1; // skip first row
+		while($i < count($matches)) {
+			list($NAME,$SIZE,$ALLOC,$FREE,$CKPOINT,$EXPANDSZ,$FRAG,$CAP,$DEDUP,$HEALTH,$ALTROOT) = explode(" ", $matches[$i]);
+			$result[] = $NAME;
+			$i++;
+		}
+		
+		return array_filter($result);
+	}
+	
 	function zfs_parser() {
-		if(zfs_check()) {
-			$str = shell_exec("/usr/sbin/zpool status");
-			
+		$pools = zfs_pools();
+		
+		$result = array();
+		$i = 0;
+		while($i < count($pools)) {
+			$str = shell_exec("/usr/sbin/zpool status " . $pools[$i] . "");
 			$pattern = "/((pool|state|scan|errors): (.*)?\n|(config):[\s]+(.*)?\s\n)/Uis";
 			preg_match_all($pattern, $str, $matches, PREG_SET_ORDER);
 			
-			$result = array();
-
 			foreach($matches as $match) {
 				$length = count($match);
-				$result[$match[$length-2]] = $match[$length-1];
+				$result[$i][$match[$length-2]] = $match[$length-1];
 			}
 			
-			return $result;
+			$i++;
 		}
-		else {
-			return false;
-		}
+		
+		return $result;
+	}
+	
+	function zfs_node($disk) {
+		$array = json_decode(shell_exec("lsblk -p -o NAME,MOUNTPOINT,SERIAL,PATH --json"), true);
+		
+		$key = array_search($disk, array_column($array["blockdevices"], 'serial'));
+		
+		$results = array(
+			'name' => $array["blockdevices"][$key]["name"],
+			'serial' => $array["blockdevices"][$key]["serial"],
+			'path' => $array["blockdevices"][$key]["path"],
+			'node' => str_replace("/dev/", "", $array["blockdevices"][$key]["path"])
+		);
+		
+		return $results;
 	}
 	
 	function zfs_disk($disk) {
-		if(zfs_check()) {
-			$zfs_config = zfs_parser();
-			$disks = explode("\n", $zfs_config["config"]);
+		$zfs_config = zfs_parser();
+		$zfs_node = zfs_node($disk);
+		
+		$i_loop = 0;
+		while($i_loop < count($zfs_config)) {
+			$disks = explode("\n", $zfs_config[$i_loop]["config"]);
 			// Array $match: 0 = disk-by-id | 1 = state | 2 = read | 3 = write | 4 = cksum
 			for($i=0; $i < count($disks); ++$i) {
 				if(preg_match("/" . $disk . "/", $disks[$i])) {
 					return explode(":", preg_replace("/\s+/", ":", trim($disks[$i])));
 				}
+				else if(preg_match("/" . $zfs_node["node"] . "/", $disks[$i])) {
+					return explode(":", preg_replace("/\s+/", ":", trim($disks[$i])));
+				}
 			}
-		}
-		else {
-			return false;
+			$i_loop++;
 		}
 	}
 	
