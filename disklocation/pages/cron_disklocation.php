@@ -113,7 +113,7 @@
 		if(!file_exists(DISKLOCATION_LOCK_FILE)) {
 			mkdir(dirname(DISKLOCATION_LOCK_FILE), 0755, true);
 			touch(DISKLOCATION_LOCK_FILE);
-			print(".\n");
+			print("\n");
 		}
 		
 		$i=0;
