@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2024.03.06">
+<!ENTITY version          "2024.03.06b">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -46,6 +46,9 @@
 
 -->
 <CHANGES>
+###2024.03.06b
+ - Commit #293 - BUG: Deactivated the database lock as it seem to have caused some serious issues. #290 will be incomplete again.
+
 ###2024.03.06
  - Commit #291 - MINOR: Some group names got swapped under selection forms are now fixed.
  - Commit #290 - ISSUE: To prevent database corruption, a forced lock has been implemented during an update. This will also delay page loading if the updater runs in the background. If it will take more than 2 minutes, the lock file will automagically delete itself so it won't prevent Unraid to function normally. It can also be manually deleted under /tmp/disklocation/db.lock if required.
