@@ -533,7 +533,9 @@
 				}
 				
 				if(isset($displayinfo["unraidinfo"])) {
-					$zfs_disk_info = zfs_disk($data["smart_serialnumber"], $zfs_parser, $lsblk_array, 1);
+					if(zfs_check()) {
+						$zfs_disk_info = zfs_disk($data["smart_serialnumber"], $zfs_parser, $lsblk_array, 1);
+					}
 					if(isset($unraid_array[$devicenode]["type"])) {
 						$unraid_dev = "<b>" . $unraid_array[$devicenode]["type"] . "</b>: " . $unraid_array[$devicenode]["name"];
 					}
