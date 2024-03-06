@@ -115,7 +115,8 @@
 		}
 		return true;
 	}
-	database_lock(DISKLOCATION_LOCK_FILE, 1, 120);
+	// disable lock as it might have caused a chaos bug :P
+	//database_lock(DISKLOCATION_LOCK_FILE, 1, 120);
 	
 	if(!$db) {
 		echo $db->lastErrorMsg();
