@@ -98,3 +98,11 @@ input.diskLocation {
 	align-items: center;
 	justify-content: center;
 }
+.flex-container-locate {
+	animation: locate-disklocation-blue 1s linear infinite;
+}
+@keyframes locate-disklocation-blue {
+	0% {background-color: #CCCCCC;}
+	50% {background-color: #0066FF;}
+	100% {background-color: #CCCCCC;}
+}
