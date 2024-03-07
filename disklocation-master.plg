@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2024.03.06c">
+<!ENTITY version          "2024.03.07">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -46,6 +46,10 @@
 
 -->
 <CHANGES>
+###2024.03.07
+ - Commit #296 - Added background blinking (blue) on a device during "Locate" click, if assigned.
+ - Commit #290 - Changed how the background task store the SMART input to the database, collect all info before writing it instead of writing it per device as found.
+
 ###2024.03.06c
  - Commit #294 - BUG: Check for ZFS before executing functions based on it.
 

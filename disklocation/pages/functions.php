@@ -103,29 +103,8 @@
 	
 	$db = new DLDB();
 	
-	function database_lock($lockfile, $retry, $maxtime = 60) {
-		$time_start = time();
-		while(file_exists($lockfile)) {
-			sleep($retry);
-			
-			if(time()-$time_start > $maxtime) {
-				unlink($lockfile);
-				return false;
-			}
-		}
-		return true;
-	}
-	// disable lock as it might have caused a chaos bug :P
-	//database_lock(DISKLOCATION_LOCK_FILE, 1, 120);
-	
 	if(!$db) {
 		echo $db->lastErrorMsg();
-	}
-	else {
-		if(!in_array("cronjob", $argv) && !in_array("status", $argv) && !file_exists(DISKLOCATION_LOCK_FILE)) {
-			mkdir(dirname(DISKLOCATION_LOCK_FILE), 0755, true);
-			touch(DISKLOCATION_LOCK_FILE);
-		}
 	}
 	
 	require_once("sqlite_tables.php");

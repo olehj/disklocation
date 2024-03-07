@@ -97,9 +97,9 @@
 	if($force_scan || in_array("cronjob", $argv) || $_GET["active_smart_scan"] || $_POST["active_smart_scan"]) {
 		if(!in_array("status", $argv)) {
 			// wait until the cronjob has finished.
-			$retry_delay = 5;
+			$retry_delay = 1;
 			if(file_exists(DISKLOCATION_LOCK_FILE)) {
-				print("Disk Location cronjob is running, waiting for it to complete. Please wait. Retrying every $retry_delay seconds.");
+				print("Disk Location is performing background tasks, please wait.");
 			}
 			while(file_exists(DISKLOCATION_LOCK_FILE)) {
 				debug_print($debugging_active, __LINE__, "delay", "PGREP: Cronjob running, retry: $retry_delay");
@@ -283,7 +283,7 @@
 					find_and_unset_reinserted_devices_status($db, $deviceid[$i]);	// tags old existing devices with 'null', delete device from location just in case it for whatever reason it already exists.
 					
 					if(isset($smart_array["serial_number"]) && $smart_model_name) {
-						$sql = "
+						$sql_loop .= "
 							INSERT INTO
 								disks(
 									device,
@@ -373,21 +373,14 @@
 						";
 						
 						if(is_array($unraid_disklog["" . str_replace(" ", "_", $smart_model_name) . "_" . str_replace(" ", "_", $smart_array["serial_number"]) . ""])) {
-							$sql .= "
+							$sql_loop .= "
 								UPDATE disks SET
 									purchased='" . $unraid_disklog["" . str_replace(" ", "_", $smart_model_name) . "_" . str_replace(" ", "_", $smart_array["serial_number"]) . ""]["purchase"] . "',
 									warranty='" . $unraid_disklog["" . str_replace(" ", "_", $smart_model_name) . "_" . str_replace(" ", "_", $smart_array["serial_number"]) . ""]["warranty"] . "',
 									manufactured='" . $unraid_disklog["" . str_replace(" ", "_", $smart_model_name) . "_" . str_replace(" ", "_", $smart_array["serial_number"]) . ""]["date"] . "'
 								WHERE hash = '" . $deviceid[$i] . "'
+								;
 							";
-						}
-						
-						debug_print($debugging_active, __LINE__, "SQL", "#:" . $i . ":<pre>" . $sql . "</pre>");
-						//print("#:" . $i . ":<pre>" . $sql . "</pre>");
-						
-						$ret = $db->exec($sql);
-						if(!$ret) {
-							echo $db->lastErrorMsg();
 						}
 					}
 					else {
@@ -409,31 +402,46 @@
 			}
 			$i++;
 		}
-		// check the existence of devices, must be run during force smart scan.
-		if($force_scan) {
-			find_and_set_removed_devices_status($db, $deviceid); 		// tags removed devices 'r', delete device from location
-		}
-	}
-	if(isset($_GET["force_smart_scan"]) || isset($_GET["active_smart_scan"])) {
-		$time_end = time();
-		$total_exec_time = $time_end - $time_start;
 		
-		if(!isset($argv) || !in_array("silent", $argv)) {
-			print("</pre>
-				<h3>
-					<b>Completed after $total_exec_time seconds.</b>
-				</h3>
-				<p style=\"text-align: center;\">
-					<button type=\"button\" onclick=\"window.top.location = '" . DISKLOCATIONCONF_URL . "';\">Done</button>
-					<!-- onclick=\"top.Shadowbox.close()\" -->
-				</p>
-			");
+		debug_print($debugging_active, __LINE__, "SQL", "#:<pre>" . $sql_loop . "</pre>");
+		//print("#:" . $i . ":<pre>" . $sql_loop . "</pre>");
+		
+		if(!isset($argv) || !in_array("silent", $argv)) { print("\nWriting to the database... "); flush(); }
+		$ret = $db->exec($sql_loop);
+		if(!$ret) {
+			echo $db->lastErrorMsg();
 		}
+		else {
+			// check the existence of devices, must be run during force smart scan.
+			if($force_scan) {
+				find_and_set_removed_devices_status($db, $deviceid); 		// tags removed devices 'r', delete device from location
+			}
+			
+			$db->close();
+			
+			if(!isset($argv) || !in_array("silent", $argv)) { print("done.\n"); flush(); }
+		}
+		
+		if(isset($_GET["force_smart_scan"]) || isset($_GET["active_smart_scan"])) {
+			$time_end = time();
+			$total_exec_time = $time_end - $time_start;
+			
+			if(!isset($argv) || !in_array("silent", $argv)) {
+				print("</pre>
+					<h3>
+						<b>Completed after $total_exec_time seconds.</b>
+					</h3>
+					<p style=\"text-align: center;\">
+						<button type=\"button\" onclick=\"window.top.location = '" . DISKLOCATIONCONF_URL . "';\">Close</button>
+						<!-- onclick=\"top.Shadowbox.close()\" -->
+					</p>
+				");
+			}
+		}
+		
 	}
 	
 	cronjob_runfile_updater();
-	
-	$db->close();
 	
 	if(file_exists(DISKLOCATION_LOCK_FILE)) {
 		unlink(DISKLOCATION_LOCK_FILE);
