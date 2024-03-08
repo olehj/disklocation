@@ -20,6 +20,8 @@
 	 */
 	require_once("functions.php");
 	
+	$sql_loop = "";
+	
 	if(in_array("install", $argv)) {
 		if(file_exists(DISKLOCATION_CONF)) {
 			$config_json = file_get_contents(DISKLOCATION_CONF);
@@ -403,24 +405,32 @@
 			$i++;
 		}
 		
-		debug_print($debugging_active, __LINE__, "SQL", "#:<pre>" . $sql_loop . "</pre>");
-		//print("#:" . $i . ":<pre>" . $sql_loop . "</pre>");
-		
-		if(!isset($argv) || !in_array("silent", $argv)) { print("\nWriting to the database... "); flush(); }
-		$ret = $db->exec($sql_loop);
-		if(!$ret) {
-			echo $db->lastErrorMsg();
-		}
-		else {
-			// check the existence of devices, must be run during force smart scan.
-			if($force_scan) {
-				find_and_set_removed_devices_status($db, $deviceid); 		// tags removed devices 'r', delete device from location
+		if($sql_loop) {
+			debug_print($debugging_active, __LINE__, "SQL", "#:<pre>" . $sql_loop . "</pre>");
+			//print("#:" . $i . ":<pre>" . $sql_loop . "</pre>");
+			
+			if(!isset($argv) || !in_array("silent", $argv)) { 
+				print("\nWriting to the database... ");
+				flush();
 			}
 			
-			$db->close();
-			
-			if(!isset($argv) || !in_array("silent", $argv)) { print("done.\n"); flush(); }
+			$ret = $db->exec($sql_loop);
+			if(!$ret) {
+				echo $db->lastErrorMsg();
+			}
+			else {
+				// check the existence of devices, must be run during force smart scan.
+				if($force_scan) {
+					find_and_set_removed_devices_status($db, $deviceid); 		// tags removed devices 'r', delete device from location
+				}
+				if(!isset($argv) || !in_array("silent", $argv)) { 
+					print("done.\n");
+					flush();
+				}
+			}
 		}
+		
+		$db->close();
 		
 		if(isset($_GET["force_smart_scan"]) || isset($_GET["active_smart_scan"])) {
 			$time_end = time();

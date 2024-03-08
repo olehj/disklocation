@@ -34,14 +34,11 @@ function locateStart(locateDisk){
 		locateDisk.addEventListener("click", locateStop);
 		locateDisk.value = "Stop";
 		locateDisk.style.backgroundColor = '#000000';
-		document.getElementById("bg1-" + locateDisk.id).classList.add('flex-container-locate');
-		document.getElementById("bg2-" + locateDisk.id).classList.add('flex-container-locate');
-		document.getElementById("bg3-" + locateDisk.id).classList.add('flex-container-locate');
-		document.getElementById("bg4-" + locateDisk.id).classList.add('flex-container-locate');
 		var diskpath = encodeURI(locateDisk.id);
 		$.get('<?php echo $path ?>',{ disklocation:diskpath, cmd:"start"},function(data) {
 			// script is handled in the background, nothing to do here
 		});
+		document.getElementById("bg3-" + locateDisk.id).classList.add('flex-container-locate');
 	}
 }
 
@@ -51,14 +48,11 @@ function locateStop(locateDisk){
 	locateDisk.addEventListener("click", locateStart);
 	locateDisk.value = "Locate";
 	locateDisk.style.backgroundColor = '#FFFFFF';
-	document.getElementById("bg1-" + locateDisk.id).classList.remove('flex-container-locate');
-	document.getElementById("bg2-" + locateDisk.id).classList.remove('flex-container-locate');
-	document.getElementById("bg3-" + locateDisk.id).classList.remove('flex-container-locate');
-	document.getElementById("bg4-" + locateDisk.id).classList.remove('flex-container-locate');
 	var diskpath = encodeURI(locateDisk.id);
 	$.get('<?php echo $path ?>',{ disklocation:diskpath, cmd:"stop"},function(data) {
 		// script is handled in the background, nothing to do here
 	});
+	document.getElementById("bg3-" + locateDisk.id).classList.remove('flex-container-locate');
 }
 
 function locateKillAll(locateDisk){
@@ -70,6 +64,7 @@ function locateKillAll(locateDisk){
 		y[i].value = "Locate";
 		y[i].style.backgroundColor = '#FFFFFF';
 		//console.log("Locating killed: " + y[i].id);
+		document.getElementById("bg3-" + y[i].id).classList.remove('flex-container-locate');
 	}
 	
 	$.get('<?php echo $path ?>',{ cmd:"killall"},function(data) {
