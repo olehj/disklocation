@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2024.03.08">
+<!ENTITY version          "2024.03.09">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -46,13 +46,16 @@
 
 -->
 <CHANGES>
+###2024.03.09
+ - Commit #300 - ISSUE: Fixed an issue where the "Locate" button would not turn on the blinking feature on the drive LED. Also clean a bit up in the cronjob script.
+
 ###2024.03.08
                  Happy International Women's Day!
- - Commit #298 - Made sure to clean up temporary files during uninstall and reset the database lock file during an upgrade.
+ - Commit #298 - IMPROVEMENT: Made sure to clean up temporary files during uninstall and reset the database lock file during an upgrade.
 
 ###2024.03.07
- - Commit #296 - Added background blinking (blue) on a device during "Locate" click, if assigned.
- - Commit #290 - Changed how the background task store the SMART input to the database, collect all info before writing it instead of writing it per device as found.
+ - Commit #296 - FEATURE: Added background blinking (blue) on a device during "Locate" click, if assigned.
+ - Commit #290 - ISSUE: Changed how the background task store the SMART input to the database, collect all info before writing it instead of writing it per device as found.
 
 ###2024.03.06c
  - Commit #294 - BUG: Check for ZFS before executing functions based on it.
