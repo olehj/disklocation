@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2024.03.07">
+<!ENTITY version          "2024.03.08">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -46,6 +46,10 @@
 
 -->
 <CHANGES>
+###2024.03.08
+                 Happy International Women's Day!
+ - Commit #298 - Made sure to clean up temporary files during uninstall and reset the database lock file during an upgrade.
+
 ###2024.03.07
  - Commit #296 - Added background blinking (blue) on a device during "Locate" click, if assigned.
  - Commit #290 - Changed how the background task store the SMART input to the database, collect all info before writing it instead of writing it per device as found.
@@ -468,6 +472,7 @@ INSTALL_PKG="false"
 logit "Removing old plugin data before installing, if they exists..."
 [ -d "&emhttpLOC;" ] &amp;&amp; rm -fR "&emhttpLOC;"
 [ -f "/usr/local/bin/smartlocate" ] &amp;&amp; rm -f "/usr/local/bin/smartlocate"
+[ -f "/tmp/disklocation/db.lock" ] &amp;&amp; rm -f "/tmp/disklocation/db.lock"
 
 logit "Installing plugin..."
 
@@ -734,6 +739,9 @@ logit "Removing plugin..."
 [ -f "/etc/cron.daily/disklocation.sh" ] &amp;&amp; rm -f "/etc/etc.daily/disklocation.sh"
 [ -f "/etc/cron.weekly/disklocation.sh" ] &amp;&amp; rm -f "/etc/etc.weekly/disklocation.sh"
 [ -f "/etc/cron.monthly/disklocation.sh" ] &amp;&amp; rm -f "/etc/etc.monthly/disklocation.sh"
+[ -f "/tmp/disklocation/db.lock" ] &amp;&amp; rm -f "/tmp/disklocation/db.lock"
+[ -f "/tmp/disklocation/powermode.ini" ] &amp;&amp; rm -f "/tmp/disklocation/powermode.ini"
+[ -d "/tmp/disklocation" ] &amp;&amp; rmdir "/tmp/disklocation"
 [ -f "&pluginLOC;-&branch;/powermode.cron" ] &amp;&amp; rm -f "&pluginLOC;-&branch;/powermode.cron"
 /usr/local/sbin/update_cron
 rm -f &pluginLOC;/disklocation.*.tar.bz2
