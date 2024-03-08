@@ -405,11 +405,15 @@
 			$i++;
 		}
 		
-		debug_print($debugging_active, __LINE__, "SQL", "#:<pre>" . $sql_loop . "</pre>");
-		//print("#:" . $i . ":<pre>" . $sql_loop . "</pre>");
-		
 		if($sql_loop) {
-			if(!isset($argv) || !in_array("silent", $argv)) { print("\nWriting to the database... "); flush(); }
+			debug_print($debugging_active, __LINE__, "SQL", "#:<pre>" . $sql_loop . "</pre>");
+			//print("#:" . $i . ":<pre>" . $sql_loop . "</pre>");
+			
+			if(!isset($argv) || !in_array("silent", $argv)) { 
+				print("\nWriting to the database... ");
+				flush();
+			}
+			
 			$ret = $db->exec($sql_loop);
 			if(!$ret) {
 				echo $db->lastErrorMsg();
@@ -419,7 +423,10 @@
 				if($force_scan) {
 					find_and_set_removed_devices_status($db, $deviceid); 		// tags removed devices 'r', delete device from location
 				}
-				if(!isset($argv) || !in_array("silent", $argv)) { print("done.\n"); flush(); }
+				if(!isset($argv) || !in_array("silent", $argv)) { 
+					print("done.\n");
+					flush();
+				}
 			}
 		}
 		
