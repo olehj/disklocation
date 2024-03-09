@@ -36,15 +36,15 @@
 		
 		$db->close();
 		
-		//header("Location: " . DISKLOCATION_URL);
-		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
+		header("Location: " . DISKLOCATION_URL);
+		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
 	
 	if(isset($_POST["hash_remove"])) {
 		if(!force_set_removed_device_status($db, $_POST["hash_remove"])) { die("<p style=\"color: red;\">ERROR: Could not set status for the drive with hash: " . $_POST["hash_remove"] . "</p>"); }
 		
-		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
+		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
 	
@@ -63,8 +63,8 @@
 		
 		$db->close();
 		
-		//header("Location: " . DISKLOCATION_URL);
-		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
+		header("Location: " . DISKLOCATION_URL);
+		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
 	
@@ -80,8 +80,8 @@
 		
 		$db->close();
 		
-		//header("Location: " . DISKLOCATIONCONF_URL);
-		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
+		header("Location: " . DISKLOCATION_URL);
+		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
 	if(isset($_POST["group_del"]) && isset($_POST["last_group_id"])) {
@@ -98,7 +98,7 @@
 		$db->close();
 		
 		header("Location: " . DISKLOCATION_URL);
-		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
+		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
 	if(isset($_POST["group_swap"])) {
@@ -125,7 +125,7 @@
 		$db->close();
 		
 		header("Location: " . DISKLOCATION_URL);
-		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
+		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
 	
@@ -490,14 +490,14 @@
 	if(isset($_POST["reset_all_colors"])) {
 		if(force_reset_color($db, "*")) {
 			$db->close();
-			print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
+			print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 			exit;
 		}
 	}
 	if(isset($_POST["reset_common_colors"])) {
 		if(force_reset_color($db)) {
 			$db->close();
-			print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATIONCONF_URL . "\" />");
+			print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 			exit;
 		}
 	}
