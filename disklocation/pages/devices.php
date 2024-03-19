@@ -28,9 +28,11 @@
 	
 	$total_trays_group = 0;
 	
+	$zfs_check = 0;
 	if(zfs_check()) {
 		$zfs_parser = zfs_parser();
 		$lsblk_array = json_decode(shell_exec("lsblk -p -o NAME,MOUNTPOINT,SERIAL,PATH --json"), true);
+		$zfs_check = 1;
 	}
 	
 	while($data = $results->fetchArray(1)) {
@@ -404,7 +406,12 @@
 				}
 				
 				if(isset($displayinfo["leddiskop"])) {
-					if(isset($unraid_array[$devicenode]["color"]) && isset($unraid_array[$devicenode]["status"])) {
+					$zfs_disk_status = "";
+					if($zfs_check) {
+						$zfs_disk_status = zfs_disk("" . $data["smart_serialnumber"] . "", $zfs_parser, $lsblk_array);
+					}
+					
+					if(!$zfs_disk_status && isset($unraid_array[$devicenode]["color"]) && isset($unraid_array[$devicenode]["status"])) {
 						$unraid_array_icon = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"]);
 						$unraid_array_info = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"],'array');
 						$color_status = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"],'color');
@@ -426,11 +433,6 @@
 								break;
 							default:
 								$unraid_disk_status_color = "grey-off";
-						}
-						
-						$zfs_disk_status = "";
-						if(zfs_check()) {
-							$zfs_disk_status = zfs_disk("" . $data["smart_serialnumber"] . "", $zfs_parser, $lsblk_array);
 						}
 						if($zfs_disk_status) {
 							$unraid_array_icon = get_unraid_disk_status($zfs_disk_status[1]);
@@ -533,16 +535,16 @@
 				}
 				
 				if(isset($displayinfo["unraidinfo"])) {
-					if(zfs_check()) {
+					if($zfs_check) {
 						$zfs_disk_info = zfs_disk($data["smart_serialnumber"], $zfs_parser, $lsblk_array, 1);
 					}
 					if(isset($unraid_array[$devicenode]["type"])) {
 						$unraid_dev = "<b>" . $unraid_array[$devicenode]["type"] . "</b>: " . $unraid_array[$devicenode]["name"];
 					}
-					else if(isset($zfs_disk_info["pool"])) {
-						$unraid_dev = "<b>" . $zfs_disk_info["pool"] . "</b>";
+					if(isset($zfs_disk_info["pool"])) {
+						$unraid_dev = "<b>" . ucfirst($zfs_disk_info["pool"]) . "</b>";
 					}
-					else {
+					if(!$unraid_dev) {
 						$unraid_dev = "<b>Unassigned</b>: ";
 					}
 				}
