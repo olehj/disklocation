@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2024.03.10">
+<!ENTITY version          "2024.03.19">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -46,8 +46,12 @@
 
 -->
 <CHANGES>
+###2024.03.19
+ - Commit #305 - IMPROVEMENT: Skip updating devices during install if database version is matching the current database version.
+ - Commit #304 - IMPROVEMENT: Prioritize using ZFS data over Unraid if it's not a traditional Unraid array. Only visible for the device and dashboard page (e.g. Device is ONLINE (ZFS) instead of ACTIVE (Unraid)).
+
 ###2024.03.10
- - Commit #302 - ISSUE: Some forms relied on header("Location") to redirect after submitting a form (it's slightly faster). In case there's an error somewhere (might be anywhere in the system printing out a header), use also html meta refresh as a backup to get back to the page.
+ - Commit #302 - ISSUE: Some forms relied on header("Location") to redirect after submitting a form (it's slightly faster). In case there's an error somewhere (might be anywhere in the system printing out a header), use also meta refresh as a backup to get back to the page.
 
 ###2024.03.09
  - Commit #300 - ISSUE: Fixed an issue where the "Locate" button would not turn on the blinking feature on the drive LED. Also clean a bit up in the cronjob script.
@@ -682,17 +686,29 @@ EOL
     logit "Deleted old backup files after archiving them in a new place."
   fi
   logit "Package file &packagefile; extracted."
-  
-  logit "Adding devices into database, please wait... this might take a while..."
-  php -f /usr/local/emhttp/plugins/disklocation/pages/cron_disklocation.php cronjob install
+
+  DISKLOCATION_DB_LOCATION_DEFAULT="&pluginLOC;/disklocation.sqlite"
+  DISKLOCATION_DB_LOCATION=($(jq -r '.database_location' &pluginLOC;/disklocation.conf))
+  if [ $DISKLOCATION_DB_LOCATION == "null" ]; then
+    DISKLOCATION_DB_LOCATION=$DISKLOCATION_DB_LOCATION_DEFAULT
+  fi
+  DISKLOCATION_DB_VER_INSTALL=$(php &emhttpLOC;/pages/sqlite_tables.php version)
+  DISKLOCATION_DB_VER_CURRENT=$(sqlite3 $DISKLOCATION_DB_LOCATION "PRAGMA user_version")
+  if [[ "$DISKLOCATION_DB_VER_INSTALL" != "$DISKLOCATION_DB_VER_CURRENT" ]]; then
+    logit "Adding devices into database, please wait... this might take a while..."
+    php -f &emhttpLOC;/pages/cron_disklocation.php cronjob install
+  else
+    logit "No database update, skipping adding or updating devices during install."
+  fi
   
   logit "Installing cronjob..."
   <!--# Add cronjob for powermode -->
   cat &gt;&pluginLOC;-&branch;/powermode.cron &lt;&lt;EOL
 # Crontab for Disk Location plugin to retrieve SMART power status in the background
-*/5 * * * * php -f /usr/local/emhttp/plugins/disklocation/pages/cron_disklocation.php cronjob status &amp;&gt; /dev/null
+*/5 * * * * php -f &emhttpLOC;/pages/cron_disklocation.php cronjob status &amp;&gt; /dev/null
 EOL
-  php -f /usr/local/emhttp/plugins/disklocation/pages/cron_disklocation.php cronjob status
+  php -f &emhttpLOC;/pages/cron_disklocation.php cronjob status
+  chmod +x &pluginLOC;-&branch;/powermode.cron
   /usr/local/sbin/update_cron
   
   logit "Plugin installed successfully!"
