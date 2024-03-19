@@ -22,6 +22,11 @@
 //	Database Version:
 	$current_db_ver = 10;
 
+	if(in_array("version", $argv)) {
+		print($current_db_ver);
+		exit();
+	}
+	
 //	Common settings
 //	Variable name		Default value			Description
 //	--------------------------------------------------------------------------------
