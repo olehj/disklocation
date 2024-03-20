@@ -1,4 +1,4 @@
-//  Copyright 2019-2020, Ole-Henrik Jakobsen
+//  Copyright 2019-2024, Ole-Henrik Jakobsen
 //
 //  This file is part of Disk Location for Unraid.
 //
@@ -27,8 +27,8 @@ $('.diskLocation').click(async function(e) {
 		locateStart(locateDisk);
 	}
 	else {
-		locateStop(locateDisk);
-		await sleep(200);
+		//locateStop(locateDisk);
+		//await sleep(200);
 		locateKillAll(locateDisk.className);
 	}
 });

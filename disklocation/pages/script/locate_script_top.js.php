@@ -29,45 +29,26 @@
 
 function locateStart(locateDisk){
 	if(locateDisk) {
-		//console.log("Locating started: " + locateDisk.id);
-		locateDisk.removeEventListener("click", locateStart);
-		locateDisk.addEventListener("click", locateStop);
 		locateDisk.value = "Stop";
-		locateDisk.style.backgroundColor = '#000000';
+		locateDisk.style.backgroundColor = "#020202";
 		var diskpath = encodeURI(locateDisk.id);
-		$.get('<?php echo $path ?>',{ disklocation:diskpath, cmd:"start"},function(data) {
-			// script is handled in the background, nothing to do here
-		});
-		document.getElementById("bg3-" + locateDisk.id).classList.add('flex-container-locate');
+		$.get('<?php echo $path ?>',{ disklocation:diskpath, cmd:"start"},function(data) {});
+		document.getElementById("bg3-" + diskpath).classList.add('flex-container-locate');
 	}
 }
 
 function locateStop(locateDisk){
-	//console.log("Locating stopped: " + locateDisk.id);
-	locateDisk.removeEventListener("click", locateStop);
-	locateDisk.addEventListener("click", locateStart);
-	locateDisk.value = "Locate";
-	locateDisk.style.backgroundColor = '#FFFFFF';
 	var diskpath = encodeURI(locateDisk.id);
-	$.get('<?php echo $path ?>',{ disklocation:diskpath, cmd:"stop"},function(data) {
-		// script is handled in the background, nothing to do here
-	});
-	document.getElementById("bg3-" + locateDisk.id).classList.remove('flex-container-locate');
+	$.get('<?php echo $path ?>',{ disklocation:diskpath, cmd:"stop"},function(data) {});
 }
 
 function locateKillAll(locateDisk){
 	var y = document.getElementsByClassName(locateDisk);
 	var i;
 	for (i = 0; i < y.length; i++) {
-		y[i].removeEventListener("click", locateStop);
-		y[i].addEventListener("click", locateStart);
 		y[i].value = "Locate";
-		y[i].style.backgroundColor = '#FFFFFF';
-		//console.log("Locating killed: " + y[i].id);
+		y[i].style.backgroundColor = "#F2F2F2";
 		document.getElementById("bg3-" + y[i].id).classList.remove('flex-container-locate');
 	}
-	
-	$.get('<?php echo $path ?>',{ cmd:"killall"},function(data) {
-		// script is handled in the background, nothing to do here
-	});
+	$.get('<?php echo $path ?>',{ cmd:"killall"},function(data) {});
 }
