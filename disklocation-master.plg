@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2024.03.19">
+<!ENTITY version          "2024.03.20">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -46,6 +46,9 @@
 
 -->
 <CHANGES>
+###2024.03.20
+ - Commit #307 - ISSUE: Cleaned up the javascript for the Locate functions, should hopefully work better overall now. Tested with Chromium based browsers and Firefox.
+
 ###2024.03.19
  - Commit #305 - IMPROVEMENT: Skip updating devices during install if database version is matching the current database version.
  - Commit #304 - IMPROVEMENT: Prioritize using ZFS data over Unraid if it's not a traditional Unraid array. Only visible for the device and dashboard page (e.g. Device is ONLINE (ZFS) instead of ACTIVE (Unraid)).
@@ -693,7 +696,7 @@ EOL
     DISKLOCATION_DB_LOCATION=$DISKLOCATION_DB_LOCATION_DEFAULT
   fi
   DISKLOCATION_DB_VER_INSTALL=$(php &emhttpLOC;/pages/sqlite_tables.php version)
-  DISKLOCATION_DB_VER_CURRENT=$(sqlite3 $DISKLOCATION_DB_LOCATION "PRAGMA user_version")
+  DISKLOCATION_DB_VER_CURRENT=$(sqlite3 $DISKLOCATION_DB_LOCATION "PRAGMA user_version" ".quit")
   if [[ "$DISKLOCATION_DB_VER_INSTALL" != "$DISKLOCATION_DB_VER_CURRENT" ]]; then
     logit "Adding devices into database, please wait... this might take a while..."
     php -f &emhttpLOC;/pages/cron_disklocation.php cronjob install
