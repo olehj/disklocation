@@ -37,15 +37,10 @@ function locateStart(locateDisk){
 	}
 }
 
-function locateStop(locateDisk){
-	var diskpath = encodeURI(locateDisk.id);
-	$.get('<?php echo $path ?>',{ disklocation:diskpath, cmd:"stop"},function(data) {});
-}
-
 function locateKillAll(locateDisk){
 	var y = document.getElementsByClassName(locateDisk);
 	var i;
-	for (i = 0; i < y.length - 1; i++) {
+	for (i = 0; i < y.length; i++) {
 		y[i].value = "Locate";
 		y[i].style.backgroundColor = "#F2F2F2";
 		document.getElementById("bg3-" + y[i].id).classList.remove('flex-container-locate');
