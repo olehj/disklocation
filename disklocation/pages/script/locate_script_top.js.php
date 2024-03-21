@@ -48,7 +48,7 @@ function locateKillAll(locateDisk){
 		y[i].value = "Locate";
 		y[i].style.backgroundColor = "#F2F2F2";
 		
-		if(locateDisk.name == "allocated") {
+		if(y[i].name == "allocated") {
 			document.getElementById("bg3-" + y[i].id).classList.remove('flex-container-locate');
 		}
 	}

@@ -22,11 +22,11 @@ $('.diskLocation').click(async function(e) {
 	var locateDisk = document.getElementById(this.id);
 	
 	if(locateDisk.value == "Locate") {
-		locateKillAll(locateDisk.className,locateDisk.name);
+		locateKillAll(locateDisk.className);
 		await sleep(200);
-		locateStart(locateDisk,locateDisk.name);
+		locateStart(locateDisk);
 	}
 	else {
-		locateKillAll(locateDisk.className,locateDisk.name);
+		locateKillAll(locateDisk.className);
 	}
 });
