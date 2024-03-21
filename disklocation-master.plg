@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2024.03.20">
+<!ENTITY version          "2024.03.21">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -46,6 +46,10 @@
 
 -->
 <CHANGES>
+###2024.03.21
+ - Commit #309 - BUG: If the disklocation.conf wasn't created (which is expected in some cases), the recent install scripts would fail. Now it will check if that file exists before it tries to pull out information from it, otherwise use default location of the database.
+ - Commit #307 - ISSUE: Yet again changed a bit of the javascript based upon informaton from warwolf7 (I hate javascript).
+
 ###2024.03.20
  - Commit #307 - ISSUE: Cleaned up the javascript for the Locate functions, should hopefully work better overall now. Tested with Chromium based browsers and Firefox.
 
@@ -691,10 +695,13 @@ EOL
   logit "Package file &packagefile; extracted."
 
   DISKLOCATION_DB_LOCATION_DEFAULT="&pluginLOC;/disklocation.sqlite"
-  DISKLOCATION_DB_LOCATION=($(jq -r '.database_location' &pluginLOC;/disklocation.conf))
-  if [ $DISKLOCATION_DB_LOCATION == "null" ]; then
+  
+  if [ -f "&pluginLOC;/disklocation.conf" ] ; then
+    DISKLOCATION_DB_LOCATION=($(jq -r '.database_location' &pluginLOC;/disklocation.conf))
+  else
     DISKLOCATION_DB_LOCATION=$DISKLOCATION_DB_LOCATION_DEFAULT
   fi
+  
   DISKLOCATION_DB_VER_INSTALL=$(php &emhttpLOC;/pages/sqlite_tables.php version)
   DISKLOCATION_DB_VER_CURRENT=$(sqlite3 $DISKLOCATION_DB_LOCATION "PRAGMA user_version" ".quit")
   if [[ "$DISKLOCATION_DB_VER_INSTALL" != "$DISKLOCATION_DB_VER_CURRENT" ]]; then
