@@ -47,7 +47,7 @@
 -->
 <CHANGES>
 ###2024.03.22
- - Commit #307 - MINOR: Just a minor cleanup in the javascript handling and code of the Locate script. Added also a check if the device is assigned or unassigned so that the Locate works if there's unassigned devices in the list, which is kind of the point. Thanks to warwolf7 to patiently explained the situatuin well enough for me to finally get the problem ;)
+ - Commit #307 - MINOR: Just a minor cleanup in the javascript handling and code of the Locate script. Added also a check if the device is assigned or unassigned so that the Locate works if there's unassigned devices in the list, which is kind of the point. Thanks to warwolf7 who patiently explained the situation well enough for me to finally get the problem ;)
 
 ###2024.03.21b
  - Commit #309 - BUG: Fixed some issues which was created last bug fix that made the script in some cases skip the config check in a correct way.
