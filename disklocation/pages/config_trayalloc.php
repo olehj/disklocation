@@ -421,6 +421,7 @@
 	}
 ?>
 <?php if($db_update == 2) { print("<h3>Page unavailable due to database error.</h3><!--"); } ?>
+<script type="text/javascript" src="<?autov("" . DISKLOCATION_PATH . "/pages/script/locate_script_top.js.php")?><?php print("&amp;path=" . DISKLOCATION_PATH . ""); ?>"></script>
 <datalist id="disklocationColors">
 	<option>#<?php echo $bgcolor_empty ?></option>
 	<?php echo $bgcolor_custom_array ?>
