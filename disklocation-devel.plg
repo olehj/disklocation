@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2024.03.20-dev">
+<!ENTITY version          "2024.03.21-dev">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -280,10 +280,13 @@ EOL
   logit "Package file &packagefile; extracted."
 
   DISKLOCATION_DB_LOCATION_DEFAULT="&pluginLOC;/disklocation.sqlite"
-  DISKLOCATION_DB_LOCATION=($(jq -r '.database_location' &pluginLOC;/disklocation.conf))
-  if [ $DISKLOCATION_DB_LOCATION == "null" ]; then
+  
+  if [ -f "&pluginLOC;/disklocation.conf" ] ; then
+    DISKLOCATION_DB_LOCATION=($(jq -r '.database_location' &pluginLOC;/disklocation.conf))
+  else
     DISKLOCATION_DB_LOCATION=$DISKLOCATION_DB_LOCATION_DEFAULT
   fi
+  
   DISKLOCATION_DB_VER_INSTALL=$(php &emhttpLOC;/pages/sqlite_tables.php version)
   DISKLOCATION_DB_VER_CURRENT=$(sqlite3 $DISKLOCATION_DB_LOCATION "PRAGMA user_version" ".quit")
   if [[ "$DISKLOCATION_DB_VER_INSTALL" != "$DISKLOCATION_DB_VER_CURRENT" ]]; then
