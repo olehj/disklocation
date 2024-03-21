@@ -32,8 +32,12 @@ function locateStart(locateDisk){
 		locateDisk.value = "Stop";
 		locateDisk.style.backgroundColor = "#020202";
 		var diskpath = encodeURI(locateDisk.id);
+		
 		$.get('<?php echo $path ?>',{ disklocation:diskpath, cmd:"start"},function(data) {});
-		document.getElementById("bg3-" + diskpath).classList.add('flex-container-locate');
+		
+		if(locateDisk.name == "allocated") {
+			document.getElementById("bg3-" + diskpath).classList.add('flex-container-locate');
+		}
 	}
 }
 
@@ -43,7 +47,10 @@ function locateKillAll(locateDisk){
 	for (i = 0; i < y.length; i++) {
 		y[i].value = "Locate";
 		y[i].style.backgroundColor = "#F2F2F2";
-		document.getElementById("bg3-" + y[i].id).classList.remove('flex-container-locate');
+		
+		if(locateDisk.name == "allocated") {
+			document.getElementById("bg3-" + y[i].id).classList.remove('flex-container-locate');
+		}
 	}
 	$.get('<?php echo $path ?>',{ cmd:"killall"},function(data) {});
 }
