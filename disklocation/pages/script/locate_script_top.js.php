@@ -48,7 +48,7 @@ function locateKillAll(locateDisk){
 	for (i = 0; i < y.length - 1; i++) {
 		y[i].value = "Locate";
 		y[i].style.backgroundColor = "#F2F2F2";
-		//document.getElementById("bg3-" + y[i].id).classList.remove('flex-container-locate');
+		document.getElementById("bg3-" + y[i].id).classList.remove('flex-container-locate');
 	}
 	$.get('<?php echo $path ?>',{ cmd:"killall"},function(data) {});
 }
