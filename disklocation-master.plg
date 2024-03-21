@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2024.03.21">
+<!ENTITY version          "2024.03.21b">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -46,6 +46,9 @@
 
 -->
 <CHANGES>
+###2024.03.21b
+ - Commit #309 - BUG: Fixed some issues which was created last bug fix that made the script in some cases skip the config check in a correct way.
+
 ###2024.03.21
  - Commit #309 - BUG: If the disklocation.conf wasn't created (which is expected in some cases), the recent install scripts would fail. Now it will check if that file exists before it tries to pull out information from it, otherwise use default location of the database.
  - Commit #307 - ISSUE: Yet again changed a bit of the javascript based upon informaton from warwolf7 (I hate javascript).
@@ -699,11 +702,16 @@ EOL
   if [ -f "&pluginLOC;/disklocation.conf" ] ; then
     DISKLOCATION_DB_LOCATION=($(jq -r '.database_location' &pluginLOC;/disklocation.conf))
   else
+    DISKLOCATION_DB_LOCATION=null
+  fi
+  
+  if [ $DISKLOCATION_DB_LOCATION == "null" ]; then
     DISKLOCATION_DB_LOCATION=$DISKLOCATION_DB_LOCATION_DEFAULT
   fi
   
   DISKLOCATION_DB_VER_INSTALL=$(php &emhttpLOC;/pages/sqlite_tables.php version)
   DISKLOCATION_DB_VER_CURRENT=$(sqlite3 $DISKLOCATION_DB_LOCATION "PRAGMA user_version" ".quit")
+  sleep 1
   if [[ "$DISKLOCATION_DB_VER_INSTALL" != "$DISKLOCATION_DB_VER_CURRENT" ]]; then
     logit "Adding devices into database, please wait... this might take a while..."
     php -f &emhttpLOC;/pages/cron_disklocation.php cronjob install
