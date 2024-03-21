@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2024.03.21b">
+<!ENTITY version          "2024.03.22">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -46,6 +46,9 @@
 
 -->
 <CHANGES>
+###2024.03.22
+ - Commit #307 - MINOR: Just a minor cleanup in the javascript handling and code of the Locate script.
+
 ###2024.03.21b
  - Commit #309 - BUG: Fixed some issues which was created last bug fix that made the script in some cases skip the config check in a correct way.
 
