@@ -27,8 +27,6 @@ $('.diskLocation').click(async function(e) {
 		locateStart(locateDisk);
 	}
 	else {
-		//locateStop(locateDisk);
-		//await sleep(200);
 		locateKillAll(locateDisk.className);
 	}
 });
