@@ -558,7 +558,7 @@
 	";
 
 // Create and update database
-	if(!in_array("cronjob", $argv)) { print("<h3 style=\"color: #FF0000;\">"); }
+	if(!in_array("cronjob", $argv) && !$_POST["download_csv"]) { print("<h3 style=\"color: #FF0000;\">"); }
 	if(filesize(DISKLOCATION_DB) === 0) {
 		$sql = "
 			CREATE TABLE disks(
@@ -911,7 +911,7 @@
 			}
 		}
 		
-		if(!in_array("cronjob", $argv)) { print("</h3>"); }
+		if(!in_array("cronjob", $argv) && !$_POST["download_csv"]) { print("</h3>"); }
 		if($db_update == 1) {
 			print("<h3>Database successfully updated</h3>");
 			if(!in_array("cronjob", $argv)) {
