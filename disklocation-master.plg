@@ -46,7 +46,7 @@
 
 -->
 <CHANGES>
-###2024.07.*
+###2024.07.25
  - Commit #315 - BUG: Export TSV did not export the list as intended.
 
 ###2024.03.22
