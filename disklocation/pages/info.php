@@ -255,9 +255,11 @@
 <form action="<?php echo DISKLOCATION_PATH ?>/pages/export_tsv.php" method="post">
 <p>
 	<input type="submit" name="download_csv" value="Download TSV" />
+	<input type="checkbox" name="raw_data_csv" value="1" /> Output raw data
 </p>
 <blockquote class='inline_help'>
 	<p>Download a TSV file based upon the selection and ordering of the Information table above. If you're using HTML in the comment section, it will include HTML code if inserted and will not parse it anyhow. TSV is the same as CSV, but the extension for TAB delimited instead of COMMA.</p>
+	<p>Output raw data will not format numbers for the file output. Eg. HDD sizes like 8.0TB will be 8001563222016 instead. However, the SMART units read and written is calculated with the logical block size and shown in raw after that.</p>
 </blockquote>
 </form>
 <?php if($db_update == 2) { print("-->"); } ?>
