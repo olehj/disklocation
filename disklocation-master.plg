@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2024.07.25">
+<!ENTITY version          "2024.07.26">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -46,6 +46,10 @@
 
 -->
 <CHANGES>
+###2024.07.26
+ - Commit #319 - MINOR: ZFS Hot Spares status was not regognized.
+ - Commit #318 - FEATURE: Possible to download TSV with RAW data (exception for the units read and written which is already calculated from the logical block size, it will show the actual bytes read and written).
+
 ###2024.07.25
  - Commit #315 - BUG: Export TSV did not export the list as intended.
 
