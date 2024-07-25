@@ -505,6 +505,7 @@
 			case 'ONLINE': $orb = 'circle'; $color = 'green'; $help = 'Normal operation, device is online'; break;
 			case 'FAULTED': $orb = 'warning'; $color = 'yellow'; $help = 'Device has faulted'; break;
 			case 'DEGRADED': $orb = 'warning'; $color = 'yellow'; $help = 'Device is degraded'; break;
+			case 'AVAIL': $orb = 'circle'; $color = 'green'; $help = 'Device is available'; break;
 			case 'UNAVAIL': $orb = 'times'; $color = 'red'; $help = 'Device is unavailable'; break;
 			case 'OFFLINE': $orb = 'times'; $color = 'red'; $help = 'Device is offline'; break;
 		}
