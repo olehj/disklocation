@@ -97,20 +97,82 @@
 				$physical_traynumber = ( !isset($tray_number_override_start) ? --$drive_tray_order[$hash] : $drive_tray_order[$hash]);
 			}
 			
-			$smart_powerontime = ( empty($data["smart_powerontime"]) ? null : seconds_to_time($data["smart_powerontime"] * 60 * 60) );
-			$smart_capacity = ( empty($data["smart_capacity"]) ? null : human_filesize($data["smart_capacity"], 1, true) );
+			$smart_temperature = 0;
+			$smart_temperature_warning = 0;
+			$smart_temperature_critical = 0;
+			$unraid_array[$data["devicenode"]]["hotTemp"] = ( $unraid_array[$data["devicenode"]]["hotTemp"] ? $unraid_array[$data["devicenode"]]["hotTemp"] : $GLOBALS["display"]["hot"] );
+			$unraid_array[$data["devicenode"]]["maxTemp"] = ( $unraid_array[$data["devicenode"]]["maxTemp"] ? $unraid_array[$data["devicenode"]]["maxTemp"] : $GLOBALS["display"]["max"] );
 			
-			$smart_rotation = get_smart_rotation($data["smart_rotation"]);
-			
-			if($data["smart_rotation"] == -2) {
-				$smart_units_read = ( empty($data["smart_units_read"]) ? null : human_filesize(smart_units_to_bytes($data["smart_units_read"], $data["smart_logical_block_size"], true), 1, true) );
-				$smart_units_written = ( empty($data["smart_units_written"]) ? null : human_filesize(smart_units_to_bytes($data["smart_units_written"], $data["smart_logical_block_size"], true), 1, true) );
+			if(!$_POST["raw_data_csv"]) {
+				$smart_powerontime = ( empty($data["smart_powerontime"]) ? null : seconds_to_time($data["smart_powerontime"] * 60 * 60) );
+				$smart_capacity = ( empty($data["smart_capacity"]) ? null : human_filesize($data["smart_capacity"], 1, true) );
+				$smart_rotation = get_smart_rotation($data["smart_rotation"]);
+				
+				if($data["smart_rotation"] == -2) {
+					$smart_units_read = ( empty($data["smart_units_read"]) ? null : human_filesize(smart_units_to_bytes($data["smart_units_read"], $data["smart_logical_block_size"], true), 1, true) );
+					$smart_units_written = ( empty($data["smart_units_written"]) ? null : human_filesize(smart_units_to_bytes($data["smart_units_written"], $data["smart_logical_block_size"], true), 1, true) );
+				}
+				else {
+					$smart_units_read = ( empty($data["smart_units_read"]) ? null : human_filesize(smart_units_to_bytes($data["smart_units_read"], $data["smart_logical_block_size"], true, true), 1, true) );
+					$smart_units_written = ( empty($data["smart_units_written"]) ? null : human_filesize(smart_units_to_bytes($data["smart_units_written"], $data["smart_logical_block_size"], true, true), 1, true) );
+				}
+				
+				if(is_numeric($unraid_array[$data["devicenode"]]["temp"]) && is_numeric($unraid_array[$devicenode]["temp"])) {
+					switch($display["unit"]) {
+						case 'F':
+							$smart_temperature = round(temperature_conv($unraid_array[$data["devicenode"]]["temp"], 'C', 'F')) . "°F";
+							$smart_temperature_warning = round(temperature_conv($unraid_array[$data["devicenode"]]["hotTemp"], 'C', 'F')) . "°F";
+							$smart_temperature_critical = round(temperature_conv($unraid_array[$data["devicenode"]]["maxTemp"], 'C', 'F')) . "°F";
+							break;
+						case 'K':
+							$smart_temperature = round(temperature_conv($unraid_array[$data["devicenode"]]["temp"], 'C', 'K')) . "K";
+							$smart_temperature_warning = round(temperature_conv($unraid_array[$data["devicenode"]]["hotTemp"], 'C', 'K')) . "K";
+							$smart_temperature_critical = round(temperature_conv($unraid_array[$data["devicenode"]]["maxTemp"], 'C', 'K')) . "K";
+							break;
+						default:
+							$smart_temperature = $unraid_array[$data["devicenode"]]["temp"] . "°C";
+							$smart_temperature_warning = $unraid_array[$data["devicenode"]]["hotTemp"] . "°C";
+							$smart_temperature_critical = $unraid_array[$data["devicenode"]]["maxTemp"] . "°C";
+					}
+				}
+				
+				$smart_serialnumber = substr($data["smart_serialnumber"], $dashboard_widget_pos);
+				$smart_formfactor = str_replace(" inches", "\"", $data["smart_formfactor"]);
+				$smart_cache = ($data["smart_cache"] ? $data["smart_cache"] . "MB" : "");
+				$smart_nvme_percentage_used = ( is_numeric($data["smart_nvme_percentage_used"]) ? $data["smart_nvme_percentage_used"] . "%" : "N/A" );
+				$smart_nvme_available_spare = ( is_numeric($data["smart_nvme_available_spare"]) ? $data["smart_nvme_available_spare"] . "%" : "N/A" );
+				$smart_nvme_available_spare_threshold = ( is_numeric($data["smart_nvme_available_spare_threshold"]) ? $data["smart_nvme_available_spare_threshold"] . "%" : "N/A" );
 			}
 			else {
-				$smart_units_read = ( empty($data["smart_units_read"]) ? null : human_filesize(smart_units_to_bytes($data["smart_units_read"], $data["smart_logical_block_size"], true, true), 1, true) );
-				$smart_units_written = ( empty($data["smart_units_written"]) ? null : human_filesize(smart_units_to_bytes($data["smart_units_written"], $data["smart_logical_block_size"], true, true), 1, true) );
+				$smart_powerontime = ( empty($data["smart_powerontime"]) ? null : $data["smart_powerontime"] );
+				$smart_capacity = ( empty($data["smart_capacity"]) ? null : $data["smart_capacity"] );
+				$smart_rotation = $data["smart_rotation"];
+				
+				if($data["smart_rotation"] == -2) {
+					$smart_units_read = ( empty($data["smart_units_read"]) ? null : smart_units_to_bytes($data["smart_units_read"], $data["smart_logical_block_size"], true) );
+					$smart_units_written = ( empty($data["smart_units_written"]) ? null : smart_units_to_bytes($data["smart_units_written"], $data["smart_logical_block_size"], true) );
+				}
+				else {
+					$smart_units_read = ( empty($data["smart_units_read"]) ? null : smart_units_to_bytes($data["smart_units_read"], $data["smart_logical_block_size"], true, true) );
+					$smart_units_written = ( empty($data["smart_units_written"]) ? null : smart_units_to_bytes($data["smart_units_written"], $data["smart_logical_block_size"], true, true) );
+				}
+				
+				if(is_numeric($unraid_array[$data["devicenode"]]["temp"]) && is_numeric($unraid_array[$devicenode]["temp"])) {
+					$smart_temperature = $unraid_array[$data["devicenode"]]["temp"];
+					$smart_temperature_warning = $unraid_array[$data["devicenode"]]["hotTemp"];
+					$smart_temperature_critical = $unraid_array[$data["devicenode"]]["maxTemp"];
+				}
+				
+				$smart_serialnumber = $data["smart_serialnumber"];
+				$smart_formfactor = $data["smart_formfactor"];
+				$smart_cache = $data["smart_cache"];
+				$smart_nvme_percentage_used = ( is_numeric($data["smart_nvme_percentage_used"]) ? $data["smart_nvme_percentage_used"] . "" : "" );
+				$smart_nvme_available_spare = ( is_numeric($data["smart_nvme_available_spare"]) ? $data["smart_nvme_available_spare"] . "" : "" );
+				$smart_nvme_available_spare_threshold = ( is_numeric($data["smart_nvme_available_spare_threshold"]) ? $data["smart_nvme_available_spare_threshold"] . "" : "" );
+				
+				$raw_data_csv_file = ".raw";
 			}
-		
+			
 			$date_warranty = "";
 			$warranty_expire = "";
 			$warranty_left = "";
@@ -130,31 +192,6 @@
 					$date_warranty_csv = $data["warranty_date"];
 				}
 			}
-			
-			$smart_temperature = 0;
-			$smart_temperature_warning = 0;
-			$smart_temperature_critical = 0;
-			$unraid_array[$data["devicenode"]]["hotTemp"] = ( $unraid_array[$data["devicenode"]]["hotTemp"] ? $unraid_array[$data["devicenode"]]["hotTemp"] : $GLOBALS["display"]["hot"] );
-			$unraid_array[$data["devicenode"]]["maxTemp"] = ( $unraid_array[$data["devicenode"]]["maxTemp"] ? $unraid_array[$data["devicenode"]]["maxTemp"] : $GLOBALS["display"]["max"] );
-			
-			if(is_numeric($unraid_array[$data["devicenode"]]["temp"]) && is_numeric($unraid_array[$devicenode]["temp"])) {
-				switch($display["unit"]) {
-					case 'F':
-						$smart_temperature = round(temperature_conv($unraid_array[$data["devicenode"]]["temp"], 'C', 'F')) . "°F";
-						$smart_temperature_warning = round(temperature_conv($unraid_array[$data["devicenode"]]["hotTemp"], 'C', 'F')) . "°F";
-						$smart_temperature_critical = round(temperature_conv($unraid_array[$data["devicenode"]]["maxTemp"], 'C', 'F')) . "°F";
-						break;
-					case 'K':
-						$smart_temperature = round(temperature_conv($unraid_array[$data["devicenode"]]["temp"], 'C', 'K')) . "K";
-						$smart_temperature_warning = round(temperature_conv($unraid_array[$data["devicenode"]]["hotTemp"], 'C', 'K')) . "K";
-						$smart_temperature_critical = round(temperature_conv($unraid_array[$data["devicenode"]]["maxTemp"], 'C', 'K')) . "K";
-						break;
-					default:
-						$smart_temperature = $unraid_array[$data["devicenode"]]["temp"] . "°C";
-						$smart_temperature_warning = $unraid_array[$data["devicenode"]]["hotTemp"] . "°C";
-						$smart_temperature_critical = $unraid_array[$data["devicenode"]]["maxTemp"] . "°C";
-				}
-			}
 
 			$columns_info_csv = array(
 				"groupid" => stripslashes(htmlspecialchars($group_assign)),
@@ -164,10 +201,11 @@
 				"luname" => $data["luname"],
 				"model_family" => $data["model_family"],
 				"model_name" => $data["model_name"],
-				"smart_serialnumber" => substr($data["smart_serialnumber"], $dashboard_widget_pos),
+				"smart_serialnumber" => $smart_serialnumber,
 				"smart_capacity" => $smart_capacity,
+				"smart_cache" => $smart_cache,
 				"smart_rotation" => $smart_rotation,
-				"smart_formfactor" => str_replace(" inches", "\"", $data["smart_formfactor"]),
+				"smart_formfactor" => $smart_formfactor,
 				"smart_status" => ( empty($data["smart_status"]) ? "FAIL" : "OK" ),
 				"smart_temperature" => $smart_temperature . "/" . $smart_temperature_warning . "/" . $smart_temperature_critical,
 				"smart_powerontime" => $data["smart_powerontime"],
@@ -177,11 +215,11 @@
 				"smart_command_timeout" => ( isset($data["smart_command_timeout"]) ? $data["smart_command_timeout"] : "" ),
 				"smart_current_pending_sector_count" => ( isset($data["smart_current_pending_sector_count"]) ? $data["smart_current_pending_sector_count"] : "" ),
 				"smart_offline_uncorrectable" => ( isset($data["smart_offline_uncorrectable"]) ? $data["smart_offline_uncorrectable"] : "" ),
-				"smart_nvme_percentage_used" => ( is_numeric($data["smart_nvme_percentage_used"]) ? $data["smart_nvme_percentage_used"] . "%" : "N/A" ),
+				"smart_nvme_percentage_used" => $smart_nvme_percentage_used,
 				"smart_units_read" => $smart_units_read,
 				"smart_units_written" => $smart_units_written,
-				"smart_nvme_available_spare" => ( is_numeric($data["smart_nvme_available_spare"]) ? $data["smart_nvme_available_spare"] . "%" : "N/A" ),
-				"smart_nvme_available_spare_threshold" => ( is_numeric($data["smart_nvme_available_spare_threshold"]) ? $data["smart_nvme_available_spare_threshold"] . "%" : "N/A" ),
+				"smart_nvme_available_spare" => $smart_nvme_available_spare,
+				"smart_nvme_available_spare_threshold" => $smart_nvme_available_spare_threshold,
 				"manufactured" => $data["manufactured"],
 				"purchased" => $data["purchased"],
 				"warranty_date" => $date_warranty_csv,
@@ -198,6 +236,7 @@
 		$print_csv[$i_drive][$i+0] = " ";
 		$print_csv[$i_drive+1][$i+0] = "Disk Location";
 		$print_csv[$i_drive+1][$i+1] = "" . DISKLOCATION_VERSION . "";
-		array_to_csv_download($print_csv, "disklocation-" . date("Ymd-His") . ".tsv", "\t");
+		$print_csv[$i_drive+1][$i+2] = ( isset($_POST["raw_data_csv"]) ? "RAW" : "FORMATTED" );
+		array_to_csv_download($print_csv, "disklocation-" . date("Ymd-His") . "" . $raw_data_csv_file . ".tsv", "\t");
 	}
 ?>
