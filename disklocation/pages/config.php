@@ -468,7 +468,7 @@ $(document).ready(function(){
 							<input type="radio" name="signal_css" value="signals.static.css" <?php if(strstr(use_stylesheet(), "signals.static.css")) { echo "checked"; } ?> />Static
 							<blockquote class='inline_help'>
 								<p>
-									Select if you want LEDs to flash or not.
+									Select if you want LEDs to flash or not. After changing this, you might need to press CTRL+F5 to force a refresh and clear up the cache.
 								</p>
 							</blockquote>
 						</td>
