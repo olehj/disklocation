@@ -266,11 +266,11 @@ $(document).ready(function(){
 				<blockquote class='inline_help'>
 					<dt>Select the color(s) you want, defaults are:</dt>
 					<ul>
-						<li>#eb4f41 "Parity"</li>
-						<li>#ef6441 "Data"</li>
-						<li>#ff884c "Cache"</li>
-						<li>#41b5ef "Unassigned devices"</li>
-						<li>#aaaaaa "Empty/available trays"</li>
+						<li><?php echo $bgcolor_parity_default ?> "Parity"</li>
+						<li><?php echo $bgcolor_unraid_default ?> "Data"</li>
+						<li><?php echo $bgcolor_cache_default ?> "Cache"</li>
+						<li><?php echo $bgcolor_others_default ?> "Unassigned devices"</li>
+						<li><?php echo $bgcolor_empty_default ?> "Empty/available trays"</li>
 					</ul>
 				</blockquote>
 				<p>

@@ -680,7 +680,7 @@
 			";
 		}
 		
-		$ret = $db->exec($sql_status);
+		$ret = $db->exec($sql_status . " COMMIT;");
 		if(!$ret) {
 			return $db->lastErrorMsg();
 		}
@@ -708,7 +708,7 @@
 				;
 			";
 			
-			$ret = $db->exec($sql_status);
+			$ret = $db->exec($sql_status . " COMMIT;");
 			if(!$ret) {
 				return $db->lastErrorMsg();
 			}
@@ -731,7 +731,7 @@
 			DELETE FROM location WHERE hash = '" . SQLite3::escapeString($hash) . "';
 		";
 		
-		$ret = $db->exec($sql_status);
+		$ret = $db->exec($sql_status . " COMMIT;");
 		if(!$ret) {
 			return $db->lastErrorMsg();
 		}
@@ -755,7 +755,7 @@
 				WHERE status='d'
 				;
 			";
-			$ret = $db->exec($sql_status);
+			$ret = $db->exec($sql_status . " COMMIT;");
 		}
 		
 		if(!$ret && $action == 'm') {
@@ -798,7 +798,7 @@
 			$hash = 1;
 		}
 		
-		$ret = $db->exec($sql_status);
+		$ret = $db->exec($sql_status . " COMMIT;");
 		if(!$ret) {
 			return $db->lastErrorMsg();
 		}

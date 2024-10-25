@@ -414,7 +414,7 @@
 				flush();
 			}
 			
-			$ret = $db->exec($sql_loop);
+			$ret = $db->exec($sql_loop . " COMMIT;");
 			if(!$ret) {
 				echo $db->lastErrorMsg();
 			}

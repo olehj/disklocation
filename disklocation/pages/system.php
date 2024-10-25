@@ -21,6 +21,51 @@
 	
 	require_once("functions.php");
 	
+	// get settings from DB as $var
+	$sql = "SELECT * FROM settings";
+	$results = $db->query($sql);
+	
+	while($data = $results->fetchArray(1)) {
+		extract($data);
+	}
+	
+	$displayinfo = json_decode($displayinfo, true);
+	
+	//dashboard_toggle($dashboard_widget_pos); 
+	//cronjob_timer($smart_updates);
+	if($smart_updates != cronjob_current()) {
+		cronjob_timer($smart_updates);
+	}
+	
+	$color_array = array();
+	$color_array["empty"] = $bgcolor_empty;
+
+	// Group config
+	$last_group_id = 0;
+	
+	$sql = "SELECT * FROM settings_group ORDER BY id ASC";
+	$results = $db->query($sql);
+	
+	while($data_group = $results->fetchArray(1)) {
+		foreach($data_group as $key=>$value) {
+			$group[$data_group["id"]][$key] = "".$value."";
+		}
+	}
+	
+	$count_groups = array();
+	$sql = "SELECT id FROM settings_group GROUP BY id;";
+	$results = $db->query($sql);
+	while($data = $results->fetchArray(1)) {
+		$count_groups[] = $data["id"];
+	}
+	$total_groups = ( is_array($count_groups) ? count($count_groups) : 0 );
+	
+	$sql = "SELECT id FROM settings_group ORDER BY id DESC limit 1;";
+	$results = $db->query($sql);
+	while($data = $results->fetchArray(1)) {
+		$last_group_id = $data["id"];
+	}
+	
 	if(isset($_POST["hash_delete"])) {
 		$sql = "
 			UPDATE disks SET
@@ -29,16 +74,16 @@
 			;
 		";
 		
-		$ret = $db->exec($sql);
+		$ret = $db->exec($sql . " COMMIT;");
 		if(!$ret) {
 			echo $db->lastErrorMsg();
 		}
 		
-		$db->close();
+		//$db->close();
 		
-		header("Location: " . DISKLOCATION_URL);
-		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-		exit;
+		//header("Location: " . DISKLOCATION_URL);
+		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+		//exit;
 	}
 	
 	if(isset($_POST["hash_remove"])) {
@@ -56,16 +101,16 @@
 			;
 		";
 		
-		$ret = $db->exec($sql);
+		$ret = $db->exec($sql . " COMMIT;");
 		if(!$ret) {
 			echo $db->lastErrorMsg();
 		}
 		
-		$db->close();
+		//$db->close();
 		
-		header("Location: " . DISKLOCATION_URL);
-		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-		exit;
+		//header("Location: " . DISKLOCATION_URL);
+		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+		//exit;
 	}
 	
 	if(isset($_POST["group_add"])) {
@@ -73,16 +118,16 @@
 			INSERT INTO settings_group(group_name) VALUES('');
 		";
 		
-		$ret = $db->exec($sql);
+		$ret = $db->exec($sql . " COMMIT;");
 		if(!$ret) {
 			echo $db->lastErrorMsg();
 		}
 		
-		$db->close();
+		//$db->close();
 		
-		header("Location: " . DISKLOCATION_URL);
-		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-		exit;
+		//header("Location: " . DISKLOCATION_URL);
+		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+		//exit;
 	}
 	if(isset($_POST["group_del"]) && isset($_POST["last_group_id"])) {
 		$sql = "
@@ -90,16 +135,16 @@
 			DELETE FROM location WHERE groupid = '" . $_POST["last_group_id"] . "';
 		";
 		
-		$ret = $db->exec($sql);
+		$ret = $db->exec($sql . " COMMIT;");
 		if(!$ret) {
 			echo $db->lastErrorMsg();
 		}
 		
-		$db->close();
+		//$db->close();
 		
-		header("Location: " . DISKLOCATION_URL);
-		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-		exit;
+		//header("Location: " . DISKLOCATION_URL);
+		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+		//exit;
 	}
 	if(isset($_POST["group_swap"])) {
 		list($group_left, $group_right) = explode(":", $_POST["group_swap"]);
@@ -117,16 +162,16 @@
 			COMMIT;
 		";
 		
-		$ret = $db->exec($sql);
+		$ret = $db->exec($sql . " COMMIT;");
 		if(!$ret) {
 			echo $db->lastErrorMsg();
 		}
 		
-		$db->close();
+		//$db->close();
 		
-		header("Location: " . DISKLOCATION_URL);
-		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-		exit;
+		//header("Location: " . DISKLOCATION_URL);
+		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+		//exit;
 	}
 	
 	if(isset($_POST["save_settings"])) {
@@ -259,10 +304,16 @@
 			
 			debug_print($debugging_active, __LINE__, "SQL", "SETTINGS: <pre>" . $sql . "</pre>");
 			
-			$ret = $db->exec($sql);
+			$ret = $db->exec($sql . " COMMIT;");
 			if(!$ret) {
 				echo $db->lastErrorMsg();
 			}
+			
+			//$db->close();
+			
+			//header("Location: " . DISKLOCATION_URL);
+			//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+			//exit;
 		}
 	}
 	
@@ -301,10 +352,16 @@
 			
 			debug_print($debugging_active, __LINE__, "SQL", "GROUP SETTINGS: <pre>" . $sql . "</pre>");
 			
-			$ret = $db->exec($sql);
+			$ret = $db->exec($sql . " COMMIT;");
 			if(!$ret) {
 				echo $db->lastErrorMsg();
 			}
+			
+			//$db->close();
+			
+			//header("Location: " . DISKLOCATION_URL);
+			//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+			//exit;
 		}
 	}
 	
@@ -359,7 +416,7 @@
 			
 			debug_print($debugging_active, __LINE__, "SQL", "ALLOC: <pre>" . $sql . "</pre>");
 			
-			$ret = $db->exec($sql);
+			$ret = $db->exec($sql . " COMMIT;");
 			if(!$ret) {
 				echo $db->lastErrorMsg();
 			}
@@ -372,7 +429,7 @@
 			
 			while($res = $results->fetchArray(1)) {
 				$sql_del = "DELETE FROM location WHERE id = '" . $res["id"] . "';";
-				$ret = $db->exec($sql_del);
+				$ret = $db->exec($sql_del . " COMMIT;");
 				if(!$ret) {
 					return $db->lastErrorMsg();
 				}
@@ -409,10 +466,16 @@
 			
 			debug_print($debugging_active, __LINE__, "SQL", "POPULATED: <pre>" . $sql . "</pre>");
 			
-			$ret = $db->exec($sql);
+			$ret = $db->exec($sql . " COMMIT;");
 			if(!$ret) {
 				echo $db->lastErrorMsg();
 			}
+			
+			//$db->close();
+			
+			//header("Location: " . DISKLOCATION_URL);
+			//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+			//exit;
 		}
 	}
 	
@@ -428,77 +491,32 @@
 		
 		debug_print($debugging_active, __LINE__, "SQL", "SETTINGS: <pre>" . $sql . "</pre>");
 		
-		$ret = $db->exec($sql);
+		$ret = $db->exec($sql . " COMMIT;");
 		if(!$ret) {
 			echo $db->lastErrorMsg();
 		}
+		
+		//$db->close();
+		
+		//header("Location: " . DISKLOCATION_URL);
+		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+		//exit;
 	}
-	
-	//if(!in_array("cronjob", $argv)) {
-		// get settings from DB as $var
-		$sql = "SELECT * FROM settings";
-		$results = $db->query($sql);
-		
-		while($data = $results->fetchArray(1)) {
-			extract($data);
-		}
-		
-		$displayinfo = json_decode($displayinfo, true);
-		
-		//dashboard_toggle($dashboard_widget_pos); 
-		//cronjob_timer($smart_updates);
-		if($smart_updates != cronjob_current()) {
-			cronjob_timer($smart_updates);
-		}
-		
-		$color_array = array();
-		$color_array["empty"] = $bgcolor_empty;
-	
-	// Group config
-		$last_group_id = 0;
-		
-		$sql = "SELECT * FROM settings_group ORDER BY id ASC";
-		$results = $db->query($sql);
-		
-		while($data_group = $results->fetchArray(1)) {
-			foreach($data_group as $key=>$value) {
-				$group[$data_group["id"]][$key] = "".$value."";
-			}
-		}
-		
-		$count_groups = array();
-		$sql = "SELECT id FROM settings_group GROUP BY id;";
-		$results = $db->query($sql);
-		while($data = $results->fetchArray(1)) {
-			$count_groups[] = $data["id"];
-		}
-		$total_groups = ( is_array($count_groups) ? count($count_groups) : 0 );
-		
-		$sql = "SELECT id FROM settings_group ORDER BY id DESC limit 1;";
-		$results = $db->query($sql);
-		while($data = $results->fetchArray(1)) {
-			$last_group_id = $data["id"];
-		}
-		
-		/*
-		print_r($group);
-		print(count($group));
-		die();
-		*/
-	//}
 	
 	if(isset($_POST["reset_all_colors"])) {
-		if(force_reset_color($db, "*")) {
-			$db->close();
-			print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-			exit;
-		}
+		force_reset_color($db, "*");
+		//if(force_reset_color($db, "*")) {
+			//$db->close();
+			//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+			//exit;
+		//}
 	}
 	if(isset($_POST["reset_common_colors"])) {
-		if(force_reset_color($db)) {
-			$db->close();
-			print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-			exit;
-		}
+		force_reset_color($db);
+		//if(force_reset_color($db)) {
+			//$db->close();
+			//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+			//exit;
+		//}
 	}
 ?>
