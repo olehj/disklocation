@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2024.10.25">
+<!ENTITY version          "2024.10.26">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -46,7 +46,9 @@
 
 -->
 <CHANGES>
-###2024.10.25
+###2024.10.26
+ - Commit #324 - FEATURE: Choose dynamic and static styles for LEDs.
+ - Commit #323 - FEATURE: Under configuration you can now set to display LEDs in all color coded circular modes instead of Unraid icons.
  - Commit #322 - IMPROVEMENT/MINOR: The "delete all" button and database move/delete requires now an additional checkbox to be performed. Also moved the backup button to a more sensible area. Some SQL syntax tweaks that will hopefully cause less corruption.
  - Commit #321 - MINOR: Sometimes the colors behaved weird when saving custom colors. This happened caused by some variables being loaded after the execution of a function that required the info before.
 
