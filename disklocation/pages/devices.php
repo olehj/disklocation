@@ -127,13 +127,13 @@
 				}
 				
 				if(isset($displayinfo["leddiskop"]) && $displayinfo["leddiskop"] == 1 && empty($displayinfo["hideemptycontents"])) {
-					$empty_leddiskop = get_unraid_disk_status("grey-off");
+					$empty_leddiskop = get_unraid_disk_status("grey-off", '', '', $force_orb_led);
 				}
 				if(isset($displayinfo["ledsmart"]) && $displayinfo["ledsmart"] == 1 && empty($displayinfo["hideemptycontents"])) {
-					$empty_ledsmart = get_unraid_disk_status("grey-off");
+					$empty_ledsmart = get_unraid_disk_status("grey-off", '', '', $force_orb_led);
 				}
 				if(isset($displayinfo["ledtemp"]) && $displayinfo["ledtemp"] == 1 && empty($displayinfo["hideemptycontents"])) {
-					$empty_ledtemp = get_unraid_disk_status("grey-off");
+					$empty_ledtemp = get_unraid_disk_status("grey-off", '', '', $force_orb_led);
 				}
 				if(empty($displayinfo["hideemptycontents"])) {
 					$empty_traytext = "<b>Available disk slot</b>";
@@ -208,7 +208,7 @@
 						<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
 							<div style=\"background-color: #" . $color_array["empty"] . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
 								<div class=\"flex-container-start\" style=\"/*min-height: 15px;*/\">
-									" . get_unraid_disk_status("grey-off") . "
+									" . get_unraid_disk_status("grey-off", '', '', $force_orb_led) . "
 								</div>
 								<div class=\"flex-container-middle_" . $disk_tray_direction . "\" style=\"padding: 0 0 10px 0;\">
 								</div>
@@ -412,7 +412,7 @@
 					}
 					
 					if(!$zfs_disk_status && isset($unraid_array[$devicenode]["color"]) && isset($unraid_array[$devicenode]["status"])) {
-						$unraid_array_icon = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"]);
+						$unraid_array_icon = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"], '', $force_orb_led);
 						$unraid_array_info = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"],'array');
 						$color_status = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"],'color');
 					}
@@ -435,12 +435,12 @@
 								$unraid_disk_status_color = "grey-off";
 						}
 						if($zfs_disk_status) {
-							$unraid_array_icon = get_unraid_disk_status($zfs_disk_status[1]);
+							$unraid_array_icon = get_unraid_disk_status($zfs_disk_status[1], '', '', $force_orb_led);
 							$unraid_array_info = get_unraid_disk_status($zfs_disk_status[1],'','array');
 							$color_status = get_unraid_disk_status($zfs_disk_status[1],'','color');
 						}
 						else {
-							$unraid_array_icon = get_unraid_disk_status($unraid_disk_status_color);
+							$unraid_array_icon = get_unraid_disk_status($unraid_disk_status_color, '', '', $force_orb_led);
 							$unraid_array_info = get_unraid_disk_status($unraid_disk_status_color,'','array');
 							$color_status = get_unraid_disk_status($unraid_disk_status_color,'','color');
 						}
@@ -520,13 +520,13 @@
 						$temp_status = 1;
 					}
 					if($unraid_array[$devicenode]["temp"] >= $unraid_array[$devicenode]["hotTemp"]) {
-						$temp_status_icon = "<a class='info' style=\"margin: 0; text-align:left;\"><i class='fa fa-fire yellow-orb-disklocation'></i><span>" . $smart_temperature . " (Warning: &gt;" . $smart_temperature_warning . ")</span></a>";
-						$temp_status_info = array('orb' => 'fa fa-fire yellow-orb-disklocation', 'color' => 'yellow', 'text' => $smart_temperature);
+						$temp_status_icon = "<a class='info' style=\"margin: 0; text-align:left;\"><i class='fa fa-" . ( !$force_orb_led ? 'fire' : 'circle' ) . " orb-disklocation yellow-orb-disklocation'></i><span>" . $smart_temperature . " (Warning: &gt;" . $smart_temperature_warning . ")</span></a>";
+						$temp_status_info = array('orb' => "fa fa-" . ( !$force_orb_led ? 'fire' : 'circle' ) . " orb-disklocation yellow-orb-disklocation", 'color' => 'yellow', 'text' => $smart_temperature);
 						$temp_status = 2;
 					}
 					if($unraid_array[$devicenode]["temp"] >= $unraid_array[$devicenode]["maxTemp"]) {
-						$temp_status_icon = "<a class='info'><i class='fa fa-fire red-blink-disklocation'></i><span>" . $smart_temperature . " (Critical: &gt;" . $smart_temperature_critical . ")</span></a>";
-						$temp_status_info = array('orb' => 'fa fa-fire red-blink-disklocation', 'color' => 'red', 'text' => $smart_temperature);
+						$temp_status_icon = "<a class='info'><i class='fa fa-" . ( !$force_orb_led ? 'fire' : 'circle' ) . " orb-disklocation red-blink-disklocation'></i><span>" . $smart_temperature . " (Critical: &gt;" . $smart_temperature_critical . ")</span></a>";
+						$temp_status_info = array('orb' => "fa fa-" . ( !$force_orb_led ? 'fire' : 'circle' ) . " orb-disklocation red-blink-disklocation", 'color' => 'red', 'text' => $smart_temperature);
 						$temp_status = 3;
 					}
 				}

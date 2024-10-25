@@ -20,7 +20,7 @@
 	 */
 
 //	Database Version:
-	$current_db_ver = 10;
+	$current_db_ver = 11;
 
 	if(in_array("version", $argv)) {
 		print($current_db_ver);
@@ -38,6 +38,7 @@
 	$bgcolor_others =		'3398ca';		// background color for unassigned/other disks / unknown temp // old default: 41b5ef
 	$bgcolor_empty =		'7c7c7c';		// background color for empty trays // old default: aaaaaa
 	$tray_reduction_factor =	'10';			// set the scale divider for the mini tray layout
+	$force_orb_led =		'0';			// set the LED to 0: show Unraid icons (triangle warning / hot critical) - 1: show circle LEDs (color coded circles).
 	$warranty_field =		'u';			// choose [u]nraid's way of entering warranty date (12/24/36... months) or enter [m]anual ISO dates.
 	$dashboard_widget =		'1';			// choose background for the drives, Drive Type (0) or Heat Map (1)
 	$dashboard_widget_pos = 	'0';			// make serial number friendlier, substr() value -99 - 99.
@@ -217,6 +218,7 @@
 		bgcolor_others CHAR(6) NOT NULL DEFAULT '$bgcolor_others',
 		bgcolor_empty CHAR(6) NOT NULL DEFAULT '$bgcolor_empty',
 		tray_reduction_factor FLOAT NOT NULL DEFAULT '$tray_reduction_factor',
+		force_orb_led FLOAT NOT NULL DEFAULT '$force_orb_led',
 		warranty_field CHAR(1) NOT NULL DEFAULT '$warranty_field',
 		dashboard_widget CHAR(3) NOT NULL DEFAULT '$dashboard_widget',
 		dashboard_widget_pos INT NULL,
@@ -246,6 +248,7 @@
 		bgcolor_others,
 		bgcolor_empty,
 		tray_reduction_factor,
+		force_orb_led,
 		warranty_field,
 		dashboard_widget,
 		dashboard_widget_pos,
@@ -292,6 +295,69 @@
 		tray_start_num,
 		tray_width,
 		tray_height
+	";
+
+	/*
+		Database Version: 10
+	*/
+	
+	$sql_create_settings_v10 = "
+		id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+		smart_exec_delay INT NOT NULL DEFAULT '$smart_exec_delay',
+		smart_updates VARCHAR(8) NOT NULL DEFAULT '$smart_updates',
+		bgcolor_parity CHAR(6) NOT NULL DEFAULT '$bgcolor_parity',
+		bgcolor_unraid CHAR(6) NOT NULL DEFAULT '$bgcolor_unraid',
+		bgcolor_cache CHAR(6) NOT NULL DEFAULT '$bgcolor_cache',
+		bgcolor_others CHAR(6) NOT NULL DEFAULT '$bgcolor_others',
+		bgcolor_empty CHAR(6) NOT NULL DEFAULT '$bgcolor_empty',
+		tray_reduction_factor FLOAT NOT NULL DEFAULT '$tray_reduction_factor',
+		warranty_field CHAR(1) NOT NULL DEFAULT '$warranty_field',
+		dashboard_widget CHAR(3) NOT NULL DEFAULT '$dashboard_widget',
+		dashboard_widget_pos INT NULL,
+		reallocated_sector_w INT NOT NULL DEFAULT '$reallocated_sector_w',
+		reported_uncorr_w INT NOT NULL DEFAULT '$reported_uncorr_w',
+		command_timeout_w INT NOT NULL DEFAULT '$command_timeout_w',
+		pending_sector_w INT NOT NULL DEFAULT '$pending_sector_w',
+		offline_uncorr_w INT NOT NULL DEFAULT '$offline_uncorr_w',
+		css_serial_number_highlight VARCHAR(1023) NOT NULL DEFAULT '$css_serial_number_highlight',
+		displayinfo VARCHAR(1023),
+		select_db_info VARCHAR(1023) NOT NULL DEFAULT '$select_db_info',
+		sort_db_info VARCHAR(1023) NOT NULL DEFAULT '$sort_db_info',
+		select_db_trayalloc VARCHAR(1023) NOT NULL DEFAULT '$select_db_trayalloc',
+		sort_db_trayalloc VARCHAR(1023) NOT NULL DEFAULT '$sort_db_trayalloc',
+		select_db_drives VARCHAR(1023) NOT NULL DEFAULT '$select_db_drives',
+		sort_db_drives VARCHAR(1023) NOT NULL DEFAULT '$sort_db_drives',
+		select_db_devices VARCHAR(1023) NOT NULL DEFAULT '$select_db_devices',
+		sort_db_devices VARCHAR(1023) NOT NULL DEFAULT '$sort_db_devices'
+	";
+	$sql_tables_settings_v10 = "
+		id,
+		smart_exec_delay,
+		smart_updates,
+		bgcolor_parity,
+		bgcolor_unraid,
+		bgcolor_cache,
+		bgcolor_others,
+		bgcolor_empty,
+		tray_reduction_factor,
+		warranty_field,
+		dashboard_widget,
+		dashboard_widget_pos,
+		reallocated_sector_w,
+		reported_uncorr_w,
+		command_timeout_w,
+		pending_sector_w,
+		offline_uncorr_w,
+		css_serial_number_highlight,
+		displayinfo,
+		select_db_info,
+		sort_db_info,
+		select_db_trayalloc,
+		sort_db_trayalloc,
+		select_db_drives,
+		sort_db_drives,
+		select_db_devices,
+		sort_db_devices
 	";
 	
 	/*
@@ -901,6 +967,35 @@
 				
 				PRAGMA foreign_keys = on;
 				PRAGMA user_version = '10';
+				
+				VACUUM;
+			";
+			$ret = $db->exec($sql);
+			if(!$ret) {
+				$db_update = 2;
+				echo $db->lastErrorMsg();
+			}
+		}
+		
+		if($database_version < 11) {
+			$db_update = 1;
+			$sql = "
+				PRAGMA foreign_keys = off;
+				
+				BEGIN TRANSACTION;
+				
+				ALTER TABLE settings RENAME TO old_settings;
+				
+				CREATE TABLE settings($sql_create_settings);
+				
+				INSERT INTO settings ($sql_tables_settings_v10) SELECT $sql_tables_settings_v10 FROM old_settings;
+				
+				DROP TABLE old_settings;
+				
+				COMMIT;
+				
+				PRAGMA foreign_keys = on;
+				PRAGMA user_version = '11';
 				
 				VACUUM;
 			";
