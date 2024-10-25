@@ -489,7 +489,7 @@
 		}
 	}
 	
-	function get_unraid_disk_status($color, $type = '', $output = '') {
+	function get_unraid_disk_status($color, $type = '', $output = '', $force_orb_led = 0) {
 		switch($color) {
 			case 'green-on': $orb = 'circle'; $color = 'green'; $help = 'Normal operation, device is active'; break;
 			case 'green-blink': $orb = 'circle'; $color = 'grey'; $help = 'Device is in standby mode (spun-down)'; break;
@@ -508,6 +508,10 @@
 			case 'AVAIL': $orb = 'circle'; $color = 'green'; $help = 'Device is available'; break;
 			case 'UNAVAIL': $orb = 'times'; $color = 'red'; $help = 'Device is unavailable'; break;
 			case 'OFFLINE': $orb = 'times'; $color = 'red'; $help = 'Device is offline'; break;
+		}
+		
+		if($force_orb_led == 1) {
+			$orb = 'circle';
 		}
 		
 		if($output == "color") {
@@ -1049,6 +1053,20 @@
 					cronjob_timer($current);
 				}
 			}
+		}
+	}
+	
+	function use_stylesheet($css = '') {
+		if(is_file(EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/styles/" . $css . "")) {
+			unlink(EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/styles/signals.css");
+			symlink(EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/styles/" . $css . "", EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/styles/signals.css");
+		}
+		
+		if(readlink(EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/styles/signals.css")) {
+			return readlink(EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/styles/signals.css");
+		}
+		else {
+			return EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/styles/signals.dynamic.css";
 		}
 	}
 	

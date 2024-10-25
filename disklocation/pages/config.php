@@ -266,11 +266,11 @@ $(document).ready(function(){
 				<blockquote class='inline_help'>
 					<dt>Select the color(s) you want, defaults are:</dt>
 					<ul>
-						<li>#eb4f41 "Parity"</li>
-						<li>#ef6441 "Data"</li>
-						<li>#ff884c "Cache"</li>
-						<li>#41b5ef "Unassigned devices"</li>
-						<li>#aaaaaa "Empty/available trays"</li>
+						<li><?php echo $bgcolor_parity_default ?> "Parity"</li>
+						<li><?php echo $bgcolor_unraid_default ?> "Data"</li>
+						<li><?php echo $bgcolor_cache_default ?> "Cache"</li>
+						<li><?php echo $bgcolor_others_default ?> "Unassigned devices"</li>
+						<li><?php echo $bgcolor_empty_default ?> "Empty/available trays"</li>
 					</ul>
 				</blockquote>
 				<p>
@@ -279,6 +279,14 @@ $(document).ready(function(){
 				</p>
 				<blockquote class='inline_help'>
 					This number will divide from the set height and width sizes defined per group, and display its divided size as a mini layout/dashboard device. Default: 10 [1.0-1000.0 stepping 0.1]. Larger number is smaller in size.
+				</blockquote>
+				<p>
+					<b>LED display:</b><br />
+					<input type="radio" name="force_orb_led" value="0" <?php if($force_orb_led == 0) echo "checked"; ?> />Unraid icons
+					<input type="radio" name="force_orb_led" value="1" <?php if($force_orb_led == 1) echo "checked"; ?>/>Circular LEDs
+				</p>
+				<blockquote class='inline_help'>
+					Show how to display the LEDs on the overview and dashboard. Unraid icons will show triangluar warning signs, crossed critival signs etc. Circular LEDs will all be color coded circular lights.
 				</blockquote>
 				<p>
 					<b>Set warranty date entry:</b><br />
@@ -449,6 +457,18 @@ $(document).ready(function(){
 									Hide empty tray contents: Nothing but the background color.<br />
 									Flash warning: the background will flash when the drive has a warning.<br />
 									Flash critical: the background will flash when the drive has a critical issue.
+								</p>
+							</blockquote>
+						</td>
+					</tr>
+					<tr>
+						<td style="vertical-align: top;" colspan="8">
+							<b>LED signals:</b><br />
+							<input type="radio" name="signal_css" value="signals.dynamic.css" <?php if(strstr(use_stylesheet(), "signals.dynamic.css")) { echo "checked"; } ?> />Dynamic
+							<input type="radio" name="signal_css" value="signals.static.css" <?php if(strstr(use_stylesheet(), "signals.static.css")) { echo "checked"; } ?> />Static
+							<blockquote class='inline_help'>
+								<p>
+									Select if you want LEDs to flash or not. After changing this, you might need to press CTRL+F5 to force a refresh and clear up the cache.
 								</p>
 							</blockquote>
 						</td>

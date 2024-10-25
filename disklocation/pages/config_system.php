@@ -235,7 +235,9 @@
 		exit;
 	}
 	if(isset($_POST["del_backup_all"])) {
-		disklocation_system("backup", "delete_all");
+		if(isset($_POST["del_backup_all_check"])) {
+			disklocation_system("backup", "delete_all");
+		}
 		header("Location: " . DISKLOCATION_URL . "");
 		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
@@ -247,7 +249,9 @@
 		exit;
 	}
 	if(isset($_POST["del_database"])) {
-		disklocation_system("database", "delete");
+		if(isset($_POST["mod_database_check"])) {
+			disklocation_system("database", "delete");
+		}
 		header("Location: " . DISKLOCATION_URL . "");
 		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
@@ -277,14 +281,21 @@
 		exit;
 	}
 	if(isset($_POST["move_db"])) {
-		$move_db = database_location($_POST["cur_db_location"], $_POST["new_db_location"], DISKLOCATION_CONF);
-		if($move_db === true) {
+		if(isset($_POST["mod_database_check"])) {
+			$move_db = database_location($_POST["cur_db_location"], $_POST["new_db_location"], DISKLOCATION_CONF);
+			if($move_db === true) {
+				header("Location: " . DISKLOCATION_URL . "");
+				//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+				exit;
+			}
+			else {
+				$print_loc_db_err = "<h2 style=\"color: red;\">ERROR: " . $move_db . "</h2>";
+			}
+		}
+		else {
 			header("Location: " . DISKLOCATION_URL . "");
 			//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 			exit;
-		}
-		else {
-			$print_loc_db_err = "<h2 style=\"color: red;\">ERROR: " . $move_db . "</h2>";
 		}
 	}
 	if(isset($_POST["backup_db"])) {
@@ -323,7 +334,7 @@
 			<br />
 			<input type=\"submit\" name=\"move_db\" value=\"Move database\" />
 			<input type=\"submit\" name=\"del_database\" value=\"Delete database\" />
-			<input type=\"submit\" name=\"backup_db\" value=\"Backup database\" />
+			<input type=\"checkbox\" name=\"mod_database_check\" value=\"1\" title=\"Check this to confirm operation\" /> &lt;-- Check this to confirm operation
 		</form>
 	";
 	
@@ -360,9 +371,11 @@
 		}
 		$print_list_backup .= "
 				</table>
+				<input type=\"submit\" name=\"backup_db\" value=\"Backup\" />
 				<input type=\"submit\" name=\"res_backup\" value=\"Restore\" />
 				<input type=\"submit\" name=\"del_backup\" value=\"Delete\" />
 				<input type=\"submit\" name=\"del_backup_all\" value=\"Delete all\" />
+				<input type=\"checkbox\" name=\"del_backup_all_check\" value=\"1\" title=\"Check this to delete all backups\" /> &lt;-- Check this box to delete all backups
 			</form>
 			<blockquote class='inline_help'>
 				This will delete all databases which were backed up.

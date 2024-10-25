@@ -21,6 +21,9 @@
 	
 	require_once("functions.php");
 	
+	// get settings from DB as $var
+	include("load_settings.php");
+	
 	if(isset($_POST["hash_delete"])) {
 		$sql = "
 			UPDATE disks SET
@@ -34,11 +37,11 @@
 			echo $db->lastErrorMsg();
 		}
 		
-		$db->close();
+		//$db->close();
 		
-		header("Location: " . DISKLOCATION_URL);
-		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-		exit;
+		//header("Location: " . DISKLOCATION_URL);
+		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+		//exit;
 	}
 	
 	if(isset($_POST["hash_remove"])) {
@@ -61,11 +64,11 @@
 			echo $db->lastErrorMsg();
 		}
 		
-		$db->close();
+		//$db->close();
 		
-		header("Location: " . DISKLOCATION_URL);
-		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-		exit;
+		//header("Location: " . DISKLOCATION_URL);
+		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+		//exit;
 	}
 	
 	if(isset($_POST["group_add"])) {
@@ -78,11 +81,11 @@
 			echo $db->lastErrorMsg();
 		}
 		
-		$db->close();
+		//$db->close();
 		
-		header("Location: " . DISKLOCATION_URL);
-		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-		exit;
+		//header("Location: " . DISKLOCATION_URL);
+		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+		//exit;
 	}
 	if(isset($_POST["group_del"]) && isset($_POST["last_group_id"])) {
 		$sql = "
@@ -95,11 +98,11 @@
 			echo $db->lastErrorMsg();
 		}
 		
-		$db->close();
+		//$db->close();
 		
-		header("Location: " . DISKLOCATION_URL);
-		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-		exit;
+		//header("Location: " . DISKLOCATION_URL);
+		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+		//exit;
 	}
 	if(isset($_POST["group_swap"])) {
 		list($group_left, $group_right) = explode(":", $_POST["group_swap"]);
@@ -122,11 +125,11 @@
 			echo $db->lastErrorMsg();
 		}
 		
-		$db->close();
+		//$db->close();
 		
-		header("Location: " . DISKLOCATION_URL);
-		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-		exit;
+		//header("Location: " . DISKLOCATION_URL);
+		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+		//exit;
 	}
 	
 	if(isset($_POST["save_settings"])) {
@@ -149,6 +152,7 @@
 		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_others"])) { $disklocation_error[] = "Background color for \"Unassigned devices\" invalid."; } else { $_POST["bgcolor_others"] = str_replace("#", "", $_POST["bgcolor_others"]); }
 		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_empty"])) { $disklocation_error[] = "Background color for \"Empty trays\" invalid."; } else { $_POST["bgcolor_empty"] = str_replace("#", "", $_POST["bgcolor_empty"]); }
 		if(!is_numeric($_POST["tray_reduction_factor"])) { $disklocation_error[] = "The size divider is not numeric."; }
+		if(!preg_match("/(0|1)/", $_POST["force_orb_led"])) { $disklocation_error[] = "LED display field is invalid."; }
 		if(!preg_match("/(u|m)/", $_POST["warranty_field"])) { $disklocation_error[] = "Warranty field is invalid."; }
 		if(!preg_match("/[0-9]{1,4}/", $_POST["dashboard_widget_pos"])) { $disklocation_error[] = "Dashboard widget position invalid."; }
 		
@@ -165,6 +169,7 @@
 		*/
 		cronjob_timer($_POST["smart_updates"],$_POST["smart_updates_url"]);
 		config(DISKLOCATION_CONF, 'w', 'database_noscan', $_POST["database_noscan"]);
+		use_stylesheet($_POST["signal_css"]);
 		
 		// Infomation
 		if(empty($_POST["select_db_info"])) { $_POST["select_db_info"] = $select_db_info_default; }
@@ -206,6 +211,7 @@
 						bgcolor_others,
 						bgcolor_empty,
 						tray_reduction_factor,
+						force_orb_led,
 						warranty_field,
 						dashboard_widget,
 						dashboard_widget_pos,
@@ -235,6 +241,7 @@
 						'" . $_POST["bgcolor_others"] . "',
 						'" . $_POST["bgcolor_empty"] . "',
 						'" . $_POST["tray_reduction_factor"] . "',
+						'" . $_POST["force_orb_led"] . "',
 						'" . $_POST["warranty_field"] . "',
 						'" . SQLite3::escapeString($_POST["dashboard_widget"] ?? null) . "',
 						'" . $_POST["dashboard_widget_pos"] . "',
@@ -263,6 +270,12 @@
 			if(!$ret) {
 				echo $db->lastErrorMsg();
 			}
+			
+			//$db->close();
+			
+			//header("Location: " . DISKLOCATION_URL);
+			//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+			//exit;
 		}
 	}
 	
@@ -305,6 +318,12 @@
 			if(!$ret) {
 				echo $db->lastErrorMsg();
 			}
+			
+			//$db->close();
+			
+			//header("Location: " . DISKLOCATION_URL);
+			//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+			//exit;
 		}
 	}
 	
@@ -413,6 +432,12 @@
 			if(!$ret) {
 				echo $db->lastErrorMsg();
 			}
+			
+			//$db->close();
+			
+			//header("Location: " . DISKLOCATION_URL);
+			//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+			//exit;
 		}
 	}
 	
@@ -432,73 +457,57 @@
 		if(!$ret) {
 			echo $db->lastErrorMsg();
 		}
+		
+		//$db->close();
+		
+		//header("Location: " . DISKLOCATION_URL);
+		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+		//exit;
 	}
-	
-	//if(!in_array("cronjob", $argv)) {
-		// get settings from DB as $var
-		$sql = "SELECT * FROM settings";
-		$results = $db->query($sql);
-		
-		while($data = $results->fetchArray(1)) {
-			extract($data);
-		}
-		
-		$displayinfo = json_decode($displayinfo, true);
-		
-		//dashboard_toggle($dashboard_widget_pos); 
-		//cronjob_timer($smart_updates);
-		if($smart_updates != cronjob_current()) {
-			cronjob_timer($smart_updates);
-		}
-		
-		$color_array = array();
-		$color_array["empty"] = $bgcolor_empty;
-	
-	// Group config
-		$last_group_id = 0;
-		
-		$sql = "SELECT * FROM settings_group ORDER BY id ASC";
-		$results = $db->query($sql);
-		
-		while($data_group = $results->fetchArray(1)) {
-			foreach($data_group as $key=>$value) {
-				$group[$data_group["id"]][$key] = "".$value."";
-			}
-		}
-		
-		$count_groups = array();
-		$sql = "SELECT id FROM settings_group GROUP BY id;";
-		$results = $db->query($sql);
-		while($data = $results->fetchArray(1)) {
-			$count_groups[] = $data["id"];
-		}
-		$total_groups = ( is_array($count_groups) ? count($count_groups) : 0 );
-		
-		$sql = "SELECT id FROM settings_group ORDER BY id DESC limit 1;";
-		$results = $db->query($sql);
-		while($data = $results->fetchArray(1)) {
-			$last_group_id = $data["id"];
-		}
-		
-		/*
-		print_r($group);
-		print(count($group));
-		die();
-		*/
-	//}
 	
 	if(isset($_POST["reset_all_colors"])) {
-		if(force_reset_color($db, "*")) {
-			$db->close();
-			print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-			exit;
-		}
+		force_reset_color($db, "*");
+		//if(force_reset_color($db, "*")) {
+			//$db->close();
+			//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+			//exit;
+		//}
 	}
 	if(isset($_POST["reset_common_colors"])) {
-		if(force_reset_color($db)) {
-			$db->close();
-			print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-			exit;
+		force_reset_color($db);
+		//if(force_reset_color($db)) {
+			//$db->close();
+			//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+			//exit;
+		//}
+	}
+	
+	// RELOAD: get settings from DB as $var
+	include("load_settings.php");
+
+	// Group config
+	$last_group_id = 0;
+	
+	$sql = "SELECT * FROM settings_group ORDER BY id ASC";
+	$results = $db->query($sql);
+	
+	while($data_group = $results->fetchArray(1)) {
+		foreach($data_group as $key=>$value) {
+			$group[$data_group["id"]][$key] = "".$value."";
 		}
+	}
+	
+	$count_groups = array();
+	$sql = "SELECT id FROM settings_group GROUP BY id;";
+	$results = $db->query($sql);
+	while($data = $results->fetchArray(1)) {
+		$count_groups[] = $data["id"];
+	}
+	$total_groups = ( is_array($count_groups) ? count($count_groups) : 0 );
+	
+	$sql = "SELECT id FROM settings_group ORDER BY id DESC limit 1;";
+	$results = $db->query($sql);
+	while($data = $results->fetchArray(1)) {
+		$last_group_id = $data["id"];
 	}
 ?>
