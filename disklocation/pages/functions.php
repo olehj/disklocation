@@ -1062,8 +1062,8 @@
 			symlink(EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/styles/" . $css . "", EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/styles/signals.css");
 		}
 		
-		if(readlink(EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/styles/" . $css . "")) {
-			return readlink(EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/styles/" . $css . "");
+		if(readlink(EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/styles/signals.css")) {
+			return readlink(EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/styles/signals.css");
 		}
 		else {
 			return EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/styles/signals.dynamic.css";
