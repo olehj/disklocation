@@ -382,6 +382,20 @@
 			</blockquote>
 		";
 	}
+	else {
+		$print_list_backup = "
+			<form action=\"" . DISKLOCATION_PATH . "/pages/config_system.php\" method=\"post\">
+				<h3>Database backups</h3><br />
+				<table style=\"width: 0;\">
+					<tr>
+						<td>
+							<input type=\"submit\" name=\"backup_db\" value=\"Backup\" />
+						</td>
+					</tr>
+				</table>
+			</form>
+		";
+	}
 	//$list_database_lock = disklocation_system("database_lock", "list");
 	if($list_database_lock) {
 		$print_list_database_lock = "
