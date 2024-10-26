@@ -157,6 +157,7 @@
 	$smart_updates_file = cronjob_current();
 	
 	$database_noscan = config(DISKLOCATION_CONF, 'r', 'database_noscan');
+	$signal_css = config(DISKLOCATION_CONF, 'r', 'signal_css');
 	
 	/*
 	if(empty($dashboard_widget) || $dashboard_widget == "on" || $dashboard_widget == "off") {
@@ -464,8 +465,8 @@ $(document).ready(function(){
 					<tr>
 						<td style="vertical-align: top;" colspan="8">
 							<b>LED signals:</b><br />
-							<input type="radio" name="signal_css" value="signals.dynamic.css" <?php if(strstr(use_stylesheet(), "signals.dynamic.css")) { echo "checked"; } ?> />Dynamic
-							<input type="radio" name="signal_css" value="signals.static.css" <?php if(strstr(use_stylesheet(), "signals.static.css")) { echo "checked"; } ?> />Static
+							<input type="radio" name="signal_css" value="signals.dynamic.css" <?php if(!$signal_css || $signal_css == "signals.dynamic.css") { echo "checked"; } ?> />Dynamic
+							<input type="radio" name="signal_css" value="signals.static.css" <?php if($signal_css == "signals.static.css") { echo "checked"; } ?> />Static
 							<blockquote class='inline_help'>
 								<p>
 									Select if you want LEDs to flash or not. After changing this, you might need to press CTRL+F5 to force a refresh and clear up the cache.
