@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2024.10.27-1145">
+<!ENTITY version          "2024.10.27-1337">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -47,6 +47,7 @@
 -->
 <CHANGES>
 ###2024.10.27
+ - Commit #331 - BUG: (Update 1337) Used wrong datatype in the database for a new function, might have caused an issue where you must manually save the config again.
  - Commit #328 - BUG: Added a check for existing cronjobs during installation and removal. Automatic update was likely started the exact time as the database update, and the installer ignored that partly. Also fixed an error where the plugin would be inaccessible if the database are indeed corrupted. Also enabled manual lock file deletion under System tab again, this will only be visible when it exists.
  - Commit #327 - BUG: Backup button disappeared when there were no backups available.
  - Commit #326 - MINOR: Styles for LEDs now restored after reinstallations and upgrades.
