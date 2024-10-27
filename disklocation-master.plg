@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2024.10.27">
+<!ENTITY version          "2024.10.27-1145">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -730,6 +730,7 @@ EOL
 
   DISKLOCATION_DB_LOCATION_DEFAULT="&pluginLOC;/disklocation.sqlite"
   
+  ln -s &emhttpLOC;/pages/styles/signals.dynamic.css &emhttpLOC;/pages/styles/signals.css
   if [ -f "&pluginLOC;/disklocation.conf" ] ; then
     DISKLOCATION_DB_LOCATION=($(jq -r '.database_location' &pluginLOC;/disklocation.conf))
     DISKLOCATION_CSS_SIGNALS=($(jq -r '.signal_css' &pluginLOC;/disklocation.conf))
