@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2024.10.26">
+<!ENTITY version          "2024.10.27">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -46,6 +46,11 @@
 
 -->
 <CHANGES>
+###2024.10.27
+ - Commit #328 - BUG: Added a check for existing cronjobs during installation and removal. Automatic update was likely started the exact time as the database update, and the installer ignored that partly. Also fixed an error where the plugin would be inaccessible if the database are indeed corrupted. Also enabled manual lock file deletion under System tab again, this will only be visible when it exists.
+ - Commit #327 - BUG: Backup button disappeared when there were no backups available.
+ - Commit #326 - MINOR: Styles for LEDs now restored after reinstallations and upgrades.
+
 ###2024.10.26
  - Commit #324 - FEATURE: Choose dynamic and static styles for LEDs.
  - Commit #323 - FEATURE: Under configuration you can now set to display LEDs in all color coded circular modes instead of Unraid icons.
@@ -505,6 +510,16 @@ logit()
 DOWNLOAD_PKG="false"
 INSTALL_PKG="false"
 
+if [[ -f "/tmp/disklocation/db.lock" ]]; then
+  logit "Existing cronjob is running in the background, retrying every 5 seconds until it finish..."
+  while [ -f "/tmp/disklocation/db.lock" ];
+  do
+    sleep 5
+    logit "retrying..."
+  done
+  logit "Done. Continuing plugin installation..."
+fi
+
 logit "Removing old plugin data before installing, if they exists..."
 [ -d "&emhttpLOC;" ] &amp;&amp; rm -fR "&emhttpLOC;"
 [ -f "/usr/local/bin/smartlocate" ] &amp;&amp; rm -f "/usr/local/bin/smartlocate"
@@ -717,8 +732,17 @@ EOL
   
   if [ -f "&pluginLOC;/disklocation.conf" ] ; then
     DISKLOCATION_DB_LOCATION=($(jq -r '.database_location' &pluginLOC;/disklocation.conf))
+    DISKLOCATION_CSS_SIGNALS=($(jq -r '.signal_css' &pluginLOC;/disklocation.conf))
+    if [ $DISKLOCATION_CSS_SIGNALS ]; then
+      if [ -f "&emhttpLOC;/pages/styles/signals.css" ] ; then
+        rm &emhttpLOC;/pages/styles/signals.css
+        ln -s &emhttpLOC;/pages/styles/$DISKLOCATION_CSS_SIGNALS &emhttpLOC;/pages/styles/signals.css
+        logit "Signal stylesheet found, configured."
+      fi
+    fi
   else
     DISKLOCATION_DB_LOCATION=null
+    DISKLOCATION_CSS_SIGNALS=null
   fi
   
   if [ $DISKLOCATION_DB_LOCATION == "null" ]; then
@@ -786,6 +810,16 @@ logit()
   echo "$1"
   echo ""
 }
+
+if [[ -f "/tmp/disklocation/db.lock" ]]; then
+  logit "Existing cronjob is running in the background, retrying every 5 seconds until it finish..."
+  while [ -f "/tmp/disklocation/db.lock" ];
+  do
+    sleep 5
+    logit "retrying..."
+  done
+  logit "Done. Continuing plugin removal..."
+fi
 
 logit "Removing plugin..."
 [ -f "/tmp/&name;-install" ] &amp;&amp; rm -f "/tmp/&name;-install"

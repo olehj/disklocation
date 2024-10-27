@@ -169,6 +169,7 @@
 		*/
 		cronjob_timer($_POST["smart_updates"],$_POST["smart_updates_url"]);
 		config(DISKLOCATION_CONF, 'w', 'database_noscan', $_POST["database_noscan"]);
+		config(DISKLOCATION_CONF, 'w', 'signal_css', $_POST["signal_css"]);
 		use_stylesheet($_POST["signal_css"]);
 		
 		// Infomation

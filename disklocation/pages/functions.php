@@ -1060,13 +1060,11 @@
 		if(is_file(EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/styles/" . $css . "")) {
 			unlink(EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/styles/signals.css");
 			symlink(EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/styles/" . $css . "", EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/styles/signals.css");
-		}
-		
-		if(readlink(EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/styles/signals.css")) {
-			return readlink(EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/styles/signals.css");
+			
+			return EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/styles/" . $css . "";
 		}
 		else {
-			return EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/styles/signals.dynamic.css";
+			return false;
 		}
 	}
 	

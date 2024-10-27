@@ -9,7 +9,7 @@ Title="System"
 	
 	$db->close();
 	
-	if(file_exists(DISKLOCATION_LOCK_FILE)) {
-		unlink(DISKLOCATION_LOCK_FILE);
-	}
+	//if(file_exists(DISKLOCATION_LOCK_FILE)) {
+	//	unlink(DISKLOCATION_LOCK_FILE);
+	//}
 ?>
