@@ -47,7 +47,7 @@
 -->
 <CHANGES>
 ###2024.10.27
- - Commit #328 - BUG: Added a check for existing cronjobs during installation and removal. Automatic update was likely started the exact time as the database update, and the installer ignored that partly. Also fixed an error where the plugin would be inaccessible if the database are indeed corrupted.
+ - Commit #328 - BUG: Added a check for existing cronjobs during installation and removal. Automatic update was likely started the exact time as the database update, and the installer ignored that partly. Also fixed an error where the plugin would be inaccessible if the database are indeed corrupted. Also enabled manual lock file deletion under System tab again, this will only be visible when it exists.
  - Commit #327 - BUG: Backup button disappeared when there were no backups available.
  - Commit #326 - MINOR: Styles for LEDs now restored after reinstallations and upgrades.
 
