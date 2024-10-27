@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2024.10.26-1414">
+<!ENTITY version          "2024.10.27-1012">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -75,6 +75,16 @@ logit()
 
 DOWNLOAD_PKG="false"
 INSTALL_PKG="false"
+
+if [[ -f "/tmp/disklocation/db.lock" ]]; then
+  logit "Existing cronjob is running in the background, retrying every 5 seconds until it finish..."
+  while [ -f "/tmp/disklocation/db.lock" ];
+  do
+    sleep 5
+    logit "retrying..."
+  done
+  logit "Done. Continuing plugin installation..."
+fi
 
 logit "Removing old plugin data before installing, if they exists..."
 [ -d "&emhttpLOC;" ] &amp;&amp; rm -fR "&emhttpLOC;"
@@ -366,6 +376,16 @@ logit()
   echo "$1"
   echo ""
 }
+
+if [[ -f "/tmp/disklocation/db.lock" ]]; then
+  logit "Existing cronjob is running in the background, retrying every 5 seconds until it finish..."
+  while [ -f "/tmp/disklocation/db.lock" ];
+  do
+    sleep 5
+    logit "retrying..."
+  done
+  logit "Done. Continuing plugin removal..."
+fi
 
 logit "Removing plugin..."
 [ -f "/tmp/&name;-install" ] &amp;&amp; rm -f "/tmp/&name;-install"
