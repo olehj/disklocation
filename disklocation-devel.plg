@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2024.10.27-1337">
+<!ENTITY version          "2024.10.28-1235">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -294,25 +294,24 @@ EOL
   fi
   logit "Package file &packagefile; extracted."
 
+# Get sub-configuration
+  if [ -f "&pluginLOC;/disklocation.conf" ]; then
+    DISKLOCATION_CSS_SIGNALS=($(jq -re '.signal_css // empty' &pluginLOC;/disklocation.conf))
+    DISKLOCATION_DB_LOCATION=($(jq -re '.database_location // empty' &pluginLOC;/disklocation.conf))
+  fi
+
+# Stylesheet configuration
+  if [ -z $DISKLOCATION_CSS_SIGNALS ]; then
+    DISKLOCATION_CSS_SIGNALS="signals.dynamic.css"
+  fi
+
+  ln -s &emhttpLOC;/pages/styles/$DISKLOCATION_CSS_SIGNALS &emhttpLOC;/pages/styles/signals.css
+  logit "SIGNALS: $DISKLOCATION_CSS_SIGNALS activated."
+
+# Database configuration
   DISKLOCATION_DB_LOCATION_DEFAULT="&pluginLOC;/disklocation.sqlite"
   
-  ln -s &emhttpLOC;/pages/styles/signals.dynamic.css &emhttpLOC;/pages/styles/signals.css
-  if [ -f "&pluginLOC;/disklocation.conf" ] ; then
-    DISKLOCATION_DB_LOCATION=($(jq -r '.database_location' &pluginLOC;/disklocation.conf))
-    DISKLOCATION_CSS_SIGNALS=($(jq -r '.signal_css' &pluginLOC;/disklocation.conf))
-    if [ $DISKLOCATION_CSS_SIGNALS ]; then
-      if [ -f "&emhttpLOC;/pages/styles/signals.css" ] ; then
-        rm &emhttpLOC;/pages/styles/signals.css
-        ln -s &emhttpLOC;/pages/styles/$DISKLOCATION_CSS_SIGNALS &emhttpLOC;/pages/styles/signals.css
-        logit "Signal stylesheet found, configured."
-      fi
-    fi
-  else
-    DISKLOCATION_DB_LOCATION=null
-    DISKLOCATION_CSS_SIGNALS=null
-  fi
-  
-  if [ $DISKLOCATION_DB_LOCATION == "null" ]; then
+  if [ -z $DISKLOCATION_DB_LOCATION ]; then
     DISKLOCATION_DB_LOCATION=$DISKLOCATION_DB_LOCATION_DEFAULT
   fi
   
