@@ -47,7 +47,7 @@
 -->
 <CHANGES>
 ###2024.10.28
- - Commit #334 - BUG: Found the root cause of the blank dashboard issue. A file got symlinked with "null" instead of the actual file. Several checks implented to prevent further issues in the future (duplicate of #328 and #333).
+ - Commit #334 - BUG: Found the root cause of the blank dashboard issue. A file got symlinked with "null" instead of the actual file (duplicate of #328 and #333).
 
 ###2024.10.27
  - Commit #331 - BUG: Used wrong datatype in the database for a new function, might have caused an issue where you must manually save the config again.
