@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2024, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2025, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -42,7 +42,7 @@
 	$warranty_field =		'u';			// choose [u]nraid's way of entering warranty date (12/24/36... months) or enter [m]anual ISO dates.
 	$dashboard_widget =		'1';			// choose background for the drives, Drive Type (0) or Heat Map (1)
 	$dashboard_widget_pos = 	'0';			// make serial number friendlier, substr() value -99 - 99.
-	$reallocated_sector_w =		'100';			// SMART warnings (RAW)
+	$reallocated_sector_w =		'1';			// SMART warnings (RAW)
 	$reported_uncorr_w =		'1';			// -
 	$command_timeout_w =		'0';			// '-> disabled by default as Seagate devices reports this different from other manufacturers.
 	$pending_sector_w =		'1';			// -

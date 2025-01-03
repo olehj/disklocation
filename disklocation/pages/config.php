@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2024, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2025, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -350,34 +350,11 @@ $(document).ready(function(){
 				<blockquote class='inline_help'>
 					This is a delay for execution of the next smartctl command in a loop, this might be necessary to be able to read all the S.M.A.R.T data from all the drives. Default value is 200ms, and seems to work very well. If you realize it won't detect all the data you can increase this value, but hardly any point decreasing it.
 				</blockquote>
-				<p style="margin: 0;">
-					<b>S.M.A.R.T warning limits:</b>
-				</p>
-				<table style="table-layout: auto; padding: 0 0 0 0; margin: 0; width: 0;">
-					<tr>
-						<td style="white-space: nowrap;">Reallocated sector count:</td>
-						<td><input type="number" required min="0" max="9999" name="reallocated_sector_w" value="<?php print($reallocated_sector_w); ?>" style="width: 50px;" /></td>
-					</tr>
-					<tr>
-						<td style="white-space: nowrap;">Reported uncorrectable_errors:</td>
-						<td><input type="number" required min="0" max="9999" name="reported_uncorr_w" value="<?php print($reported_uncorr_w); ?>" style="width: 50px;" /></td>
-					</tr>
-					<tr>
-						<td style="white-space: nowrap;">Command timeout:</td>
-						<td><input type="number" required min="0" max="9999" name="command_timeout_w" value="<?php print($command_timeout_w); ?>" style="width: 50px;" /></td>
-					</tr>
-					<tr>
-						<td style="white-space: nowrap;">Current pending sector count:</td>
-						<td><input type="number" required min="0" max="9999" name="pending_sector_w" value="<?php print($pending_sector_w); ?>" style="width: 50px;" /></td>
-					</tr>
-					<tr>
-						<td style="white-space: nowrap;">Offline uncorrectable sectors:</td>
-						<td><input type="number" required min="0" max="9999" name="offline_uncorr_w" value="<?php print($offline_uncorr_w); ?>" style="width: 50px;" /></td>
-					</tr>
-				</table>
-				<blockquote class='inline_help'>
-					Set the RAW limit when the SMART warning should trigger, this is only valid for SATA drives. 0 disables the warning.
-				</blockquote>
+				<input type="hidden" name="reallocated_sector_w" value="1" />
+				<input type="hidden" name="reported_uncorr_w" value="1" />
+				<input type="hidden" name="command_timeout_w" value="0" />
+				<input type="hidden" name="pending_sector_w" value="1" />
+				<input type="hidden" name="offline_uncorr_w" value="1"/>
 			</td>
 			<td style="padding-left: 25px; vertical-align: top;">
 				<h2 style="padding-bottom: 25px;">Visible Frontpage Information</h2>
