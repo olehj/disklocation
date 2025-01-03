@@ -48,7 +48,7 @@
 <CHANGES>
 ###2025.01.04
  - Commit #338 - IMPROVEMENT: Made the Dashboard look similar to the rest.
- - Commit #337 - IMPROVEMENT/MINOR: Due to confusion in the forums according to DL's SMART handling, the SMART data handling is modified to follow Unraids "acknowledgements". The manual input is removed and warning variables has been reset be default. This will not be configurable anymore within the plugin. Idea is to let Unraids configuration to be in use as much as possible. This might/will be further improved in later versions as this is relatively a quick fix and it won't use other SMART attributes than 5, 187, 197, 198, 199 for now (it is the default and should satisfy the majority).
+ - Commit #337 - IMPROVEMENT/MINOR: Due to confusion in the forums according to DL's SMART handling, the SMART data handling is modified to follow Unraids "acknowledgements". The manual input is removed and warning variables has been reset be default. This will not be configurable anymore within the plugin. Idea is to let Unraids configuration to be in use as much as possible. This might/will be further improved in later versions as this is relatively a quick fix and it won't use other SMART attributes than 5, 187, 197, 198 for now (it is the default and should satisfy the majority).
 
 ###2024.10.28
  - Commit #334 - BUG: Found the root cause of the blank dashboard issue. A file got symlinked with "null" instead of the actual file (duplicate of #328 and #333).
