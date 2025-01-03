@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2024, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2025, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -41,6 +41,7 @@
 	define("EMHTTP_VAR", "/var/local/emhttp");
 	define("UNRAID_DISKS_FILE", "disks.ini");
 	define("UNRAID_DEVS_FILE", "devs.ini");
+	define("UNRAID_MONITOR_FILE", "monitor.ini");
 	define("SMART_ALL_FILE", "smart-all.cfg");
 	define("SMART_ONE_FILE", "smart-one.cfg");
 	
@@ -130,6 +131,11 @@
 
 	// get Unraid disks
 	$get_global_smType = ( isset($unraid_smart_all["smType"]) ? $unraid_smart_all["smType"] : null );
+	/* Not in use yet
+	$get_global_smSelect = ( isset($unraid_smart_all["smSelect"]) ? $unraid_smart_all["smSelect"] : null );
+	$get_global_smEvents = ( isset($unraid_smart_all["smEvents"]) ? $unraid_smart_all["smEvents"] : null );
+	$get_global_smCustom = ( isset($unraid_smart_all["smCustom"]) ? $unraid_smart_all["smCustom"] : null );
+	*/
 	
 	if(is_array($unraid_disks) && is_array($unraid_devs)) {
 		$unraid_devs = array_values(array_merge($unraid_disks, $unraid_devs));
@@ -174,7 +180,10 @@
 				"maxTemp" => ($unraid_smart_one[$getdeviceid]["maxTemp"] ?? null),
 				"color" => ($unraid_devs[$i]["color"] ?? null),
 				"fscolor" => ($unraid_devs[$i]["fsColor"] ?? null),
-				"smart_controller_cmd" => ($smart_controller_devs[$i] ?? null)
+				"smart_controller_cmd" => ($smart_controller_devs[$i] ?? null),
+				"smart_select" => ($unraid_devs[$i]["smSelect"] ?? null),
+				"smart_events" => ($unraid_devs[$i]["smEvents"] ?? null),
+				"smart_custom" => ($unraid_devs[$i]["smCustom"] ?? null),
 			);
 		}
 		$i++;
@@ -1127,5 +1136,10 @@
 		$bytes = hexdec($values[4].$values[5].$values[6].$values[7]);
 		
 		return $bytes / 1024 / 1024;
+	}
+	
+	function get_disk_ack($device, $file = EMHTTP_VAR . "/" . UNRAID_MONITOR_FILE) {
+		$unraid_monitor = parse_ini_file($file, true);
+		return (isset($unraid_monitor["smart"][$device.".ack"]) ? true : false);
 	}
 ?>
