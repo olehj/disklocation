@@ -1,9 +1,10 @@
 Cond="version_compare(parse_ini_file('/etc/unraid-version')['version'],'6.11.9','>')"
 Menu="Dashboard:0"
+Icon="server"
 ---
 <?php
 	/*
-	 *  Copyright 2019-2024, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2025, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -66,10 +67,21 @@ Menu="Dashboard:0"
 
 $mytiles[$pluginname]['column1'] =
 <<<EOT
-<tbody title="_(Disk Location)_">
-<tr><td>_(Disk Location)_<a href="/Dashboard/Tools/disklocation" title="_(Go to Disk Location)_"><i class="fa fa-fw fa-cog control"></i></a></td></tr>
-<tr><td>$installed_drives of $total_trays_group drives assigned.</td></tr>
-<tr><td>$disklocation_dash_out</td></tr>
+<tbody id="tblDiskLocation" title="_(Disk Location)_">
+	<tr>
+		<td>
+			<i class="fa fa-server f32"></i>
+			<div class="section">
+				_(Disk Location)_<br />
+				<span>$installed_drives of $total_trays_group drives assigned.</span>
+			</div>
+			<a href="/Dashboard/Tools/disklocation" title="_(Go to Disk Location)_"><i class="fa fa-fw fa-cog control"></i></a>
+		</td>
+	</tr>
+	
+	<tr><td></td></tr>
+	
+	<tr><td>$disklocation_dash_out</td></tr>
 </tbody>
 EOT;
 ?>
