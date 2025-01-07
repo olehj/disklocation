@@ -31,9 +31,10 @@
 	define("DISKLOCATION_URL", "/Tools/disklocation");
 	define("DISKLOCATIONCONF_URL", "/Tools/disklocation");
 	define("DISKLOCATION_PATH", "/plugins/disklocation");
+	define("DISKLOCATION_TMP_PATH", "/tmp/disklocation");
 	define("DISKLOCATION_CONF", "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.conf");
 	define("DISKLOCATION_DB_DEFAULT", "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.sqlite");
-	define("DISKLOCATION_LOCK_FILE", "/tmp/disklocation/db.lock");
+	define("DISKLOCATION_LOCK_FILE", "" . DISKLOCATION_TMP_PATH . "/db.lock");
 	define("DISKINFORMATION", "/var/local/emhttp/disks.ini");
 	define("EMHTTP_ROOT", "/usr/local/emhttp");
 	define("CRONJOB_URL", DISKLOCATION_PATH . "/pages/cron_disklocation.php");
@@ -119,6 +120,8 @@
 	$select_db_drives_default = $select_db_drives;
 	$sort_db_drives_default = $sort_db_drives;
 	
+	$select_db_devices_default = $select_db_devices;
+	
 	$css_serial_number_highlight_default = $css_serial_number_highlight;
 	
 	$bgcolor_parity_default = $bgcolor_parity;
@@ -130,12 +133,11 @@
 	$sql_status = "";
 
 	// get Unraid disks
+	$get_default_smEvents = "5|187|197|198|199"; // default Unraid smEvents
 	$get_global_smType = ( isset($unraid_smart_all["smType"]) ? $unraid_smart_all["smType"] : null );
-	/* Not in use yet
 	$get_global_smSelect = ( isset($unraid_smart_all["smSelect"]) ? $unraid_smart_all["smSelect"] : null );
-	$get_global_smEvents = ( isset($unraid_smart_all["smEvents"]) ? $unraid_smart_all["smEvents"] : null );
+	$get_global_smEvents = ( isset($unraid_smart_all["smEvents"]) ? $unraid_smart_all["smEvents"] : $get_default_smEvents );
 	$get_global_smCustom = ( isset($unraid_smart_all["smCustom"]) ? $unraid_smart_all["smCustom"] : null );
-	*/
 	
 	if(is_array($unraid_disks) && is_array($unraid_devs)) {
 		$unraid_devs = array_values(array_merge($unraid_disks, $unraid_devs));
@@ -181,9 +183,9 @@
 				"color" => ($unraid_devs[$i]["color"] ?? null),
 				"fscolor" => ($unraid_devs[$i]["fsColor"] ?? null),
 				"smart_controller_cmd" => ($smart_controller_devs[$i] ?? null),
-				"smart_select" => ($unraid_devs[$i]["smSelect"] ?? null),
-				"smart_events" => ($unraid_devs[$i]["smEvents"] ?? null),
-				"smart_custom" => ($unraid_devs[$i]["smCustom"] ?? null),
+				"smSelect" => ($unraid_smart_one[$getdeviceid]["smSelect"] ?? null),
+				"smEvents" => ($unraid_smart_one[$getdeviceid]["smEvents"] ?? null),
+				"smCustom" => ($unraid_smart_one[$getdeviceid]["smCustom"] ?? null),
 			);
 		}
 		$i++;
@@ -250,6 +252,11 @@
 		else {
 			return false;
 		}
+	}
+	
+	function keys_to_content($input, $array) {
+		$input_array = explode(" ", $input);
+		return str_replace(array_keys($array), array_values($array), $input);
 	}
 	
 	function get_table_order($select, $sort, $return = '0', $test = '') { // $return = 0: list() = multi-arrays || 1: SQL command variables || 2(column)/3(sort): validation + $test = string of valid inputs (eg. '1,1,0,0,....0')
@@ -372,6 +379,10 @@
 			default:
 				return false;
 		}
+	}
+	
+	function check_device_table($input) {
+		return $input;
 	}
 	
 	// function from: https://stackoverflow.com/questions/16251625/how-to-create-and-download-a-csv-file-from-php-script

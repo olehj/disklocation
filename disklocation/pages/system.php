@@ -156,11 +156,11 @@
 		if(!preg_match("/(u|m)/", $_POST["warranty_field"])) { $disklocation_error[] = "Warranty field is invalid."; }
 		if(!preg_match("/[0-9]{1,4}/", $_POST["dashboard_widget_pos"])) { $disklocation_error[] = "Dashboard widget position invalid."; }
 		
-		if(!preg_match("/[0-9]{1,5}/", $_POST["reallocated_sector_w"])) { $disklocation_error[] = "SMART: Invalid number."; }
-		if(!preg_match("/[0-9]{1,5}/", $_POST["reported_uncorr_w"])) { $disklocation_error[] = "SMART: Invalid number."; }
-		if(!preg_match("/[0-9]{1,5}/", $_POST["command_timeout_w"])) { $disklocation_error[] = "SMART: Invalid number."; }
-		if(!preg_match("/[0-9]{1,5}/", $_POST["pending_sector_w"])) { $disklocation_error[] = "SMART: Invalid number."; }
-		if(!preg_match("/[0-9]{1,5}/", $_POST["offline_uncorr_w"])) { $disklocation_error[] = "SMART: Invalid number."; }
+		//if(!preg_match("/[0-9]{1,5}/", $_POST["reallocated_sector_w"])) { $disklocation_error[] = "SMART: Invalid number."; }
+		//if(!preg_match("/[0-9]{1,5}/", $_POST["reported_uncorr_w"])) { $disklocation_error[] = "SMART: Invalid number."; }
+		//if(!preg_match("/[0-9]{1,5}/", $_POST["command_timeout_w"])) { $disklocation_error[] = "SMART: Invalid number."; }
+		//if(!preg_match("/[0-9]{1,5}/", $_POST["pending_sector_w"])) { $disklocation_error[] = "SMART: Invalid number."; }
+		//if(!preg_match("/[0-9]{1,5}/", $_POST["offline_uncorr_w"])) { $disklocation_error[] = "SMART: Invalid number."; }
 		
 		/*
 		$dashboard_widget_array = dashboard_toggle($_POST["dashboard_widget"], $_POST["dashboard_widget_pos"]);
@@ -193,12 +193,12 @@
 		$get_table_order_drives .= get_table_order($_POST["select_db_drives"], $_POST["sort_db_drives"], 3, "0,0,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1");
 		if($get_table_order_drives) { $disklocation_error[] = "Table \"History\": " . $get_table_order_drives; }
 		
-		/* // Currently not in use
+		// Devices
 		if(empty($_POST["select_db_devices"])) { $_POST["select_db_devices"] = $select_db_devices_default; }
-		if(empty($_POST["sort_db_devices"])) { $_POST["sort_db_devices"] = $sort_db_devices_default; }
-		$get_table_order_devices = get_table_order($_POST["select_db_devices"], $_POST["sort_db_devices"]);
-		if(!is_array($get_table_order_devices)) { $disklocation_error[] = "Table \"Devices\": " . $get_table_order_devices; }
-		*/
+		//if(empty($_POST["sort_db_devices"])) { $_POST["sort_db_devices"] = $sort_db_devices_default; }
+		$get_table_order_devices = check_device_table($_POST["select_db_devices"]);
+		if(!$get_table_order_devices) { $disklocation_error[] = "Table \"Devices\": " . $get_table_order_devices; }
+		
 		if(empty($disklocation_error)) {
 			$sql .= "
 				REPLACE INTO
@@ -216,11 +216,6 @@
 						warranty_field,
 						dashboard_widget,
 						dashboard_widget_pos,
-						reallocated_sector_w,
-						reported_uncorr_w,
-						command_timeout_w,
-						pending_sector_w,
-						offline_uncorr_w,
 						css_serial_number_highlight,
 						displayinfo,
 						select_db_info,
@@ -246,11 +241,6 @@
 						'" . $_POST["warranty_field"] . "',
 						'" . SQLite3::escapeString($_POST["dashboard_widget"] ?? null) . "',
 						'" . $_POST["dashboard_widget_pos"] . "',
-						'" . $_POST["reallocated_sector_w"] . "',
-						'" . $_POST["reported_uncorr_w"] . "',
-						'" . $_POST["command_timeout_w"] . "',
-						'" . $_POST["pending_sector_w"] . "',
-						'" . $_POST["offline_uncorr_w"] . "',
 						'" . SQLite3::escapeString($_POST["css_serial_number_highlight"] ?? $css_serial_number_highlight_default) . "',
 						'" . $post_info . "',
 						'" . SQLite3::escapeString($_POST["select_db_info"] ?? $select_db_info_default) . "',
@@ -259,7 +249,7 @@
 						'" . SQLite3::escapeString($_POST["sort_db_trayalloc"] ?? $sort_db_trayalloc_default) . "',
 						'" . SQLite3::escapeString($_POST["select_db_drives"] ?? $select_db_drives_default) . "',
 						'" . SQLite3::escapeString($_POST["sort_db_drives"] ?? $sort_db_drives_default) . "',
-						'" . SQLite3::escapeString($_POST["select_db_devices"] ?? $select_db_devices_default) . "',
+						'" . SQLite3::escapeString($get_table_order_devices ?? $select_db_devices_default) . "',
 						'" . SQLite3::escapeString($_POST["sort_db_devices"] ?? $sort_db_devices_default) . "'
 					)
 				;

@@ -193,7 +193,7 @@ $(document).ready(function(){
 		case '0':
 			$('#disp_parity').html("Parity");
 			$('#disp_data').html("Data");
-			$('#disp_cache').html("Cache");
+			$('#disp_cache').html("Cache/Pool");
 			$('#disp_unassigned').html("Unassigned devices");
 			break;
 		case '1':
@@ -232,7 +232,7 @@ $(document).ready(function(){
 								<div id="disp_data"><?php echo (!$dashboard_widget ? "Data" : "Warning") ?></div></div>
 							</td>
 							<td style="padding: 0;">
-								<div id="disp_cache"><?php echo (!$dashboard_widget ? "Cache" : "Normal") ?></div></div>
+								<div id="disp_cache"><?php echo (!$dashboard_widget ? "Cache/Pool" : "Normal") ?></div></div>
 							</td>
 						</tr>
 						<tr>
@@ -289,15 +289,17 @@ $(document).ready(function(){
 				<blockquote class='inline_help'>
 					Show how to display the LEDs on the overview and dashboard. Unraid icons will show triangluar warning signs, crossed critival signs etc. Circular LEDs will all be color coded circular lights.
 				</blockquote>
-				<p>
+				<input type="hidden" name="warranty_field" value="u" />
+				<!--<p>
 					<b>Set warranty date entry:</b><br />
 					<input type="radio" name="warranty_field" value="u" <?php if($warranty_field == "u") echo "checked"; ?> />Unraid
 					<input type="radio" name="warranty_field" value="m" <?php if($warranty_field == "m") echo "checked"; ?>/>Manual ISO
+					
 				</p>
-				
 				<blockquote class='inline_help'>
 					Select how you want to enter the warranty date: the Unraid way of selecting amount of months, or manual ISO date for specific dates. Both values can be stored, but only one can be visible at a time.
 				</blockquote>
+				-->
 				<p>
 					<b>Trim serial numbers:</b><br />
 					<input type="number" required min="-99" max="99" step="1" name="dashboard_widget_pos" value="<?php print($dashboard_widget_pos); // reusing the deprecated dashboard_pos variable instead of messing with the database ?>" style="width: 50px;" />
@@ -307,7 +309,7 @@ $(document).ready(function(){
 					The sort function will still sort after the actual serial number, and not the shortened ones.
 					<br />
 				</blockquote>
-				<p>
+				<!--<p>
 					<b>User styles for serial numbers:</b><br />
 					<input type="text" maxlenght="1000" name="css_serial_number_highlight" value="<?php print($css_serial_number_highlight); ?>" style="width: 250px;" />
 				</p>
@@ -315,10 +317,12 @@ $(document).ready(function(){
 					Styles for serial number, pure CSS expected.
 					<br />
 				</blockquote>
+				-->
 			</td>
 			<td style="padding-left: 25px; vertical-align: top;">
-				<h2>Updates</h2>
-				<p>
+				<!--<h2>Updates</h2>-->
+				<input type="hidden" name="database_noscan" value="0" />
+				<!--<p>
 					<b>Automatic system boot and update scan:</b><br />
 					<input type="radio" name="database_noscan" value="0" <?php if($database_noscan == 0) echo "checked"; ?> />Enabled
 					<input type="radio" name="database_noscan" value="1" <?php if($database_noscan == 1) echo "checked"; ?> />Disabled
@@ -327,7 +331,10 @@ $(document).ready(function(){
 					Enable or disable the auto scan during a plugin installation, update or system boot. If it's disabled it will rely on manual updates (Force Scan All) and S.M.A.R.T update schedules (cronjob).
 					Should likely be disabled if using custom database location which requires Unraid to start and mount arrays.
 				</blockquote>
-				<p>
+				-->
+				<input type="hidden" name="smart_updates" value="hourly" />
+				<input type="hidden" name="smart_updates_url" value="<?php print($GLOBALS["nginx"]["NGINX_DEFAULTURL"]); ?>" />
+				<!--<p>
 					<b>S.M.A.R.T updates:</b><br />
 					<input type="radio" name="smart_updates" value="hourly" <?php if($smart_updates_file == "hourly") echo "checked"; ?> />Hourly
 					<input type="radio" name="smart_updates" value="daily" <?php if($smart_updates_file == "daily") echo "checked"; ?> />Daily
@@ -341,8 +348,11 @@ $(document).ready(function(){
 					Recommended: daily or longer for flash devices, hourly can probably be safely used if Unraid is installed on a HDD, SSD, NVME device.<br />
 					Earlier it updated hourly, which caused some flash memories to wear out over time. The new default is "Disabled"<br />
 					Be aware that S.M.A.R.T status LED and other data will be less accurate the longer interval you set.<br />
-					If it's disabled, you have to run "Force Scan All" under "Tray Allocation" to update the information manually.
+					If it's disabled, you have to update "SMART" under "System" to update the information manually.
 				</blockquote>
+				-->
+				<input type="hidden" name="smart_exec_delay" value="200" />
+				<!--
 				<p>
 					<b>S.M.A.R.T execution delay:</b><br />
 					<input type="number" required min="0" max="5000" name="smart_exec_delay" value="<?php print($smart_exec_delay); ?>" style="width: 50px;" />ms
@@ -350,11 +360,7 @@ $(document).ready(function(){
 				<blockquote class='inline_help'>
 					This is a delay for execution of the next smartctl command in a loop, this might be necessary to be able to read all the S.M.A.R.T data from all the drives. Default value is 200ms, and seems to work very well. If you realize it won't detect all the data you can increase this value, but hardly any point decreasing it.
 				</blockquote>
-				<input type="hidden" name="reallocated_sector_w" value="1" />
-				<input type="hidden" name="reported_uncorr_w" value="1" />
-				<input type="hidden" name="command_timeout_w" value="0" />
-				<input type="hidden" name="pending_sector_w" value="1" />
-				<input type="hidden" name="offline_uncorr_w" value="1"/>
+				-->
 			</td>
 			<td style="padding-left: 25px; vertical-align: top;">
 				<h2 style="padding-bottom: 25px;">Visible Frontpage Information</h2>
@@ -368,88 +374,166 @@ $(document).ready(function(){
 							<input type="checkbox" name="displayinfo[ledtemp]" value="1" <?php if(isset($displayinfo["ledtemp"])) echo "checked"; ?> />Temperature LED<br />
 						</td>
 						<td style="vertical-align: top; width: <?php echo $vi_width ?>px;">
-							<b>Common logic info:</b><br />
-							<input type="checkbox" name="displayinfo[unraidinfo]" value="1" <?php if(isset($displayinfo["unraidinfo"])) echo "checked"; ?> />Unraid info<br />
-							<input type="checkbox" name="displayinfo[path]" value="1" <?php if(isset($displayinfo["path"])) echo "checked"; ?> />Path<br />
-							<input type="checkbox" name="displayinfo[devicenode]" value="1" <?php if(isset($displayinfo["devicenode"])) echo "checked"; ?> />Device Node<br />
-							<input type="checkbox" name="displayinfo[luname]" value="1" <?php if(isset($displayinfo["luname"])) echo "checked"; ?> />Logical Unit Number<br />
-						</td>
-						<td style="vertical-align: top; width: <?php echo $vi_width ?>px;">
-							<b>Drive manufacturer info:</b><br />
-							<input type="checkbox" name="displayinfo[manufacturer]" value="1" <?php if(isset($displayinfo["manufacturer"])) echo "checked"; ?> />Manufacturer<br />
-							<input type="checkbox" name="displayinfo[devicemodel]" value="1" <?php if(isset($displayinfo["devicemodel"])) echo "checked"; ?> />Device Model<br />
-							<input type="checkbox" name="displayinfo[serialnumber]" value="1" <?php if(isset($displayinfo["serialnumber"])) echo "checked"; ?> />Serial Number<br />
-							<input type="checkbox" name="displayinfo[capacity]" value="1" <?php if(isset($displayinfo["capacity"])) echo "checked"; ?> />Capacity<br />
-							<input type="checkbox" name="displayinfo[rotation]" value="1" <?php if(isset($displayinfo["rotation"])) echo "checked"; ?> />Rotation<br />
-							<input type="checkbox" name="displayinfo[formfactor]" value="1" <?php if(isset($displayinfo["formfactor"])) echo "checked"; ?> />Form Factor<br />
-						</td>
-						<td style="vertical-align: top; width: <?php echo $vi_width ?>px;">
-							<b>Common SMART info:</b><br />
-							<input type="checkbox" name="displayinfo[temperature]" value="1" <?php if(isset($displayinfo["temperature"])) echo "checked"; ?> />Temperature<br />
-							<input type="checkbox" name="displayinfo[powerontime]" value="1" <?php if(isset($displayinfo["powerontime"])) echo "checked"; ?> />Power On Time<br />
-							<input type="checkbox" name="displayinfo[units_read]" value="1" <?php if(isset($displayinfo["units_read"])) echo "checked"; ?> />Data Read<br />
-							<input type="checkbox" name="displayinfo[units_written]" value="1" <?php if(isset($displayinfo["units_written"])) echo "checked"; ?> />Data Written<br />
-						</td>
-					</tr>
-					<tr>
-						<td style="vertical-align: top; width: <?php echo $vi_width ?>px;">
-							<b>SATA drives info (HDD/SSD):</b><br />
-							<input type="checkbox" name="displayinfo[cache]" value="1" <?php if(isset($displayinfo["cache"])) echo "checked"; ?> />Drive Cache<br />
-							<input type="checkbox" name="displayinfo[loadcycle]" value="1" <?php if(isset($displayinfo["loadcycle"])) echo "checked"; ?> />Load Cycles<br />
-							<input type="checkbox" name="displayinfo[reallocated_sector_count]" value="1" <?php if(isset($displayinfo["reallocated_sector_count"])) echo "checked"; ?> />Reallocated Sector<br />
-							<input type="checkbox" name="displayinfo[reported_uncorrectable_errors]" value="1" <?php if(isset($displayinfo["reported_uncorrectable_errors"])) echo "checked"; ?> />Reported Uncorrectable<br />
-							<input type="checkbox" name="displayinfo[command_timeout]" value="1" <?php if(isset($displayinfo["command_timeout"])) echo "checked"; ?> />Command Timeout<br />
-							<input type="checkbox" name="displayinfo[current_pending_sector_count]" value="1" <?php if(isset($displayinfo["current_pending_sector_count"])) echo "checked"; ?> />Current Pending Sectors<br />
-							<input type="checkbox" name="displayinfo[offline_uncorrectable]" value="1" <?php if(isset($displayinfo["offline_uncorrectable"])) echo "checked"; ?> />Offline Uncorrectable<br />
-						</td>
-						<td style="vertical-align: top; width: <?php echo $vi_width ?>px;">
-							<b>PCIE drives info (NVMe):</b><br />
-							<input type="checkbox" name="displayinfo[available_spare]" value="1" <?php if(isset($displayinfo["available_spare"])) echo "checked"; ?> />Spare<br />
-							<input type="checkbox" name="displayinfo[percentage_used]" value="1" <?php if(isset($displayinfo["percentage_used"])) echo "checked"; ?> />Percentage Used<br />
-						</td>
-						<td style="vertical-align: top; width: <?php echo $vi_width ?>px;">
-							<b>User inputs:</b><br />
-							<input type="checkbox" name="displayinfo[manufactured]" value="1" <?php if(isset($displayinfo["manufactured"])) echo "checked"; ?> />Manufacture Date<br />
-							<input type="checkbox" name="displayinfo[purchased]" value="1" <?php if(isset($displayinfo["purchased"])) echo "checked"; ?> />Purchase Date<br />
-							<input type="checkbox" name="displayinfo[installed]" value="1" <?php if(isset($displayinfo["installed"])) echo "checked"; ?> />Installation Date<br />
-							<input type="checkbox" name="displayinfo[warranty]" value="1" <?php if(isset($displayinfo["warranty"])) echo "checked"; ?> />Warranty Left<br />
-							<input type="checkbox" name="displayinfo[comment]" value="1" <?php if(isset($displayinfo["comment"])) echo "checked"; ?> />Comment<br />
-						</td>
-						<td style="vertical-align: top; width: <?php echo $vi_width ?>px;">
 							<b>Other configurations:</b><br />
 							<input type="checkbox" name="displayinfo[hideemptycontents]" value="1" <?php if(isset($displayinfo["hideemptycontents"])) echo "checked"; ?> />Hide empty tray contents<br />
 							<input type="checkbox" name="displayinfo[flashwarning]" value="1" <?php if(isset($displayinfo["flashwarning"])) echo "checked"; ?> />Flash warning<br />
 							<input type="checkbox" name="displayinfo[flashcritical]" value="1" <?php if(isset($displayinfo["flashcritical"])) echo "checked"; ?> />Flash critical<br />
 						</td>
+						<td style="vertical-align: top; width: 60%;" rowspan="2">
+							<b>Devices formatting:</b><br >
+							<textarea type="text" name="select_db_devices" style="height: 80px; width: 95%;" /><?php print(!$select_db_devices ? $select_db_devices_default : $select_db_devices) ?></textarea>
+							<blockquote class='inline_help'>
+								<ul>
+									<li><b>Possible selectors:</b> pool, name, device, node, lun, manufacturer, model, serial, temp, capacity, cache, rotation, formfactor, comment</li>
+									<li><b>Formatting tools:</b></li>
+									<dd>
+										Bold: [b]<b>text</b>[/b] or *<b>text</b>*<br />
+										Italic: [i]<i>text</i>[/i] or _<i>text</i>_<br />
+										
+										Font sizes:
+										<span style="font-size: xx-small">tiny</span>
+										<span style="font-size: x-small">small</span>
+										<span style="font-size: medium">medium</span>
+										<span style="font-size: large">large</span>
+										<span style="font-size: x-large">huge</span>
+										<span style="font-size: xx-large">massive</span>
+										<br />
+										E.g. [large]text[/large]<br />
+										<br />
+										Color: [color:HEX]text[/color]<br />
+										E.g. [color:0000FF][b]text[/b][/color] = <span style="color: #0000FF;"><b>text</b></span>
+									</dd>
+								</ul>
+							</blockquote>
+						</td>
 					</tr>
 					<tr>
-						<td colspan="8">
-							<blockquote class='inline_help'>
-								<p>
-									Select the information you want to display on the "Devices" page. Each row is based upon the layout.
-									Either SATA or PCIE is shown depending on what the drive is detected as.
-								</p>
-							</blockquote>
+						<td style="vertical-align: top;" colspan="3">
+							<b>LED signals:</b><br />
+							<input type="radio" name="signal_css" value="signals.dynamic.css" <?php if(!$signal_css || $signal_css == "signals.dynamic.css") { echo "checked"; } ?> />Dynamic
+							<input type="radio" name="signal_css" value="signals.static.css" <?php if($signal_css == "signals.static.css") { echo "checked"; } ?> />Static
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2">
 							<blockquote class='inline_help'>
 								<p>
 									Hide empty tray contents: Nothing but the background color.<br />
 									Flash warning: the background will flash when the drive has a warning.<br />
 									Flash critical: the background will flash when the drive has a critical issue.
 								</p>
+								<p>
+									Select if you want LEDs to flash or not. This will not affect flashing backgrounds.<br />
+									After changing this, you might need to press CTRL+F5 to force a refresh and clear up the cache.
+								</p>
+							</blockquote>
+						</td>
+					</tr>
+					
+					<tr>
+						<td colspan="3"><h2>Sorting of tables</h2></td>
+					</tr>
+					<tr>
+						<td><b>Table</b></td>
+						<td><b>Sort</b></td>
+						<td><b>Column</b></td>
+					</tr>
+					<tr>
+						<td>
+							Information
+						</td>
+						<td>
+							<input type="text" name="sort_db_info" value="<?php print($sort_db_info); ?>" style="width: 95%;" />
+						</td>
+						<td style="width: 75%">
+							<input type="text" name="select_db_info" value="<?php print($select_db_info); ?>" style="width: 95%;" />
+						</td>
+					</tr>
+					<tr>
+						<td colspan="3" style="margin: 0; padding: 0 0 0 0 ;">
+							<blockquote class='inline_help'>
+								<ul>
+									<li><b>Possible selectors:</b> group, tray, device, node, lun, manufacturer, model, status, serial, temp, powerontime, loadcycle, reallocated, reported, timeout, pending, offline, capacity, cache, rotation, formfactor, nvme_spare, nvme_spare_thres, nvme_used, read, written, <!-- bench_r, bench_w, --> manufactured, purchased, installed, warranty, comment</li>
+									<li>Sort: The "tray" sorting does sort by "TrayID" and not the physical tray. If the tray count is backwards or or have different starting points, it might affect this and show a weird behaviour. It's not a bug nor a feature, it just is what it is.</li>
+								</ul>
 							</blockquote>
 						</td>
 					</tr>
 					<tr>
-						<td style="vertical-align: top;" colspan="8">
-							<b>LED signals:</b><br />
-							<input type="radio" name="signal_css" value="signals.dynamic.css" <?php if(!$signal_css || $signal_css == "signals.dynamic.css") { echo "checked"; } ?> />Dynamic
-							<input type="radio" name="signal_css" value="signals.static.css" <?php if($signal_css == "signals.static.css") { echo "checked"; } ?> />Static
-							<br />
-							After changing this, you might need to press CTRL+F5 to force a refresh and clear up the cache.
+						<td>
+							Tray Allocations &amp;<br/>
+							Unassigned Devices
+						</td>
+						<td>
+							<input type="text" name="sort_db_trayalloc" value="<?php print($sort_db_trayalloc); ?>" style="width: 95%;" />
+						</td>
+						<td style="width: 75%">
+							<input type="text" name="select_db_trayalloc" value="<?php print($select_db_trayalloc); ?>" style="width: 95%;" />
+						</td>
+					</tr>
+					<tr>
+						<td colspan="3" style="margin: 0; padding: 0 0 0 0 ;">
+							<blockquote class='inline_help'>
+								<ul>
+									<li><b>Possible selectors:</b> (group, tray)*, device, node, lun, manufacturer, model, serial, capacity, cache, rotation, formfactor, manufactured, purchased, installed, warranty, comment</li>
+									<li><b>Sort:</b> "Unassigned Devices" will only sort by an internal ID, but will follow the set direction, ascending or descending. *) Sorting by group and tray is therefore possible with "Tray Allocations", but not to be included in columns.</li>
+								</ul>
+							</blockquote>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							History
+						</td>
+						<td>
+							<input type="text" name="sort_db_drives" value="<?php print($sort_db_drives); ?>" style="width: 95%;" />
+						</td>
+						<td style="width: 75%">
+							<input type="text" name="select_db_drives" value="<?php print($select_db_drives); ?>" style="width: 95%;" />
+						</td>
+					</tr>
+					<tr>
+						<td colspan="3" style="margin: 0; padding: 0 0 0 0 ;">
+							<blockquote class='inline_help'>
+								<ul>
+									<li><b>Possible selectors:</b> device, node, lun, manufacturer, model, status, serial, powerontime, loadcycle, reallocated, reported, timeout, pending, offline, capacity, cache, rotation, formfactor, nvme_spare, nvme_spare_thres, nvme_used, read, written, <!-- bench_r, bench_w, --> manufactured, purchased, installed, removed, warranty, comment</li>
+								</ul>
+							</blockquote>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="3">
 							<blockquote class='inline_help'>
 								<p>
-									Select if you want LEDs to flash or not. This will not affect flashing backgrounds.
+									<b>Sort format: direction:column1[,column2]</b><br />
+									<br />
+									direction: asc or desc (ascending/descending)<br />
+									column?: see the table reference for valid inputs.<br />
+									<br />
+									Valid sort selectors are the same as the allowed columns. With an exception for "Tray Allocations" which can include "group" and "tray"
 								</p>
+								<p>
+									<b>Column format: column1,column2,column3</b><br />
+									<br />
+									column?: see the table reference for valid inputs. Columns can be repeated, and any order is possible. Columns containing input data will erase contents from database if disabled (e.g. Tray Allocations). 
+									Tray Allocations will always have "group,tray" at the beginning including the "Locate" button. No elements with input forms should be duplicated even if it's possible to do it.
+									Only selectors underneath each section is possible to use, others will show the column with "unavailable".
+								</p>
+								<p>
+									<b>Reset</b><br />
+									Values can be reset to default by deleting the contents and saving it.
+								</p>
+								<p style="padding: 0 0 50px 0;">
+									NB! "bench_r" and "bench_w" are not supported yet but prepared for future project.
+								</p>
+								<table style="background: none; border-spacing: 0px;; width: 300px;">
+									<tr style="border: 1px solid black;">
+										<td style="margin: 0; padding: 0 0 0 0;"><b>Input</b></td>
+										<td style="margin: 0; padding: 0 0 0 0;"><b>Table name</b></td>
+										<td style="margin: 0; padding: 0 0 0 0;"><b>Full name</b></td>
+									</tr>
+									<?php print($inlinehelp_table_order); ?>
+								</table>
 							</blockquote>
 						</td>
 					</tr>
@@ -459,112 +543,6 @@ $(document).ready(function(){
 	</table>
 	<hr />
 	<table style="width: 100%;">
-		<tr>
-			<td colspan="3"><h2>Sorting of tables</h2></td>
-		</tr>
-		<tr>
-			<td><b>Table</b></td>
-			<td><b>Sort</b></td>
-			<td><b>Column</b></td>
-		</tr>
-		<tr>
-			<td>
-				Information
-			</td>
-			<td>
-				<input type="text" name="sort_db_info" value="<?php print($sort_db_info); ?>" style="width: 95%;" />
-			</td>
-			<td style="width: 75%">
-				<input type="text" name="select_db_info" value="<?php print($select_db_info); ?>" style="width: 95%;" />
-			</td>
-		</tr>
-		<tr>
-			<td colspan="3" style="margin: 0; padding: 0 0 0 0 ;">
-				<blockquote class='inline_help'>
-					<ul>
-						<li><b>Possible selectors:</b> group, tray, device, node, lun, manufacturer, model, status, serial, temp, powerontime, loadcycle, reallocated, reported, timeout, pending, offline, capacity, cache, rotation, formfactor, nvme_spare, nvme_spare_thres, nvme_used, read, written, <!-- bench_r, bench_w, --> manufactured, purchased, installed, warranty, comment</li>
-						<li>Sort: The "tray" sorting does sort by "TrayID" and not the physical tray. If the tray count is backwards or or have different starting points, it might affect this and show a weird behaviour. It's not a bug nor a feature, it just is what it is.</li>
-					</ul>
-				</blockquote>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				Tray Allocations / Unassigned Devices
-			</td>
-			<td>
-				<input type="text" name="sort_db_trayalloc" value="<?php print($sort_db_trayalloc); ?>" style="width: 95%;" />
-			</td>
-			<td style="width: 75%">
-				<input type="text" name="select_db_trayalloc" value="<?php print($select_db_trayalloc); ?>" style="width: 95%;" />
-			</td>
-		</tr>
-		<tr>
-			<td colspan="3" style="margin: 0; padding: 0 0 0 0 ;">
-				<blockquote class='inline_help'>
-					<ul>
-						<li><b>Possible selectors:</b> (group, tray)*, device, node, lun, manufacturer, model, serial, capacity, cache, rotation, formfactor, manufactured, purchased, installed, warranty, comment</li>
-						<li><b>Sort:</b> "Unassigned Devices" will only sort by an internal ID, but will follow the set direction, ascending or descending. *) Sorting by group and tray is therefore possible with "Tray Allocations", but not to be included in columns.</li>
-					</ul>
-				</blockquote>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				History
-			</td>
-			<td>
-				<input type="text" name="sort_db_drives" value="<?php print($sort_db_drives); ?>" style="width: 95%;" />
-			</td>
-			<td style="width: 75%">
-				<input type="text" name="select_db_drives" value="<?php print($select_db_drives); ?>" style="width: 95%;" />
-			</td>
-		</tr>
-		<tr>
-			<td colspan="3" style="margin: 0; padding: 0 0 0 0 ;">
-				<blockquote class='inline_help'>
-					<ul>
-						<li><b>Possible selectors:</b> device, node, lun, manufacturer, model, status, serial, powerontime, loadcycle, reallocated, reported, timeout, pending, offline, capacity, cache, rotation, formfactor, nvme_spare, nvme_spare_thres, nvme_used, read, written, <!-- bench_r, bench_w, --> manufactured, purchased, installed, removed, warranty, comment</li>
-					</ul>
-				</blockquote>
-			</td>
-		</tr>
-		<tr>
-			<td colspan="3">
-				<blockquote class='inline_help'>
-					<p>
-						<b>Sort format: direction:column1[,column2]</b><br />
-						<br />
-						direction: asc or desc (ascending/descending)<br />
-						column?: see the table reference for valid inputs.<br />
-						<br />
-						Valid sort selectors are the same as the allowed columns. With an exception for "Tray Allocations" which can include "group" and "tray"
-					</p>
-					<p>
-						<b>Column format: column1,column2,column3</b><br />
-						<br />
-						column?: see the table reference for valid inputs. Columns can be repeated, and any order is possible. Columns containing input data will erase contents from database if disabled (e.g. Tray Allocations). 
-						Tray Allocations will always have "group,tray" at the beginning including the "Locate" button. No elements with input forms should be duplicated even if it's possible to do it.
-						Only selectors underneath each section is possible to use, others will show the column with "unavailable".
-					</p>
-					<p>
-						<b>Reset</b><br />
-						Values can be reset to default by deleting the contents and saving it.
-					</p>
-					<p style="padding: 0 0 50px 0;">
-						NB! "bench_r" and "bench_w" are not supported yet but prepared for future project.
-					</p>
-					<table style="background: none; border-spacing: 0px;; width: 300px;">
-						<tr style="border: 1px solid black;">
-							<td style="margin: 0; padding: 0 0 0 0;"><b>Input</b></td>
-							<td style="margin: 0; padding: 0 0 0 0;"><b>Table name</b></td>
-							<td style="margin: 0; padding: 0 0 0 0;"><b>Full name</b></td>
-						</tr>
-						<?php print($inlinehelp_table_order); ?>
-					</table>
-				</blockquote>
-			</td>
-		</tr>
 		<tr>
 			<td colspan="3" style="vertical-align: top;">
 				<span style="padding: 0 0 0 75px;">

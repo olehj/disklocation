@@ -53,40 +53,12 @@
 		'leddiskop' => 1,
 		'ledsmart' => 1,
 		'ledtemp' => 1,
-		'unraidinfo' => 1,
-		'path' => 0,
-		'devicenode' => 0,
-		'luname' => 0,
-		'manufacturer' => 1,
-		'devicemodel' => 1,
-		'serialnumber' => 1,
-		'temperature' => 1,
-		'powerontime' => 1,
-		'loadcyclecount' => 1,
-		'capacity' => 1,
-		'cache' => 1,
-		'rotation' => 1,
-		'formfactor' => 1,
-		'reallocated_sector_count' => 0,
-		'reported_uncorrectable_errors' => 0,
-		'command_timeout' => 0,
-		'current_pending_sector_count' => 0,
-		'offline_uncorrectable' => 0,
-		'available_spare' => 1,
-		'percentage_used' => 1,
-		'units_read' => 1,
-		'units_written' => 1,
-		'manufactured' => 0,
-		'purchased' => 0,
-		'installed' => 0,
-		'warranty' => 0,
-		'comment' => 0,
 		'hideemptycontents' => 0,
 		'flashwarning' => 0,
 		'flashcritical' => 1
 	));
 	
-	$select_db_info = "group,tray,manufacturer,model,serial,capacity,cache,rotation,formfactor,read,written,manufactured,purchased,installed,warranty,comment";
+	$select_db_info = "group,tray,manufacturer,model,serial,capacity,cache,rotation,formfactor,manufactured,purchased,installed,warranty,comment";
 	$sort_db_info = "asc:group,tray";
 	
 	// mandatory: group,tray,locate,color
@@ -97,7 +69,7 @@
 	$sort_db_drives = "asc:serial";
 	
 	//not used, but prepared just in case it will be added in the future:
-	$select_db_devices = "";
+	$select_db_devices = "[huge]*pool*[/huge] name node capacity rotation formfactor [color:11ff00]*[serial]*[/color]\nmanufacturer model\ncomment";
 	$sort_db_devices = "";
 	
 //	Group settings
@@ -689,7 +661,7 @@
 	";
 
 // Create and update database
-	if(!in_array("cronjob", $argv) && !$_POST["download_csv"]) { print("<h3 style=\"color: #FF0000;\">"); }
+	if(!in_array("cronjob", $argv) && !$_POST["download_csv"]) { print("<!--<h3 style=\"color: #FF0000;\">-->"); }
 	if(filesize(DISKLOCATION_DB) === 0) {
 		$sql = "
 			CREATE TABLE disks(
@@ -1100,7 +1072,7 @@
 			}
 		}
 		
-		if(!in_array("cronjob", $argv) && !$_POST["download_csv"]) { print("</h3>"); }
+		if(!in_array("cronjob", $argv) && !$_POST["download_csv"]) { print(""); }
 		if($db_update == 1) {
 			print("<h3>Database successfully updated</h3>");
 			if(!in_array("cronjob", $argv)) {

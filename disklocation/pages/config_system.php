@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2024, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2025, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -466,23 +466,29 @@
 		
 		$print_force_scan = "
 			<form action=\"" . DISKLOCATION_PATH . "/pages/config_system.php\" method=\"post\">
-				<b>Clicking the buttons will start collecting SMART data directly. It might take a few seconds to several minutes depending on the amount of devices it need to scan.</b>
+				<b>Clicking the buttons will update data directly. It might take a few seconds to several minutes depending on the amount of devices it need to scan.</b>
 				<br />
-				<input type='button' value='Update Active' onclick='openBox(\"" . CRONJOB_URL . "?active_smart_scan=1\",\"Updating Active Devices\",600,800,true,\"loadlist\",\":return\")'>
-				<input type='button' value='Force Update All' onclick='openBox(\"" . CRONJOB_URL . "?force_smart_scan=1\",\"Force Updating All Devices\",600,800,true,\"loadlist\",\":return\")'>
+				<input type='button' value='SMART' onclick='openBox(\"" . CRONJOB_URL . "?active_smart_scan=1\",\"Updating SMART data on active devices\",600,800,true,\"loadlist\",\":return\")'>
+				<input type='button' value='Force SMART' onclick='openBox(\"" . CRONJOB_URL . "?force_smart_scan=1\",\"Wake up all devices and update SMART data\",600,800,true,\"loadlist\",\":return\")'>
+				<input type='button' value='Force SMART+DB' onclick='openBox(\"" . CRONJOB_URL . "?force_smartdb_scan=1\",\"Wake up all devices and update SMART data and the database\",600,800,true,\"loadlist\",\":return\")'>
 				<!--<br />
 				<input type='submit' name=\"active_smart_scan\" value=\"Update Active\">
 				<input type='submit' name=\"force_smart_scan\" value=\"Force Update All\">-->
 				<blockquote class='inline_help'>
 					<ul>
-						<li>\"Update Active\" button will update only active (spinning) drives for SMART data, It might take a while to complete depending on your configuration.</li>
-						<li>You can also run \"Update Active\" from the shell and get direct output which might be useful for debugging:<br />
+						<li>\"SMART\" button will update only active (spinning) drives for SMART data, It might take a while to complete depending on your configuration.</li>
+						<li>You can also run \"SMART\" from the shell and get direct output which might be useful for debugging:<br />
 						<code style=\"white-space: nowrap;\">php -f /usr/local/emhttp/plugins/disklocation/pages/cron_disklocation.php cronjob [silent]</code></li>
 					</ul>
 					<ul>
-						<li>\"Force Update All\" button will force update all drives for SMART data and move removed disks into the \"lost\" table under the \"Information\" tab. This button will and must wake up all drives into a spinning state and does so one by one. It might take a while to complete depending on your configuration.</li>
-						<li>You can also run \"Force Update All\" from the shell and get direct output which might be useful for debugging:<br />
+						<li>\"Force SMART\" button will force update all drives for SMART data. This button will and must wake up all drives into a spinning state and does so one by one. It might take a while to complete depending on your configuration.</li>
+						<li>You can also run \"Force SMART\" from the shell and get direct output which might be useful for debugging:<br />
 						<code style=\"white-space: nowrap;\">php -f /usr/local/emhttp/plugins/disklocation/pages/cron_disklocation.php force [silent]</code></li>
+					</ul>
+					<ul>
+						<li>\"Force SMART+DB\" button will force update all drives for SMART data and move removed disks into the \"lost\" table under the \"Information\" tab. This button will and must wake up all drives into a spinning state and does so one by one. It might take a while to complete depending on your configuration.</li>
+						<li>You can also run \"Force Update All\" from the shell and get direct output which might be useful for debugging:<br />
+						<code style=\"white-space: nowrap;\">php -f /usr/local/emhttp/plugins/disklocation/pages/cron_disklocation.php forceall [silent]</code></li>
 					</ul>
 				</blockquote>
 			</form>
