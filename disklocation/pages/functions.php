@@ -27,19 +27,21 @@
 	
 	// define constants
 	define("UNRAID_CONFIG_PATH", "/boot/config");
-	define("DISKLOGFILE", "/boot/config/disk.log");
+	define("EMHTTP_ROOT", "/usr/local/emhttp");
+	define("EMHTTP_VAR", "/var/local/emhttp");
 	define("DISKLOCATION_URL", "/Tools/disklocation");
 	define("DISKLOCATIONCONF_URL", "/Tools/disklocation");
 	define("DISKLOCATION_PATH", "/plugins/disklocation");
 	define("DISKLOCATION_TMP_PATH", "/tmp/disklocation");
-	define("DISKLOCATION_CONF", "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.conf");
-	define("DISKLOCATION_DB_DEFAULT", "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.sqlite");
-	define("DISKLOCATION_LOCK_FILE", "" . DISKLOCATION_TMP_PATH . "/db.lock");
-	define("DISKINFORMATION", "/var/local/emhttp/disks.ini");
-	define("EMHTTP_ROOT", "/usr/local/emhttp");
+	define("DISKLOCATION_CONF", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.conf");
+	define("DISKLOCATION_DEVICES", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/devices.json");
+	define("DISKLOCATION_LOCATIONS", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/location.json");
+	define("DISKLOCATION_GROUPS", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/groups.json");
+	define("DISKLOCATION_DB_DEFAULT", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.sqlite");
+	define("DISKLOCATION_LOCK_FILE", DISKLOCATION_TMP_PATH . "/db.lock");
 	define("CRONJOB_URL", DISKLOCATION_PATH . "/pages/cron_disklocation.php");
 	define("CRONJOB_FILE", EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/cron_disklocation.php");
-	define("EMHTTP_VAR", "/var/local/emhttp");
+	define("DISKLOGFILE", UNRAID_CONFIG_PATH . "/disk.log");
 	define("UNRAID_DISKS_FILE", "disks.ini");
 	define("UNRAID_DEVS_FILE", "devs.ini");
 	define("UNRAID_MONITOR_FILE", "monitor.ini");
@@ -53,15 +55,15 @@
 	
 	if(file_exists(DISKLOCATION_CONF)) {
 		$get_disklocation_config = json_decode(file_get_contents(DISKLOCATION_CONF), true);
-		if(isset($get_disklocation_config["database_location"])) {
-			define("DISKLOCATION_DB", $get_disklocation_config["database_location"]);
-		}
-		else {
-			define("DISKLOCATION_DB", DISKLOCATION_DB_DEFAULT);
-		}
 	}
-	else {
-		define("DISKLOCATION_DB", DISKLOCATION_DB_DEFAULT);
+	if(file_exists(DISKLOCATION_DEVICES)) {
+		$get_devices = json_decode(file_get_contents(DISKLOCATION_DEVICES), true);
+	}
+	if(file_exists(DISKLOCATION_LOCATIONS)) {
+		$get_locations = json_decode(file_get_contents(DISKLOCATION_LOCATIONS), true);
+	}
+	if(file_exists(DISKLOCATION_GROUPS)) {
+		$get_groups = json_decode(file_get_contents(DISKLOCATION_GROUPS), true);
 	}
 	
 	$unraid_disks = array();
@@ -92,24 +94,12 @@
 		$argv = array();
 	}
 	
-	if(!is_file(DISKLOCATION_DB)) {
+	if(!is_file(DISKLOCATION_CONF)) {
 		$disklocation_new_install = 1;
 	}
 	
-	// open and/or create database
-	class DLDB extends SQLite3 {
-		function __construct() {
-			$this->open(DISKLOCATION_DB);
-		}
-	}
-	
-	$db = new DLDB();
-	
-	if(!$db) {
-		echo $db->lastErrorMsg();
-	}
-	
-	require_once("sqlite_tables.php");
+	( file_exists("sqlite_tables.php") ?? require_once("sqlite_tables.php" ) );
+	//( (file_exists("sqlite_tables.php") && file_exists(DISKLOCATION_CONF) && file_exists(DISKLOCATION_DEVICES) && file_exists(DISKLOCATION_LOCATIONS) && file_exists(DISKLOCATION_GROUPS)) ?? unlink("sqlite_table.php") );
 	
 	$select_db_info_default = $select_db_info;
 	$sort_db_info_default = $sort_db_info;
@@ -256,27 +246,32 @@
 	
 	function keys_to_content($input, $array) {
 		$input_array = explode(" ", $input);
-		return str_replace(array_keys($array), array_values($array), $input);
+		if(is_array($array) && is_array($input_array)) {
+			return str_replace(array_keys($array), array_values($array), $input);
+		}
+		else {
+			return false;
+		}
 	}
 	
 	function get_table_order($select, $sort, $return = '0', $test = '') { // $return = 0: list() = multi-arrays || 1: SQL command variables || 2(column)/3(sort): validation + $test = string of valid inputs (eg. '1,1,0,0,....0')
 		$select = preg_replace('/\s+/', '', $select);
 		$sort = preg_replace('/\s+/', '', $sort);
 		$table = array( // Table names:
-			"groupid", "tray", "device", "devicenode", "luname", "model_family", "model_name", "smart_status", "smart_serialnumber", "smart_temperature", "smart_powerontime", "smart_loadcycle", "smart_reallocated_sector_count", "smart_reported_uncorrectable_errors", "smart_command_timeout", "smart_current_pending_sector_count", "smart_offline_uncorrectable", "smart_capacity", "smart_cache", "smart_rotation", "smart_formfactor", "smart_nvme_available_spare", "smart_nvme_available_spare_threshold", "smart_nvme_percentage_used", "smart_units_read", "smart_units_written", "benchmark_r", "benchmark_w", "manufactured", "purchased", "installed", "removed", "warranty_date", "comment"
+			"groupid", "tray", "device", "devicenode", "pool", "name", "luname", "model_family", "model_name", "smart_serialnumber", "smart_capacity", "smart_cache", "smart_rotation", "smart_formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "comment"
 		);
 		$input = array( // User input names - must also match $sort:
-			"group", "tray", "device", "node", "lun", "manufacturer", "model", "status", "serial", "temp", "powerontime", "loadcycle", "reallocated", "reported", "timeout", "pending", "offline", "capacity", "cache", "rotation", "formfactor", "nvme_spare", "nvme_spare_thres", "nvme_used", "read", "written", "bench_r", "bench_w", "manufactured", "purchased", "installed", "removed", "warranty", "comment"
+			"group", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial", "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "comment"
 		);
 		$nice_names = array(
-			"Group", "Tray", "Path", "Node", "LUN", "Manufacturer", "Device Model", "SMART", "S/N", "Temperature", "Powered", "Cycles", "Reallocated", "Reported", "Timeout", "Pending", "Offline", "Capacity", "Cache", "Rotation", "FF", "Spare", "Spare Threshold", "Used", "Read", "Written", "Read Speed", "Write Speed", "Manufactured", "Purchased", "Installed", "Removed", "Warranty", "Comment"
+			"Group", "Tray", "Path", "Node", "Pool", "Name", "LUN", "Manufacturer", "Device Model", "S/N", "Capacity", "Cache", "Rotation", "FF", "Manufactured", "Purchased", "Installed", "Removed", "Warranty", "Comment"
 		);
 		$full_names = array(
-			"Group", "Tray", "Path", "Node", "Logic Unit Number", "Manufacturer", "Device Model", "SMART", "Serial Number", "Temperature", "Power On Time", "Load Cycle Count", "Reallocated Sector Count", "Reported Uncorrectable Errors", "Command Timeout", "Current Pending Sector Count", "Offline Uncorrectable", "Capacity", "Cache Size", "Rotation", "Form Factor", "Available Spare", "Available Spare Threshold", "Percentage Used", "Data Units Read", "Data Units Written", "Benchmark Read Speed", "Benchmark Write Speed", "Manufactured Date", "Purchased Date", "Installed Date", "Removed Date", "Warranty Date", "Comment"
+			"Group", "Tray", "Path", "Node", "Pool Name", "Disk Name", "Logic Unit Number", "Manufacturer", "Device Model", "Serial Number", "Capacity", "Cache Size", "Rotation", "Form Factor", "Manufactured Date", "Purchased Date", "Installed Date", "Removed Date", "Warranty Period", "Comment"
 		);
 		$input_form = array(
 			//                10                  20                  30
-			1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1
+			1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1
 		);
 		
 		if($select == "all") {
@@ -381,10 +376,6 @@
 		}
 	}
 	
-	function check_device_table($input) {
-		return $input;
-	}
-	
 	// function from: https://stackoverflow.com/questions/16251625/how-to-create-and-download-a-csv-file-from-php-script
 	function array_to_csv_download($array, $filename = "output.tsv", $delimiter="\t") {
 		// open raw memory as file so no temp files needed, you might run out of memory though
@@ -414,20 +405,15 @@
 	}
 	
 	function get_tray_location($db, $hash, $gid) {
-		$sql = "SELECT * FROM location WHERE hash = '" . $hash . "' AND groupid = '" . $gid . "'";
-		$results = $db->query($sql);
-		while($data = $results->fetchArray(1)) {
-			if(!$data["empty"]) { 
-				return ( empty($data["tray"]) ? false : $data["tray"] );
+		if($db[$hash]["groupid"] == $gid) {
+			if(!$db[$hash]["empty"]) {
+				return ( empty($db[$hash]["tray"]) ? false : $db[$hash]["tray"] );
 			}
 		}
 	}
 	
-	function count_table_rows($db, $table) {
-		$sql = "SELECT COUNT(*) FROM " . $table . ";";
-		$results = $db->query($sql);
-		$data = $results->fetchArray(SQLITE3_NUM);
-		return ( isset($data[0]) ? $data[0] : 0 );
+	function count_table_rows($db) {
+		return ( isset($db) ? count($db) : 0 );
 	}
 	
 	function human_filesize($bytes, $decimals = 2, $unit = false) {
@@ -835,9 +821,8 @@
 		return count(array_filter($array)) !== count(array_unique(array_filter($array)));
 	}
 	
-	function recursive_array_search($needle,$haystack) {
+	function recursive_array_search($needle,$haystack) { // from php.net: buddel
 		if(is_array($haystack)) {
-			/* from php.net: buddel */
 			foreach($haystack as $key=>$value) {
 				$current_key=$key;
 				if($needle===$value OR (is_array($value) && recursive_array_search($needle,$value) !== false)) {
@@ -846,6 +831,23 @@
 			}
 		}
 		return false;
+	}
+	
+	function sort_array() { // from php.net: jimpoz
+		$args = func_get_args();
+		$data = array_shift($args);
+		foreach ($args as $n => $field) {
+			if (is_string($field)) {
+				$tmp = array();
+				foreach ($data as $key => $row) {
+					$tmp[$key] = $row[$field];
+					$args[$n] = $tmp;
+				}
+			}
+		}
+		$args[] = &$data;
+		call_user_func_array('array_multisort', $args);
+		return array_pop($args);
 	}
 	
 	function tray_number_assign($col, $row, $dir, $grid) {
@@ -1034,44 +1036,21 @@
 		else return false;
 	}
 	
-	function cronjob_timer($time) {
-		$path = "/etc/cron.";
-		$filename = "disklocation.sh";
-		
-		if(file_exists($path . "hourly/" . $filename)) unlink($path . "hourly/" . $filename);
-		if(file_exists($path . "daily/" . $filename)) unlink($path . "daily/" . $filename);
-		if(file_exists($path . "weekly/" . $filename)) unlink($path . "weekly/" . $filename);
-		if(file_exists($path . "monthly/" . $filename)) unlink($path . "monthly/" . $filename);
-		
-		$cron_cmd = "php " . CRONJOB_FILE . " cronjob silent";
-		if($time != "disabled") {
-			file_put_contents($path . "" . $time . "/" . $filename, $cron_cmd);
-			chmod($path . "" . $time . "/" . $filename, 0777);
-		}
-	}
-	
-	function cronjob_current() {
-		$path = "/etc/cron.";
-		$filename = "disklocation.sh";
-		
-		if(file_exists($path . "hourly/" . $filename)) return "hourly";
-		if(file_exists($path . "daily/" . $filename)) return "daily";
-		if(file_exists($path . "weekly/" . $filename)) return "weekly";
-		if(file_exists($path . "monthly/" . $filename)) return "monthly";
-		else return "disabled";
-	}
-	
-	function cronjob_runfile_updater() {
-		$path = "/etc/cron.";
-		$filename = "disklocation.sh";
-		$current = cronjob_current();
-		
-		if($current != "disabled") {
-			if(file_exists($path . "" . $current . "/" . $filename)) {
-				$contents = file_get_contents($path . "" . $current . "/" . $filename);
-				if(preg_match("/disklocation\?crontab/", $contents)) {
-					cronjob_timer($current);
-				}
+	function put_ini_file($file, $array, $i = 0) {
+		$str="";
+		foreach ($array as $k => $v){
+			if (is_array($v)){
+				$str.=str_repeat(" ",$i*2)."[$k]".PHP_EOL; 
+				$str.=put_ini_file("",$v, $i+1);
+			}
+			else {
+				$str.=str_repeat(" ",$i*2)."$k = $v".PHP_EOL; 
+			}
+			if($file) {
+				return file_put_contents($file,$str);
+			}
+			else {
+				return $str;
 			}
 		}
 	}

@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2024, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2025, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -193,11 +193,9 @@
 		$get_table_order_drives .= get_table_order($_POST["select_db_drives"], $_POST["sort_db_drives"], 3, "0,0,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1");
 		if($get_table_order_drives) { $disklocation_error[] = "Table \"History\": " . $get_table_order_drives; }
 		
-		// Devices
+		// Devices textarea, manual sort
 		if(empty($_POST["select_db_devices"])) { $_POST["select_db_devices"] = $select_db_devices_default; }
-		//if(empty($_POST["sort_db_devices"])) { $_POST["sort_db_devices"] = $sort_db_devices_default; }
-		$get_table_order_devices = check_device_table($_POST["select_db_devices"]);
-		if(!$get_table_order_devices) { $disklocation_error[] = "Table \"Devices\": " . $get_table_order_devices; }
+		if(!bscode2html($_POST["select_db_devices"])) { $disklocation_error[] = "Table \"Devices\": Content could not be parsed."; }
 		
 		if(empty($disklocation_error)) {
 			$sql .= "
@@ -224,8 +222,7 @@
 						sort_db_trayalloc,
 						select_db_drives,
 						sort_db_drives,
-						select_db_devices,
-						sort_db_devices
+						select_db_devices
 					)
 					VALUES(
 						'1',
@@ -249,8 +246,7 @@
 						'" . SQLite3::escapeString($_POST["sort_db_trayalloc"] ?? $sort_db_trayalloc_default) . "',
 						'" . SQLite3::escapeString($_POST["select_db_drives"] ?? $select_db_drives_default) . "',
 						'" . SQLite3::escapeString($_POST["sort_db_drives"] ?? $sort_db_drives_default) . "',
-						'" . SQLite3::escapeString($get_table_order_devices ?? $select_db_devices_default) . "',
-						'" . SQLite3::escapeString($_POST["sort_db_devices"] ?? $sort_db_devices_default) . "'
+						'" . SQLite3::escapeString($_POST["select_db_devices"] ?? $select_db_devices_default) . "'
 					)
 				;
 			";
@@ -475,30 +471,14 @@
 	
 	// RELOAD: get settings from DB as $var
 	include("load_settings.php");
-
+	
 	// Group config
 	$last_group_id = 0;
 	
-	$sql = "SELECT * FROM settings_group ORDER BY id ASC";
-	$results = $db->query($sql);
+	$array_groups = $get_groups;
+	ksort($array_groups, SORT_NUMERIC);
 	
-	while($data_group = $results->fetchArray(1)) {
-		foreach($data_group as $key=>$value) {
-			$group[$data_group["id"]][$key] = "".$value."";
-		}
-	}
+	$total_groups = ( is_array($array_groups) ? count($array_groups) : 0 );
 	
-	$count_groups = array();
-	$sql = "SELECT id FROM settings_group GROUP BY id;";
-	$results = $db->query($sql);
-	while($data = $results->fetchArray(1)) {
-		$count_groups[] = $data["id"];
-	}
-	$total_groups = ( is_array($count_groups) ? count($count_groups) : 0 );
-	
-	$sql = "SELECT id FROM settings_group ORDER BY id DESC limit 1;";
-	$results = $db->query($sql);
-	while($data = $results->fetchArray(1)) {
-		$last_group_id = $data["id"];
-	}
+	$last_group_id = array_key_last($array_groups);
 ?>

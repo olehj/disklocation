@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2024, Ole-Henrik Jakobsen
+	 *  Copyright 2024-2025, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -18,21 +18,16 @@
 	 *  along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
 	 *
 	 */
-	$sql = "SELECT * FROM settings";
-	$results = $db->query($sql);
+	
+	if(file_exists(DISKLOCATION_CONF)) {
+		$get_config = json_decode(file_get_contents(DISKLOCATION_CONF), true);
+	}
+	
 	$displayinfo = ""; // reset variable, otherwise it will be reloaded as an array and fault.
 	
-	while($data = $results->fetchArray(1)) {
-		extract($data);
-	}
+	extract($get_config);
 	
 	$displayinfo = json_decode($displayinfo, true);
-	
-	//dashboard_toggle($dashboard_widget_pos); 
-	//cronjob_timer($smart_updates);
-	if($smart_updates != cronjob_current()) {
-		cronjob_timer($smart_updates);
-	}
 	
 	$color_array = array();
 	$color_array["empty"] = $bgcolor_empty;

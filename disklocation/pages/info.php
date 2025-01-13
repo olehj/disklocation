@@ -18,6 +18,8 @@
 	 *  along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
 	 *
 	 */
+	die("Developer edition... Overhaul '25 isn't done :P<br /><br />You might want to manually run: php /usr/local/emhttp/plugins/disklocation/pages/cron_disklocation.php crontab forceall<br /><br />Only the overview is available for current users (maybe).");
+	
 	unset($print_drives);
 	
 	$get_info_select = get_table_order($select_db_info, $sort_db_info, 1);
@@ -27,7 +29,7 @@
 	}
 	else {
 		//$sql = "SELECT * FROM disks JOIN location ON disks.hash=location.hash WHERE status IS NULL ORDER BY groupid,tray ASC;";
-		$sql = "SELECT disks.id,location.id,disks.hash,location.hash,smart_logical_block_size,color,warranty," . implode(",", $get_info_select["sql_select"]) . " FROM disks JOIN location ON disks.hash=location.hash WHERE status IS NULL ORDER BY " . $get_info_select["sql_sort"] . " " . $get_info_select["sql_dir"] . ";";
+		$sql = "SELECT disks.id,location.id,disks.hash,location.hash,color,warranty," . implode(",", $get_info_select["sql_select"]) . " FROM disks JOIN location ON disks.hash=location.hash WHERE status IS NULL ORDER BY " . $get_info_select["sql_sort"] . " " . $get_info_select["sql_dir"] . ";";
 	}
 	
 	$i=1;

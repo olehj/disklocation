@@ -18,9 +18,9 @@
 	 *  along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
 	 *
 	 */
-
+	
 //	Database Version:
-	$current_db_ver = 12;
+	$current_db_ver = 13;
 
 	if(in_array("version", $argv)) {
 		print($current_db_ver);
@@ -53,12 +53,40 @@
 		'leddiskop' => 1,
 		'ledsmart' => 1,
 		'ledtemp' => 1,
+		'unraidinfo' => 1,
+		'path' => 0,
+		'devicenode' => 0,
+		'luname' => 0,
+		'manufacturer' => 1,
+		'devicemodel' => 1,
+		'serialnumber' => 1,
+		'temperature' => 1,
+		'powerontime' => 1,
+		'loadcyclecount' => 1,
+		'capacity' => 1,
+		'cache' => 1,
+		'rotation' => 1,
+		'formfactor' => 1,
+		'reallocated_sector_count' => 0,
+		'reported_uncorrectable_errors' => 0,
+		'command_timeout' => 0,
+		'current_pending_sector_count' => 0,
+		'offline_uncorrectable' => 0,
+		'available_spare' => 1,
+		'percentage_used' => 1,
+		'units_read' => 1,
+		'units_written' => 1,
+		'manufactured' => 0,
+		'purchased' => 0,
+		'installed' => 0,
+		'warranty' => 0,
+		'comment' => 0,
 		'hideemptycontents' => 0,
 		'flashwarning' => 0,
 		'flashcritical' => 1
 	));
 	
-	$select_db_info = "group,tray,manufacturer,model,serial,capacity,cache,rotation,formfactor,manufactured,purchased,installed,warranty,comment";
+	$select_db_info = "group,tray,manufacturer,model,serial,capacity,cache,rotation,formfactor,read,written,manufactured,purchased,installed,warranty,comment";
 	$sort_db_info = "asc:group,tray";
 	
 	// mandatory: group,tray,locate,color
@@ -69,7 +97,7 @@
 	$sort_db_drives = "asc:serial";
 	
 	//not used, but prepared just in case it will be added in the future:
-	$select_db_devices = "[huge]*pool*[/huge] name node capacity rotation formfactor [color:11ff00]*[serial]*[/color]\nmanufacturer model\ncomment";
+	$select_db_devices = "";
 	$sort_db_devices = "";
 	
 //	Group settings
@@ -659,11 +687,37 @@
 		comment,
 		hash
 	";
-
+	
+	if(file_exists(DISKLOCATION_CONF)) {
+		$get_disklocation_config = json_decode(file_get_contents(DISKLOCATION_CONF), true);
+		if(isset($get_disklocation_config["database_location"])) {
+			define("DISKLOCATION_DB", $get_disklocation_config["database_location"]);
+		}
+		else {
+			define("DISKLOCATION_DB", DISKLOCATION_DB_DEFAULT);
+		}
+	}
+	else {
+		define("DISKLOCATION_DB", DISKLOCATION_DB_DEFAULT);
+	}
+	
+	// open and/or create database
+	class DLDB extends SQLite3 {
+		function __construct() {
+			$this->open(DISKLOCATION_DB);
+		}
+	}
+	
+	$db = new DLDB();
+	
+	if(!$db) {
+		echo $db->lastErrorMsg();
+	}
+	
 // Create and update database
-	if(!in_array("cronjob", $argv) && !$_POST["download_csv"]) { print("<!--<h3 style=\"color: #FF0000;\">-->"); }
+	if(!in_array("cronjob", $argv) && !$_POST["download_csv"]) { print("<h3 style=\"color: #FF0000;\">"); }
 	if(filesize(DISKLOCATION_DB) === 0) {
-		$sql = "
+		/*$sql = "
 			CREATE TABLE disks(
 				$sql_create_disks
 			);
@@ -682,6 +736,7 @@
 		if(!$ret) {
 			echo $db->lastErrorMsg();
 		}
+		*/
 	}
 	else {
 		$sql = "PRAGMA user_version";
@@ -1072,7 +1127,123 @@
 			}
 		}
 		
-		if(!in_array("cronjob", $argv) && !$_POST["download_csv"]) { print(""); }
+		if($database_version < 13) {
+			$db_update = 1;
+			
+		// Settings
+			if(file_exists(DISKLOCATION_CONF)) {
+				$settings = $get_disklocation_config; // = json_decode(file_get_contents(DISKLOCATION_CONF), true);
+			}
+			$sql = "SELECT * FROM settings";
+			$ret = $db->exec($sql);
+			if(!$ret) {
+				$db_update = 2;
+				echo $db->lastErrorMsg();
+			}
+			else {
+				$results = $db->query($sql);
+				$sql_hash = array();
+				while($res = $results->fetchArray(1)) {
+					$settings["bgcolor_parity"] = $res["bgcolor_parity"];
+					$settings["bgcolor_unraid"] = $res["bgcolor_unraid"];
+					$settings["bgcolor_cache"] = $res["bgcolor_cache"];
+					$settings["bgcolor_others"] = $res["bgcolor_others"];
+					$settings["bgcolor_empty"] = $res["bgcolor_empty"];
+					$settings["tray_reduction_factor"] = $res["tray_reduction_factor"];
+					$settings["force_orb_led"] = $res["force_orb_led"];
+					$settings["device_bg_color"] = $res["dashboard_widget"];
+					$settings["serial_trim"] = $res["dashboard_widget_pos"];
+					$settings["displayinfo"] = $res["displayinfo"];
+					$settings["select_db_info"] = $res["select_db_info"];
+					$settings["sort_db_info"] = $res["sort_db_info"];
+					$settings["select_db_trayalloc"] = $res["select_db_trayalloc"];
+					$settings["sort_db_trayalloc"] = $res["sort_db_trayalloc"];
+					$settings["select_db_drives"] = $res["select_db_drives"];
+					$settings["sort_db_drives"] = $res["sort_db_drives"];
+					$settings["select_db_devices"] = $res["select_db_devices"];
+				}
+			}
+			if(!file_put_contents(DISKLOCATION_CONF, json_encode($settings, JSON_PRETTY_PRINT))) {
+				print("ERROR: could not save file " . DISKLOCATION_CONF . "");
+			}
+			
+		// Locations
+			$sql = "SELECT * FROM location";
+			$ret = $db->exec($sql);
+			if(!$ret) {
+				$db_update = 2;
+				echo $db->lastErrorMsg();
+			}
+			else {
+				$results = $db->query($sql);
+				$sql_hash = array();
+				while($res = $results->fetchArray(1)) {
+					$locations[$res["hash"]]["groupid"] = $res["groupid"];
+					$locations[$res["hash"]]["empty"] = $res["empty"];
+					$locations[$res["hash"]]["tray"] = $res["tray"];
+				}
+			}
+			if(!file_put_contents(DISKLOCATION_LOCATIONS, json_encode($locations, JSON_PRETTY_PRINT))) {
+				print("ERROR: could not save file " . DISKLOCATION_LOCATIONS . "");
+			}
+			
+		// Groups
+			$sql = "SELECT * FROM settings_group";
+			$ret = $db->exec($sql);
+			if(!$ret) {
+				$db_update = 2;
+				echo $db->lastErrorMsg();
+			}
+			else {
+				$results = $db->query($sql);
+				$sql_hash = array();
+				while($res = $results->fetchArray(1)) {
+					$groups[$res["id"]]["group_name"] = $res["group_name"];
+					$groups[$res["id"]]["group_color"] = $res["group_color"];
+					$groups[$res["id"]]["grid_count"] = $res["grid_count"];
+					$groups[$res["id"]]["grid_columns"] = $res["grid_columns"];
+					$groups[$res["id"]]["grid_rows"] = $res["grid_rows"];
+					$groups[$res["id"]]["grid_trays"] = $res["grid_trays"];
+					$groups[$res["id"]]["disk_tray_direction"] = $res["disk_tray_direction"];
+					$groups[$res["id"]]["tray_direction"] = $res["tray_direction"];
+					$groups[$res["id"]]["tray_start_num"] = $res["tray_start_num"];
+					$groups[$res["id"]]["tray_width"] = $res["tray_width"];
+					$groups[$res["id"]]["tray_height"] = $res["tray_height"];
+				}
+			}
+			if(!file_put_contents(DISKLOCATION_GROUPS, json_encode($groups, JSON_PRETTY_PRINT))) {
+				print("ERROR: could not save file " . DISKLOCATION_GROUPS . "");
+			}
+		}
+		
+		// Devices
+			$sql = "SELECT * FROM disks";
+			$ret = $db->exec($sql);
+			if(!$ret) {
+				$db_update = 2;
+				echo $db->lastErrorMsg();
+			}
+			else {
+				$results = $db->query($sql);
+				$sql_hash = array();
+				while($res = $results->fetchArray(1)) {
+					$devices[$res["hash"]]["device"] = $res["device"];
+					$devices[$res["hash"]]["devicenode"] = $res["devicenode"];
+					$devices[$res["hash"]]["model_name"] = $res["model_name"];
+					$devices[$res["hash"]]["smart_serialnumber"] = $res["smart_serialnumber"];
+					$devices[$res["hash"]]["smart_cache"] = $res["smart_cache"];
+					$devices[$res["hash"]]["status"] = $res["status"];
+					$devices[$res["hash"]]["color"] = $res["color"];
+					$devices[$res["hash"]]["installed"] = $res["installed"];
+					$devices[$res["hash"]]["removed"] = $res["removed"];
+					$devices[$res["hash"]]["comment"] = $res["comment"];
+				}
+			}
+			if(!file_put_contents(DISKLOCATION_DEVICES, json_encode($devices, JSON_PRETTY_PRINT))) {
+				print("ERROR: could not save file " . DISKLOCATION_DEVICES . "");
+			}
+		
+		if(!in_array("cronjob", $argv) && !$_POST["download_csv"]) { print("</h3>"); }
 		if($db_update == 1) {
 			print("<h3>Database successfully updated</h3>");
 			if(!in_array("cronjob", $argv)) {

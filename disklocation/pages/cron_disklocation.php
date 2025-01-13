@@ -21,7 +21,11 @@
 	require_once("functions.php");
 	
 	$sql_loop = "";
+	$smart_log = "";
 	
+	$time_start = hrtime(true);
+	
+	/* disabled in Overhaul '25
 	if(in_array("install", $argv)) {
 		if(file_exists(DISKLOCATION_CONF)) {
 			$config_json = file_get_contents(DISKLOCATION_CONF);
@@ -31,9 +35,9 @@
 			}
 		}
 	}
+	*/
 	
 	if(isset($_GET["force_smartdb_scan"]) || isset($_GET["force_smart_scan"]) || isset($_GET["active_smart_scan"])) {
-		$time_start = time();
 		if(!isset($argv) || !in_array("silent", $argv)) {
 			print("
 				<!DOCTYPE HTML>
@@ -93,6 +97,12 @@
 	
 	if(isset($_POST["force_smartdb_scan"]) || isset($_GET["force_smartdb_scan"]) || in_array("install", $argv) || in_array("forceall", $argv)) {
 		$force_scan_db = 1; // trigger force_smart_scan post if it is a new install or if it is forced at CLI
+		$zfs_check = 0;
+		if(zfs_check()) {
+			$zfs_parser = zfs_parser();
+			$lsblk_array = json_decode(shell_exec("lsblk -p -o NAME,MOUNTPOINT,SERIAL,PATH --json"), true);
+			$zfs_check = 1;
+		}
 	}
 	
 	if($force_scan || in_array("cronjob", $argv) || $_GET["active_smart_scan"] || $_POST["active_smart_scan"]) {
@@ -127,6 +137,8 @@
 		
 		debug_print($debugging_active, __LINE__, "array", "LSSCSI:" . count($lsscsi_arr) . "");
 		while($i < count($lsscsi_arr)) {
+			usleep($smart_exec_delay . 000); // delay script to get the output of the next shell_exec()
+			$time_start_individual = hrtime(true);
 			$lsscsi_parser_array = lsscsi_parser($lsscsi_arr[$i]);
 			
 			$lsscsi_device[$i] = $lsscsi_parser_array["device"];					// get the device address: "1:0:0:0"
@@ -165,15 +177,15 @@
 				
 				config(DISKLOCATION_TMP_PATH."/powermode.ini", 'w', $lsscsi_device[$i], $smart_powermode_status);
 				
-				usleep($smart_exec_delay . 000); // delay script to get the output of the next shell_exec()
-				
 				if(in_array("status", $argv)) {
 					$i++;
 					continue;
 				}
 				
 				if(!isset($argv) || !in_array("silent", $argv)) {
-					print("SMART: " . str_pad($lsscsi_devicenodesg[$i], 20) . " " . str_pad($smart_powermode_status, 8) . " ");
+					$smart_output = "SMART: " . str_pad($lsscsi_devicenodesg[$i], 20) . " " . str_pad($smart_powermode_status, 8) . " ";
+					print($smart_output);
+					$smart_log .= "[" . date("Y-m-d H:i:s") . "] " . $smart_output;
 				}
 				
 				if($smart_powermode_status == "ACTIVE" || $smart_powermode_status == "IDLE" || $force_scan) { // only get SMART data if the disk is spinning, if it is a new install/empty database, or if scan is forced.
@@ -185,100 +197,82 @@
 					$smart_cmd[$i] = shell_exec("smartctl $smart_standby_cmd -x --json --quietmode=silent " . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . ""); // get all SMART data for this device, we grab it ourselves to get all drives also attached to hardware raid cards.
 					
 					$smart_array = json_decode($smart_cmd[$i], true);
-
-					if(isset($smart_array["device"]["protocol"]) && $smart_array["device"]["protocol"] == "SCSI") {
-						$smart_lun = ( $smart_array["logical_unit_id"] ? $smart_array["logical_unit_id"] : null );
-						$smart_model_family = ( $smart_array["scsi_product"] ? $smart_array["scsi_product"] : $smart_array["product"] );
-						$smart_model_name = ( $smart_array["scsi_model_name"] ? $smart_array["scsi_model_name"] : $smart_array["model_name"] );
-						
-						if(is_array($smart_array["accumulated_load_unload_cycles"])) {
-							$smart_loadcycle_find = $smart_array["accumulated_load_unload_cycles"];
-						}
-						
-						debug_print($debugging_active, __LINE__, "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "|PROTOCOL=SCSI");
-					}
-					else {
-						if(isset($smart_array["wwn"])) {
-							$smart_lun = "" . ($smart_array["wwn"]["naa"] ?? null) . " " . ($smart_array["wwn"]["oui"] ?? null) . " " . ($smart_array["wwn"]["id"] ?? null) . "";
-						}
-						$smart_model_family = $smart_array["model_family"] ?? null;
-						$smart_model_name = $smart_array["model_name"] ?? null;
-						$smart_cache = get_smart_cache("" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . "");
-						
-						debug_print($debugging_active, __LINE__, "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "|PROTOCOL=" . ( isset($smart_array["device"]["protocol"]) ? $smart_array["device"]["protocol"] : null . ""));
-					}
+					
+					$smart_model_name = ( $smart_array["scsi_model_name"] ? $smart_array["scsi_model_name"] : $smart_array["model_name"] );
+					
+					debug_print($debugging_active, __LINE__, "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "|PROTOCOL=" . ( isset($smart_array["device"]["protocol"]) ? $smart_array["device"]["protocol"] : null . ""));
 					
 					$deviceid[$i] = hash('sha256', $smart_model_name . ( isset($smart_array["serial_number"]) ? $smart_array["serial_number"] : null));
 					
 					// store files in /tmp
-					file_put_contents(DISKLOCATION_TMP_PATH."/smart/".$deviceid[$i].".json", $smart_cmd[$i]);
+					if(isset($smart_array["serial_number"]) && $smart_model_name) {
+						$filename_smart_data_tmp = DISKLOCATION_TMP_PATH."/smart/".str_replace(" ", "_", $smart_model_name)."_" . $smart_array["serial_number"] . ".json";
+						file_put_contents($filename_smart_data_tmp, $smart_cmd[$i]);
+					}
 					
 					debug_print($debugging_active, __LINE__, "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "=" . ( is_array($smart_array) ? "array" : "empty" ) . "");
 					debug_print($debugging_active, __LINE__, "SMART", "CMD: smartctl $smart_standby_cmd -x --json --quietmode=silent " . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . "");
 					$smart_lun = "";
+
+					if(!isset($argv) || !in_array("silent", $argv)) {
+						$smart_output = str_pad("(" . substr($deviceid[$i], -10) . ")", 14);
+						print($smart_output);
+						$smart_log .= $smart_output;
+					}
+					if(!empty($unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"])) {
+						if(!isset($argv) || !in_array("silent", $argv)) {
+							$smart_output = str_pad("CTRL CMD: " . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " ", 30);
+							print($smart_output);
+							$smart_log .= $smart_output;
+						}
+					}
 					
 					if($force_scan_db) {
-						// Only check for SSD if rotation_rate doesn't exists.
-						if(!isset($smart_array["rotation_rate"])) {
-							$smart_array["rotation_rate"] = ( recursive_array_search("Solid State Device Statistics", $smart_array) ? -1 : null );
-							if(isset($smart_array["device"]["type"]) && $smart_array["device"]["type"] == "nvme") {
-								$smart_array["rotation_rate"] = -2;
-							}
-						}
-						
-						if(!isset($argv) || !in_array("silent", $argv)) {
-							print(str_pad("(" . substr($deviceid[$i], -10) . ")", 14));
-						}
-						if(!empty($unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"])) {
-							if(!isset($argv) || !in_array("silent", $argv)) {
-								print(str_pad("CTRL CMD: " . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " ", 30));
-							}
-						}
+						$filename_device_data = UNRAID_CONFIG_PATH . "/" . DISKLOCATION_PATH . "/devices.json";
+						$devices_current = ( file_exists($filename_device_data) ? json_decode(file_get_contents($filename_device_data), true) : null );
+						print_r($devices_current);
+						$smart_model_family = ( $smart_array["scsi_product"] ? $smart_array["scsi_product"] : ( $smart_array["product"] ?: $smart_array["model_family"] ) );
+						$smart_cache = get_smart_cache("" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . "");
 						
 						debug_print($debugging_active, __LINE__, "HASH", "#:" . $i . ":" . $deviceid[$i] . "");
 						
 						find_and_unset_reinserted_devices_status($db, $deviceid[$i]);	// tags old existing devices with 'null', delete device from location just in case it for whatever reason it already exists.
 						
 						if(isset($smart_array["serial_number"]) && $smart_model_name) {
+							$devices[$deviceid[$i]] = array(
+									"device" => ($lsscsi_device[$i] ?? null),
+									"devicenode" => ($lsscsi_devicenode[$i] ?? null),
+									"model_name" => ( !file_exists($filename_device_data) ? $smart_model_name : $devices_current[$deviceid[$i]]["model_name"]),
+									"smart_serialnumber" => ( !file_exists($filename_device_data) ? $smart_array["serial_number"] : $devices_current[$deviceid[$i]]["smart_serialnumber"] ),
+									"smart_cache" => ($smart_cache ?? null),
+									"status" => ( !file_exists($filename_device_data) ? 'h' : $devices_current[$deviceid[$i]]["status"] )
+								);
+							}
+							
 							$sql_loop .= "
 								INSERT INTO
 									disks(
 										device,
 										devicenode,
-										luname,
-										model_family,
 										model_name,
 										smart_serialnumber,
-										smart_capacity,
 										smart_cache,
-										smart_rotation,
-										smart_formfactor,
 										status,
 										hash
 									)
 									VALUES(
 										'" . ($lsscsi_device[$i] ?? null) . "',
 										'" . ($lsscsi_devicenode[$i] ?? null) . "',
-										'" . ($smart_lun ?? null) . "',
-										'" . ($smart_model_family ?? null) . "',
 										'" . ($smart_model_name ?? null) . "',
 										'" . ($smart_array["serial_number"] ?? null) . "',
-										'" . ($smart_array["user_capacity"]["bytes"] ?? null) . "',
 										'" . ($smart_cache ?? null) . "',
-										'" . ($smart_array["rotation_rate"] ?? null) . "',
-										'" . ($smart_array["form_factor"]["name"] ?? null) . "',
 										'h',
 										'" . ($deviceid[$i] ?? null) . "'
 									)
 									ON CONFLICT(hash) DO UPDATE SET
 										device='" . ($lsscsi_device[$i] ?? null) . "',
 										devicenode='" . ($lsscsi_devicenode[$i] ?? null) . "',
-										luname='" . ($smart_lun ?? null) . "',
-										model_family='" . ($smart_model_family ?? null) . "',
-										smart_capacity='" . ($smart_array["user_capacity"]["bytes"] ?? null) . "',
-										smart_cache='" . ($smart_cache ?? null) . "',
-										smart_rotation='" . ($smart_array["rotation_rate"] ?? null) . "',
-										smart_formfactor='" . ($smart_array["form_factor"]["name"] ?? null) . "'
+										smart_cache='" . ($smart_cache ?? null) . "'
 									WHERE hash='" . $deviceid[$i] . "'
 									;
 							";
@@ -290,7 +284,16 @@
 				}
 				
 				if(!isset($argv) || !in_array("silent", $argv)) {
-					isset($deviceid[$i]) ? print("done.\n") : print("skipped.\n");
+					if(isset($deviceid[$i])) {
+						$smart_output = "done in " . round((hrtime(true)-$time_start_individual)/1e+6) . "ms.\n";
+						print($smart_output);
+						$smart_log .= $smart_output;
+					}
+					else {
+						$smart_output = "skipped.\n";
+						print($smart_output);
+						$smart_log .= $smart_output;
+					}
 					
 					if(!isset($argv) || !in_array("cronjob", $argv) && !in_array("force", $argv)) {
 						//print("<br />");
@@ -309,8 +312,14 @@
 			//print("#:" . $i . ":<pre>" . $sql_loop . "</pre>");
 			
 			if(!isset($argv) || !in_array("silent", $argv)) { 
-				print("\nWriting to the database... ");
+				$smart_output = "\nWriting to the database... ";
+				print($smart_output);
+				$smart_log .= $smart_output;
 				flush();
+			}
+			
+			if(!file_put_contents($filename_device_data, json_encode($devices, JSON_PRETTY_PRINT))) {
+				print("Could not save file " . $filename_device_data . "");
 			}
 			
 			$ret = $db->exec($sql_loop);
@@ -323,7 +332,9 @@
 					find_and_set_removed_devices_status($db, $deviceid); 		// tags removed devices 'r', delete device from location
 				}
 				if(!isset($argv) || !in_array("silent", $argv)) { 
-					print("done.\n");
+					$smart_output = "done in " . round((hrtime(true)-$time_start)/1e+9, 1) . " seconds.\n";
+					print($smart_output);
+					$smart_log .= $smart_output;
 					flush();
 				}
 			}
@@ -332,13 +343,10 @@
 		$db->close();
 		
 		if(isset($_GET["force_smartdb_scan"]) || $_GET["force_smart_scan"] || isset($_GET["active_smart_scan"])) {
-			$time_end = time();
-			$total_exec_time = $time_end - $time_start;
-			
 			if(!isset($argv) || !in_array("silent", $argv)) {
 				print("</pre>
 					<h3>
-						<b>Completed after $total_exec_time seconds.</b>
+						<b>Completed after " . round((hrtime(true)-$time_start)/1e+9, 1) . " seconds.</b>
 					</h3>
 					<p style=\"text-align: center;\">
 						<button type=\"button\" onclick=\"window.top.location = '" . DISKLOCATIONCONF_URL . "';\">Close</button>
@@ -351,6 +359,10 @@
 	}
 	
 	cronjob_runfile_updater();
+	
+	if($smart_log) {
+		file_put_contents(DISKLOCATION_TMP_PATH."/cron_smart.log", $smart_log);
+	}
 	
 	if(file_exists(DISKLOCATION_LOCK_FILE)) {
 		unlink(DISKLOCATION_LOCK_FILE);
