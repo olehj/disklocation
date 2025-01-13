@@ -28,13 +28,13 @@ Icon="server"
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/system.php");
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/devices.php");
 	
-	$sql = "SELECT * FROM settings_group ORDER BY id ASC";
-	$results = $db->query($sql);
-	
 	$disklocation_dash_out = "";
 	
-	while($data = $results->fetchArray(1)) {
-		extract($data);
+	$array_groups = $get_groups;
+	ksort($array_groups, SORT_NUMERIC);
+	
+	foreach($array_groups as $id => $value) {
+		extract($value);
 		$gid = $id;
 		
 		$css_grid_group = "

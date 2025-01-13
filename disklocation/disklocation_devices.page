@@ -28,11 +28,11 @@ Title="Devices"
 	
 	$disklocation_page_out = "";
 	
-	$sql = "SELECT * FROM settings_group ORDER BY id ASC";
-	$results = $db->query($sql);
+	$array_groups = $get_groups;
+	ksort($array_groups, SORT_NUMERIC);
 	
-	while($data = $results->fetchArray(1)) {
-		extract($data);
+	foreach($array_groups as $id => $value) {
+		extract($value);
 		$gid = $id;
 		
 		$css_grid_group = "
@@ -49,10 +49,9 @@ Title="Devices"
 				</div>
 			</div>
 		";
-		$i++;
 	}
 	
-	if(!count_table_rows($db, "location")) {
+	if(!count_table_rows($get_locations)) {
 		$disklocation_page_out = "
 			<h1>Please configure Disk Location</h1>
 			<p>Press the Unraid \"Help\" icon for additional information per page.</p>
