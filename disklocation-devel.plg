@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.01.07-2354">
+<!ENTITY version          "2025.01.14-0026">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -317,9 +317,7 @@ logit "Removing plugin..."
 [ -f "/etc/cron.daily/disklocation.sh" ] &amp;&amp; rm -f "/etc/cron.daily/disklocation.sh"
 [ -f "/etc/cron.weekly/disklocation.sh" ] &amp;&amp; rm -f "/etc/cron.weekly/disklocation.sh"
 [ -f "/etc/cron.monthly/disklocation.sh" ] &amp;&amp; rm -f "/etc/cron.monthly/disklocation.sh"
-[ -f "/tmp/disklocation/db.lock" ] &amp;&amp; rm -f "/tmp/disklocation/db.lock"
-[ -f "/tmp/disklocation/powermode.ini" ] &amp;&amp; rm -f "/tmp/disklocation/powermode.ini"
-[ -d "/tmp/disklocation" ] &amp;&amp; rmdir "/tmp/disklocation"
+[ -d "/tmp/disklocation" ] &amp;&amp; rm -rf "/tmp/disklocation"
 [ -f "&pluginLOC;-&branch;/powermode.cron" ] &amp;&amp; rm -f "&pluginLOC;-&branch;/powermode.cron"
 /usr/local/sbin/update_cron
 rm -f &pluginLOC;/disklocation.*.tar.bz2
