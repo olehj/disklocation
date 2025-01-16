@@ -269,6 +269,12 @@
 				}
 				
 				// DB $data:
+				$devices[$hash]["raw"]["tray"] = $data["tray"] ?? 0;
+				$devices[$hash]["formatted"]["tray"] = $devices[$hash]["raw"]["tray"];
+				$devices[$hash]["raw"]["groupid"] = $groupid;
+				$devices[$hash]["formatted"]["groupid"] = $devices[$hash]["raw"]["groupid"];
+				$devices[$hash]["raw"]["group_name"] = $array_groups[$groupid]["group_name"];
+				$devices[$hash]["formatted"]["group_name"] = $devices[$hash]["raw"]["group_name"];
 				$devices[$hash]["raw"]["device"] = $device;
 				$devices[$hash]["formatted"]["device"] = $devices[$hash]["raw"]["device"];
 				$devices[$hash]["raw"]["node"] = $devicenode;
@@ -278,7 +284,7 @@
 				$devices[$hash]["raw"]["model"] = $data["model_name"];
 				$devices[$hash]["formatted"]["model"] = $devices[$hash]["raw"]["model"];
 				$devices[$hash]["raw"]["cache"] = $data["smart_cache"];
-				$devices[$hash]["formatted"]["cache"] = "" . $devices[$hash]["raw"]["cache"] . "MB";
+				$devices[$hash]["formatted"]["cache"] = "" . ( $devices[$hash]["raw"]["cache"] ? $devices[$hash]["raw"]["cache"] . "MB" : null );
 				$devices[$hash]["raw"]["installed"] = $data["installed"];
 				$devices[$hash]["formatted"]["installed"] = $devices[$hash]["raw"]["installed"];
 				$devices[$hash]["raw"]["removed"] = $data["removed"];

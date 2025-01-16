@@ -20,7 +20,6 @@
 	 */
 	require_once("functions.php");
 	
-	$sql_loop = "";
 	$smart_log = "";
 	
 	$time_start = hrtime(true);
@@ -230,55 +229,26 @@
 					if($force_scan_db) {
 						$filename_device_data = UNRAID_CONFIG_PATH . "/" . DISKLOCATION_PATH . "/devices.json";
 						$devices_current = ( file_exists($filename_device_data) ? json_decode(file_get_contents($filename_device_data), true) : null );
-						print_r($devices_current);
+						
 						$smart_model_family = ( $smart_array["scsi_product"] ? $smart_array["scsi_product"] : ( $smart_array["product"] ?: $smart_array["model_family"] ) );
 						$smart_cache = get_smart_cache("" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . "");
 						
 						debug_print($debugging_active, __LINE__, "HASH", "#:" . $i . ":" . $deviceid[$i] . "");
 						
-						find_and_unset_reinserted_devices_status($db, $deviceid[$i]);	// tags old existing devices with 'null', delete device from location just in case it for whatever reason it already exists.
+						find_and_unset_reinserted_devices_status($devices_current, $deviceid[$i]);	// tags old existing devices with 'null', delete device from location just in case it for whatever reason it already exists.
 						
 						if(isset($smart_array["serial_number"]) && $smart_model_name) {
 							$devices[$deviceid[$i]] = array(
-									"device" => ($lsscsi_device[$i] ?? null),
-									"devicenode" => ($lsscsi_devicenode[$i] ?? null),
-									"model_name" => ( !file_exists($filename_device_data) ? $smart_model_name : $devices_current[$deviceid[$i]]["model_name"]),
-									"smart_serialnumber" => ( !file_exists($filename_device_data) ? $smart_array["serial_number"] : $devices_current[$deviceid[$i]]["smart_serialnumber"] ),
-									"smart_cache" => ($smart_cache ?? null),
-									"status" => ( !file_exists($filename_device_data) ? 'h' : $devices_current[$deviceid[$i]]["status"] )
-								);
-							}
-							
-							$sql_loop .= "
-								INSERT INTO
-									disks(
-										device,
-										devicenode,
-										model_name,
-										smart_serialnumber,
-										smart_cache,
-										status,
-										hash
-									)
-									VALUES(
-										'" . ($lsscsi_device[$i] ?? null) . "',
-										'" . ($lsscsi_devicenode[$i] ?? null) . "',
-										'" . ($smart_model_name ?? null) . "',
-										'" . ($smart_array["serial_number"] ?? null) . "',
-										'" . ($smart_cache ?? null) . "',
-										'h',
-										'" . ($deviceid[$i] ?? null) . "'
-									)
-									ON CONFLICT(hash) DO UPDATE SET
-										device='" . ($lsscsi_device[$i] ?? null) . "',
-										devicenode='" . ($lsscsi_devicenode[$i] ?? null) . "',
-										smart_cache='" . ($smart_cache ?? null) . "'
-									WHERE hash='" . $deviceid[$i] . "'
-									;
-							";
+								"device" => ($lsscsi_device[$i] ?? null),
+								"devicenode" => ($lsscsi_devicenode[$i] ?? null),
+								"model_name" => ( !file_exists($filename_device_data) ? $smart_model_name : $devices_current[$deviceid[$i]]["model_name"]),
+								"smart_serialnumber" => ( !file_exists($filename_device_data) ? $smart_array["serial_number"] : $devices_current[$deviceid[$i]]["smart_serialnumber"] ),
+								"smart_cache" => ($smart_cache ?? null),
+								"status" => ( !file_exists($filename_device_data) ? 'h' : $devices_current[$deviceid[$i]]["status"] )
+							);
 						}
 						else {
-							debug_print($debugging_active, __LINE__, "SQL", "#:" . $i . ":<pre>Invalid SMART information, skipping...</pre>");
+							debug_print($debugging_active, __LINE__, "DB", "#:" . $i . ":<pre>Invalid SMART information, skipping...</pre>");
 						}
 					}
 				}
@@ -307,9 +277,8 @@
 			$i++;
 		}
 		
-		if($force_scan_db && $sql_loop) {
-			debug_print($debugging_active, __LINE__, "SQL", "#:<pre>" . $sql_loop . "</pre>");
-			//print("#:" . $i . ":<pre>" . $sql_loop . "</pre>");
+		if($force_scan_db) {
+			debug_print($debugging_active, __LINE__, "DB", "#:<pre>" . print_r($devices) . "</pre>");
 			
 			if(!isset($argv) || !in_array("silent", $argv)) { 
 				$smart_output = "\nWriting to the database... ";
@@ -321,26 +290,10 @@
 			if(!file_put_contents($filename_device_data, json_encode($devices, JSON_PRETTY_PRINT))) {
 				print("Could not save file " . $filename_device_data . "");
 			}
-			
-			$ret = $db->exec($sql_loop);
-			if(!$ret) {
-				echo $db->lastErrorMsg();
-			}
 			else {
-				// check the existence of devices, must be run during force smart scan.
-				if($force_scan) {
-					find_and_set_removed_devices_status($db, $deviceid); 		// tags removed devices 'r', delete device from location
-				}
-				if(!isset($argv) || !in_array("silent", $argv)) { 
-					$smart_output = "done in " . round((hrtime(true)-$time_start)/1e+9, 1) . " seconds.\n";
-					print($smart_output);
-					$smart_log .= $smart_output;
-					flush();
-				}
+				find_and_set_removed_devices_status($db, $deviceid);
 			}
 		}
-		
-		$db->close();
 		
 		if(isset($_GET["force_smartdb_scan"]) || $_GET["force_smart_scan"] || isset($_GET["active_smart_scan"])) {
 			if(!isset($argv) || !in_array("silent", $argv)) {
@@ -357,8 +310,6 @@
 		}
 		
 	}
-	
-	cronjob_runfile_updater();
 	
 	if($smart_log) {
 		file_put_contents(DISKLOCATION_TMP_PATH."/cron_smart.log", $smart_log);

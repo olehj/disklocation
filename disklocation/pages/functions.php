@@ -258,7 +258,7 @@
 		$select = preg_replace('/\s+/', '', $select);
 		$sort = preg_replace('/\s+/', '', $sort);
 		$table = array( // Table names:
-			"groupid", "tray", "device", "devicenode", "pool", "name", "luname", "model_family", "model_name", "smart_serialnumber", "smart_capacity", "smart_cache", "smart_rotation", "smart_formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "comment"
+			"groupid", "tray", "device", "devicenode", "pool", "name", "luname", "model_family", "model_name", "smart_serialnumber", "smart_capacity", "smart_cache", "smart_rotation", "smart_formfactor", "manufactured", "purchased", "installed", "removed", "warranty_date", "comment"
 		);
 		$input = array( // User input names - must also match $sort:
 			"group", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial", "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "comment"
@@ -342,16 +342,27 @@
 			return "Sort direction is invalid.\n";
 		}
 		
+		for($i=0;$i<count($return_sort);$i++) {
+			$return_sort_str .= $return_sort[$i] . " SORT_" . strtoupper($sort_dir[0]);
+			if($return_sort[$i+1]) { $return_sort_str .= ","; }
+		}
+		
 		switch($return) {
 			case 0:
 				return [$select, $return_table, $return_names, $return_full, $return_forms]; // user, column, gui, fulltext(hover), forms
 				break;
 			case 1:
+				//return array( // the old way with SQL
+				//	"db_select" => $return_table,
+				//	"db_sort" => implode(",", $return_sort),
+				//	"db_dir" => strtoupper($sort_dir[0])
+				//);
 				return array(
-					"sql_select" => $return_table,
-					"sql_sort" => implode(",", $return_sort),
-					"sql_dir" => strtoupper($sort_dir[0])
+					"db_select" => $return_table,
+					"db_sort" => $return_sort_str,
+					"db_dir" => strtoupper($sort_dir[0])
 				);
+				
 				break;
 			case 2:
 				if($return_allow_colm) {
@@ -397,10 +408,9 @@
 	}
 	
 	function is_tray_allocated($db, $tray, $gid) {
-		$sql = "SELECT hash FROM location WHERE tray = '" . $tray . "' AND groupid = '" . $gid . "'";
-		$results = $db->query($sql);
-		while($data = $results->fetchArray(1)) {
-			return ( isset($data["hash"]) ? $data["hash"] : false);
+		$array_locations = $db;
+		foreach($array_locations as $hash => $array) {
+			return ( ($db[$hash]["tray"] == $tray && $db[$hash]["groupid"] == $gid) ? $hash : null );
 		}
 	}
 	
@@ -661,20 +671,17 @@
 	}
 	
 	function find_and_set_removed_devices_status($db, $arr_hash) {
-		$sql = "SELECT hash FROM disks WHERE status IS NOT 'd';";
-		$results = $db->query($sql);
-		$sql_hash = array();
-		while($res = $results->fetchArray(1)) {
-			$sql_hash[] = $res["hash"];
+		foreach($db as $hash => $array) {
+			( ($db[$hash]["status"] != 'd') ? $db_hash[] = $hash : null );
 		}
 		
 		$arr_hash = array_filter($arr_hash);
-		$sql_hash = array_filter($sql_hash);
+		$db_hash = array_filter($db_hash);
 		
 		sort($arr_hash);
-		sort($sql_hash);
+		sort($db_hash);
 		
-		$results = array_diff($sql_hash, $arr_hash);
+		$results = array_diff($db_hash, $arr_hash);
 		$old_hash = array_values($results);
 		
 		$sql_status = "";
