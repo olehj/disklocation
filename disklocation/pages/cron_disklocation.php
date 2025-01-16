@@ -24,18 +24,6 @@
 	
 	$time_start = hrtime(true);
 	
-	/* disabled in Overhaul '25
-	if(in_array("install", $argv)) {
-		if(file_exists(DISKLOCATION_CONF)) {
-			$config_json = file_get_contents(DISKLOCATION_CONF);
-			$config_json = json_decode($config_json, true);
-			if($config_json["database_noscan"] == 1) {
-				die("Scanning devices during installation and boot is disabled.\n");
-			}
-		}
-	}
-	*/
-	
 	if(isset($_GET["force_smartdb_scan"]) || isset($_GET["force_smart_scan"]) || isset($_GET["active_smart_scan"])) {
 		if(!isset($argv) || !in_array("silent", $argv)) {
 			print("
@@ -108,6 +96,9 @@
 		if(!file_exists("/tmp/disklocation/smart")) {
 			mkdir("/tmp/disklocation/smart");
 		}
+		
+		$devices_current = $get_devices;
+		$locations_current = $get_locations;
 		
 		if($force_scan_db && !in_array("status", $argv)) {
 			// wait until the cronjob has finished.
@@ -227,25 +218,30 @@
 					}
 					
 					if($force_scan_db) {
-						$filename_device_data = UNRAID_CONFIG_PATH . "/" . DISKLOCATION_PATH . "/devices.json";
-						$devices_current = ( file_exists($filename_device_data) ? json_decode(file_get_contents($filename_device_data), true) : null );
-						
 						$smart_model_family = ( $smart_array["scsi_product"] ? $smart_array["scsi_product"] : ( $smart_array["product"] ?: $smart_array["model_family"] ) );
 						$smart_cache = get_smart_cache("" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . "");
 						
 						debug_print($debugging_active, __LINE__, "HASH", "#:" . $i . ":" . $deviceid[$i] . "");
 						
-						find_and_unset_reinserted_devices_status($devices_current, $deviceid[$i]);	// tags old existing devices with 'null', delete device from location just in case it for whatever reason it already exists.
-						
 						if(isset($smart_array["serial_number"]) && $smart_model_name) {
-							$devices[$deviceid[$i]] = array(
+							$update[$deviceid[$i]] = array( // overwrite selected values
 								"device" => ($lsscsi_device[$i] ?? null),
 								"devicenode" => ($lsscsi_devicenode[$i] ?? null),
-								"model_name" => ( !file_exists($filename_device_data) ? $smart_model_name : $devices_current[$deviceid[$i]]["model_name"]),
-								"smart_serialnumber" => ( !file_exists($filename_device_data) ? $smart_array["serial_number"] : $devices_current[$deviceid[$i]]["smart_serialnumber"] ),
+								"model_name" => ( empty($devices_current[$deviceid[$i]]["model_name"]) ? $smart_model_name : $devices_current[$deviceid[$i]]["model_name"] ),
+								"smart_serialnumber" => ( empty($devices_current[$deviceid[$i]]["smart_serialnumber"]) ? $smart_array["serial_number"] : $devices_current[$deviceid[$i]]["smart_serialnumber"] ),
 								"smart_cache" => ($smart_cache ?? null),
-								"status" => ( !file_exists($filename_device_data) ? 'h' : $devices_current[$deviceid[$i]]["status"] )
+								"status" => ( !file_exists(DISKLOCATION_DEVICES) ? 'h' : $devices_current[$deviceid[$i]]["status"] )
 							);
+							$devices_updates = array_replace_recursive($devices_current, $update);
+							
+							$location[$deviceid[$i]] = array();
+							if(!array_key_exists($deviceid[$i], $locations_current)) { // if device is new or reappered, erase removed input and reset status
+								$location[$deviceid[$i]] = array(
+									"status" => 'h',
+									"removed" => ''
+								);
+							}
+							$devices = array_replace_recursive($devices_updates, $location);
 						}
 						else {
 							debug_print($debugging_active, __LINE__, "DB", "#:" . $i . ":<pre>Invalid SMART information, skipping...</pre>");
@@ -278,7 +274,7 @@
 		}
 		
 		if($force_scan_db) {
-			debug_print($debugging_active, __LINE__, "DB", "#:<pre>" . print_r($devices) . "</pre>");
+			debug_print($debugging_active, __LINE__, "DB", "#:<pre>" . $devices . "</pre>");
 			
 			if(!isset($argv) || !in_array("silent", $argv)) { 
 				$smart_output = "\nWriting to the database... ";
@@ -287,11 +283,16 @@
 				flush();
 			}
 			
-			if(!file_put_contents($filename_device_data, json_encode($devices, JSON_PRETTY_PRINT))) {
-				print("Could not save file " . $filename_device_data . "");
+			if(!config_array(DISKLOCATION_DEVICES, 'w', $devices)) {
+				$smart_error = "Could not save file " . DISKLOCATION_DEVICES . "";
+				print($smart_error);
+				$smart_log .= $smart_error;
 			}
 			else {
-				find_and_set_removed_devices_status($db, $deviceid);
+				find_and_set_removed_devices_status($devices, $locations_current, $deviceid);
+				$smart_output = ( (!in_array("silent", $argv)) ? "done in " . round((hrtime(true)-$time_start)/1e+9, 1) . " seconds.\n" : null );
+				print($smart_output);
+				$smart_log .= $smart_output;
 			}
 		}
 		

@@ -221,7 +221,81 @@
 	}
 	
 	debug_print($debugging_active, __LINE__, "functions", "Debug function active.");
-
+	
+	function config($file, $operation, $key = '', $val = '') { // file, [r]ead/[w]rite, key (req. write), value (req. write)
+		if($operation == 'w') {
+			if(!file_exists($file)) {
+				mkdir(dirname($file), 0755, true);
+				touch($file);
+			}
+			$config_json = file_get_contents($file);
+			$config_json = json_decode($config_json, true);
+			$config_json[$key] = $val;
+			$config_json = json_encode($config_json, JSON_PRETTY_PRINT);
+			if(file_put_contents($file, $config_json)) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		if($operation == 'r') {
+			$config_json = file_get_contents($file);
+			$config_json = json_decode($config_json, true);
+			if($key) {
+				return $config_json[$key];
+			}
+			else {
+				return $config_json;
+			}
+		}
+		else return false;
+	}
+	function config_array($file, $operation, $array = '') { // file, [r]ead/[w]rite, array (req. write)
+		if($operation == 'w' && is_array($array)) {
+			if(!file_exists($file)) {
+				mkdir(dirname($file), 0755, true);
+				touch($file);
+			}
+			//$contents = file_get_contents($file);
+			//$cur_array = json_decode($contents, true);
+			//$new_array = json_encode($array + $cur_array);
+			$new_array = json_encode($array, JSON_PRETTY_PRINT);
+			
+			if(file_put_contents($file, $new_array)) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		if($operation == 'r') {
+			$contents = file_get_contents($file);
+			$cur_array = json_decode($content, true);
+			return $cur_array;
+		}
+		else return false;
+	}
+	
+	function put_ini_file($file, $array, $i = 0) {
+		$str="";
+		foreach ($array as $k => $v){
+			if (is_array($v)){
+				$str.=str_repeat(" ",$i*2)."[$k]".PHP_EOL; 
+				$str.=put_ini_file("",$v, $i+1);
+			}
+			else {
+				$str.=str_repeat(" ",$i*2)."$k = $v".PHP_EOL; 
+			}
+			if($file) {
+				return file_put_contents($file,$str);
+			}
+			else {
+				return $str;
+			}
+		}
+	}
+	
 	function bscode2html($text) {
 		$text = preg_replace("/\*(.*?)\*/", "<b>$1</b>", $text);
 		$text = preg_replace("/_(.*?)_/", "<i>$1</i>", $text);
@@ -670,7 +744,7 @@
 		}
 	}
 	
-	function find_and_set_removed_devices_status($db, $arr_hash) {
+	function find_and_set_removed_devices_status($db, $locations, $arr_hash) {
 		foreach($db as $hash => $array) {
 			( ($db[$hash]["status"] != 'd') ? $db_hash[] = $hash : null );
 		}
@@ -684,58 +758,19 @@
 		$results = array_diff($db_hash, $arr_hash);
 		$old_hash = array_values($results);
 		
-		$sql_status = "";
+		$status = "";
 		
 		for($i=0; $i < count($old_hash); ++$i) {
-			$sql_status .= "
-				UPDATE disks SET
-					status = 'r',
-					removed = '" . date("Y-m-d") . "'
-				WHERE status IS NOT 'r' AND hash = '" . $old_hash[$i] . "'
-				;
-				DELETE FROM location WHERE hash = '" . $old_hash[$i] . "';
-			";
-		}
-		
-		$ret = $db->exec($sql_status);
-		if(!$ret) {
-			return $db->lastErrorMsg();
-		}
-		else {
-			return $old_hash;
-		}
-	}
-	
-	function find_and_unset_reinserted_devices_status($db, $hash) {
-		$sql = "SELECT hash FROM location WHERE hash = '" . $hash . "';";
-		$results = $db->query($sql);
-		
-		while($res = $results->fetchArray(1)) {
-			$location = $res["hash"];
-		}
-		
-		$sql_status = "";
-		
-		if(empty($location)) {
-			$sql_status .= "
-				UPDATE disks SET
-					status = 'h',
-					removed = ''
-				WHERE hash = '" . $hash . "'
-				;
-			";
-			
-			$ret = $db->exec($sql_status);
-			if(!$ret) {
-				return $db->lastErrorMsg();
-			}
-			else {
-				return $hash;
+			if($db[$old_hash[$i]]["status"] != 'r') {
+				$db[$old_hash[$i]]["status"] = 'r';
+				$db[$old_hash[$i]]["removed"] = "" . date("Y-m-d") . "";
+				
+				unset($locations[$old_hash[$i]]);
 			}
 		}
-		else {
-			return false;
-		}
+		
+		config_array(DISKLOCATION_DEVICES, 'w', $db);
+		config_array(DISKLOCATION_LOCATIONS, 'w', $locations);
 	}
 	
 	function force_set_removed_device_status($db, $hash) {
@@ -1010,55 +1045,6 @@
 
 			default:
 				return false;
-		}
-	}
-	
-	function config($file, $operation, $key = '', $val = '') { // file, [r]ead/[w]rite, key (req. write), value (req. write)
-		if($operation == 'w') {
-			if(!file_exists($file)) {
-				mkdir(dirname($file), 0755, true);
-				touch($file);
-			}
-			$config_json = file_get_contents($file);
-			$config_json = json_decode($config_json, true);
-			$config_json[$key] = $val;
-			$config_json = json_encode($config_json);
-			if(file_put_contents($file, $config_json)) {
-				return true;
-			}
-			else {
-				return "Failed updating the configuration file.";
-			}
-		}
-		if($operation == 'r') {
-			$config_json = file_get_contents($file);
-			$config_json = json_decode($config_json, true);
-			if($key) {
-				return $config_json[$key];
-			}
-			else {
-				return $config_json;
-			}
-		}
-		else return false;
-	}
-	
-	function put_ini_file($file, $array, $i = 0) {
-		$str="";
-		foreach ($array as $k => $v){
-			if (is_array($v)){
-				$str.=str_repeat(" ",$i*2)."[$k]".PHP_EOL; 
-				$str.=put_ini_file("",$v, $i+1);
-			}
-			else {
-				$str.=str_repeat(" ",$i*2)."$k = $v".PHP_EOL; 
-			}
-			if($file) {
-				return file_put_contents($file,$str);
-			}
-			else {
-				return $str;
-			}
 		}
 	}
 	
