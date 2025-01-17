@@ -6,10 +6,4 @@ Title="System"
 <?php
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/system.php");
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/config_system.php");
-	
-	$db->close();
-	
-	//if(file_exists(DISKLOCATION_LOCK_FILE)) {
-	//	unlink(DISKLOCATION_LOCK_FILE);
-	//}
 ?>
