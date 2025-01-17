@@ -19,13 +19,29 @@
 	 *
 	 */
 	
+	if(isset($SUBMIT_RELOAD)) {
+		print("
+			<script type=\"text/javascript\">
+				if ( window.history.replaceState ) {
+					window.history.replaceState( null, null, window.location.href );
+				}
+			</script>
+		");
+	}
+	
 	if(file_exists(DISKLOCATION_CONF)) {
-		$get_config = json_decode(file_get_contents(DISKLOCATION_CONF), true);
+		$get_disklocation_config = json_decode(file_get_contents(DISKLOCATION_CONF), true);
+	}
+	if(file_exists(DISKLOCATION_LOCATIONS)) {
+		$get_locations = json_decode(file_get_contents(DISKLOCATION_LOCATIONS), true);
+	}
+	if(file_exists(DISKLOCATION_GROUPS)) {
+		$get_groups = json_decode(file_get_contents(DISKLOCATION_GROUPS), true);
 	}
 	
 	$displayinfo = ""; // reset variable, otherwise it will be reloaded as an array and fault.
 	
-	extract($get_config);
+	extract($get_disklocation_config);
 	
 	$color_array = array();
 	$color_array["empty"] = $bgcolor_empty;

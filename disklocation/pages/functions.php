@@ -98,6 +98,7 @@
 		$disklocation_new_install = 1;
 	}
 	
+	require_once("default_settings.php");
 	( file_exists("sqlite_tables.php") ?? require_once("sqlite_tables.php" ) );
 	//( (file_exists("sqlite_tables.php") && file_exists(DISKLOCATION_CONF) && file_exists(DISKLOCATION_DEVICES) && file_exists(DISKLOCATION_LOCATIONS) && file_exists(DISKLOCATION_GROUPS)) ?? unlink("sqlite_table.php") );
 	
@@ -271,7 +272,7 @@
 		}
 		if($operation == 'r') {
 			$contents = file_get_contents($file);
-			$cur_array = json_decode($content, true);
+			$cur_array = json_decode($contents, true);
 			return $cur_array;
 		}
 		else return false;
@@ -819,44 +820,31 @@
 		}
 	}
 	
-	function force_reset_color($db, $hash = 0) {
+	function force_reset_color($config, $devices, $groups, $hash = 0) {
 		global $bgcolor_parity_default, $bgcolor_unraid_default, $bgcolor_cache_default, $bgcolor_others_default, $bgcolor_empty_default;
 		
 		if($hash == '*' || $hash == 'all') {
-			$sql_status = "
-				UPDATE disks SET
-					color = ''
-				;
-			";
+			foreach($devices as $id => $data) { // id=hash not $hash
+				$devices[$id]["color"] = '';
+			}
+			foreach($groups as $id => $data) {
+				$groups[$id]["group_color"] = 'test';
+			}
+			return ((config_array(DISKLOCATION_DEVICES, 'w', $devices) && config_array(DISKLOCATION_GROUPS, 'w', $groups)) ? true : false );
 		}
 		else if($hash) {
-			$sql_status .= "
-				UPDATE disks SET
-					color = ''
-				;
-				WHERE hash = '" . $hash . "';
-			";
+			$devices[$hash]["color"] = '';
+			return config_array(DISKLOCATION_DEVICES, 'w', $devices);
 		}
 		else {
-			$sql_status = "
-				UPDATE settings SET
-					bgcolor_parity = '" . $bgcolor_parity_default . "',
-					bgcolor_unraid = '" . $bgcolor_unraid_default . "',
-					bgcolor_cache = '" . $bgcolor_cache_default . "',
-					bgcolor_others = '" . $bgcolor_others_default . "',
-					bgcolor_empty = '" . $bgcolor_empty_default . "'
-				;
-				WHERE id = '1';
-			";
-			$hash = 1;
-		}
-		
-		$ret = $db->exec($sql_status);
-		if(!$ret) {
-			return $db->lastErrorMsg();
-		}
-		else {
-			return $hash;
+			foreach($config as $key => $data) {
+				$config["bgcolor_parity"] = $bgcolor_parity_default;
+				$config["bgcolor_unraid"] = $bgcolor_unraid_default;
+				$config["bgcolor_cache"] = $bgcolor_cache_default;
+				$config["bgcolor_others"] = $bgcolor_others_default;
+				$config["bgcolor_empty"] = $bgcolor_empty_default;
+			}
+			return !config_array(DISKLOCATION_CONF, 'w', $config);
 		}
 	}
 	

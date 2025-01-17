@@ -119,6 +119,8 @@
 				"groupid" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . stripslashes(htmlspecialchars($formatted["group_name"])) . "</td>",
 				"tray" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $physical_traynumber . "</td>",
 				"device" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $formatted["device"] . "</td>",
+				"pool" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $formatted["pool"] . "</td>",
+				"name" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $formatted["name"] . "</td>",
 				"node" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $formatted["node"] . "</td>",
 				"lun" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $formatted["lun"] . "</td>",
 				"manufacturer" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $formatted["manufacturer"] . "</td>",

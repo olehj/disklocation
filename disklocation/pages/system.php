@@ -72,61 +72,81 @@
 	}
 	
 	if(isset($_POST["group_add"])) {
-		$sql = "
-			INSERT INTO settings_group(group_name) VALUES('');
-		";
+		$gid = ( empty($_POST["last_group_id"]) ? 1 : $_POST["last_group_id"]+1 );
+		$groups = config_array(DISKLOCATION_GROUPS, 'r');
+		$groups[$gid] = array(
+			"group_color" => $group_color,
+			"grid_count" => $grid_count,
+			"grid_columns" => $grid_columns,
+			"grid_rows" => $grid_rows,
+			"grid_trays" => $grid_trays,
+			"disk_tray_direction" => $disk_tray_direction,
+			"tray_direction" => $tray_direction,
+			"tray_start_num" => $tray_start_num,
+			"tray_width" => $tray_width,
+			"tray_height" => $tray_height
+		);
+		config_array(DISKLOCATION_GROUPS, 'w', $groups);
 		
-		$ret = $db->exec($sql);
-		if(!$ret) {
-			echo $db->lastErrorMsg();
-		}
-		
-		//$db->close();
-		
+		$SUBMIT_RELOAD = 1;
 		//header("Location: " . DISKLOCATION_URL);
 		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		//exit;
 	}
 	if(isset($_POST["group_del"]) && isset($_POST["last_group_id"])) {
-		$sql = "
-			DELETE FROM settings_group WHERE id = '" . $_POST["last_group_id"] . "';
-			DELETE FROM location WHERE groupid = '" . $_POST["last_group_id"] . "';
-		";
+		$gid = $_POST["last_group_id"];
+		$groups = config_array(DISKLOCATION_GROUPS, 'r');
+		unset($groups[$gid]);
 		
-		$ret = $db->exec($sql);
-		if(!$ret) {
-			echo $db->lastErrorMsg();
+		$locations = config_array(DISKLOCATION_LOCATIONS, 'r');
+		foreach($locations as $hash => $array) {
+			if($locations[$hash]["groupid"] == $gid) {
+				unset($locations[$hash]);
+			}
 		}
 		
-		//$db->close();
+		config_array(DISKLOCATION_GROUPS, 'w', $groups);
+		config_array(DISKLOCATION_LOCATIONS, 'w', $locations);
 		
+		$SUBMIT_RELOAD = 1;
 		//header("Location: " . DISKLOCATION_URL);
 		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		//exit;
 	}
 	if(isset($_POST["group_swap"])) {
 		list($group_left, $group_right) = explode(":", $_POST["group_swap"]);
-		$sql = "
-			UPDATE location SET
-				groupid = (CASE WHEN groupid = '" . $group_left . "' THEN '" . $group_right . "' ELSE '" . $group_left . "' END) WHERE groupid IN (" . $group_left . ", " . $group_right . ")
-			;
-			BEGIN;
-			CREATE TEMPORARY TABLE tmp_sg AS SELECT * FROM settings_group WHERE id = '" . $group_left . "';
-			DELETE FROM settings_group WHERE id = '" . $group_left . "';
-			UPDATE settings_group SET id = '" . $group_left . "' WHERE id = " . $group_right . ";
-			UPDATE tmp_sg SET id = " . $group_right . " WHERE id = '" . $group_left . "';
-			INSERT INTO settings_group SELECT * FROM tmp_sg;
-			DROP TABLE tmp_sg;
-			COMMIT;
-		";
+		$groups = config_array(DISKLOCATION_GROUPS, 'r');
+		$groups["swap_left"] = $groups[$group_left];
+		$groups["swap_right"] = $groups[$group_right];
+		$groups[$group_right] = $groups["swap_left"];
+		$groups[$group_left] = $groups["swap_right"];
+		unset($groups["swap_left"]);
+		unset($groups["swap_right"]);
 		
-		$ret = $db->exec($sql);
-		if(!$ret) {
-			echo $db->lastErrorMsg();
+		$locations = config_array(DISKLOCATION_LOCATIONS, 'r');
+		foreach($locations as $hash => $array) {
+			if($array["groupid"] == $group_left) {
+				$locations[$hash]["swap_right"] = $group_right;
+			}
+			if($array["groupid"] == $group_right) {
+				$locations[$hash]["swap_left"] = $group_left;
+			}
+		}
+		foreach($locations as $hash => $array) {
+			if($array["groupid"] == $group_left) {
+				$locations[$hash]["groupid"] = $locations[$hash]["swap_right"];
+				unset($locations[$hash]["swap_right"]);
+			}
+			if($array["groupid"] == $group_right) {
+				$locations[$hash]["groupid"] = $locations[$hash]["swap_left"];
+				unset($locations[$hash]["swap_left"]);
+			}
 		}
 		
-		//$db->close();
+		config_array(DISKLOCATION_GROUPS, 'w', $groups);
+		config_array(DISKLOCATION_LOCATIONS, 'w', $locations);
 		
+		$SUBMIT_RELOAD = 1;
 		//header("Location: " . DISKLOCATION_URL);
 		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		//exit;
@@ -143,7 +163,7 @@
 		}
 		
 		// settings
-		if(!preg_match("/[0-9]{1,5}/", $_POST["smart_exec_delay"])) { $disklocation_error[] = "SMART execution delay missing or invalid number."; }
+		//if(!preg_match("/[0-9]{1,5}/", $_POST["smart_exec_delay"])) { $disklocation_error[] = "SMART execution delay missing or invalid number."; }
 		//if(!preg_match("/(hourly|daily|weekly|monthly|disabled)/", $_POST["smart_updates"])) { $disklocation_error[] = "Invalid data for SMART updates."; }
 		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_parity"])) { $disklocation_error[] = "Background color for \"Parity\" invalid."; } else { $_POST["bgcolor_parity"] = str_replace("#", "", $_POST["bgcolor_parity"]); }
 		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_unraid"])) { $disklocation_error[] = "Background color for \"Data\" invalid."; } else { $_POST["bgcolor_unraid"] = str_replace("#", "", $_POST["bgcolor_unraid"]); }
@@ -196,54 +216,45 @@
 			
 			config_array(DISKLOCATION_CONF, 'w', $array);
 			
+			$SUBMIT_RELOAD = 1;
 			//header("Location: " . DISKLOCATION_URL);
 			//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 			//exit;
 		}
 	}
 	
-	if(isset($_POST["save_groupsettings"]) && isset($_POST["groupid"])) {
+	if(isset($_POST["save_groupsettings"])) {
 		debug_print($debugging_active, __LINE__, "POST", "Button: SAVE GROUP SETTINGS has been pressed.");
-		$sql = "";
 		
-		// settings
-		if(!preg_match("/\b(column|row)\b/", $_POST["grid_count"])) { $disklocation_error[] = "Physical tray assignment invalid."; }
-		if(!preg_match("/[0-9]{1,3}/", $_POST["grid_columns"])) { $disklocation_error[] = "Grid columns missing or number invalid."; }
-		if(!preg_match("/[0-9]{1,3}/", $_POST["grid_rows"])) { $disklocation_error[] = "Grid rows missing or number invalid."; }
-		if($_POST["grid_trays"] && !preg_match("/[0-9]{1,3}/", $_POST["grid_trays"])) { $disklocation_error[] = "Grid trays number invalid."; }
-		if(!preg_match("/(h|v)/", $_POST["disk_tray_direction"])) { $disklocation_error[] = "Physical tray direction invalid."; }
-		if(!preg_match("/[0-9]{1}/", $_POST["tray_direction"])) { $disklocation_error[] = "Tray number direction invalid."; }
-		if(!preg_match("/[0-9]{1,7}/", $_POST["tray_start_num"])) { $disklocation_error[] = "Tray start number invalid."; }
-		if(!preg_match("/[0-9]{1,4}/", $_POST["tray_width"])) { $disklocation_error[] = "Tray's longest side outside limits or invalid number entered."; }
-		if(!preg_match("/[0-9]{1,3}/", $_POST["tray_height"])) { $disklocation_error[] = "Tray's smallest side outside limits or invalid number entered."; }
-		if(!preg_match("/[0-9]{1,}/", $_POST["groupid"])) { $disklocation_error[] = "Expected group ID to be an integer."; }
+		unset($_POST["save_groupsettings"]);
+		unset($_POST["last_group_id"]);
+		
+		$new_array = array();
+		foreach($_POST as $settings => $array) {
+			foreach($array as $id => $data) {
+				$new_array[$id][$settings] = $data;
+				$new_array[$id]["group_name"] = stripslashes(htmlspecialchars($new_array[$id]["group_name"]));
+			}
+		}
+		
+		foreach($new_array as $id => $setting) {
+			if($new_array[$id]["group_color"] && !preg_match("/#([a-f0-9]{3}){1,2}\b/i", $new_array[$id]["group_color"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Background color invalid."; } else { $new_array[$id]["group_color"] = str_replace("#", "", $new_array[$id]["group_color"]); }
+			if($new_array[$id]["grid_count"] && !preg_match("/\b(column|row)\b/", $new_array[$id]["grid_count"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Physical tray assignment invalid."; }
+			if($new_array[$id]["grid_columns"] && !preg_match("/[0-9]{1,3}/", $new_array[$id]["grid_columns"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Grid columns missing or number invalid."; }
+			if($new_array[$id]["grid_rows"] && !preg_match("/[0-9]{1,3}/", $new_array[$id]["grid_rows"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Grid rows missing or number invalid."; }
+			if($new_array[$id]["grid_trays"] && !preg_match("/[0-9]{1,3}/", $new_array[$id]["grid_trays"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Grid trays number invalid."; }
+			if($new_array[$id]["disk_tray_direction"] && !preg_match("/(h|v)/", $new_array[$id]["disk_tray_direction"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Physical tray direction invalid."; }
+			if($new_array[$id]["tray_direction"] && !preg_match("/[0-9]{1}/", $new_array[$id]["tray_direction"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Tray number direction invalid."; }
+			if($new_array[$id]["tray_start_num"] && !preg_match("/[0-9]{1,7}/", $new_array[$id]["tray_start_num"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Tray start number invalid."; }
+			if($new_array[$id]["tray_width"] && !preg_match("/[0-9]{1,4}/", $new_array[$id]["tray_width"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Tray's longest side outside limits or invalid number entered."; }
+			if($new_array[$id]["tray_height"] && !preg_match("/[0-9]{1,3}/", $new_array[$id]["tray_height"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Tray's smallest side outside limits or invalid number entered."; }
+			if($id && !preg_match("/[0-9]{1,}/", $id)) { $disklocation_error[] = "" . $id . ": Expected group ID to be an integer."; }
+		}
 		
 		if(empty($disklocation_error)) {
-			$sql .= "
-				UPDATE settings_group SET
-					group_name = '" . SQLite3::escapeString($_POST["group_name"]) . "',
-					grid_count = '" . $_POST["grid_count"] . "',
-					grid_columns = '" . $_POST["grid_columns"] . "',
-					grid_rows = '" . $_POST["grid_rows"] . "',
-					grid_trays = '" . ( empty($_POST["grid_trays"]) ? null : $_POST["grid_trays"] ) . "',
-					disk_tray_direction = '" . $_POST["disk_tray_direction"] . "',
-					tray_direction = '" . $_POST["tray_direction"] . "',
-					tray_start_num = '" . $_POST["tray_start_num"] . "',
-					tray_width = '" . $_POST["tray_width"] . "',
-					tray_height = '" . $_POST["tray_height"] . "'
-				WHERE id = '" . $_POST["groupid"] . "'
-				;
-			";
+			config_array(DISKLOCATION_GROUPS, "w", $new_array);
 			
-			debug_print($debugging_active, __LINE__, "SQL", "GROUP SETTINGS: <pre>" . $sql . "</pre>");
-			
-			$ret = $db->exec($sql);
-			if(!$ret) {
-				echo $db->lastErrorMsg();
-			}
-			
-			//$db->close();
-			
+			$SUBMIT_RELOAD = 1;
 			//header("Location: " . DISKLOCATION_URL);
 			//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 			//exit;
@@ -389,7 +400,7 @@
 	}
 	
 	if(isset($_POST["reset_all_colors"])) {
-		force_reset_color($db, "*");
+		force_reset_color($get_disklocation_config, $get_devices, $get_groups, "*");
 		//if(force_reset_color($db, "*")) {
 			//$db->close();
 			//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
@@ -397,7 +408,7 @@
 		//}
 	}
 	if(isset($_POST["reset_common_colors"])) {
-		force_reset_color($db);
+		force_reset_color($get_disklocation_config, $get_devices, $get_groups);
 		//if(force_reset_color($db)) {
 			//$db->close();
 			//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
