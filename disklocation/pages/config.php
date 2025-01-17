@@ -20,12 +20,6 @@
 	 */
 	$vi_width = 180;
 	
-	/*
-	$dashboard_widget_array = dashboard_toggle("info");
-	$dashboard_widget = $dashboard_widget_array["current"];
-	$dashboard_widget_pos = $dashboard_widget_array["position"];
-	*/
-	
 	if(!empty($disklocation_error)) {
 		$i=0;
 		print("<h2 style=\"color: #FF0000; font-weight: bold;\">");
@@ -36,20 +30,19 @@
 		print("</h2><hr style=\"border: 1px solid #FF0000;\" /><br /><br />");
 	}
 	
-	$sql = "SELECT * FROM settings_group ORDER BY id ASC";
-	$results = $db->query($sql);
-	
-	$group_ids = array();
 	$last_group_id = 0;
 	$disk_layouts_config = "";
 	$count_groups = 0;
 	
-	while($data = $results->fetchArray(1)) {
-		$group_ids[] = $data["id"];
-	}
+	$array_groups = $get_groups;
+	ksort($array_groups, SORT_NUMERIC);
+	$array_devices = $get_devices;
+	$array_locations = $get_locations;
 	
-	while($data = $results->fetchArray(1)) {
-		extract($data);
+	$group_ids = ( is_array($get_groups) ? array_keys($get_groups) : null );
+	
+	foreach($array_groups as $id => $value) {
+		extract($value);
 		$gid = $id;
 		
 		$css_grid_group = "
@@ -79,6 +72,13 @@
 					</p>
 					<blockquote class=\"inline_help\">
 						Enter a name for the group, optional.
+					</blockquote>
+					<p>
+						<b>Default group color:</b><br />
+						<input type=\"color\" required name=\"group_color\" list=\"disklocationColorsDef\" value=\"#" . $group_color . ">\" />
+					</p>
+					<blockquote class=\"inline_help\">
+						Choose a color for the group, select the first color to disable it.
 					</blockquote>
 					<p>
 						<b>Set sizes for trays:</b><br />
@@ -154,16 +154,7 @@
 		$count_groups++;
 	}
 	
-	$smart_updates_file = cronjob_current();
-	
-	$database_noscan = config(DISKLOCATION_CONF, 'r', 'database_noscan');
 	$signal_css = config(DISKLOCATION_CONF, 'r', 'signal_css');
-	
-	/*
-	if(empty($dashboard_widget) || $dashboard_widget == "on" || $dashboard_widget == "off") {
-		$dashboard_widget = 0;
-	}
-	*/
 	
 	list($table_order_user, $table_order_system, $table_order_name, $table_order_full) = get_table_order("all", 0);
 	
@@ -215,8 +206,8 @@ $(document).ready(function(){
 					<b>Change background colors:</b>
 				</p>
 				<p>
-					<input type="radio" name="dashboard_widget" id="bgcolor_display_0" value="0" <?php if($dashboard_widget == "0") echo "checked"; // reusing the deprecated dashboard variable instead of messing with the database ?> />Disk Type
-					<input type="radio" name="dashboard_widget" id="bgcolor_display_1" value="1" <?php if($dashboard_widget == "1") echo "checked"; // reusing the deprecated dashboard variable instead of messing with the database ?> />Heat Map
+					<input type="radio" name="device_bg_color" id="bgcolor_display_0" value="0" <?php if($device_bg_color == "0") echo "checked"; // reusing the deprecated dashboard variable instead of messing with the database ?> />Disk Type
+					<input type="radio" name="device_bg_color" id="bgcolor_display_1" value="1" <?php if($device_bg_color == "1") echo "checked"; // reusing the deprecated dashboard variable instead of messing with the database ?> />Heat Map
 				</p>
 				<blockquote class='inline_help'>
 					Choose "Disk Type" for the traditional color scheme over the array and disk type.<br />
@@ -226,13 +217,13 @@ $(document).ready(function(){
 					<table>
 						<tr>
 							<td style="padding: 0;">
-								<div id="disp_parity"><?php echo (!$dashboard_widget ? "Parity" : "Critical") ?></div>
+								<div id="disp_parity"><?php echo (!$device_bg_color ? "Parity" : "Critical") ?></div>
 							</td>
 							<td style="padding: 0;">
-								<div id="disp_data"><?php echo (!$dashboard_widget ? "Data" : "Warning") ?></div></div>
+								<div id="disp_data"><?php echo (!$device_bg_color ? "Data" : "Warning") ?></div></div>
 							</td>
 							<td style="padding: 0;">
-								<div id="disp_cache"><?php echo (!$dashboard_widget ? "Cache/Pool" : "Normal") ?></div></div>
+								<div id="disp_cache"><?php echo (!$device_bg_color ? "Cache/Pool" : "Normal") ?></div></div>
 							</td>
 						</tr>
 						<tr>
@@ -251,7 +242,7 @@ $(document).ready(function(){
 								<input type="color" required name="bgcolor_others" list="disklocationColorsDef" value="#<?php print($bgcolor_others); ?>" />
 							</td>
 							<td style="padding: 0;" colspan="2">
-								<div id="disp_unassigned"><?php echo (!$dashboard_widget ? "Unassigned devices" : "Temperature N/A") ?></div>
+								<div id="disp_unassigned"><?php echo (!$device_bg_color ? "Unassigned devices" : "Temperature N/A") ?></div>
 							</td>
 						</tr>
 						<tr>
@@ -302,7 +293,7 @@ $(document).ready(function(){
 				-->
 				<p>
 					<b>Trim serial numbers:</b><br />
-					<input type="number" required min="-99" max="99" step="1" name="dashboard_widget_pos" value="<?php print($dashboard_widget_pos); // reusing the deprecated dashboard_pos variable instead of messing with the database ?>" style="width: 50px;" />
+					<input type="number" required min="-99" max="99" step="1" name="serial_trim" value="<?php print($serial_trim); // reusing the deprecated dashboard_pos variable instead of messing with the database ?>" style="width: 50px;" />
 				</p>
 				<blockquote class='inline_help'>
 					Serial number will be cut either the first or last part of this value, 0 does nothing. Negative number will display X last characters, positive the X first characters.

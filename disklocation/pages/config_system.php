@@ -26,21 +26,24 @@
 		define("UNRAID_CONFIG_PATH", "/boot/config");
 		define("DISKLOCATION_PATH", "/plugins/disklocation");
 		define("DISKLOCATION_URL", "/Tools/disklocation");
-		define("DISKLOCATION_CONF", "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.conf");
-		define("DISKLOCATION_DB_DEFAULT", "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.sqlite");
-		define("DISKLOCATION_LOCK_FILE", "/tmp/disklocation/db.lock");
+		define("DISKLOCATION_TMP_PATH", "/tmp/disklocation");
+		define("DISKLOCATION_CONF", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.conf");
+		define("DISKLOCATION_DEVICES", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/devices.json");
+		define("DISKLOCATION_LOCATIONS", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/locations.json");
+		define("DISKLOCATION_GROUPS", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/groups.json");
+		define("DISKLOCATION_LOCK_FILE", DISKLOCATION_TMP_PATH . "/db.lock");
 		
 		if(file_exists(DISKLOCATION_CONF)) {
 			$get_disklocation_config = json_decode(file_get_contents(DISKLOCATION_CONF), true);
-			if(isset($get_disklocation_config["database_location"])) {
-				define("DISKLOCATION_DB", $get_disklocation_config["database_location"]);
-			}
-			else {
-				define("DISKLOCATION_DB", DISKLOCATION_DB_DEFAULT);
-			}
 		}
-		else {
-			define("DISKLOCATION_DB", DISKLOCATION_DB_DEFAULT);
+		if(file_exists(DISKLOCATION_DEVICES)) {
+			$get_devices = json_decode(file_get_contents(DISKLOCATION_DEVICES), true);
+		}
+		if(file_exists(DISKLOCATION_LOCATIONS)) {
+			$get_locations = json_decode(file_get_contents(DISKLOCATION_LOCATIONS), true);
+		}
+		if(file_exists(DISKLOCATION_GROUPS)) {
+			$get_groups = json_decode(file_get_contents(DISKLOCATION_GROUPS), true);
 		}
 		
 		function config($file, $operation, $key = '', $val = '') { // file, [r]ead/[w]rite, key (req. write), value (req. write)
@@ -71,6 +74,20 @@
 			}
 			else return false;
 		}
+	}
+	
+	define("DISKLOCATION_DB_DEFAULT", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.sqlite");
+	if(file_exists(DISKLOCATION_CONF)) {
+		$get_disklocation_config = json_decode(file_get_contents(DISKLOCATION_CONF), true);
+		if(isset($get_disklocation_config["database_location"])) {
+			define("DISKLOCATION_DB", $get_disklocation_config["database_location"]);
+		}
+		else {
+			define("DISKLOCATION_DB", DISKLOCATION_DB_DEFAULT);
+		}
+	}
+	else {
+		define("DISKLOCATION_DB", DISKLOCATION_DB_DEFAULT);
 	}
 	
 	$print_loc_db_err = "";
@@ -422,7 +439,7 @@
 		";
 	}
 	if(!strstr($_SERVER["SCRIPT_NAME"], "config_system.php") && $db_update != 2) {
-		$list_undelete = force_undelete_devices($db, 'r');
+		$list_undelete = force_undelete_devices($get_devices, 'r');
 		if($list_undelete) {
 			$print_list_undelete = "
 				<h3>Undelete devices</h3>

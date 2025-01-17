@@ -60,136 +60,138 @@
 		call_user_func_array('array_multisort', array_merge($sort_dynamic, array(&$raw_devices)));
 		
 		foreach($raw_devices as $key => $data) {
-			$hash = $data["hash"];
-			
-			$data = $devices[$hash];
-			
-			$formatted = $data["formatted"];
-			$raw = $data["raw"];
-			$data = $data["raw"];
-			
-			$gid = $data["groupid"];
-			
-			extract($array_groups[$gid]);
-			
-			$group_assign = ( empty($group_name) ? $data["groupid"] : $group_name );
-			
-			$tray_assign = ( empty($data["tray"]) ? $i : $data["tray"] );
-			
-			$total_trays = ( empty($grid_trays) ? $grid_columns * $grid_rows : $grid_trays );
-			$total_trays_group += $total_trays;
-			
-			if($biggest_tray_group < $total_trays) {
-				$biggest_tray_group = $total_trays;
-			}
-			
-			if(!$tray_direction) { $tray_direction = 1; }
-			$tray_number_override = tray_number_assign($grid_columns, $grid_rows, $tray_direction, $grid_count);
-			
-			if(!isset($tray_start_num)) { $tray_start_num = 1; }
-			$tray_number_override_start = $tray_start_num;
-			
-			$total_main_trays = 0;
-			if($total_trays > ($grid_columns * $grid_rows)) {
-				$total_main_trays = $grid_columns * $grid_rows;
-				$total_rows_override_trays = ($total_trays - $total_main_trays) / $grid_columns;
-				$grid_columns_override_styles = str_repeat(" auto", $total_rows_override_trays);
-			}
-			
-			$drive_tray_order[$hash] = get_tray_location($db, $hash, $gid);
-			$drive_tray_order[$hash] = ( !isset($drive_tray_order[$hash]) ? $tray_assign : $drive_tray_order[$hash] );
-			
-			if($tray_number_override[$drive_tray_order[$hash]]) {
-				$drive_tray_order_assign = $tray_number_override[$drive_tray_order[$hash]];
-				$physical_traynumber = ( !isset($tray_number_override_start) ? --$tray_number_override[$drive_tray_order[$hash]] : ($tray_number_override_start + $tray_number_override[$drive_tray_order[$hash]] - 1));
-			}
-			else {
-				$drive_tray_order_assign = $drive_tray_order[$hash];
-				$physical_traynumber = ( !isset($tray_number_override_start) ? --$drive_tray_order[$hash] : $drive_tray_order[$hash]);
-			}
-			
-			// Special rules
-			if($raw["purchased"] && ($raw["warranty"])) {
-				$warranty_start = strtotime($raw["purchased"]);
+			if(empty($data["status"]) && $data["groupid"]) {
+				$hash = $data["hash"];
 				
-				$warranty_end = strtotime("" . $raw["purchased"] . " + " . $raw["warranty"] . " month");
-				$warranty_expire = date("Y-m-d", $warranty_end);
-			}
-			
-			if(isset($_GET["raw_data_csv"])) {
-				$columns_info_csv = array(
-					"groupid" => "" . $raw["group_name"] . "",
-					"tray" => "" . $physical_traynumber . "",
-					"device" => "" . $raw["device"] . "",
-					"devicenode" => "" . $raw["node"] . "",
-					"luname" => "" . $raw["lun"] . "",
-					"model_family" => "" . $raw["manufacturer"] . "",
-					"model_name" => "" . $raw["model"] . "",
-					"smart_serialnumber" => "" . $raw["serial"] . "",
-					"smart_capacity" => "" . $raw["capacity"] . "",
-					"smart_cache" => "" . $raw["cache"] . "",
-					"smart_rotation" => "" . $raw["rotation"] . "",
-					"smart_formfactor" => "" . $raw["formfactor"] . "",
-					"smart_status" => "" . $raw["smart_status"] . "",
-					"smart_temperature" => "" . $raw["temp"] . " (" . $raw["hotTemp"] . "/" . $raw["maxTemp"] . ")",
-					"smart_powerontime" => "" . $raw["powerontime"] . "</span>",
-					"smart_loadcycle" => "" . $raw["loadcycle"] . "",
-					"smart_nvme_percentage_used" => "" . $raw["nvme_percentage_used"] . "",
-					"smart_units_read" => "" . $raw["smart_units_read"] . "",
-					"smart_units_written" => "" . $raw["smart_units_written"] . "",
-					"smart_nvme_available_spare" => "" . $raw["nvme_available_spare"] . "",
-					"smart_nvme_available_spare_threshold" => "" . $raw["nvme_available_spare_threshold"] . "",
-					//"benchmark_r" => "" . $data["benchmark_r"] . "",
-					//"benchmark_w" => "" . $data["benchmark_w"] . "",
-					"installed" => "" . $raw["installed"] . "",
-					"removed" => "" . $raw["removed"] . "",
-					"manufactured" => "" . $raw["manufactured"] . "",
-					"purchased" => "" . $raw["purchased"] . "",
-					"warranty_date" => "" . $raw["warranty"] . "",
-					"comment" => "" . $raw["comment"] . ""
-				);
+				$data = $devices[$hash];
 				
-				$raw_data_csv_file = ".raw";
+				$formatted = $data["formatted"];
+				$raw = $data["raw"];
+				$data = $data["raw"];
+				
+				$gid = $data["groupid"];
+				
+				extract($array_groups[$gid]);
+				
+				$group_assign = ( empty($group_name) ? $data["groupid"] : $group_name );
+				
+				$tray_assign = ( empty($data["tray"]) ? $i : $data["tray"] );
+				
+				$total_trays = ( empty($grid_trays) ? $grid_columns * $grid_rows : $grid_trays );
+				$total_trays_group += $total_trays;
+				
+				if($biggest_tray_group < $total_trays) {
+					$biggest_tray_group = $total_trays;
+				}
+				
+				if(!$tray_direction) { $tray_direction = 1; }
+				$tray_number_override = tray_number_assign($grid_columns, $grid_rows, $tray_direction, $grid_count);
+				
+				if(!isset($tray_start_num)) { $tray_start_num = 1; }
+				$tray_number_override_start = $tray_start_num;
+				
+				$total_main_trays = 0;
+				if($total_trays > ($grid_columns * $grid_rows)) {
+					$total_main_trays = $grid_columns * $grid_rows;
+					$total_rows_override_trays = ($total_trays - $total_main_trays) / $grid_columns;
+					$grid_columns_override_styles = str_repeat(" auto", $total_rows_override_trays);
+				}
+				
+				$drive_tray_order[$hash] = get_tray_location($db, $hash, $gid);
+				$drive_tray_order[$hash] = ( !isset($drive_tray_order[$hash]) ? $tray_assign : $drive_tray_order[$hash] );
+				
+				if($tray_number_override[$drive_tray_order[$hash]]) {
+					$drive_tray_order_assign = $tray_number_override[$drive_tray_order[$hash]];
+					$physical_traynumber = ( !isset($tray_number_override_start) ? --$tray_number_override[$drive_tray_order[$hash]] : ($tray_number_override_start + $tray_number_override[$drive_tray_order[$hash]] - 1));
+				}
+				else {
+					$drive_tray_order_assign = $drive_tray_order[$hash];
+					$physical_traynumber = ( !isset($tray_number_override_start) ? --$drive_tray_order[$hash] : $drive_tray_order[$hash]);
+				}
+				
+				// Special rules
+				if($raw["purchased"] && ($raw["warranty"])) {
+					$warranty_start = strtotime($raw["purchased"]);
+					
+					$warranty_end = strtotime("" . $raw["purchased"] . " + " . $raw["warranty"] . " month");
+					$warranty_expire = date("Y-m-d", $warranty_end);
+				}
+				
+				if(isset($_GET["raw_data_csv"])) {
+					$columns_info_csv = array(
+						"groupid" => "" . $raw["group_name"] . "",
+						"tray" => "" . $physical_traynumber . "",
+						"device" => "" . $raw["device"] . "",
+						"node" => "" . $raw["node"] . "",
+						"lun" => "" . $raw["lun"] . "",
+						"manufacturer" => "" . $raw["manufacturer"] . "",
+						"model" => "" . $raw["model"] . "",
+						"serial" => "" . $raw["serial"] . "",
+						"capacity" => "" . $raw["capacity"] . "",
+						"cache" => "" . $raw["cache"] . "",
+						"rotation" => "" . $raw["rotation"] . "",
+						"formfactor" => "" . $raw["formfactor"] . "",
+						"smart_status" => "" . $raw["smart_status"] . "",
+						"temperature" => "" . $raw["temp"] . " (" . $raw["hotTemp"] . "/" . $raw["maxTemp"] . ")",
+						"powerontime" => "" . $raw["powerontime"] . "</span>",
+						"loadcycle" => "" . $raw["loadcycle"] . "",
+						"nvme_percentage_used" => "" . $raw["nvme_percentage_used"] . "",
+						"smart_units_read" => "" . $raw["smart_units_read"] . "",
+						"smart_units_written" => "" . $raw["smart_units_written"] . "",
+						"nvme_available_spare" => "" . $raw["nvme_available_spare"] . "",
+						"nvme_available_spare_threshold" => "" . $raw["nvme_available_spare_threshold"] . "",
+						//"benchmark_r" => "" . $data["benchmark_r"] . "",
+						//"benchmark_w" => "" . $data["benchmark_w"] . "",
+						"installed" => "" . $raw["installed"] . "",
+						"removed" => "" . $raw["removed"] . "",
+						"manufactured" => "" . $raw["manufactured"] . "",
+						"purchased" => "" . $raw["purchased"] . "",
+						"warranty" => "" . $raw["warranty"] . "",
+						"comment" => "" . $raw["comment"] . ""
+					);
+					
+					$raw_data_csv_file = ".raw";
+				}
+				else {
+					$columns_info_csv = array(
+						"groupid" => "" . stripslashes(htmlspecialchars($formatted["group_name"])) . "",
+						"tray" => "" . $physical_traynumber . "",
+						"device" => "" . $formatted["device"] . "",
+						"node" => "" . $formatted["node"] . "",
+						"lun" => "" . $formatted["lun"] . "",
+						"manufacturer" => "" . $formatted["manufacturer"] . "",
+						"model" => "" . $formatted["model"] . "",
+						"serial" => "" . substr($raw["serial"], $serial_trim) . "",
+						"capacity" => "" . $formatted["capacity"] . "",
+						"cache" => "" . $formatted["cache"] . "",
+						"rotation" => "" . $formatted["rotation"] . "",
+						"formfactor" => "" . $formatted["formfactor"] . "",
+						"smart_status" => "" . $formatted["smart_status"] . "",
+						"temperature" => "" . $formatted["temp"] . " (" . $formatted["hotTemp"] . "/" . $formatted["maxTemp"] . ")",
+						"powerontime" => "" . $formatted["powerontime"] . "</span>",
+						"loadcycle" => "" . $formatted["loadcycle"] . "",
+						"nvme_percentage_used" => "" . $formatted["nvme_percentage_used"] . "",
+						"smart_units_read" => "" . $formatted["smart_units_read"] . "",
+						"smart_units_written" => "" . $formatted["smart_units_written"] . "",
+						"nvme_available_spare" => "" . $formatted["nvme_available_spare"] . "",
+						"nvme_available_spare_threshold" => "" . $formatted["nvme_available_spare_threshold"] . "",
+						//"benchmark_r" => "" . $data["benchmark_r"] . "",
+						//"benchmark_w" => "" . $data["benchmark_w"] . "",
+						"installed" => "" . $raw["installed"] . "",
+						"removed" => "" . $raw["removed"] . "",
+						"manufactured" => "" . $raw["manufactured"] . "",
+						"purchased" => "" . $raw["purchased"] . "",
+						"warranty" => "" . $warranty_expire . "",
+						"comment" => "" . stripslashes($formatted["comment"]) . ""
+					);
+				}
+				
+				$arr_length = count($table_info_order_system);
+				for($i=0;$i<$arr_length;$i++) {
+					$print_csv[$i_drive][$i] = $columns_info_csv[$table_info_order_system[$i]];
+				}
+				$i_drive++;
 			}
-			else {
-				$columns_info_csv = array(
-					"groupid" => "" . stripslashes(htmlspecialchars($formatted["group_name"])) . "",
-					"tray" => "" . $physical_traynumber . "",
-					"device" => "" . $formatted["device"] . "",
-					"devicenode" => "" . $formatted["node"] . "",
-					"luname" => "" . $formatted["lun"] . "",
-					"model_family" => "" . $formatted["manufacturer"] . "",
-					"model_name" => "" . $formatted["model"] . "",
-					"smart_serialnumber" => "" . substr($raw["serial"], $serial_trim) . "",
-					"smart_capacity" => "" . $formatted["capacity"] . "",
-					"smart_cache" => "" . $formatted["cache"] . "",
-					"smart_rotation" => "" . $formatted["rotation"] . "",
-					"smart_formfactor" => "" . $formatted["formfactor"] . "",
-					"smart_status" => "" . $formatted["smart_status"] . "",
-					"smart_temperature" => "" . $formatted["temp"] . " (" . $formatted["hotTemp"] . "/" . $formatted["maxTemp"] . ")",
-					"smart_powerontime" => "" . $formatted["powerontime"] . "</span>",
-					"smart_loadcycle" => "" . $formatted["loadcycle"] . "",
-					"smart_nvme_percentage_used" => "" . $formatted["nvme_percentage_used"] . "",
-					"smart_units_read" => "" . $formatted["smart_units_read"] . "",
-					"smart_units_written" => "" . $formatted["smart_units_written"] . "",
-					"smart_nvme_available_spare" => "" . $formatted["nvme_available_spare"] . "",
-					"smart_nvme_available_spare_threshold" => "" . $formatted["nvme_available_spare_threshold"] . "",
-					//"benchmark_r" => "" . $data["benchmark_r"] . "",
-					//"benchmark_w" => "" . $data["benchmark_w"] . "",
-					"installed" => "" . $raw["installed"] . "",
-					"removed" => "" . $raw["removed"] . "",
-					"manufactured" => "" . $raw["manufactured"] . "",
-					"purchased" => "" . $raw["purchased"] . "",
-					"warranty_date" => "" . $warranty_expire . "",
-					"comment" => "" . stripslashes($formatted["comment"]) . ""
-				);
-			}
-			
-			$arr_length = count($table_info_order_system);
-			for($i=0;$i<$arr_length;$i++) {
-				$print_csv[$i_drive][$i] = $columns_info_csv[$table_info_order_system[$i]];
-			}
-			$i_drive++;
 		}
 		$i++;
 		$print_csv[$i_drive][$i+0] = " ";

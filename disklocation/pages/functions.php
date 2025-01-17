@@ -35,7 +35,7 @@
 	define("DISKLOCATION_TMP_PATH", "/tmp/disklocation");
 	define("DISKLOCATION_CONF", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.conf");
 	define("DISKLOCATION_DEVICES", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/devices.json");
-	define("DISKLOCATION_LOCATIONS", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/location.json");
+	define("DISKLOCATION_LOCATIONS", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/locations.json");
 	define("DISKLOCATION_GROUPS", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/groups.json");
 	define("DISKLOCATION_DB_DEFAULT", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.sqlite");
 	define("DISKLOCATION_LOCK_FILE", DISKLOCATION_TMP_PATH . "/db.lock");
@@ -332,7 +332,7 @@
 		$select = preg_replace('/\s+/', '', $select);
 		$sort = preg_replace('/\s+/', '', $sort);
 		$table = array( // Table names:
-			"groupid", "tray", "device", "devicenode", "pool", "name", "luname", "model_family", "model_name", "smart_serialnumber", "smart_capacity", "smart_cache", "smart_rotation", "smart_formfactor", "manufactured", "purchased", "installed", "removed", "warranty_date", "comment"
+			"groupid", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial", "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "comment"
 		);
 		$input = array( // User input names - must also match $sort:
 			"group", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial", "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "comment"
@@ -410,15 +410,14 @@
 					break;
 				}
 			}
+			for($i=0;$i<count($return_sort);$i++) {
+				$return_sort_str .= $return_sort[$i] . " SORT_" . strtoupper($sort_dir[0]);
+				if($return_sort[$i+1]) { $return_sort_str .= ","; }
+			}
 		}
 		
 		if($sort_dir[0] != "asc" && $sort_dir[0] != "desc") {
 			return "Sort direction is invalid.\n";
-		}
-		
-		for($i=0;$i<count($return_sort);$i++) {
-			$return_sort_str .= $return_sort[$i] . " SORT_" . strtoupper($sort_dir[0]);
-			if($return_sort[$i+1]) { $return_sort_str .= ","; }
 		}
 		
 		switch($return) {
@@ -797,8 +796,10 @@
 		// m = modify
 		
 		if($action == 'r') {
-			$sql_status = "SELECT COUNT(status) FROM disks where status='d';";
-			$ret = $db->querySingle($sql_status);
+			$i=0;
+			foreach($db as $key => $data) {
+				$ret += ( $db["status"] == 'd' ?? ++$i );
+			}
 		}
 		if($action == 'm') {
 			$sql_status = "

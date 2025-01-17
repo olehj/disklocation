@@ -27,8 +27,6 @@
 	
 	extract($get_config);
 	
-	$displayinfo = json_decode($displayinfo, true);
-	
 	$color_array = array();
 	$color_array["empty"] = $bgcolor_empty;
 ?>
