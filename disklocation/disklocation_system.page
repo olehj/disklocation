@@ -5,5 +5,5 @@ Title="System"
 ---
 <?php
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/system.php");
-	require_once("/usr/local/emhttp/plugins/disklocation/pages/config_system.php");
+	require_once("/usr/local/emhttp/plugins/disklocation/pages/page_system.php");
 ?>

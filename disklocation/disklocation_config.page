@@ -7,5 +7,5 @@ Title="Configuration"
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/system.php");
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/devices.php");
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/locate.php");
-	require_once("/usr/local/emhttp/plugins/disklocation/pages/config.php");
+	require_once("/usr/local/emhttp/plugins/disklocation/pages/page_config.php");
 ?>
