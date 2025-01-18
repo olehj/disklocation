@@ -18,7 +18,7 @@
 	 *  along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
 	 *
 	 */
-	if(strstr($_SERVER["SCRIPT_NAME"], "config_system.php")) {
+	if(strstr($_SERVER["SCRIPT_NAME"], "page_system.php")) {
 		// Set warning level
 		//error_reporting(E_ERROR | E_WARNING | E_PARSE);
 		error_reporting(E_ALL);
@@ -230,7 +230,7 @@
 	$list_backup = disklocation_system("backup", "list");
 	if($list_backup) {
 		$print_list_backup .= "
-			<form action=\"" . DISKLOCATION_PATH . "/pages/config_system.php\" method=\"post\">
+			<form action=\"" . DISKLOCATION_PATH . "/pages/page_system.php\" method=\"post\">
 				<h3>Database backups</h3><br />
 				<table style=\"width: 0;\">
 					<tr>
@@ -273,7 +273,7 @@
 	}
 	else {
 		$print_list_backup = "
-			<form action=\"" . DISKLOCATION_PATH . "/pages/config_system.php\" method=\"post\">
+			<form action=\"" . DISKLOCATION_PATH . "/pages/page_system.php\" method=\"post\">
 				<h3>Database backups</h3><br />
 				<table style=\"width: 0;\">
 					<tr>
@@ -292,7 +292,7 @@
 			<p style=\"color: red;\">
 				This will delete the database lock file and should delete itself automagically. Only delete this if you know that the lock is stuck and the database is not updating in the background, otherwise you might corrupt the database.
 			</p>
-			<form action=\"" . DISKLOCATION_PATH . "/pages/config_system.php\" method=\"post\">
+			<form action=\"" . DISKLOCATION_PATH . "/pages/page_system.php\" method=\"post\">
 				<input type=\"submit\" name=\"del_database_lock\" value=\"Delete Lock file\" />
 			</form>
 		";
@@ -302,7 +302,7 @@
 		$print_list_debug = "
 			<h3>Debug file</h3>
 			<p>Debug filesize: " . $list_debug . "</p>
-			<form action=\"" . DISKLOCATION_PATH . "/pages/config_system.php\" method=\"post\">
+			<form action=\"" . DISKLOCATION_PATH . "/pages/page_system.php\" method=\"post\">
 				<input type=\"submit\" name=\"del_debug\" value=\"Delete debug file\" />
 			</form>
 			<blockquote class='inline_help'>
@@ -310,13 +310,13 @@
 			</blockquote>
 		";
 	}
-	if(!strstr($_SERVER["SCRIPT_NAME"], "config_system.php") && $db_update != 2) {
+	if(!strstr($_SERVER["SCRIPT_NAME"], "page_system.php") && $db_update != 2) {
 		$list_undelete = force_undelete_devices($get_devices, 'r');
 		if($list_undelete) {
 			$print_list_undelete = "
 				<h3>Undelete devices</h3>
 				<p>" . $list_undelete . " deleted devices found</p>
-				<form action=\"" . DISKLOCATION_PATH . "/pages/config_system.php\" method=\"post\">
+				<form action=\"" . DISKLOCATION_PATH . "/pages/page_system.php\" method=\"post\">
 					<input type=\"submit\" name=\"undelete_devices\" value=\"Undelete all devices\" />
 				</form>
 				<blockquote class='inline_help'>
@@ -326,7 +326,7 @@
 		}
 		
 		$print_force_scan = "
-			<form action=\"" . DISKLOCATION_PATH . "/pages/config_system.php\" method=\"post\">
+			<form action=\"" . DISKLOCATION_PATH . "/pages/page_system.php\" method=\"post\">
 				<b>Clicking the buttons will update data directly. It might take a few seconds to several minutes depending on the amount of devices it need to scan.</b>
 				<br />
 				<input type='button' value='SMART' onclick='openBox(\"" . CRONJOB_URL . "?active_smart_scan=1\",\"Updating SMART data on active devices\",600,800,true,\"loadlist\",\":return\")'>
@@ -355,7 +355,7 @@
 			</form>
 		";
 	}
-	else if(strstr($_SERVER["SCRIPT_NAME"], "config_system.php")) {
+	else if(strstr($_SERVER["SCRIPT_NAME"], "page_system.php")) {
 		function autov($foo) {
 			return $foo;
 		}

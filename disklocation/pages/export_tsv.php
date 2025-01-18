@@ -20,7 +20,7 @@
 	 */
 	if(isset($_GET["download_csv"])) {
 		require_once("system.php");
-		require_once("devicearray.php");
+		require_once("array_devices.php");
 		
 		$get_info_select = get_table_order($select_db_info, $sort_db_info, 1);
 		
