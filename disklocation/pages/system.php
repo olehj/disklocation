@@ -178,26 +178,26 @@
 		//config(DISKLOCATION_CONF, 'w', 'signal_css', $_POST["signal_css"]);
 		use_stylesheet($_POST["signal_css"]);
 		
-		//"group", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial", "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "comment"
+		//"group", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial", "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "warranty_exp", "comment"
 		// Infomation
 		if(empty($_POST["select_db_info"])) { $_POST["select_db_info"] = $select_db_info_default; }
 		if(empty($_POST["sort_db_info"])) { $_POST["sort_db_info"] = $sort_db_info_default; }
-		$get_table_order_info = get_table_order($_POST["select_db_info"], $_POST["sort_db_info"], 2, "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1");
-		$get_table_order_info .= get_table_order($_POST["select_db_info"], $_POST["sort_db_info"], 3, "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1");
+		$get_table_order_info = get_table_order($_POST["select_db_info"], $_POST["sort_db_info"], 2, "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1");
+		$get_table_order_info .= get_table_order($_POST["select_db_info"], $_POST["sort_db_info"], 3, "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1");
 		if($get_table_order_info) { $disklocation_error[] = "Table \"Information\": " . $get_table_order_info; }
 		
 		// Tray Allocations / Unassigned
 		if(empty($_POST["select_db_trayalloc"])) { $_POST["select_db_trayalloc"] = $select_db_trayalloc_default; }
 		if(empty($_POST["sort_db_trayalloc"])) { $_POST["sort_db_trayalloc"] = $sort_db_trayalloc_default; }
-		$get_table_order_trayalloc = get_table_order($_POST["select_db_trayalloc"], $_POST["sort_db_trayalloc"], 2, "0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1");
-		$get_table_order_trayalloc .= get_table_order($_POST["select_db_trayalloc"], $_POST["sort_db_trayalloc"], 3, "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1");
+		$get_table_order_trayalloc = get_table_order($_POST["select_db_trayalloc"], $_POST["sort_db_trayalloc"], 2, "0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1");
+		$get_table_order_trayalloc .= get_table_order($_POST["select_db_trayalloc"], $_POST["sort_db_trayalloc"], 3, "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1");
 		if($get_table_order_trayalloc) { $disklocation_error[] = "Table \"Tray Allocations\": " . $get_table_order_trayalloc; }
 		
 		// History
 		if(empty($_POST["select_db_drives"])) { $_POST["select_db_drives"] = $select_db_drives_default; }
 		if(empty($_POST["sort_db_drives"])) { $_POST["sort_db_drives"] = $sort_db_drives_default; }
-		$get_table_order_drives = get_table_order($_POST["select_db_drives"], $_POST["sort_db_drives"], 2, "0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1");
-		$get_table_order_drives .= get_table_order($_POST["select_db_drives"], $_POST["sort_db_drives"], 3, "0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1");
+		$get_table_order_drives = get_table_order($_POST["select_db_drives"], $_POST["sort_db_drives"], 2, "0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1");
+		$get_table_order_drives .= get_table_order($_POST["select_db_drives"], $_POST["sort_db_drives"], 3, "0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1");
 		if($get_table_order_drives) { $disklocation_error[] = "Table \"History\": " . $get_table_order_drives; }
 		
 		// Devices textarea, manual sort

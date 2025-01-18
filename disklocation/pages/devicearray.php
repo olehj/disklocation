@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2025-2025, Ole-Henrik Jakobsen
+	 *  Copyright 2025, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -69,7 +69,7 @@
 		$devices[$hash]["raw"]["node"] = $devicenode;
 		$devices[$hash]["formatted"]["node"] = str_replace("-", "", $devices[$hash]["raw"]["node"]);
 		$devices[$hash]["raw"]["serial"] = $data["smart_serialnumber"];
-		$devices[$hash]["formatted"]["serial"] = ( isset($devices[$hash]["raw"]["serial"]) ? "<span style=\"white-space: nowrap;\">" . substr($devices[$hash]["raw"]["serial"], $serial_trim) . "</span>" : null );
+		$devices[$hash]["formatted"]["serial"] = ( isset($devices[$hash]["raw"]["serial"]) ? "" . substr($devices[$hash]["raw"]["serial"], $serial_trim) . "" : null );
 		$devices[$hash]["raw"]["model"] = $data["model_name"];
 		$devices[$hash]["formatted"]["model"] = $devices[$hash]["raw"]["model"];
 		$devices[$hash]["raw"]["cache"] = $data["smart_cache"];
@@ -101,7 +101,7 @@
 		$devices[$hash]["raw"]["smart_status"] = $smart_array["smart_status"]["passed"];
 		$devices[$hash]["formatted"]["smart_status"] = ( ($devices[$hash]["raw"]["smart_status"] == true) ? "OK" : "FAIL");
 		$devices[$hash]["raw"]["powerontime"] = $smart_array["power_on_time"]["hours"];
-		$devices[$hash]["formatted"]["powerontime"] = ( !is_numeric($devices[$hash]["raw"]["powerontime"]) ? null : "<span style=\"cursor: help;\" title=\"" . seconds_to_time($devices[$hash]["raw"]["powerontime"] * 60 * 60) . "\">" . $devices[$hash]["raw"]["powerontime"] . "h</span>" );
+		$devices[$hash]["formatted"]["powerontime"] = ( !is_numeric($devices[$hash]["raw"]["powerontime"]) ? null : "" . $devices[$hash]["raw"]["powerontime"] . "h (" . seconds_to_time($devices[$hash]["raw"]["powerontime"] * 60 * 60) . ")" );
 		$devices[$hash]["raw"]["logical_block_size"] = $smart_array["logical_block_size"];
 		$devices[$hash]["formatted"]["logical_block_size"] = $devices[$hash]["raw"]["logical_block_size"];
 		$devices[$hash]["raw"]["nvme_available_spare"]  = $smart_array["nvme_smart_health_information_log"]["available_spare"];
@@ -214,19 +214,21 @@
 			
 			$warranty_end = strtotime("" . $devices[$hash]["raw"]["purchased"] . " + " . $devices[$hash]["raw"]["warranty"] . " month");
 			$warranty_expire = date("Y-m-d", $warranty_end);
-			$date_warranty = $data["warranty"] . " months.";
+			$date_warranty = $devices[$hash]["raw"]["warranty"] . " months.";
 			
 			$warranty_expire_left = $warranty_end-date("U");
 			if($warranty_expire_left > 0) {
-				$warranty_left = seconds_to_time($warranty_expire_left);
+				$warranty_left = "" . seconds_to_time($warranty_expire_left);
 			}
 			else {
-				$warranty_left = "EXPIRED!";
+				$warranty_left = "Expired";
 			}
 		}
 		// $display["date"] => %A, %Y-%m-%d --- might use in the future for formatting. Using ISO for now:
 		$devices[$hash]["formatted"]["purchased"] = $devices[$hash]["raw"]["purchased"];
-		$devices[$hash]["formatted"]["warranty"] = "<span style=\"cursor: help;\" title=\"Warranty: " . $date_warranty . " Expires: " . $warranty_left . "\">" . $warranty_expire . "</span>";
+		$devices[$hash]["formatted"]["warranty"] = "" . $warranty_expire . "";
+		$devices[$hash]["raw"]["expires"] = "" . $warranty_left . "";
+		$devices[$hash]["formatted"]["expires"] = "" . $warranty_left . "";
 		$devices[$hash]["formatted"]["manufactured"] = $devices[$hash]["raw"]["manufactured"];
 	}
 	//print_r($devices); // for debugging

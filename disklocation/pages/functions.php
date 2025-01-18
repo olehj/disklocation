@@ -258,9 +258,7 @@
 				mkdir(dirname($file), 0755, true);
 				touch($file);
 			}
-			//$contents = file_get_contents($file);
-			//$cur_array = json_decode($contents, true);
-			//$new_array = json_encode($array + $cur_array);
+			
 			$new_array = json_encode($array, JSON_PRETTY_PRINT);
 			
 			if(file_put_contents($file, $new_array)) {
@@ -333,20 +331,20 @@
 		$select = preg_replace('/\s+/', '', $select);
 		$sort = preg_replace('/\s+/', '', $sort);
 		$table = array( // Table names:
-			"groupid", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial", "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "comment"
+			"groupid", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial", "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "expires", "comment"
 		);
 		$input = array( // User input names - must also match $sort:
-			"group", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial", "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "comment"
+			"group", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial", "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "expires", "comment"
 		);
 		$nice_names = array(
-			"Group", "Tray", "Path", "Node", "Pool", "Name", "LUN", "Manufacturer", "Device Model", "S/N", "Capacity", "Cache", "Rotation", "FF", "Manufactured", "Purchased", "Installed", "Removed", "Warranty", "Comment"
+			"Group", "Tray", "Path", "Node", "Pool", "Name", "LUN", "Manufacturer", "Device Model", "S/N", "Capacity", "Cache", "Rotation", "FF", "Manufactured", "Purchased", "Installed", "Removed", "Warranty", "Expires", "Comment"
 		);
 		$full_names = array(
-			"Group", "Tray", "Path", "Node", "Pool Name", "Disk Name", "Logic Unit Number", "Manufacturer", "Device Model", "Serial Number", "Capacity", "Cache Size", "Rotation", "Form Factor", "Manufactured Date", "Purchased Date", "Installed Date", "Removed Date", "Warranty Period", "Comment"
+			"Group", "Tray", "Path", "Node", "Pool Name", "Disk Name", "Logic Unit Number", "Manufacturer", "Device Model", "Serial Number", "Capacity", "Cache Size", "Rotation", "Form Factor", "Manufactured Date", "Purchased Date", "Installed Date", "Removed Date", "Warranty Period", "Warranty Expires", "Comment"
 		);
 		$input_form = array(
 			//                10                  20                  30
-			1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1
+			1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1
 		);
 		
 		if($select == "all") {
@@ -458,6 +456,81 @@
 				break;
 			default:
 				return false;
+		}
+	}
+	
+	function list_array($array, $type, $tray = '') {
+		if($type == "html") {
+			return array(
+				"groupid" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . stripslashes(htmlspecialchars($array["group_name"])) . "</td>",
+				"tray" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $tray . "</td>",
+				"device" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["device"] . "</td>",
+				"pool" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["pool"] . "</td>",
+				"name" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["name"] . "</td>",
+				"node" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["node"] . "</td>",
+				"lun" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["lun"] . "</td>",
+				"manufacturer" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["manufacturer"] . "</td>",
+				"model" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["model"] . "</td>",
+				"serial" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["serial"] . "</td>",
+				"capacity" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["capacity"] . "</td>",
+				"cache" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["cache"] . "</td>",
+				"rotation" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["rotation"] . "</td>",
+				"formfactor" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["formfactor"] . "</td>",
+				"smart_status" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: center;\">" . $array["smart_status"] . "</td>",
+				"temperature" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: left;\">" . $array["temp"] . " (" . $array["hotTemp"] . "/" . $array["maxTemp"] . ")</td>",
+				"powerontime" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["powerontime"] . "</span></td>",
+				"loadcycle" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["loadcycle"] . "</td>",
+				"nvme_percentage_used" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["nvme_percentage_used"] . "</td>",
+				"smart_units_read" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["smart_units_read"] . "</td>",
+				"smart_units_written" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["smart_units_written"] . "</td>",
+				"nvme_available_spare" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["nvme_available_spare"] . "</td>",
+				"nvme_available_spare_threshold" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["nvme_available_spare_threshold"] . "</td>",
+				//"benchmark_r" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $data["benchmark_r"] . "</td>",
+				//"benchmark_w" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $data["benchmark_w"] . "</td>",
+				"installed" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["installed"] . "</td>",
+				"removed" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["removed"] . "</td>",
+				"manufactured" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["manufactured"] . "</td>",
+				"purchased" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["purchased"] . "</td>",
+				"warranty" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["warranty"] . "</td>",
+				"expires" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["expires"] . "</td>",
+				"comment" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . bscode2html(stripslashes(htmlspecialchars($array["comment"]))) . "</td>"
+			);
+		}
+		else {
+			return array(
+				"groupid" => "" . stripslashes($array["group_name"]) . "",
+				"tray" => "" . $tray . "",
+				"device" => "" . $array["device"] . "",
+				"pool" => "" . $array["pool"] . "",
+				"name" => "" . $array["name"] . "",
+				"node" => "" . $array["node"] . "",
+				"lun" => "" . $array["lun"] . "",
+				"manufacturer" => "" . $array["manufacturer"] . "",
+				"model" => "" . $array["model"] . "",
+				"serial" => "" . $array["serial"] . "",
+				"capacity" => "" . $array["capacity"] . "",
+				"cache" => "" . $array["cache"] . "",
+				"rotation" => "" . $array["rotation"] . "",
+				"formfactor" => "" . $array["formfactor"] . "",
+				"smart_status" => "" . $array["smart_status"] . "",
+				"temperature" => "" . $array["temp"] . " (" . $array["hotTemp"] . "/" . $array["maxTemp"] . ")",
+				"powerontime" => "" . $array["powerontime"] . "</span>",
+				"loadcycle" => "" . $array["loadcycle"] . "",
+				"nvme_percentage_used" => "" . $array["nvme_percentage_used"] . "",
+				"smart_units_read" => "" . $array["smart_units_read"] . "",
+				"smart_units_written" => "" . $array["smart_units_written"] . "",
+				"nvme_available_spare" => "" . $array["nvme_available_spare"] . "",
+				"nvme_available_spare_threshold" => "" . $array["nvme_available_spare_threshold"] . "",
+				//"benchmark_r" => "" . $data["benchmark_r"] . "",
+				//"benchmark_w" => "" . $data["benchmark_w"] . "",
+				"installed" => "" . $array["installed"] . "",
+				"removed" => "" . $array["removed"] . "",
+				"manufactured" => "" . $array["manufactured"] . "",
+				"purchased" => "" . $array["purchased"] . "",
+				"warranty" => "" . $array["warranty"] . "",
+				"expires" => "" . $array["expires"] . "",
+				"comment" => "" . stripslashes($array["comment"]) . ""
+			);
 		}
 	}
 	
@@ -700,30 +773,35 @@
 		}
 	}
 	
-	function seconds_to_time($seconds, $array = '') {
+	function seconds_to_time($seconds, $array = '', $format = '') {
 		$seconds = (int)$seconds;
 		$dateTime = new DateTime();
 		$dateTime->sub(new DateInterval("PT{$seconds}S"));
 		$interval = (new DateTime())->diff($dateTime);
 		$pieces = explode(' ', $interval->format('%y %m %d'));
-		$intervals = ['year', 'month', 'day'];
+		$intervals = ( ($format == "short") ? ['Y', 'M', 'D'] : [' year', ' month', ' day'] );
 		$result = [];
 		foreach ($pieces as $i => $value) {
 			if (!$value) {
 				continue;
 			}
 			$periodName = $intervals[$i];
-			if ($value > 1) {
+			if ($value > 1 && $format != "short") {
 				$periodName .= 's';
 			}
 			$result_arr[$intervals[$i]] = $value;
-			$result[] = "{$value} {$periodName}";
+			$result[] = "{$value}{$periodName}";
 		}
 		if($array) {
 			return $result_arr;
 		}
 		else {
-			return implode(', ', $result);
+			if($format == "short") {
+				return implode(' ', $result);
+			}
+			else {
+				return implode(', ', $result);
+			}
 		}
 	}
 	

@@ -46,31 +46,26 @@
 			$get_groups = json_decode(file_get_contents(DISKLOCATION_GROUPS), true);
 		}
 		
-		function config($file, $operation, $key = '', $val = '') { // file, [r]ead/[w]rite, key (req. write), value (req. write)
-			if($operation == 'w') {
+		function config_array($file, $operation, $array = '') { // file, [r]ead/[w]rite, array (req. write)
+			if($operation == 'w' && is_array($array)) {
 				if(!file_exists($file)) {
+					mkdir(dirname($file), 0755, true);
 					touch($file);
 				}
-				$config_json = file_get_contents($file);
-				$config_json = json_decode($config_json, true);
-				$config_json[$key] = $val;
-				$config_json = json_encode($config_json);
-				if(file_put_contents($file, $config_json)) {
+				
+				$new_array = json_encode($array, JSON_PRETTY_PRINT);
+				
+				if(file_put_contents($file, $new_array)) {
 					return true;
 				}
 				else {
-					return "Failed updating the configuration file.";
+					return false;
 				}
 			}
 			if($operation == 'r') {
-				$config_json = file_get_contents($file);
-				$config_json = json_decode($config_json, true);
-				if($key) {
-					return $config_json[$key];
-				}
-				else {
-					return $config_json;
-				}
+				$contents = file_get_contents($file);
+				$cur_array = json_decode($contents, true);
+				return $cur_array;
 			}
 			else return false;
 		}
@@ -104,35 +99,6 @@
 		file_put_contents($dst, $gzdata);
 	}
 	
-	function database_location($cur, $new, $config) {
-		if($cur != $new) {
-			if(file_exists($cur) && !file_exists($new)) {
-				if(copy($cur, $new)) {
-					if(sha1_file($cur) == sha1_file($new)) {
-						if(config($config, 'w', 'database_location', $new)) {
-							unlink($cur);
-							return true;
-						}
-						else {
-							return "Failed updating the configuration file. Current database not deleted, but a copy might exist in the new location.";
-						}
-					}
-					else {
-						return "Failed moving the database, checksum on $cur and $new did not match. Check path, permissions and file system.";
-					}
-				}
-				else {
-					return "Failed to copy the database. Check path, permissions and file system.";
-				}
-			}
-			else {
-				return "File already exists in the new location.";
-			}
-		}
-		else {
-			return false;
-		}
-	}
 	function database_backup($file, $backup_location) {
 		if(file_exists($file)) {
 			$datetime = date("Ymd-His");
@@ -180,20 +146,6 @@
 			}
 		}
 		
-		if($type == "database") {
-			if($operation == "list") {
-				if(file_exists(DISKLOCATION_DB)) {
-					return filesize(DISKLOCATION_DB);
-				}
-				else {
-					return false;
-				}
-			}
-			if($operation == "delete") {
-				unlink(DISKLOCATION_DB);
-			}
-		}
-		
 		if($type == "database_lock") {
 			if($operation == "list") {
 				if(file_exists(DISKLOCATION_LOCK_FILE)) {
@@ -221,23 +173,7 @@
 				unlink("" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/debugging.html");
 			}
 		}
-		
-		if($type == "ldashleft") {
-			if($operation == "list") {
-				if(file_exists("" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.ldashleft")) {
-					return true;
-				}
-				else {
-					return false;
-				}
-			}
-			if($operation == "delete") {
-				unlink("" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.ldashleft");
-			}
-			if($operation == "create") {
-				touch("" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.ldashleft");
-			}
-		}
+
 	}
 	if(isset($_POST["res_backup"])) {
 		disklocation_system("backup", "restore", $_POST["backup_file_list"]);
@@ -265,14 +201,6 @@
 		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
-	if(isset($_POST["del_database"])) {
-		if(isset($_POST["mod_database_check"])) {
-			disklocation_system("database", "delete");
-		}
-		header("Location: " . DISKLOCATION_URL . "");
-		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-		exit;
-	}
 	if(isset($_POST["del_database_lock"])) {
 		disklocation_system("database_lock", "delete");
 		header("Location: " . DISKLOCATION_URL . "");
@@ -285,36 +213,6 @@
 		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
-	if(isset($_POST["del_ldashleft"])) {
-		disklocation_system("ldashleft", "delete");
-		header("Location: " . DISKLOCATION_URL . "");
-		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-		exit;
-	}
-	if(isset($_POST["add_ldashleft"])) {
-		disklocation_system("ldashleft", "create");
-		header("Location: " . DISKLOCATION_URL . "");
-		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-		exit;
-	}
-	if(isset($_POST["move_db"])) {
-		if(isset($_POST["mod_database_check"])) {
-			$move_db = database_location($_POST["cur_db_location"], $_POST["new_db_location"], DISKLOCATION_CONF);
-			if($move_db === true) {
-				header("Location: " . DISKLOCATION_URL . "");
-				//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-				exit;
-			}
-			else {
-				$print_loc_db_err = "<h2 style=\"color: red;\">ERROR: " . $move_db . "</h2>";
-			}
-		}
-		else {
-			header("Location: " . DISKLOCATION_URL . "");
-			//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-			exit;
-		}
-	}
 	if(isset($_POST["backup_db"])) {
 		database_backup(DISKLOCATION_DB, "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/");
 		header("Location: " . DISKLOCATION_URL . "");
@@ -322,38 +220,12 @@
 		exit;
 	}
 	
-	$print_loc_db = "";
 	$print_force_scan = "";
 	$print_list_backup = "";
 	$print_list_debug = "";
 	$print_list_database = "";
 	$print_list_database_lock = "";
 	$print_list_undelete = "";
-	$print_list_ldashleft = "";
-
-	$list_database = disklocation_system("database", "list");
-	$print_loc_db = "
-		<h3>Database location</h3>
-		<p>Database filesize: " . $list_database . " bytes</p>
-		$print_loc_db_err
-		<p style=\"color: red;\">
-			<b>USE AT OWN RISK!<br/></b>
-			Enter the full path including the filename! Make sure the path is accessible with the correct permissions.
-			Choose a location which will be accessible from early boot, not behind encrypted devices or devices not mounted at boot.
-			If stored behind e.g. Unraid shares, the plugin will not show any information at all until the array has started and mounted.
-			You should disable the automatic system boot and update scan under \"Configuration\" if you anyway choose to do so, and rather rely on SMART updates and manual scans.
-			If no path is entered, the file will be stored at \"/usr/local/emhttp/\" and will be gone next reboot, do NOT store the file without a full path!<br />
-			Default plugin database file location: " . DISKLOCATION_DB_DEFAULT . "
-		</p>
-		<form action=\"" . DISKLOCATION_PATH . "/pages/config_system.php\" method=\"post\">
-			<input type=\"text\" name=\"new_db_location\" value=\"" . DISKLOCATION_DB . "\" style=\"width: 400px;\" />
-			<input type=\"hidden\" name=\"cur_db_location\" value=\"" . DISKLOCATION_DB . "\" style=\"width: 400px;\" />
-			<br />
-			<input type=\"submit\" name=\"move_db\" value=\"Move database\" />
-			<input type=\"submit\" name=\"del_database\" value=\"Delete database\" />
-			<input type=\"checkbox\" name=\"mod_database_check\" value=\"1\" title=\"Check this to confirm operation\" /> &lt;-- Check this to confirm operation
-		</form>
-	";
 	
 	$list_backup = disklocation_system("backup", "list");
 	if($list_backup) {
@@ -452,34 +324,6 @@
 				</blockquote>
 			";
 		}
-		if(version_compare($GLOBALS["var"]["version"], "6.11.9", "<")) {
-			$list_ldashleft = disklocation_system("ldashleft", "list");
-			$print_list_ldashleft = "
-				<h3>Legacy Dashboard location</h3>
-				<p>
-					This setting is only visible and usable for Unraid version below 6.12.
-				</p>
-			";
-			if($list_ldashleft) {
-				$print_list_ldashleft .= "
-					<form action=\"" . DISKLOCATION_PATH . "/pages/config_system.php\" method=\"post\">
-						<input type=\"submit\" name=\"del_ldashleft\" value=\"Move to right\" />
-					</form>
-				";
-			}
-			else {
-				$print_list_ldashleft .= "
-					<form action=\"" . DISKLOCATION_PATH . "/pages/config_system.php\" method=\"post\">
-						<input type=\"submit\" name=\"add_ldashleft\" value=\"Move to left\" />
-					</form>
-				";
-			}
-		}
-		else { // delete a file that's not required anymore, if it exists.
-			if(disklocation_system("ldashleft", "list")) {
-				disklocation_system("ldashleft", "delete");
-			}
-		}
 		
 		$print_force_scan = "
 			<form action=\"" . DISKLOCATION_PATH . "/pages/config_system.php\" method=\"post\">
@@ -529,5 +373,3 @@
 <?php echo $print_list_database ?>
 <?php echo $print_list_database_lock ?>
 <?php echo $print_list_undelete ?>
-<?php echo $print_list_ldashleft ?>
-<?php echo $print_loc_db ?>

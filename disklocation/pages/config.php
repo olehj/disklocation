@@ -73,7 +73,7 @@
 				</blockquote>
 				<p>
 					<b>Default group color:</b><br />
-					<input type=\"color\" required name=\"group_color[$gid]\" list=\"disklocationColorsDef\" value=\"#" . $array_groups[$gid]["group_color"] . ">\" />
+					<input type=\"color\" required name=\"group_color[$gid]\" list=\"disklocationColorsDef\" value=\"#" . (!empty($array_groups[$gid]["group_color"]) ? $array_groups[$gid]["group_color"] : $bgcolor_empty) . "\" />
 				</p>
 				<blockquote class=\"inline_help\">
 					Choose a color for the group, select the first color to disable it.
@@ -155,20 +155,20 @@
 ?>
 <?php if($db_update == 2) { print("<h3>Page unavailable due to database error.</h3><!--"); } ?>
 <datalist id="disklocationColorsDef">
+	<option>#<?php echo $bgcolor_empty ?></option>
 	<option>#<?php echo $bgcolor_parity ?></option>
 	<option>#<?php echo $bgcolor_unraid ?></option>
 	<option>#<?php echo $bgcolor_cache ?></option>
 	<option>#<?php echo $bgcolor_others ?></option>
-	<option>#<?php echo $bgcolor_empty ?></option>
+	<?php echo ( $bgcolor_empty != $bgcolor_empty_default ? "<option>#" . $bgcolor_empty_default . "</option>" : null ) ?>
 	<?php echo ( $bgcolor_parity != $bgcolor_parity_default ? "<option>#" . $bgcolor_parity_default . "</option>" : null ) ?>
 	<?php echo ( $bgcolor_unraid != $bgcolor_unraid_default ? "<option>#" . $bgcolor_unraid_default . "</option>" : null ) ?>
 	<?php echo ( $bgcolor_cache != $bgcolor_cache_default ? "<option>#" . $bgcolor_cache_default . "</option>" : null ) ?>
 	<?php echo ( $bgcolor_others != $bgcolor_others_default ? "<option>#" . $bgcolor_others_default . "</option>" : null ) ?>
-	<?php echo ( $bgcolor_empty != $bgcolor_empty_default ? "<option>#" . $bgcolor_empty_default . "</option>" : null ) ?>
 </datalist>
 <script>
 $(document).ready(function(){
-	$('input:radio[name="dashboard_widget"]').change(function(){
+	$('input:radio[name="device_bg_color"]').change(function(){
 	var n = $(this).val();
 	switch(n) {
 		case '0':
@@ -426,7 +426,7 @@ $(document).ready(function(){
 						<td colspan="3" style="margin: 0; padding: 0 0 0 0 ;">
 							<blockquote class='inline_help'>
 								<ul>
-									<li><b>Possible selectors:</b> group, tray, device, node, pool, name, lun, manufacturer, model, serial, capacity, cache, rotation, formfactor, manufactured, purchased, installed, warranty, comment</li>
+									<li><b>Possible selectors:</b> group, tray, device, node, pool, name, lun, manufacturer, model, serial, capacity, cache, rotation, formfactor, manufactured, purchased, installed, warranty, expires, comment</li>
 								</ul>
 							</blockquote>
 						</td>
@@ -447,7 +447,7 @@ $(document).ready(function(){
 						<td colspan="3" style="margin: 0; padding: 0 0 0 0 ;">
 							<blockquote class='inline_help'>
 								<ul>
-									<li><b>Possible selectors:</b> (group, tray)*, device, node, pool, name, lun, manufacturer, model, serial, capacity, cache, rotation, formfactor, manufactured, purchased, installed, warranty, comment</li>
+									<li><b>Possible selectors:</b> (group, tray)*, device, node, pool, name, lun, manufacturer, model, serial, capacity, cache, rotation, formfactor, manufactured, purchased, installed, warranty, expires, comment</li>
 									<li><b>Sort:</b> "Unassigned Devices" will only sort by an internal ID, but will follow the set direction, ascending or descending. *) Sorting by group and tray is therefore possible with "Tray Allocations", but not to be included in columns.</li>
 								</ul>
 							</blockquote>
@@ -468,7 +468,7 @@ $(document).ready(function(){
 						<td colspan="3" style="margin: 0; padding: 0 0 0 0 ;">
 							<blockquote class='inline_help'>
 								<ul>
-									<li><b>Possible selectors:</b> device, node, pool, name, lun, manufacturer, model, serial, capacity, cache, rotation, formfactor, manufactured, purchased, installed, removed, warranty, comment</li>
+									<li><b>Possible selectors:</b> device, node, pool, name, lun, manufacturer, model, serial, capacity, cache, rotation, formfactor, manufactured, purchased, installed, removed, warranty, expires, comment</li>
 								</ul>
 							</blockquote>
 						</td>

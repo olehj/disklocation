@@ -115,44 +115,12 @@
 				$physical_traynumber = ( !isset($tray_number_override_start) ? --$drive_tray_order[$hash] : $drive_tray_order[$hash]);
 			}
 			
-			$columns_info_out = array(
-				"groupid" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . stripslashes(htmlspecialchars($formatted["group_name"])) . "</td>",
-				"tray" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $physical_traynumber . "</td>",
-				"device" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $formatted["device"] . "</td>",
-				"pool" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $formatted["pool"] . "</td>",
-				"name" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $formatted["name"] . "</td>",
-				"node" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $formatted["node"] . "</td>",
-				"lun" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $formatted["lun"] . "</td>",
-				"manufacturer" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $formatted["manufacturer"] . "</td>",
-				"model" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $formatted["model"] . "</td>",
-				"serial" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $formatted["serial"] . "</td>",
-				"capacity" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $formatted["capacity"] . "</td>",
-				"cache" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $formatted["cache"] . "</td>",
-				"rotation" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $formatted["rotation"] . "</td>",
-				"formfactor" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $formatted["formfactor"] . "</td>",
-				"smart_status" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: center;\">" . $formatted["smart_status"] . "</td>",
-				"temperature" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: left;\">" . $formatted["temp"] . " (" . $formatted["hotTemp"] . "/" . $formatted["maxTemp"] . ")</td>",
-				"powerontime" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $formatted["powerontime"] . "</span></td>",
-				"loadcycle" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $formatted["loadcycle"] . "</td>",
-				"nvme_percentage_used" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $formatted["nvme_percentage_used"] . "</td>",
-				"smart_units_read" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $formatted["smart_units_read"] . "</td>",
-				"smart_units_written" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $formatted["smart_units_written"] . "</td>",
-				"nvme_available_spare" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $formatted["nvme_available_spare"] . "</td>",
-				"nvme_available_spare_threshold" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $formatted["nvme_available_spare_threshold"] . "</td>",
-				//"benchmark_r" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $data["benchmark_r"] . "</td>",
-				//"benchmark_w" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $data["benchmark_w"] . "</td>",
-				"installed" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $formatted["installed"] . "</td>",
-				"removed" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $formatted["removed"] . "</td>",
-				"manufactured" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $formatted["manufactured"] . "</td>",
-				"purchased" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $formatted["purchased"] . "</td>",
-				"warranty" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $formatted["warranty"] . "</td>",
-				"comment" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . bscode2html(stripslashes(htmlspecialchars($formatted["comment"]))) . "</td>"
-			);
+			$listarray = list_array($formatted, 'html', $physical_traynumber);
 			
 			$print_drives[$i_drive] = "<tr style=\"background: #" . $color_array[$hash] . ";\">";
 			$arr_length = count($table_info_order_system);
 			for($i=0;$i<$arr_length;$i++) {
-				$print_drives[$i_drive] .= $columns_info_out[$table_info_order_system[$i]];
+				$print_drives[$i_drive] .= $listarray[$table_info_order_system[$i]];
 			}
 			$print_drives[$i_drive] .= "</tr>";
 			
@@ -183,11 +151,6 @@
 	</tr>
 </table>
 <div><br /><br /><br /></div>
-<blockquote class='inline_help'>
-	<dt>"Power On Hours" and "Warranty" hover</dt>
-	<dd>Hover over text to get additional information or simpler readout.</dd>
-	<br />
-</blockquote>
 <table style="width: 0;">
 	<tr style="border: solid 1px #000000;">
 		<?php print($table_info_order_name_html); ?>
