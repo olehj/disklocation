@@ -7,12 +7,5 @@ Title="Configuration"
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/system.php");
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/devices.php");
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/locate.php");
-?>
-<style type="text/css">
-	<?php require_once("/usr/local/emhttp/plugins/disklocation/pages/styles/disk.css.php"); ?>
-</style>
-<link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/signals.css")?>">
-<link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/help.css")?>">
-<?php
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/config.php");
 ?>
