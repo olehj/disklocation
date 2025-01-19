@@ -270,16 +270,6 @@ $(document).ready(function(){
 				<blockquote class='inline_help'>
 					Show how to display the LEDs on the overview and dashboard. Unraid icons will show triangluar warning signs, crossed critival signs etc. Circular LEDs will all be color coded circular lights.
 				</blockquote>
-				<!--<p>
-					<b>Set warranty date entry:</b><br />
-					<input type="radio" name="warranty_field" value="u" <?php if($warranty_field == "u") echo "checked"; ?> />Unraid
-					<input type="radio" name="warranty_field" value="m" <?php if($warranty_field == "m") echo "checked"; ?>/>Manual ISO
-					
-				</p>
-				<blockquote class='inline_help'>
-					Select how you want to enter the warranty date: the Unraid way of selecting amount of months, or manual ISO date for specific dates. Both values can be stored, but only one can be visible at a time.
-				</blockquote>
-				-->
 				<p>
 					<b>Trim serial numbers:</b><br />
 					<input type="number" required min="-99" max="99" step="1" name="serial_trim" value="<?php print($serial_trim); // reusing the deprecated dashboard_pos variable instead of messing with the database ?>" style="width: 50px;" />
@@ -289,51 +279,6 @@ $(document).ready(function(){
 					The sort function will still sort after the actual serial number, and not the shortened ones.
 					<br />
 				</blockquote>
-				<!--<p>
-					<b>User styles for serial numbers:</b><br />
-					<input type="text" maxlenght="1000" name="css_serial_number_highlight" value="<?php print($css_serial_number_highlight); ?>" style="width: 250px;" />
-				</p>
-				<blockquote class='inline_help'>
-					Styles for serial number, pure CSS expected.
-					<br />
-				</blockquote>
-				-->
-			</td>
-			<td style="padding-left: 25px; vertical-align: top;">
-				<!--<h2>Updates</h2>-->
-				<!--<p>
-					<b>Automatic system boot and update scan:</b><br />
-					<input type="radio" name="database_noscan" value="0" <?php if($database_noscan == 0) echo "checked"; ?> />Enabled
-					<input type="radio" name="database_noscan" value="1" <?php if($database_noscan == 1) echo "checked"; ?> />Disabled
-				</p>
-				<blockquote class='inline_help'>
-					Enable or disable the auto scan during a plugin installation, update or system boot. If it's disabled it will rely on manual updates (Force Scan All) and S.M.A.R.T update schedules (cronjob).
-					Should likely be disabled if using custom database location which requires Unraid to start and mount arrays.
-				</blockquote>
-				<p>
-					<b>S.M.A.R.T updates:</b><br />
-					<input type="radio" name="smart_updates" value="hourly" <?php if($smart_updates_file == "hourly") echo "checked"; ?> />Hourly
-					<input type="radio" name="smart_updates" value="daily" <?php if($smart_updates_file == "daily") echo "checked"; ?> />Daily
-					<input type="radio" name="smart_updates" value="weekly" <?php if($smart_updates_file == "weekly") echo "checked"; ?> />Weekly
-					<input type="radio" name="smart_updates" value="monthly" <?php if($smart_updates_file == "monthly") echo "checked"; ?> />Monthly
-					<input type="radio" name="smart_updates" value="disabled" <?php if($smart_updates_file == "disabled") echo "checked"; ?> />Disabled
-					<input type="hidden" name="smart_updates_url" value="<?php print($GLOBALS["nginx"]["NGINX_DEFAULTURL"]); ?>" />
-				</p>
-				<blockquote class='inline_help'>
-					Choose how often you want the S.M.A.R.T data to be updated, or disable it.<br />
-					Recommended: daily or longer for flash devices, hourly can probably be safely used if Unraid is installed on a HDD, SSD, NVME device.<br />
-					Earlier it updated hourly, which caused some flash memories to wear out over time. The new default is "Disabled"<br />
-					Be aware that S.M.A.R.T status LED and other data will be less accurate the longer interval you set.<br />
-					If it's disabled, you have to update "SMART" under "System" to update the information manually.
-				</blockquote>
-				<p>
-					<b>S.M.A.R.T execution delay:</b><br />
-					<input type="number" required min="0" max="5000" name="smart_exec_delay" value="<?php print($smart_exec_delay); ?>" style="width: 50px;" />ms
-				</p>
-				<blockquote class='inline_help'>
-					This is a delay for execution of the next smartctl command in a loop, this might be necessary to be able to read all the S.M.A.R.T data from all the drives. Default value is 200ms, and seems to work very well. If you realize it won't detect all the data you can increase this value, but hardly any point decreasing it.
-				</blockquote>
-				-->
 			</td>
 			<td style="padding-left: 25px; vertical-align: top;">
 				<h2 style="padding-bottom: 25px;">Visible Frontpage Information</h2>

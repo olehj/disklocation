@@ -99,8 +99,8 @@
 	}
 	
 	require_once("default_settings.php");
-	( file_exists("sqlite_tables.php") ?? require_once("sqlite_tables.php" ) );
-	//( (file_exists("sqlite_tables.php") && file_exists(DISKLOCATION_CONF) && file_exists(DISKLOCATION_DEVICES) && file_exists(DISKLOCATION_LOCATIONS) && file_exists(DISKLOCATION_GROUPS)) ?? unlink("sqlite_table.php") );
+	( (!file_exists(DISKLOCATION_DEVICES) && file_exists("sqlite_tables.php")) ?? require_once("sqlite_tables.php" ) ); // do not load SQLite anymore if the devices.json exists.
+	//( (file_exists("sqlite_tables.php") && file_exists(DISKLOCATION_DEVICES) && file_exists(DISKLOCATION_LOCATIONS) && file_exists(DISKLOCATION_GROUPS)) ?? unlink("sqlite_table.php") );
 	
 	$select_db_info_default = $select_db_info;
 	$sort_db_info_default = $sort_db_info;

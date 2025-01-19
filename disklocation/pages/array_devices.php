@@ -80,6 +80,8 @@
 		$devices[$hash]["formatted"]["removed"] = $devices[$hash]["raw"]["removed"];
 		$devices[$hash]["raw"]["comment"] = $data["comment"];
 		$devices[$hash]["formatted"]["comment"] = $devices[$hash]["raw"]["comment"]; // bscode2html(stripslashes(htmlspecialchars($data["comment"])))
+		$devices[$hash]["raw"]["color"] = $data["color"];
+		$devices[$hash]["formatted"]["color"] = $devices[$hash]["raw"]["color"];
 		
 		// SMART files $smart_array:
 		$smart_file[$hash] = file_get_contents(DISKLOCATION_TMP_PATH."/smart/".str_replace(" ", "_", $devices[$hash]["raw"]["model"])."_" . $devices[$hash]["raw"]["serial"] . ".json");
