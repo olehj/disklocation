@@ -21,54 +21,34 @@
 	
 	require_once("functions.php");
 	
-	// get settings from DB as $var
-	// include("load_settings.php");
-	
 	if(isset($_POST["hash_delete"])) {
-		$sql = "
-			UPDATE disks SET
-				status = 'd'
-			WHERE hash = '" . SQLite3::escapeString($_POST["hash_delete"]) . "'
-			;
-		";
-		
-		$ret = $db->exec($sql);
-		if(!$ret) {
-			echo $db->lastErrorMsg();
+		foreach($get_devices as $key => $data) {
+			if($_POST["hash_delete"] == $key) {
+				$get_devices[$_POST["hash_delete"]]["status"] = 'd';
+			}
 		}
 		
-		//$db->close();
+		config_array(DISKLOCATION_DEVICES, 'w', $get_devices);
 		
-		//header("Location: " . DISKLOCATION_URL);
-		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-		//exit;
+		$SUBMIT_RELOAD = 1;
 	}
 	
 	if(isset($_POST["hash_remove"])) {
-		if(!force_set_removed_device_status($db, $_POST["hash_remove"])) { die("<p style=\"color: red;\">ERROR: Could not set status for the drive with hash: " . $_POST["hash_remove"] . "</p>"); }
+		if(!force_set_removed_device_status($get_devices, $get_locations, $_POST["hash_remove"])) { print("<p style=\"color: red;\">ERROR: Could not set status for the drive with hash: " . $_POST["hash_remove"] . "</p>"); }
 		
-		print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-		exit;
+		$SUBMIT_RELOAD = 1;
 	}
 	
 	if(isset($_POST["hash_add"])) {
-		$sql = "
-			UPDATE disks SET
-				status = 'h'
-			WHERE hash = '" . SQLite3::escapeString($_POST["hash_add"]) . "'
-			;
-		";
-		
-		$ret = $db->exec($sql);
-		if(!$ret) {
-			echo $db->lastErrorMsg();
+		foreach($get_devices as $key => $data) {
+			if($_POST["hash_add"] == $key) {
+				$get_devices[$_POST["hash_add"]]["status"] = 'h';
+			}
 		}
 		
-		//$db->close();
+		config_array(DISKLOCATION_DEVICES, 'w', $get_devices);
 		
-		//header("Location: " . DISKLOCATION_URL);
-		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-		//exit;
+		$SUBMIT_RELOAD = 1;
 	}
 	
 	if(isset($_POST["group_add"])) {
@@ -89,9 +69,6 @@
 		config_array(DISKLOCATION_GROUPS, 'w', $groups);
 		
 		$SUBMIT_RELOAD = 1;
-		//header("Location: " . DISKLOCATION_URL);
-		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-		//exit;
 	}
 	if(isset($_POST["group_del"]) && isset($_POST["last_group_id"])) {
 		$gid = $_POST["last_group_id"];
@@ -109,9 +86,6 @@
 		config_array(DISKLOCATION_LOCATIONS, 'w', $locations);
 		
 		$SUBMIT_RELOAD = 1;
-		//header("Location: " . DISKLOCATION_URL);
-		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-		//exit;
 	}
 	if(isset($_POST["group_swap"])) {
 		list($group_left, $group_right) = explode(":", $_POST["group_swap"]);
@@ -147,9 +121,6 @@
 		config_array(DISKLOCATION_LOCATIONS, 'w', $locations);
 		
 		$SUBMIT_RELOAD = 1;
-		//header("Location: " . DISKLOCATION_URL);
-		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-		//exit;
 	}
 	
 	if(isset($_POST["save_settings"])) {
@@ -163,8 +134,6 @@
 		}
 		
 		// settings
-		//if(!preg_match("/[0-9]{1,5}/", $_POST["smart_exec_delay"])) { $disklocation_error[] = "SMART execution delay missing or invalid number."; }
-		//if(!preg_match("/(hourly|daily|weekly|monthly|disabled)/", $_POST["smart_updates"])) { $disklocation_error[] = "Invalid data for SMART updates."; }
 		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_parity"])) { $disklocation_error[] = "Background color for \"Parity\" invalid."; } else { $_POST["bgcolor_parity"] = str_replace("#", "", $_POST["bgcolor_parity"]); }
 		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_unraid"])) { $disklocation_error[] = "Background color for \"Data\" invalid."; } else { $_POST["bgcolor_unraid"] = str_replace("#", "", $_POST["bgcolor_unraid"]); }
 		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_cache"])) { $disklocation_error[] = "Background color for \"Cache\" invalid."; } else { $_POST["bgcolor_cache"] = str_replace("#", "", $_POST["bgcolor_cache"]); }
@@ -172,32 +141,29 @@
 		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_empty"])) { $disklocation_error[] = "Background color for \"Empty trays\" invalid."; } else { $_POST["bgcolor_empty"] = str_replace("#", "", $_POST["bgcolor_empty"]); }
 		if(!is_numeric($_POST["tray_reduction_factor"])) { $disklocation_error[] = "The size divider is not numeric."; }
 		if(!preg_match("/(0|1)/", $_POST["force_orb_led"])) { $disklocation_error[] = "LED display field is invalid."; }
-		//if(!preg_match("/(u|m)/", $_POST["warranty_field"])) { $disklocation_error[] = "Warranty field is invalid."; }
 		if(!preg_match("/[0-9]{1,4}/", $_POST["serial_trim"])) { $disklocation_error[] = "Serial number trim number invalid."; }
 		
-		//config(DISKLOCATION_CONF, 'w', 'signal_css', $_POST["signal_css"]);
 		use_stylesheet($_POST["signal_css"]);
 		
-		//"group", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial", "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "warranty_exp", "comment"
 		// Infomation
 		if(empty($_POST["select_db_info"])) { $_POST["select_db_info"] = $select_db_info_default; }
 		if(empty($_POST["sort_db_info"])) { $_POST["sort_db_info"] = $sort_db_info_default; }
-		$get_table_order_info = get_table_order($_POST["select_db_info"], $_POST["sort_db_info"], 2, "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1");
-		$get_table_order_info .= get_table_order($_POST["select_db_info"], $_POST["sort_db_info"], 3, "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1");
+		$get_table_order_info = get_table_order($_POST["select_db_info"], $_POST["sort_db_info"], 2, "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1");
+		$get_table_order_info .= get_table_order($_POST["select_db_info"], $_POST["sort_db_info"], 3, "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1");
 		if($get_table_order_info) { $disklocation_error[] = "Table \"Information\": " . $get_table_order_info; }
 		
 		// Tray Allocations / Unassigned
 		if(empty($_POST["select_db_trayalloc"])) { $_POST["select_db_trayalloc"] = $select_db_trayalloc_default; }
 		if(empty($_POST["sort_db_trayalloc"])) { $_POST["sort_db_trayalloc"] = $sort_db_trayalloc_default; }
-		$get_table_order_trayalloc = get_table_order($_POST["select_db_trayalloc"], $_POST["sort_db_trayalloc"], 2, "0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1");
-		$get_table_order_trayalloc .= get_table_order($_POST["select_db_trayalloc"], $_POST["sort_db_trayalloc"], 3, "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1");
+		$get_table_order_trayalloc = get_table_order($_POST["select_db_trayalloc"], $_POST["sort_db_trayalloc"], 2, "0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1");
+		$get_table_order_trayalloc .= get_table_order($_POST["select_db_trayalloc"], $_POST["sort_db_trayalloc"], 3, "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1");
 		if($get_table_order_trayalloc) { $disklocation_error[] = "Table \"Tray Allocations\": " . $get_table_order_trayalloc; }
 		
 		// History
 		if(empty($_POST["select_db_drives"])) { $_POST["select_db_drives"] = $select_db_drives_default; }
 		if(empty($_POST["sort_db_drives"])) { $_POST["sort_db_drives"] = $sort_db_drives_default; }
-		$get_table_order_drives = get_table_order($_POST["select_db_drives"], $_POST["sort_db_drives"], 2, "0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1");
-		$get_table_order_drives .= get_table_order($_POST["select_db_drives"], $_POST["sort_db_drives"], 3, "0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1");
+		$get_table_order_drives = get_table_order($_POST["select_db_drives"], $_POST["sort_db_drives"], 2, "0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1");
+		$get_table_order_drives .= get_table_order($_POST["select_db_drives"], $_POST["sort_db_drives"], 3, "0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1");
 		if($get_table_order_drives) { $disklocation_error[] = "Table \"History\": " . $get_table_order_drives; }
 		
 		// Devices textarea, manual sort
@@ -217,9 +183,6 @@
 			config_array(DISKLOCATION_CONF, 'w', $array);
 			
 			$SUBMIT_RELOAD = 1;
-			//header("Location: " . DISKLOCATION_URL);
-			//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-			//exit;
 		}
 	}
 	
@@ -255,9 +218,6 @@
 			config_array(DISKLOCATION_GROUPS, "w", $new_array);
 			
 			$SUBMIT_RELOAD = 1;
-			//header("Location: " . DISKLOCATION_URL);
-			//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-			//exit;
 		}
 	}
 	
@@ -392,28 +352,16 @@
 			echo $db->lastErrorMsg();
 		}
 		
-		//$db->close();
-		
-		//header("Location: " . DISKLOCATION_URL);
-		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-		//exit;
+		$SUBMIT_RELOAD = 0;
 	}
 	
 	if(isset($_POST["reset_all_colors"])) {
 		force_reset_color($get_disklocation_config, $get_devices, $get_groups, "*");
-		//if(force_reset_color($db, "*")) {
-			//$db->close();
-			//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-			//exit;
-		//}
+		$SUBMIT_RELOAD = 1;
 	}
 	if(isset($_POST["reset_common_colors"])) {
 		force_reset_color($get_disklocation_config, $get_devices, $get_groups);
-		//if(force_reset_color($db)) {
-			//$db->close();
-			//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-			//exit;
-		//}
+		$SUBMIT_RELOAD = 1;
 	}
 	
 	// RELOAD: get settings from DB as $var
@@ -423,9 +371,9 @@
 	$last_group_id = 0;
 	
 	$array_groups = $get_groups;
-	ksort($array_groups, SORT_NUMERIC);
+	( is_array($array_groups) ?? ksort($array_groups, SORT_NUMERIC) );
 	
 	$total_groups = ( is_array($array_groups) ? count($array_groups) : 0 );
 	
-	$last_group_id = array_key_last($array_groups);
+	$last_group_id = ( is_array($array_groups) ? array_key_last($array_groups) : 0 );
 ?>

@@ -32,7 +32,7 @@
 	$force_orb_led =		'0';			// set the LED to 0: show Unraid icons (triangle warning / hot critical) - 1: show circle LEDs (color coded circles).
 	$device_bg_color =		'1';			// choose background for the drives, Drive Type (0) or Heat Map (1)
 	$serial_trim		 = 	'0';			// make serial number friendlier, substr() value -99 - 99.
-	$displayinfo =	json_encode(array(			// this will store an json_encoded array of display settings for the "Device" page.
+	$displayinfo =	array(			// this will store an array of display settings for the "Device" page.
 		'tray' => 1,
 		'leddiskop' => 1,
 		'ledsmart' => 1,
@@ -41,16 +41,16 @@
 		'hideemptycontents' => 0,
 		'flashwarning' => 0,
 		'flashcritical' => 1
-	));
+	);
 	
-	$select_db_info = "group,tray,manufacturer,model,serial,capacity,cache,rotation,formfactor,read,written,manufactured,purchased,installed,warranty,comment";
+	$select_db_info = "group,tray,manufacturer,model,serial,capacity,cache,rotation,formfactor,read,written,manufactured,purchased,installed,expires,comment";
 	$sort_db_info = "asc:group,tray";
 	
 	// mandatory: group,tray,locate,color
-	$select_db_trayalloc = "device,node,lun,manufacturer,model,serial,capacity,rotation,formfactor,manufactured,purchased,installed,warranty,comment";
+	$select_db_trayalloc = "node,manufacturer,model,serial,capacity,rotation,formfactor,manufactured,purchased,installed,warranty,comment";
 	$sort_db_trayalloc = "asc:group,tray";
 	
-	$select_db_drives = "device,manufacturer,model,serial,capacity,cache,rotation,formfactor,manufactured,purchased,installed,removed,warranty,comment";
+	$select_db_drives = "manufacturer,model,serial,capacity,rotation,formfactor,manufactured,purchased,installed,removed,comment";
 	$sort_db_drives = "asc:serial";
 	
 	//not used, but prepared just in case it will be added in the future:

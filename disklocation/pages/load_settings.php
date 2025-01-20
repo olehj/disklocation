@@ -32,6 +32,9 @@
 	if(file_exists(DISKLOCATION_CONF)) {
 		$get_disklocation_config = json_decode(file_get_contents(DISKLOCATION_CONF), true);
 	}
+	if(file_exists(DISKLOCATION_DEVICES)) {
+		$get_devices = json_decode(file_get_contents(DISKLOCATION_DEVICES), true);
+	}
 	if(file_exists(DISKLOCATION_LOCATIONS)) {
 		$get_locations = json_decode(file_get_contents(DISKLOCATION_LOCATIONS), true);
 	}
@@ -39,9 +42,11 @@
 		$get_groups = json_decode(file_get_contents(DISKLOCATION_GROUPS), true);
 	}
 	
-	$displayinfo = ""; // reset variable, otherwise it will be reloaded as an array and fault.
-	
-	extract($get_disklocation_config);
+	// reset variable, otherwise it will be reloaded as an array and fault.
+	if(is_array($get_disklocation_config)) {
+		$displayinfo = "";
+		extract($get_disklocation_config);
+	}
 	
 	$color_array = array();
 	$color_array["empty"] = $bgcolor_empty;

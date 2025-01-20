@@ -70,10 +70,22 @@
 		$devices[$hash]["formatted"]["node"] = str_replace("-", "", $devices[$hash]["raw"]["node"]);
 		$devices[$hash]["raw"]["serial"] = $data["smart_serialnumber"];
 		$devices[$hash]["formatted"]["serial"] = ( isset($devices[$hash]["raw"]["serial"]) ? "" . substr($devices[$hash]["raw"]["serial"], $serial_trim) . "" : null );
+		$devices[$hash]["raw"]["manufacturer"] = $data["manufacturer"];
+		$devices[$hash]["formatted"]["manufacturer"] = $devices[$hash]["raw"]["manufacturer"];
 		$devices[$hash]["raw"]["model"] = $data["model_name"];
 		$devices[$hash]["formatted"]["model"] = $devices[$hash]["raw"]["model"];
+		$devices[$hash]["raw"]["capacity"] = $data["capacity"];
+		$devices[$hash]["formatted"]["capacity"] = ( !is_numeric($devices[$hash]["raw"]["capacity"]) ? null : human_filesize($devices[$hash]["raw"]["capacity"], 1, true) );
+		$devices[$hash]["raw"]["rotation"] = $data["rotation"];
+		$devices[$hash]["formatted"]["rotation"] = get_smart_rotation($devices[$hash]["raw"]["rotation"]);
+		$devices[$hash]["raw"]["formfactor"] = $data["formfactor"];
+		$devices[$hash]["formatted"]["formfactor"] = str_replace(" inches", "&quot;", $devices[$hash]["raw"]["formfactor"]);
 		$devices[$hash]["raw"]["cache"] = $data["smart_cache"];
 		$devices[$hash]["formatted"]["cache"] = "" . ( $devices[$hash]["raw"]["cache"] ? $devices[$hash]["raw"]["cache"] . "MB" : null );
+		$devices[$hash]["raw"]["loadcycle"] = $data["loadcycle"];
+		$devices[$hash]["formatted"]["loadcycle"] = ( !is_numeric($smart_loadcycle) ? null : $smart_loadcycle . "c" );
+		$devices[$hash]["raw"]["powerontime"] = $data["powerontime"];
+		$devices[$hash]["formatted"]["powerontime"] = ( !is_numeric($devices[$hash]["raw"]["powerontime"]) ? null : "" . $devices[$hash]["raw"]["powerontime"] . "h (" . seconds_to_time($devices[$hash]["raw"]["powerontime"] * 60 * 60) . ")" );
 		$devices[$hash]["raw"]["installed"] = $data["installed"];
 		$devices[$hash]["formatted"]["installed"] = $devices[$hash]["raw"]["installed"];
 		$devices[$hash]["raw"]["removed"] = $data["removed"];
@@ -92,18 +104,8 @@
 		$devices[$hash]["formatted"]["lun"] =  $devices[$hash]["raw"]["lun"];
 		$devices[$hash]["raw"]["pool"] = $pool;
 		$devices[$hash]["formatted"]["pool"] = ucfirst($devices[$hash]["raw"]["pool"]);
-		$devices[$hash]["raw"]["manufacturer"] = $smart_array["model_family"];
-		$devices[$hash]["formatted"]["manufacturer"] = $devices[$hash]["raw"]["manufacturer"];
-		$devices[$hash]["raw"]["capacity"] = $smart_array["user_capacity"]["bytes"];
-		$devices[$hash]["formatted"]["capacity"] = ( !is_numeric($devices[$hash]["raw"]["capacity"]) ? null : human_filesize($devices[$hash]["raw"]["capacity"], 1, true) );
-		$devices[$hash]["raw"]["rotation"] = ( empty($smart_array["rotation_rate"]) && recursive_array_search("Solid State Device Statistics", $smart_array) ? -1 : ( isset($smart_array["device"]["type"]) && $smart_array["device"]["type"] == "nvme" ? -2 : $smart_array["rotation_rate"] ));
-		$devices[$hash]["formatted"]["rotation"] = get_smart_rotation($devices[$hash]["raw"]["rotation"]);
-		$devices[$hash]["raw"]["formfactor"] = $smart_array["form_factor"]["name"];
-		$devices[$hash]["formatted"]["formfactor"] = str_replace(" inches", "&quot;", $devices[$hash]["raw"]["formfactor"]);
 		$devices[$hash]["raw"]["smart_status"] = $smart_array["smart_status"]["passed"];
 		$devices[$hash]["formatted"]["smart_status"] = ( ($devices[$hash]["raw"]["smart_status"] == true) ? "OK" : "FAIL");
-		$devices[$hash]["raw"]["powerontime"] = $smart_array["power_on_time"]["hours"];
-		$devices[$hash]["formatted"]["powerontime"] = ( !is_numeric($devices[$hash]["raw"]["powerontime"]) ? null : "" . $devices[$hash]["raw"]["powerontime"] . "h (" . seconds_to_time($devices[$hash]["raw"]["powerontime"] * 60 * 60) . ")" );
 		$devices[$hash]["raw"]["logical_block_size"] = $smart_array["logical_block_size"];
 		$devices[$hash]["formatted"]["logical_block_size"] = $devices[$hash]["raw"]["logical_block_size"];
 		$devices[$hash]["raw"]["nvme_available_spare"]  = $smart_array["nvme_smart_health_information_log"]["available_spare"];
@@ -113,6 +115,12 @@
 		$devices[$hash]["raw"]["nvme_percentage_used"] =  $smart_array["nvme_smart_health_information_log"]["percentage_used"];
 		$devices[$hash]["formatted"]["nvme_percentage_used"] =  $devices[$hash]["raw"]["nvme_percentage_used"] . "%";
 		
+		// Both DB $data & SMART files $smart_array:
+		$devices[$hash]["raw"]["smart_units_read"] = ( $data["smart_units_read"] ? $data["smart_units_read"] : 0 );
+		$devices[$hash]["formatted"]["smart_units_read"] = (($devices[$hash]["raw"]["rotation"] == -2) ? human_filesize(smart_units_to_bytes($devices[$hash]["raw"]["smart_units_read"], $devices[$hash]["raw"]["logical_block_size"], true), 1, true) : human_filesize(smart_units_to_bytes($devices[$hash]["raw"]["smart_units_read"], $devices[$hash]["raw"]["logical_block_size"], true, true), 1, true) );
+		$devices[$hash]["raw"]["smart_units_written"] = ( $data["smart_units_written"] ? $data["smart_units_written"] : 0 );
+		$devices[$hash]["formatted"]["smart_units_written"] = (($devices[$hash]["raw"]["rotation"] == -2) ? human_filesize(smart_units_to_bytes($devices[$hash]["raw"]["smart_units_written"], $devices[$hash]["raw"]["logical_block_size"], true), 1, true) : human_filesize(smart_units_to_bytes($devices[$hash]["raw"]["smart_units_written"], $devices[$hash]["raw"]["logical_block_size"], true, true), 1, true) );
+		
 		// SMART data to be parsed on deeper level:
 		if(isset($smart_array["device"]["protocol"]) && $smart_array["device"]["protocol"] == "SCSI") {
 			$smart_loadcycle = ( is_array($smart_array["accumulated_load_unload_cycles"]) ?? $smart_array["accumulated_load_unload_cycles"] );
@@ -120,21 +128,10 @@
 		$smart_errors = array();
 		$unraid_smart_arr = explode("|", empty($unraid_array[$devicenode]["smEvents"]) ? $get_global_smEvents : $unraid_array[$devicenode]["smEvents"] );
 		$smart_status = ( ($smart_array["smart_status"]["passed"] == true) ? 1 : 0);
-		$smart_units_read = $smart_array["nvme_smart_health_information_log"]["data_units_read"];
-		$smart_units_written = $smart_array["nvme_smart_health_information_log"]["data_units_written"];
+		
 		if(isset($smart_array["ata_smart_attributes"]["table"])) {
 			$smart_i = 0;
 			while($smart_i < count($smart_array["ata_smart_attributes"]["table"])) {
-				if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Load_Cycle_Count") {
-					$smart_loadcycle = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"];
-				}
-				if($smart_array["ata_smart_attributes"]["table"][$smart_i]["id"] == 241) {
-					$smart_units_written = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"];
-				}
-				if($smart_array["ata_smart_attributes"]["table"][$smart_i]["id"] == 242) {
-					$smart_units_read = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"];
-				}
-				
 				if(in_array($smart_array["ata_smart_attributes"]["table"][$smart_i]["id"], $unraid_smart_arr)) {
 					if($smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"] > 0) {
 						$smart_errors[$smart_i]["name"] = "" . str_replace("_", " ", $smart_array["ata_smart_attributes"]["table"][$smart_i]["name"]) . "";
@@ -144,13 +141,6 @@
 				$smart_i++;
 			}
 		}
-		
-		$devices[$hash]["raw"]["smart_units_read"] = $smart_units_read;
-		$devices[$hash]["formatted"]["smart_units_read"] = (($devices[$hash]["raw"]["rotation"] == -2) ? human_filesize(smart_units_to_bytes($devices[$hash]["raw"]["smart_units_read"], $devices[$hash]["raw"]["logical_block_size"], true), 1, true) : human_filesize(smart_units_to_bytes($devices[$hash]["raw"]["smart_units_read"], $devices[$hash]["raw"]["logical_block_size"], true, true), 1, true) );
-		$devices[$hash]["raw"]["smart_units_written"] = $smart_units_written;
-		$devices[$hash]["formatted"]["smart_units_written"] = (($devices[$hash]["raw"]["rotation"] == -2) ? human_filesize(smart_units_to_bytes($devices[$hash]["raw"]["smart_units_written"], $devices[$hash]["raw"]["logical_block_size"], true), 1, true) : human_filesize(smart_units_to_bytes($devices[$hash]["raw"]["smart_units_written"], $devices[$hash]["raw"]["logical_block_size"], true, true), 1, true) );
-		$devices[$hash]["raw"]["loadcycle"] = $smart_loadcycle;
-		$devices[$hash]["formatted"]["loadcycle"] = ( !is_numeric($smart_loadcycle) ? null : $smart_loadcycle . "c" );
 		
 		$smart_errors_text = "";
 		$smart_i = 0;

@@ -18,198 +18,20 @@
 	 *  along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
 	 *
 	 */
-	// Set to 1|2|3 to enable debugging:
-	$debugging_active = 0;
 	
-	// Set warning level
-	//error_reporting(E_ERROR | E_WARNING | E_PARSE);
-	error_reporting(E_ERROR);
-	
-	// define constants
-	define("UNRAID_CONFIG_PATH", "/boot/config");
-	define("EMHTTP_ROOT", "/usr/local/emhttp");
-	define("EMHTTP_VAR", "/var/local/emhttp");
-	define("DISKLOCATION_URL", "/Tools/disklocation");
-	define("DISKLOCATIONCONF_URL", "/Tools/disklocation");
-	define("DISKLOCATION_PATH", "/plugins/disklocation");
-	define("DISKLOCATION_TMP_PATH", "/tmp/disklocation");
-	define("DISKLOCATION_CONF", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.conf");
-	define("DISKLOCATION_DEVICES", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/devices.json");
-	define("DISKLOCATION_LOCATIONS", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/locations.json");
-	define("DISKLOCATION_GROUPS", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/groups.json");
-	define("DISKLOCATION_DB_DEFAULT", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.sqlite");
-	define("DISKLOCATION_LOCK_FILE", DISKLOCATION_TMP_PATH . "/db.lock");
-	define("CRONJOB_URL", DISKLOCATION_PATH . "/pages/cron_disklocation.php");
-	define("CRONJOB_FILE", EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/cron_disklocation.php");
-	define("DISKLOGFILE", UNRAID_CONFIG_PATH . "/disk.log");
-	define("UNRAID_DISKS_FILE", "disks.ini");
-	define("UNRAID_DEVS_FILE", "devs.ini");
-	define("UNRAID_MONITOR_FILE", "monitor.ini");
-	define("SMART_ALL_FILE", "smart-all.cfg");
-	define("SMART_ONE_FILE", "smart-one.cfg");
-	
-	$get_page_info = array();
-	$get_page_info["Version"] = "";
-	$get_page_info = parse_ini_file("" . EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/disklocation.page");
-	define("DISKLOCATION_VERSION", $get_page_info["Version"]);
-	
-	if(file_exists(DISKLOCATION_CONF)) {
-		$get_disklocation_config = json_decode(file_get_contents(DISKLOCATION_CONF), true);
-	}
-	if(file_exists(DISKLOCATION_DEVICES)) {
-		$get_devices = json_decode(file_get_contents(DISKLOCATION_DEVICES), true);
-	}
-	if(file_exists(DISKLOCATION_LOCATIONS)) {
-		$get_locations = json_decode(file_get_contents(DISKLOCATION_LOCATIONS), true);
-	}
-	if(file_exists(DISKLOCATION_GROUPS)) {
-		$get_groups = json_decode(file_get_contents(DISKLOCATION_GROUPS), true);
-	}
-	
-	$unraid_disks = array();
-	$unraid_devs = array();
-	
-	if(is_file(EMHTTP_VAR . "/" . UNRAID_DISKS_FILE)) {
-		$unraid_disks = parse_ini_file(EMHTTP_VAR . "/" . UNRAID_DISKS_FILE, true);
-	}
-	if(is_file(EMHTTP_VAR . "/" . UNRAID_DEVS_FILE)) {
-		$unraid_devs = parse_ini_file(EMHTTP_VAR . "/" . UNRAID_DEVS_FILE, true);
-	}
-	if(is_file(UNRAID_CONFIG_PATH . "/" . SMART_ALL_FILE)) {
-		$unraid_smart_all = parse_ini_file(UNRAID_CONFIG_PATH . "/" . SMART_ALL_FILE, true);
-	}
-	if(is_file(UNRAID_CONFIG_PATH . "/" . SMART_ONE_FILE)) {
-		$unraid_smart_one = parse_ini_file(UNRAID_CONFIG_PATH . "/" . SMART_ONE_FILE, true);
-	}
-	
-	$disklocation_error = array();
-	$disklocation_new_install = 0;
-	$group = array();
-	$unraid_disklog = array();
-	$installed_drives = array();
-	
-	global $unraid, $GLOBALS;
-	
-	if(!isset($argv)) {
-		$argv = array();
-	}
-	
-	if(!is_file(DISKLOCATION_CONF)) {
-		$disklocation_new_install = 1;
-	}
-	
-	require_once("default_settings.php");
-	( (!file_exists(DISKLOCATION_DEVICES) && file_exists("sqlite_tables.php")) ?? require_once("sqlite_tables.php" ) ); // do not load SQLite anymore if the devices.json exists.
-	//( (file_exists("sqlite_tables.php") && file_exists(DISKLOCATION_DEVICES) && file_exists(DISKLOCATION_LOCATIONS) && file_exists(DISKLOCATION_GROUPS)) ?? unlink("sqlite_table.php") );
-	
-	$select_db_info_default = $select_db_info;
-	$sort_db_info_default = $sort_db_info;
-
-	$select_db_trayalloc_default = $select_db_trayalloc;
-	$sort_db_trayalloc_default = $sort_db_trayalloc;
-	
-	$select_db_drives_default = $select_db_drives;
-	$sort_db_drives_default = $sort_db_drives;
-	
-	$select_db_devices_default = $select_db_devices;
-	
-	$css_serial_number_highlight_default = $css_serial_number_highlight;
-	
-	$bgcolor_parity_default = $bgcolor_parity;
-	$bgcolor_unraid_default = $bgcolor_unraid;
-	$bgcolor_cache_default = $bgcolor_cache;
-	$bgcolor_others_default = $bgcolor_others;
-	$bgcolor_empty_default = $bgcolor_empty;
-	
-	$sql_status = "";
-
-	// get Unraid disks
-	$get_default_smEvents = "5|187|197|198|199"; // default Unraid smEvents
-	$get_global_smType = ( isset($unraid_smart_all["smType"]) ? $unraid_smart_all["smType"] : null );
-	$get_global_smSelect = ( isset($unraid_smart_all["smSelect"]) ? $unraid_smart_all["smSelect"] : null );
-	$get_global_smEvents = ( isset($unraid_smart_all["smEvents"]) ? $unraid_smart_all["smEvents"] : $get_default_smEvents );
-	$get_global_smCustom = ( isset($unraid_smart_all["smCustom"]) ? $unraid_smart_all["smCustom"] : null );
-	
-	if(is_array($unraid_disks) && is_array($unraid_devs)) {
-		$unraid_devs = array_values(array_merge($unraid_disks, $unraid_devs));
-	}
-	else {
-		if(is_array($unraid_disks)) {
-			$unraid_devs = array_values($unraid_disks);
-		}
-		else if(is_array($unraid_devs)) {
-			$unraid_devs = array_values($unraid_devs);
-		}
-	}
-	
-	// modify the array to suit our needs
-	
-	$unraid_array = array();
-	//$unraid_unassigned = array();
-	$smart_controller_devs = array();
-	
-	$i=0;
-	while($i < count($unraid_devs)) {
-		$getdevicenode = $unraid_devs[$i]["device"];
-		$getdeviceid = $unraid_devs[$i]["id"];
-		
-		if(!isset($unraid_smart_one[$getdeviceid]["hotTemp"])) { 
-			$unraid_smart_one[$getdeviceid]["hotTemp"] = 0;
-		}
-		if(!isset($unraid_smart_one[$getdeviceid]["maxTemp"])) { 
-			$unraid_smart_one[$getdeviceid]["maxTemp"] = 0;
-		}
-		
-		$smart_controller_devs[$i] = "" . ( isset($unraid_smart_one[$getdeviceid]["smType"]) ? $unraid_smart_one[$getdeviceid]["smType"] : $get_global_smType ) . "" . ( isset($unraid_smart_one[$getdeviceid]["smPort1"]) ? "," . $unraid_smart_one[$getdeviceid]["smPort1"] : null ) . "" . ( isset($unraid_smart_one[$getdeviceid]["smPort2"]) ? $unraid_smart_one[$getdeviceid]["smGlue"] . "" . $unraid_smart_one[$getdeviceid]["smPort2"] : null ) . "" . ( isset($unraid_smart_one[$getdeviceid]["smPort3"]) ? $unraid_smart_one[$getdeviceid]["smGlue"] . "" . $unraid_smart_one[$getdeviceid]["smPort3"] : null ) . "" . ( isset($unraid_smart_one[$getdeviceid]["smDevice"]) ? " /dev/" . $unraid_smart_one[$getdeviceid]["smDevice"] : null ) . "";
-		
-		if($getdevicenode) {
-			$unraid_array[$getdevicenode] = array(
-				"name" => ($unraid_devs[$i]["name"] ?? null),
-				"device" => ($unraid_devs[$i]["device"] ?? null),
-				"status" => ($unraid_devs[$i]["status"] ?? null),
-				"type" => ($unraid_devs[$i]["type"] ?? null),
-				"temp" => ($unraid_devs[$i]["temp"] ?? null),
-				"hotTemp" => ($unraid_smart_one[$getdeviceid]["hotTemp"] ?? null),
-				"maxTemp" => ($unraid_smart_one[$getdeviceid]["maxTemp"] ?? null),
-				"color" => ($unraid_devs[$i]["color"] ?? null),
-				"fscolor" => ($unraid_devs[$i]["fsColor"] ?? null),
-				"smart_controller_cmd" => ($smart_controller_devs[$i] ?? null),
-				"smSelect" => ($unraid_smart_one[$getdeviceid]["smSelect"] ?? null),
-				"smEvents" => ($unraid_smart_one[$getdeviceid]["smEvents"] ?? null),
-				"smCustom" => ($unraid_smart_one[$getdeviceid]["smCustom"] ?? null),
-			);
-		}
-		$i++;
-	}
-	
-	// get all attached SCSI drives - usually should grab all local drives available
-	//$lsscsi_cmd = shell_exec("lsscsi -u -g");
-	$lsscsi_cmd = shell_exec("lsscsi -b -g");
-	$lsscsi_arr = explode(PHP_EOL, $lsscsi_cmd);
-	
-	// get disk logs
-	if(is_file(DISKLOGFILE)) {
-		$unraid_disklog = parse_ini_file(DISKLOGFILE, true);
-	}
-	
-	if(in_array("cronjob", $argv) || in_array("force", $argv)) {
-		if(!isset($argv[2])) { 
-			$debugging_active = 0;
-		}
-		set_time_limit(600); // set to 10 minutes.
+	if(!strstr($_SERVER["SCRIPT_NAME"], "page_system.php")) {
+		require_once("variables.php");
 	}
 	
 	function debug_print($act, $line, $section, $message) {
 		if($act == 1 && $section && $message) {
 			// write out directly and flush out the results asap
-			$out = "<span style=\"color: red;\">[" . date("His") . "] <b>" . basename(__FILE__) . ":<i>" . $line . "</i></b> @ " . $section . ": " . $message . "</span><br />\n";
-			print($out);
-			file_put_contents("" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/debugging.html", $out, FILE_APPEND);
-			flush();
+			$out = "[" . date("H:i:s") . "] " . basename(__FILE__) . ":" . $line . " @ " . $section . ": " . $message . "\n";
+			file_put_contents("" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.log", $out, FILE_APPEND);
 			return true;
 		}
 		if($act == 2 && $section != "SQL") {
-			print("[" . date("His") . "] " . basename(__FILE__) . ":" . $line . " @ " . $section . ": " . $message . "\n");
+			print("[" . date("H:i:s") . "] " . basename(__FILE__) . ":" . $line . " @ " . $section . ": " . $message . "\n");
 			flush();
 		}
 		if($act == 3 && $section == "loop") {
@@ -331,20 +153,20 @@
 		$select = preg_replace('/\s+/', '', $select);
 		$sort = preg_replace('/\s+/', '', $sort);
 		$table = array( // Table names:
-			"groupid", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial", "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "expires", "comment"
+			"groupid", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial", "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "expires", "comment", "smart_units_read", "smart_units_written"
 		);
 		$input = array( // User input names - must also match $sort:
-			"group", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial", "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "expires", "comment"
+			"group", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial", "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "expires", "comment", "read", "written"
 		);
 		$nice_names = array(
-			"Group", "Tray", "Path", "Node", "Pool", "Name", "LUN", "Manufacturer", "Device Model", "S/N", "Capacity", "Cache", "Rotation", "FF", "Manufactured", "Purchased", "Installed", "Removed", "Warranty", "Expires", "Comment"
+			"Group", "Tray", "Path", "Node", "Pool", "Name", "LUN", "Manufacturer", "Device Model", "S/N", "Capacity", "Cache", "Rotation", "FF", "Manufactured", "Purchased", "Installed", "Removed", "Warranty", "Expires", "Comment", "Read", "Written"
 		);
 		$full_names = array(
-			"Group", "Tray", "Path", "Node", "Pool Name", "Disk Name", "Logic Unit Number", "Manufacturer", "Device Model", "Serial Number", "Capacity", "Cache Size", "Rotation", "Form Factor", "Manufactured Date", "Purchased Date", "Installed Date", "Removed Date", "Warranty Period", "Warranty Expires", "Comment"
+			"Group", "Tray", "Path", "Node", "Pool Name", "Disk Name", "Logic Unit Number", "Manufacturer", "Device Model", "Serial Number", "Capacity", "Cache Size", "Rotation", "Form Factor", "Manufactured Date", "Purchased Date", "Installed Date", "Removed Date", "Warranty Period", "Warranty Expires", "Comment", "Smart Units Read", "Smart Units Written"
 		);
 		$input_form = array(
 			//                10                  20                  30
-			1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1,1
+			1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,0,1,0,0
 		);
 		
 		if($select == "all") {
@@ -492,7 +314,7 @@
 				"manufactured" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["manufactured"] . "</td>",
 				"purchased" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["purchased"] . "</td>",
 				"warranty" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["warranty"] . "</td>",
-				"expires" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["expires"] . "</td>",
+				"expires" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["expires"] . "</td>",
 				"comment" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . bscode2html(stripslashes(htmlspecialchars($array["comment"]))) . "</td>"
 			);
 		}
@@ -841,7 +663,7 @@
 		for($i=0; $i < count($old_hash); ++$i) {
 			if($db[$old_hash[$i]]["status"] != 'r') {
 				$db[$old_hash[$i]]["status"] = 'r';
-				$db[$old_hash[$i]]["removed"] = "" . date("Y-m-d") . "";
+				$db[$old_hash[$i]]["removed"] = date("Y-m-d");
 				
 				unset($locations[$old_hash[$i]]);
 			}
@@ -851,50 +673,44 @@
 		config_array(DISKLOCATION_LOCATIONS, 'w', $locations);
 	}
 	
-	function force_set_removed_device_status($db, $hash) {
-		$sql_status .= "
-			UPDATE disks SET
-				status = 'r',
-				removed = '" . date("Y-m-d") . "'
-			WHERE hash = '" . SQLite3::escapeString($hash) . "'
-			;
-			DELETE FROM location WHERE hash = '" . SQLite3::escapeString($hash) . "';
-		";
+	function force_set_removed_device_status($db, $locations, $hash) {
+		foreach($db as $key => $data) {
+			if($hash == $key) {
+				$db[$hash]["status"] = 'r';
+				$db[$hash]["removed"] = date("Y-m-d");
+				
+				unset($locations[$hash]);
+			}
+		}
 		
-		$ret = $db->exec($sql_status);
-		if(!$ret) {
-			return $db->lastErrorMsg();
-		}
-		else {
-			return $hash;
-		}
+		return ( config_array(DISKLOCATION_DEVICES, 'w', $db) && config_array(DISKLOCATION_LOCATIONS, 'w', $locations) ? true : false );
 	}
 	
 	function force_undelete_devices($db, $action) {
 		// r = read
 		// m = modify
 		
-		if($action == 'r') {
-			$i=0;
-			foreach($db as $key => $data) {
-				$ret += ( $db["status"] == 'd' ?? ++$i );
-			}
-		}
-		if($action == 'm') {
-			$sql_status = "
-				UPDATE disks SET
-					status='r'
-				WHERE status='d'
-				;
-			";
-			$ret = $db->exec($sql_status);
-		}
-		
-		if(!$ret && $action == 'm') {
-			return $db->lastErrorMsg();
-		}
-		else {
-			return $ret;
+		switch($action) {
+			case 'r': // read
+				$i=0;
+				foreach($db as $key => $data) {
+					$ret += ( $db[$key]["status"] == 'd' ?? ++$i );
+				}
+				return $ret;
+				
+				break;
+			case 'm': // modify
+				foreach($db as $key => $data) {
+					if($db[$key]["status"] == 'd') {
+						$db[$key]["status"] = 'r';
+					}
+				}
+				
+				return ( config_array(DISKLOCATION_DEVICES, 'w', $db) ? true : false );
+				
+				break;
+			default:
+				return false;
 		}
 	}
 	

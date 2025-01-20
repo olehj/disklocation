@@ -218,18 +218,52 @@
 					}
 					
 					if($force_scan_db) {
+						debug_print($debugging_active, __LINE__, "HASH", "#:" . $i . ":" . $deviceid[$i] . "");
+						
 						$smart_model_family = ( $smart_array["scsi_product"] ? $smart_array["scsi_product"] : ( $smart_array["product"] ?: $smart_array["model_family"] ) );
 						$smart_cache = get_smart_cache("" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . "");
 						
-						debug_print($debugging_active, __LINE__, "HASH", "#:" . $i . ":" . $deviceid[$i] . "");
+						$smart_units_read = $smart_array["nvme_smart_health_information_log"]["data_units_read"];
+						$smart_units_written = $smart_array["nvme_smart_health_information_log"]["data_units_written"];
+						if(isset($smart_array["ata_smart_attributes"]["table"])) {
+							$smart_i = 0;
+							while($smart_i < count($smart_array["ata_smart_attributes"]["table"])) {
+								if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Load_Cycle_Count") {
+									$smart_loadcycle = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"];
+								}
+								if($smart_array["ata_smart_attributes"]["table"][$smart_i]["id"] == 241) {
+									$smart_units_written = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"];
+								}
+								if($smart_array["ata_smart_attributes"]["table"][$smart_i]["id"] == 242) {
+									$smart_units_read = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"];
+								}
+								
+								if(in_array($smart_array["ata_smart_attributes"]["table"][$smart_i]["id"], $smart_array)) {
+									if($smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"] > 0) {
+										$smart_errors[$smart_i]["name"] = "" . str_replace("_", " ", $smart_array["ata_smart_attributes"]["table"][$smart_i]["name"]) . "";
+										$smart_errors[$smart_i]["value"] = "" . $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"] . "";
+									}
+								}
+								$smart_i++;
+							}
+						}
 						
 						if(isset($smart_array["serial_number"]) && $smart_model_name) {
 							$update[$deviceid[$i]] = array( // overwrite selected values
 								"device" => ($lsscsi_device[$i] ?? null),
 								"devicenode" => ($lsscsi_devicenode[$i] ?? null),
+								"manufacturer" => ($smart_array["model_family"] ?? null),
 								"model_name" => ( empty($devices_current[$deviceid[$i]]["model_name"]) ? $smart_model_name : $devices_current[$deviceid[$i]]["model_name"] ),
 								"smart_serialnumber" => ( empty($devices_current[$deviceid[$i]]["smart_serialnumber"]) ? $smart_array["serial_number"] : $devices_current[$deviceid[$i]]["smart_serialnumber"] ),
+								"capacity" => ($smart_array["user_capacity"]["bytes"] ?? null),
+								"rotation" => ( empty($smart_array["rotation_rate"]) && recursive_array_search("Solid State Device Statistics", $smart_array) ? -1 : ( isset($smart_array["device"]["type"]) && $smart_array["device"]["type"] == "nvme" ? -2 : $smart_array["rotation_rate"] )),
+								"formfactor" => ($smart_array["form_factor"]["name"] ?? null),
 								"smart_cache" => ($smart_cache ?? null),
+								"logical_block_size" => $smart_array["logical_block_size"],
+								"smart_units_read" => $smart_units_read,
+								"smart_units_written" => $smart_units_written,
+								"loadcycle" => $smart_loadcycle,
+								"powerontime" => $smart_array["power_on_time"]["hours"],
 								"status" => ( !file_exists(DISKLOCATION_DEVICES) ? 'h' : $devices_current[$deviceid[$i]]["status"] )
 							);
 							$devices_updates = array_replace_recursive($devices_current, $update);
@@ -241,7 +275,15 @@
 									"removed" => ''
 								);
 							}
-							$devices = array_replace_recursive($devices_updates, $location);
+							$location_update = array_replace_recursive($devices_updates, $location);
+							
+							$new_device[$deviceid[$i]] = array();
+							if(!array_key_exists($deviceid[$i], $devices_current)) { // if device is new and never seen, add installation date:
+								$new_device[$deviceid[$i]] = array(
+									"installed" => date("Y-m-d")
+								);
+							}
+							$devices = array_replace_recursive($location_update, $new_device);
 						}
 						else {
 							debug_print($debugging_active, __LINE__, "DB", "#:" . $i . ":<pre>Invalid SMART information, skipping...</pre>");

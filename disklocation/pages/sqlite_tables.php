@@ -603,6 +603,8 @@
 		hash
 	";
 	
+	define("DISKLOCATION_DB_DEFAULT", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.sqlite");
+	
 	if(file_exists(DISKLOCATION_CONF)) {
 		$get_disklocation_config = json_decode(file_get_contents(DISKLOCATION_CONF), true);
 		if(isset($get_disklocation_config["database_location"])) {
@@ -1046,9 +1048,11 @@
 			$db_update = 1;
 			
 		// Settings
-			if(file_exists(DISKLOCATION_CONF)) {
+			if(file_exists(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.conf")) {
 				$settings = $get_disklocation_config; // = json_decode(file_get_contents(DISKLOCATION_CONF), true);
 			}
+			( file_exists(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.noscan") ? unlink(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.noscan") : null );
+			
 			$sql = "SELECT * FROM settings";
 			$ret = $db->exec($sql);
 			if(!$ret) {
@@ -1068,7 +1072,7 @@
 					$settings["force_orb_led"] = $res["force_orb_led"];
 					$settings["device_bg_color"] = $res["dashboard_widget"];
 					$settings["serial_trim"] = $res["dashboard_widget_pos"];
-					$settings["displayinfo"] = $res["displayinfo"];
+					$settings["displayinfo"] = json_decode($res["displayinfo"], true);
 					$settings["select_db_info"] = $res["select_db_info"];
 					$settings["sort_db_info"] = $res["sort_db_info"];
 					$settings["select_db_trayalloc"] = $res["select_db_trayalloc"];
@@ -1152,6 +1156,23 @@
 					$devices[$res["hash"]]["installed"] = $res["installed"];
 					$devices[$res["hash"]]["removed"] = $res["removed"];
 					$devices[$res["hash"]]["comment"] = $res["comment"];
+					// store these values too, for "History", but otherwise not required. Will still be updated as long as they are in the system.
+					$devices[$res["hash"]]["lun"] = $res["luname"];
+					$devices[$res["hash"]]["manufacturer"] = $res["model_family"];
+					$devices[$res["hash"]]["smart_status"] = $res["smart_status"];
+					$devices[$res["hash"]]["powerontime"] = $res["smart_powerontime"];
+					$devices[$res["hash"]]["loadcycle"] = $res["smart_loadcycle"];
+					$devices[$res["hash"]]["capacity"] = $res["smart_capacity"];
+					$devices[$res["hash"]]["rotation"] = $res["smart_rotation"];
+					$devices[$res["hash"]]["formfactor"] = $res["smart_formfactor"];
+					$devices[$res["hash"]]["logical_block_size"] = $res["smart_logical_block_size"];
+					$devices[$res["hash"]]["smart_units_read"] = $res["smart_units_read"];
+					$devices[$res["hash"]]["smart_units_written"] = $res["smart_units_written"];
+					$devices[$res["hash"]]["manufactured"] = $res["manufactured"];
+					$devices[$res["hash"]]["purchased"] = $res["purchased"];
+					$devices[$res["hash"]]["installed"] = $res["installed"];
+					$devices[$res["hash"]]["removed"] = $res["removed"];
+					$devices[$res["hash"]]["warranty"] = $res["warranty"];
 				}
 			}
 			if(!file_put_contents(DISKLOCATION_DEVICES, json_encode($devices, JSON_PRETTY_PRINT))) {
@@ -1160,7 +1181,7 @@
 		
 		if(!in_array("cronjob", $argv) && !$_POST["download_csv"]) { print("</h3>"); }
 		if($db_update == 1) {
-			print("<h3>Database successfully updated</h3>");
+			print("<h3>Database successfully converted.</h3>"); // updated.
 			if(!in_array("cronjob", $argv)) {
 				$db->close();
 					print("<meta http-equiv=\"refresh\" content=\"3;url=" . DISKLOCATION_URL . "\" /><br />refreshing...");

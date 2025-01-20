@@ -20,7 +20,7 @@
 	 */
 	unset($print_drives);
 	
-	// Tray Allocations
+	// Tray Allocations & Unassigned Devices
 	
 	if(!empty($disklocation_error)) {
 		$i=0;
@@ -73,18 +73,18 @@
 	foreach($db_sort as $sort_by) {
 		list($sort, $dir, $flag) = explode(" ", $sort_by);
 		$dir = ( ($dir == 'SORT_ASC') ? SORT_ASC : SORT_DESC );
-		$$sort  = array_column($raw_devices, $sort);
+		$$sort = ( is_array($raw_devices) ? array_column($raw_devices, $sort) : null );
 		$sort_dynamic[] = &$$sort;
 		$sort_dynamic[] = $dir;
 		if($flag) { 
 			$sort_dynamic[] = $flag;
 		}
 	}
-	
-	call_user_func_array('array_multisort', array_merge($sort_dynamic, array(&$raw_devices)));
+	( is_array($raw_devices) ? call_user_func_array('array_multisort', array_merge($sort_dynamic, array(&$raw_devices))) : null );
 	
 	foreach($raw_devices as $key => $data) {
-		if(empty($data["status"]) && $data["groupid"]) {
+		if($data["hash"]) {
+			$status = ( !$data["status"] ? 'a' : $data["status"] );
 			$hash = $data["hash"];
 			
 			$data = $devices[$hash];
@@ -95,13 +95,15 @@
 			
 			$gid = $data["groupid"];
 			
-			extract($array_groups[$gid]);
+			if(is_array($array_groups[$gid])) {
+				extract($array_groups[$gid]);
+			}
 			
 			if($data["color"]) {
 				array_push($custom_colors_array, $data["color"]);
 			}
 			
-			$tray_assign = ( empty($data["tray"]) ? $i : $data["tray"] );
+			$tray_assign = ( empty($data["tray"]) ? null : $data["tray"] );
 			$tray_options = "";
 			for($tray_i = 1; $tray_i <= $biggest_tray_group; ++$tray_i) {
 				if($tray_assign == $tray_i) { $selected="selected"; } else { $selected=""; }
@@ -137,8 +139,8 @@
 			$listarray["warranty"] = "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><select name=\"warranty[" . $hash . "]\" style=\"min-width: 0; max-width: 80px; width: 80px;\"><option value=\"\" style=\"text-align: right;\">unknown</option>" . $warr_options . "</select></td>";
 			$listarray["comment"] = "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><input type=\"text\" name=\"comment[" . $hash . "]\" value=\"" . stripslashes(htmlspecialchars($data["comment"])) . "\" style=\"width: 150px;\" /></td>";
 			
-			$print_drives[$i_drive] .= "<tr style=\"background: #" . $color_array[$hash] . ";\">";
-			$print_drives[$i_drive] .= "
+			$print_drives[$i_drive][$status] .= "<tr style=\"background: #" . $color_array[$hash] . ";\">";
+			$print_drives[$i_drive][$status] .= "
 				<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px; text-align: left;\">
 					<button type=\"submit\" name=\"hash_remove\" value=\"" . $hash . "\" title=\"This will force move the drive to the &quot;History&quot; section.\" style=\"margin: 0; padding: 0; min-width: 0; width: 20px; height: 20px; background-color: #FFFFFF;\"><i style=\"font-size: 15px;\" class=\"fa fa-minus-circle fa-lg\"/></i></button>
 				</td>
@@ -147,10 +149,10 @@
 			
 			$arr_length = count($table_trayalloc_order_system);
 			for($i=0;$i<$arr_length;$i++) {
-				$print_drives[$i_drive] .= $listarray[$table_trayalloc_order_system[$i]];
+				$print_drives[$i_drive][$status] .= $listarray[$table_trayalloc_order_system[$i]];
 			}
 			
-			$print_drives[$i_drive] .= "
+			$print_drives[$i_drive][$status] .= "
 				<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">
 					<input type=\"color\" name=\"bgcolor_custom[" . $hash . "]\" list=\"disklocationColors\" value=\"#" . $bgcolor . "\" " . ($device_bg_color ? "disabled=\"disabled\"" : null ) . " />
 					" . ($device_bg_color ? "<input type=\"hidden\" name=\"bgcolor_custom[" . $hash . "]\" value=\"#" . $bgcolor . "\" />" : null ) . "
@@ -158,88 +160,9 @@
 
 			";
 			
-			$print_drives[$i_drive] .= "</tr>";
+			$print_drives[$i_drive][$status] .= "</tr>";
 			
 			$i_drive++;
-			$i++;
-		}
-	}
-	
-	// Unassigned Devices
-	
-	unset($data);
-	
-	foreach($raw_devices as $key => $data) {
-		if($data["status"] == 'h') {
-			$hash = $data["hash"];
-			
-			$data = $devices[$hash];
-			
-			$formatted = $data["formatted"];
-			$raw = $data["raw"];
-			$data = $data["raw"];
-			
-			$gid = $data["groupid"];
-			
-			$tray_assign = ( empty($data["tray"]) ? $i : $data["tray"] );
-			$tray_options = "";
-			for($tray_i = 1; $tray_i <= $biggest_tray_group; ++$tray_i) {
-				//if($tray_assign == $tray_i) { $selected="selected"; } else { $selected=""; }
-				$tray_options .= "<option value=\"$tray_i\" " . $selected . " style=\"text-align: right;\">$tray_i</option>";
-			}
-			
-			$group_options = "";
-			for($group_i = 0; $group_i < $total_groups; ++$group_i) {
-				$gid = $group[$group_i]["id"];
-				$gid_name = ( empty($group[$group_i]["group_name"]) ? $gid : $group[$group_i]["group_name"] );
-				//if($data["groupid"] == $gid) { $selected="selected"; } else { $selected=""; }
-				$group_options .= "<option value=\"$gid\" " . $selected . " style=\"text-align: left;\">" . stripslashes(htmlspecialchars($gid_name)) . "</option>";
-			}
-			
-			$warr_options = "";
-			$warranty_months = array('6','12','18','24','36','48','60');
-			for($warr_i = 0; $warr_i < count($warranty_months); ++$warr_i) {
-				if($data["warranty"] == $warranty_months[$warr_i]) { $selected="selected"; } else { $selected=""; }
-				$warr_options .= "<option value=\"$warranty_months[$warr_i]\" " . $selected . " style=\"text-align: right;\">$warranty_months[$warr_i] months</option>";
-			}
-			
-			$bgcolor = ( empty($data["color"]) ? $bgcolor_empty : $data["color"] );
-			
-			$listarray = list_array($formatted, 'html', $physical_traynumber);
-			unset($listarray["groupid"]);
-			unset($listarray["tray"]);
-			// Override array for writable forms
-			$listarray["groupid"] = "<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><select name=\"groups[" . $hash . "]\" style=\"min-width: 0; max-width: 150px; min-width: 40px;\"><option value=\"\" selected style=\"text-align: left;\">--</option>" . $group_options . "</select></td>";
-			$listarray["tray"] = "<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><select name=\"drives[" . $hash . "]\" style=\"min-width: 0; max-width: 50px; width: 40px;\"><option value=\"\" selected style=\"text-align: right;\">--</option>" . $tray_options . "</select></td>";
-			$listarray["manufactured"] = "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><input type=\"date\" name=\"manufactured[" . $hash . "]\" max=\"9999-12-31\" value=\"" . $data["manufactured"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" /></td>";
-			$listarray["purchased"] = "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><input type=\"date\" name=\"purchased[" . $hash . "]\" max=\"9999-12-31\" value=\"" . $data["purchased"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" /></td>";
-			$listarray["installed"] = "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><input type=\"date\" name=\"installed[" . $hash . "]\" max=\"9999-12-31\" value=\"" . $data["installed"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" /></td>";
-			$listarray["warranty"] = "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><select name=\"warranty[" . $hash . "]\" style=\"min-width: 0; max-width: 80px; width: 80px;\"><option value=\"\" style=\"text-align: right;\">unknown</option>" . $warr_options . "</select></td>";
-			$listarray["comment"] = "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><input type=\"text\" name=\"comment[" . $hash . "]\" value=\"" . stripslashes(htmlspecialchars($data["comment"])) . "\" style=\"width: 150px;\" /></td>";
-			
-			$print_add_drives .= "<tr style=\"background: #" . $color_array[$hash] . ";\">";
-			$print_add_drives .= "
-				<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px; text-align: left;\">
-					<button type=\"submit\" name=\"hash_remove\" value=\"" . $hash . "\" title=\"This will force move the drive to the &quot;History&quot; section.\" style=\"margin: 0; padding: 0; min-width: 0; width: 20px; height: 20px; background-color: #FFFFFF;\"><i style=\"font-size: 15px;\" class=\"fa fa-minus-circle fa-lg\"/></i></button>
-				</td>
-				<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px; text-align: center;\"><input type=\"button\" class=\"diskLocation\" style=\"background-color: #F2F2F2; transform: none;\" onclick=\"locateStart()\" value=\"Locate\" id=\"" . $data["device"] . "\" name=\"unallocated\" /></td>
-			";
-			
-			$arr_length = count($table_trayalloc_order_system);
-			for($i=0;$i<$arr_length;$i++) {
-				$print_add_drives .= $listarray[$table_trayalloc_order_system[$i]];
-			}
-			
-			$print_add_drives .= "
-				<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">
-					<input type=\"color\" name=\"bgcolor_custom[" . $hash . "]\" list=\"disklocationColors\" value=\"#" . $bgcolor . "\" " . ($device_bg_color ? "disabled=\"disabled\"" : null ) . " />
-					" . ($device_bg_color ? "<input type=\"hidden\" name=\"bgcolor_custom[" . $hash . "]\" value=\"#" . $bgcolor . "\" />" : null ) . "
-				</td>
-
-			";
-			
-			$print_add_drives .= "</tr>";
-			
 			$i++;
 		}
 	}
@@ -275,15 +198,14 @@
 	foreach($db_sort as $sort_by) {
 		list($sort, $dir, $flag) = explode(" ", $sort_by);
 		$dir = ( ($dir == 'SORT_ASC') ? SORT_ASC : SORT_DESC );
-		$$sort  = array_column($raw_devices, $sort);
+		$$sort = ( is_array($raw_devices) ? array_column($raw_devices, $sort) : null );
 		$sort_dynamic[] = &$$sort;
 		$sort_dynamic[] = $dir;
 		if($flag) { 
 			$sort_dynamic[] = $flag;
 		}
 	}
-	
-	call_user_func_array('array_multisort', array_merge($sort_dynamic, array(&$raw_devices)));
+	( is_array($raw_devices) ? call_user_func_array('array_multisort', array_merge($sort_dynamic, array(&$raw_devices))) : null );
 	
 	foreach($raw_devices as $key => $data) {
 		if($data["status"] == 'r') {
@@ -296,15 +218,31 @@
 			$data = $data["raw"];
 			
 			$gid = $data["groupid"];
-			$hash = $data["hash"];
+
+			// override from devices.json as SMART data will be gone when the disk is gone.
+			$formatted["lun"] = $get_devices[$hash]["lun"];
+			$formatted["manufacturer"] = $get_devices[$hash]["manufacturer"];
+			$formatted["smart_status"] = $get_devices[$hash]["smart_status"];
+			$formatted["powerontime"] = ( !is_numeric($get_devices[$hash]["powerontime"]) ? null : "" . $get_devices[$hash]["powerontime"] . "h (" . seconds_to_time($get_devices[$hash]["powerontime"] * 60 * 60) . ")" );
+			$formatted["loadcycle"] = ( !is_numeric($get_devices[$hash]["loadcycle"]) ? null : $get_devices[$hash]["loadcycle"] . "c" );
+			$formatted["capacity"] = ( !is_numeric($get_devices[$hash]["capacity"]) ? null : human_filesize($get_devices[$hash]["capacity"], 1, true) );
+			$formatted["rotation"] = get_smart_rotation($get_devices[$hash]["rotation"]);
+			$formatted["formfactor"] = str_replace(" inches", "&quot;", $get_devices[$hash]["formfactor"]);
+			$formatted["manufactured"] = $get_devices[$hash]["manufactured"];
+			$formatted["purchased"] = $get_devices[$hash]["purchased"];
+			$formatted["installed"] = $get_devices[$hash]["installed"];
+			$formatted["removed"] = $get_devices[$hash]["removed"];
+			$formatted["warranty"] = $get_devices[$hash]["warranty"];
 			
 			$listarray = list_array($formatted, 'html', $physical_traynumber);
+			//unset($listarray["groupid"]);
+			//unset($listarray["tray"]);
 			
 			$print_removed_drives .= "<tr style=\"background: #" . $color_array[$hash] . ";\">";
 			$print_removed_drives .= "
 				<td style=\"padding: 0 10px 0 10px; white-space: nowrap;\">
-					<button type=\"submit\" name=\"hash_delete\" value=\"" . $data["hash"] . "\" title=\"Delete, this will flag the drive hidden in the database.\" style=\"min-width: 0; background-size: 0; margin: 0; padding: 0;\"><i style=\"font-size: 15px;\" class=\"fa fa-minus-circle fa-lg\"></i></button>
-					<button type=\"submit\" name=\"hash_add\" value=\"" . $data["hash"] . "\" title=\"Add, will revert to &quot;not found list&quot; if the drive really does not exists.\" style=\"min-width: 0; background-size: 0; margin: 0; padding: 0;\"><i style=\"font-size: 15px;\" class=\"fa fa-plus-circle fa-lg\"></i></button>
+					<button type=\"submit\" name=\"hash_delete\" value=\"" . $hash . "\" title=\"Delete, this will flag the drive hidden in the database.\" style=\"min-width: 0; background-size: 0; margin: 0; padding: 0;\"><i style=\"font-size: 15px;\" class=\"fa fa-minus-circle fa-lg\"></i></button>
+					<button type=\"submit\" name=\"hash_add\" value=\"" . $hash . "\" title=\"Add, will revert to &quot;not found list&quot; if the drive really does not exists.\" style=\"min-width: 0; background-size: 0; margin: 0; padding: 0;\"><i style=\"font-size: 15px;\" class=\"fa fa-plus-circle fa-lg\"></i></button>
 				</td>
 			";
 			
@@ -317,7 +255,7 @@
 	}
 	
 	$array_groups = $get_groups;
-	ksort($array_groups, SORT_NUMERIC);
+	( is_array($array_groups) ?? ksort($array_groups, SORT_NUMERIC) );
 	$array_devices = $get_devices;
 	$array_locations = $get_locations;
 	$disk_layouts_alloc = "";
@@ -404,7 +342,7 @@
 								If you accidentally click the button on the wrong drive you have to do a "Force scan all" and reassign the drive.
 							</p>
 							<p style="color: red; padding: 0 0 30px 0;"><b>OBS! When allocating drives you must use the TrayID numbers shown in bold and not the physical tray assignment shown on the right/bottom (these are only shown if the numbers differ).</b>
-							<?php print( !empty($device_bg_color) ?? "<br />Custom Color is disabled when \"Heat Map\" is used." ); ?>
+							<?php ( !empty($device_bg_color) ?? print("<br />Custom Color is disabled when \"Heat Map\" is used.") ); ?>
 							</p>
 						</td>
 					</tr>
@@ -420,9 +358,11 @@
 					<?php 
 						$i=1;
 						while($i <= count($print_drives)) {
-							print($print_drives[$i]);
+							print($print_drives[$i]["a"]);
+							$print_add_drives .= $print_drives[$i]["h"];
 							$i++;
 						}
+						$i=1;
 						if(!empty($print_add_drives)) {
 							print("
 									<tr>
@@ -454,17 +394,18 @@
 									<li>"Reset All Custom Colors" will delete all custome stored colors from the database.</li>
 								</ul>
 							</blockquote>
+							<hr />
 						</td>
 					</tr>
 				</table>
 				<?php
 					if(isset($print_removed_drives)) {
 						print("
-							<table style=\"table-layout: auto; width: 0; border-spacing: 2px; border-collapse: separate;\">
+							<table style=\"table-layout: auto; width: 0; border-spacing: 2px; border-collapse: separate; margin: 0;\">
 								<tr>
 									<td style=\"padding: 10px 10px 0 10px;\" colspan=\"15\">
 										<h2>History</h2>
-										<p style=\"padding: 0 0 30px 0;\">
+										<p style=\"padding: 0 0 0 0;\">
 											Warning! The <i class=\"fa fa-minus-circle fa-lg\"></i> button will hide the device permanently from this plugin and can only be reverted by manually changing the flag in the database file (\"Force scan all\" button will not touch hidden devices).<br />
 											While the <i class=\"fa fa-plus-circle fa-lg\"></i> button will re-add the drive to the main list for tray allocation, it will revert back to the not found list if the drive does actually not exists after using \"Force scan all\".
 										</p>

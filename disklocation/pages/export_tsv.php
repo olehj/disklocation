@@ -50,14 +50,14 @@
 		foreach($db_sort as $sort_by) {
 			list($sort, $dir, $flag) = explode(" ", $sort_by);
 			$dir = ( ($dir == 'SORT_ASC') ? SORT_ASC : SORT_DESC );
-			$$sort  = array_column($raw_devices, $sort);
+			$$sort = ( is_array($raw_devices) ? array_column($raw_devices, $sort) : null );
 			$sort_dynamic[] = &$$sort;
 			$sort_dynamic[] = $dir;
 			if($flag) { 
 				$sort_dynamic[] = $flag;
 			}
 		}
-		call_user_func_array('array_multisort', array_merge($sort_dynamic, array(&$raw_devices)));
+		( is_array($raw_devices) ? call_user_func_array('array_multisort', array_merge($sort_dynamic, array(&$raw_devices))) : null );
 		
 		foreach($raw_devices as $key => $data) {
 			if(empty($data["status"]) && $data["groupid"]) {

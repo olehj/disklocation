@@ -27,7 +27,7 @@
 		define("DISKLOCATION_PATH", "/plugins/disklocation");
 		define("DISKLOCATION_URL", "/Tools/disklocation");
 		define("DISKLOCATION_TMP_PATH", "/tmp/disklocation");
-		define("DISKLOCATION_CONF", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.conf");
+		define("DISKLOCATION_CONF", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/settings.json");
 		define("DISKLOCATION_DEVICES", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/devices.json");
 		define("DISKLOCATION_LOCATIONS", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/locations.json");
 		define("DISKLOCATION_GROUPS", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/groups.json");
@@ -46,29 +46,8 @@
 			$get_groups = json_decode(file_get_contents(DISKLOCATION_GROUPS), true);
 		}
 		
-		function config_array($file, $operation, $array = '') { // file, [r]ead/[w]rite, array (req. write)
-			if($operation == 'w' && is_array($array)) {
-				if(!file_exists($file)) {
-					mkdir(dirname($file), 0755, true);
-					touch($file);
-				}
-				
-				$new_array = json_encode($array, JSON_PRETTY_PRINT);
-				
-				if(file_put_contents($file, $new_array)) {
-					return true;
-				}
-				else {
-					return false;
-				}
-			}
-			if($operation == 'r') {
-				$contents = file_get_contents($file);
-				$cur_array = json_decode($contents, true);
-				return $cur_array;
-			}
-			else return false;
-		}
+		$debugging_active = 0;
+		require_once("functions.php");
 	}
 	
 	define("DISKLOCATION_DB_DEFAULT", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.sqlite");
@@ -87,29 +66,65 @@
 	
 	$print_loc_db_err = "";
 	
-	function compress_file($src, $dst) {
-		$data = file_get_contents($src);
-		$gzdata = gzencode($data, 9);
-		file_put_contents($dst, $gzdata);
+	function compress_file($src_array, $dst) {
+		$data = array();
+		
+		for($i=0; $i < count($src_array); ++$i) {
+			$filename = str_replace(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/", "", $src_array[$i]);
+			$data[$filename] = file_get_contents($src_array[$i]);
+		}
+		$json = json_encode($data);
+		$data = gzencode($json, 9);
+		file_put_contents($dst, $data);
 	}
 	
 	function decompress_file($src, $dst) {
 		$data = file_get_contents($src);
 		$gzdata = gzdecode($data);
-		file_put_contents($dst, $gzdata);
-	}
-	
-	function database_backup($file, $backup_location) {
-		if(file_exists($file)) {
-			$datetime = date("Ymd-His");
-			mkdir($backup_location . "/" . $datetime, 0700, true);
-			compress_file($file, $backup_location . "/" . $datetime . "/disklocation.sqlite.gz");
+		
+		if(str_contains($src, "sqlite")) {
+			file_put_contents($dst, $gzdata);
 		}
 		else {
-			return "Database does not exist.";
+			$json = json_decode($gzdata, true);
+			foreach($json as $filename => $content) {
+				file_put_contents($dst . $filename, $json[$filename]);
+			}
+		}
+	}
+	
+	function database_backup($files, $backup_location) {
+		$files = explode(",", $files);
+		for($i=0; $i < count($files); ++$i) {
+			if(file_exists($files[$i])) {
+				$file[] = $files[$i];
+			}
+		}
+		$datetime = date("Ymd-His");
+		mkdir($backup_location . "/" . $datetime, 0700, true);
+		
+		if(!empty($file)) {
+			if(in_array(DISKLOCATION_DB, $file)) {
+				compress_file($file, $backup_location . "/" . $datetime . "/disklocation.sqlite.gz");
+			}
+			else {
+				compress_file($file, $backup_location . "/" . $datetime . "/disklocation.json.gz");
+			}
+		}
+		else {
+			return "No files available.";
 		}
 	}
 	function database_restore($file, $restore_location) {
+		if(str_contains($file, "sqlite")) {
+			$restore_location = DISKLOCATION_DB;
+			// must delete new json files if restoring old SQLite DB:
+			( file_exists(DISKLOCATION_CONF) ? unlink(DISKLOCATION_CONF) : false );
+			( file_exists(DISKLOCATION_DEVICES) ? unlink(DISKLOCATION_DEVICES) : false );
+			( file_exists(DISKLOCATION_GROUPS) ? unlink(DISKLOCATION_GROUPS) : false );
+			( file_exists(DISKLOCATION_LOCATIONS) ? unlink(DISKLOCATION_LOCATIONS) : false );
+		}
+		
 		if(file_exists($file)) {
 			decompress_file($file, $restore_location);
 		}
@@ -134,11 +149,11 @@
 				}
 			}
 			if($operation == "restore" && file_exists($file)) {
-				database_restore($file, DISKLOCATION_DB);
+				database_restore($file, UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/");
 			}
 			if($operation == "delete" && file_exists($file)) {
 				unlink($file);
-				rmdir(str_replace("disklocation.sqlite.gz", "", $file));
+				( is_dir(str_replace("disklocation.sqlite.gz", "", $file)) ? rmdir(str_replace("disklocation.sqlite.gz", "", $file)) : rmdir(str_replace("disklocation.json.gz", "", $file)) );
 			}
 			if($operation == "delete_all") {
 				array_map('unlink', glob("" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/*/*.gz"));
@@ -162,15 +177,15 @@
 		
 		if($type == "debug") {
 			if($operation == "list") {
-				if(file_exists("" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/debugging.html")) {
-					return filesize("" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/debugging.html");
+				if(file_exists("" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.log")) {
+					return filesize("" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.log");
 				}
 				else {
 					return false;
 				}
 			}
 			if($operation == "delete") {
-				unlink("" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/debugging.html");
+				unlink("" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.log");
 			}
 		}
 
@@ -208,13 +223,18 @@
 		exit;
 	}
 	if(isset($_POST["undelete_devices"])) {
-		force_undelete_devices($db, 'm');
+		force_undelete_devices($get_devices, 'm');
 		header("Location: " . DISKLOCATION_URL . "");
 		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
 	if(isset($_POST["backup_db"])) {
-		database_backup(DISKLOCATION_DB, "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/");
+		if(file_exists(DISKLOCATION_DEVICES) && file_exists(DISKLOCATION_GROUPS) && file_exists(DISKLOCATION_LOCATIONS)) {
+			database_backup(DISKLOCATION_CONF.",".DISKLOCATION_DEVICES.",".DISKLOCATION_GROUPS.",".DISKLOCATION_LOCATIONS, "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/");
+		}
+		else {
+			database_backup(DISKLOCATION_DB, "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/");
+		}
 		header("Location: " . DISKLOCATION_URL . "");
 		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
@@ -253,12 +273,20 @@
 							" . $list_backup[$i]["file"] . "
 						</td>
 						<td style=\"text-align: right; padding: 0 0 0 20px; white-space: nowrap;\">
-							" . $list_backup[$i]["size"] . " bytes
+							" . ( function_exists('human_filesize') ? human_filesize($list_backup[$i]["size"], 1, true) : $list_backup[$i]["size"] . " bytes" ) . "
 						</td>
 					</tr>
 			";
+			$total_bak_size += $list_backup[$i]["size"];
 		}
 		$print_list_backup .= "
+					<tr>
+						<td></td>
+						<td style=\"text-align: right;\">Total size: </td>
+						<td style=\"text-align: right; padding: 0 0 0 20px; white-space: nowrap;\">
+							" . ( function_exists('human_filesize') ? human_filesize($total_bak_size, 1, true) : $total_bak_size . " bytes" ) . "
+						</td>
+					</tr>
 				</table>
 				<input type=\"submit\" name=\"backup_db\" value=\"Backup\" />
 				<input type=\"submit\" name=\"res_backup\" value=\"Restore\" />
@@ -301,7 +329,7 @@
 	if($list_debug) {
 		$print_list_debug = "
 			<h3>Debug file</h3>
-			<p>Debug filesize: " . $list_debug . "</p>
+			<p>Debug filesize: " . ( function_exists('human_filesize') ? human_filesize($list_debug, 1, true) : $list_debug . " bytes" ) . "</p>
 			<form action=\"" . DISKLOCATION_PATH . "/pages/page_system.php\" method=\"post\">
 				<input type=\"submit\" name=\"del_debug\" value=\"Delete debug file\" />
 			</form>
@@ -312,6 +340,7 @@
 	}
 	if(!strstr($_SERVER["SCRIPT_NAME"], "page_system.php") && $db_update != 2) {
 		$list_undelete = force_undelete_devices($get_devices, 'r');
+		
 		if($list_undelete) {
 			$print_list_undelete = "
 				<h3>Undelete devices</h3>
@@ -332,9 +361,6 @@
 				<input type='button' value='SMART' onclick='openBox(\"" . CRONJOB_URL . "?active_smart_scan=1\",\"Updating SMART data on active devices\",600,800,true,\"loadlist\",\":return\")'>
 				<input type='button' value='Force SMART' onclick='openBox(\"" . CRONJOB_URL . "?force_smart_scan=1\",\"Wake up all devices and update SMART data\",600,800,true,\"loadlist\",\":return\")'>
 				<input type='button' value='Force SMART+DB' onclick='openBox(\"" . CRONJOB_URL . "?force_smartdb_scan=1\",\"Wake up all devices and update SMART data and the database\",600,800,true,\"loadlist\",\":return\")'>
-				<!--<br />
-				<input type='submit' name=\"active_smart_scan\" value=\"Update Active\">
-				<input type='submit' name=\"force_smart_scan\" value=\"Force Update All\">-->
 				<blockquote class='inline_help'>
 					<ul>
 						<li>\"SMART\" button will update only active (spinning) drives for SMART data, It might take a while to complete depending on your configuration.</li>
@@ -363,8 +389,8 @@
 	if($db_update == 2) { $system_limited_text = " - limited page during database error."; }
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/help.css")?>">
-<h2>System<?php print($system_limited_text); ?></h2>
-<p style="color: red;">
+<h2 style="margin-top: -10px; padding: 0 0 25px 0;">System<?php print($system_limited_text); ?></h2>
+<p style="margin-top: -20px; color: red;">
 	<b>NB! Operations done on this page will execute without warning or confirmation and cannot be undone after execution!</b>
 </p>
 <?php echo $print_force_scan ?>

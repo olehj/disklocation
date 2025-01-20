@@ -35,7 +35,7 @@
 	$count_groups = 0;
 	
 	$array_groups = $get_groups;
-	ksort($array_groups, SORT_NUMERIC);
+	( is_array($array_groups) ?? ksort($array_groups, SORT_NUMERIC) );
 	$array_devices = $get_devices;
 	$array_locations = $get_locations;
 	
@@ -413,7 +413,7 @@ $(document).ready(function(){
 						<td colspan="3" style="margin: 0; padding: 0 0 0 0 ;">
 							<blockquote class='inline_help'>
 								<ul>
-									<li><b>Possible selectors:</b> device, node, pool, name, lun, manufacturer, model, serial, capacity, cache, rotation, formfactor, manufactured, purchased, installed, removed, warranty, expires, comment</li>
+									<li><b>Possible selectors:</b> device, node, lun, manufacturer, model, serial, capacity, cache, rotation, formfactor, manufactured, purchased, installed, removed, warranty, comment</li>
 								</ul>
 							</blockquote>
 						</td>
@@ -490,7 +490,7 @@ $(document).ready(function(){
 				<table style="width: 0;">
 					<tr>
 						<td style="vertical-align: middle;">
-							<button type="submit" name="save_groupsettings" title="Save all groups" style="background-size: 0;"><i style="font-size: 600%;" class="fa fa-save fa-lg"></i></button><br />
+							<?php if($total_groups > 1) { print("<button type=\"submit\" name=\"save_groupsettings\" title=\"Save all groups\" style=\"background-size: 0;\"><i style=\"font-size: 600%;\" class=\"fa fa-save fa-lg\"></i></button><br />"); } ?>
 							<input type="hidden" name="last_group_id" value="<?php echo $last_group_id ?>" />
 							<button type="submit" name="group_add" title="Add a new group" style="background-size: 0;"><i style="font-size: 600%;" class="fa fa-plus-circle fa-lg"></i></button><br />
 							<?php if($total_groups > 1) { print("<button type=\"submit\" name=\"group_del\" title=\"Remove last group\" style=\"background-size: 0;\"><i style=\"font-size: 600%;\" class=\"fa fa-trash fa-lg\"></i></button>"); } ?>

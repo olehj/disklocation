@@ -33,7 +33,7 @@
 	}
 	
 	$array_groups = $get_groups;
-	ksort($array_groups, SORT_NUMERIC);
+	( is_array($array_groups) ?? ksort($array_groups, SORT_NUMERIC) );
 	$array_devices = $get_devices;
 	$array_locations = $get_locations;
 	
@@ -516,7 +516,7 @@
 	$disklocation_page_out = "";
 	
 	$array_groups = $get_groups;
-	ksort($array_groups, SORT_NUMERIC);
+	( is_array($array_groups) ?? ksort($array_groups, SORT_NUMERIC) );
 	
 	foreach($array_groups as $id => $value) {
 		extract($value);
