@@ -42,7 +42,7 @@
 	$select_db_trayalloc = "group,tray," . $select_db_trayalloc; // always include group and tray
 	
 	$get_trayalloc_select = get_table_order($select_db_trayalloc, $sort_db_trayalloc, 1);
-	$get_drives_select = get_table_order($select_db_drives, $sort_db_drives, 1);
+	$get_drives_select = get_table_order($select_db_drives, ( !empty($sort_db_drives_override) ? $sort_db_drives_override : $sort_db_drives ), 1);
 	
 	$i=1;
 	$i_empty=1;
@@ -99,8 +99,8 @@
 				extract($array_groups[$gid]);
 			}
 			
-			if($data["color"]) {
-				array_push($custom_colors_array, $data["color"]);
+			if($data["bgcolor"] && $status == "a") {
+				array_push($custom_colors_array, $data["bgcolor"]);
 			}
 			
 			$tray_assign = ( empty($data["tray"]) ? null : $data["tray"] );
@@ -125,7 +125,7 @@
 				$warr_options .= "<option value=\"$warranty_months[$warr_i]\" " . $selected . " style=\"text-align: right;\">$warranty_months[$warr_i] months</option>";
 			}
 			
-			$bgcolor = ( empty($data["color"]) ? $bgcolor_empty : $data["color"] );
+			$bgcolor = ( empty($data["bgcolor"]) ? $bgcolor_empty : $data["bgcolor"] );
 			
 			$listarray = list_array($formatted, 'html', $physical_traynumber);
 			unset($listarray["groupid"]);
@@ -171,7 +171,7 @@
 	
 	$data = "";
 	
-	list($table_drives_order_user, $table_drives_order_system, $table_drives_order_name, $table_drives_order_full, $table_drives_order_forms) = get_table_order($select_db_drives, $sort_db_drives);
+	list($table_drives_order_user, $table_drives_order_system, $table_drives_order_name, $table_drives_order_full, $table_drives_order_forms) = get_table_order($select_db_drives, ( !empty($sort_db_drives_override) ? $sort_db_drives_override : $sort_db_drives ));
 	
 	$arr_length = count($table_drives_order_user);
 	for($i=0;$i<$arr_length;$i++) {
@@ -305,6 +305,7 @@
 	<option>#<?php echo $bgcolor_empty ?></option>
 	<?php echo $bgcolor_custom_array ?>
 </datalist>
+<table><tr><td style="padding: 10px 10px 10px 10px;">
 <form action="" method="post">
 	<?php print($disk_layouts_alloc); ?>
 	<div style="clear: both;"></div>
@@ -417,6 +418,7 @@
 								</tr>
 								$print_removed_drives
 							</table>
+							<input type=\"submit\" name=\"sort_reset\" value=\"Set default sort\" />
 						");
 					}
 				?>
@@ -475,5 +477,6 @@
 		</tr>
 	</table>
 </form>
+</td></tr></table>
 <script type="text/javascript" src="<?autov("" . DISKLOCATION_PATH . "/pages/script/locate_script_bottom.js")?>"></script>
 <?php if($db_update == 2) { print("-->"); } ?>

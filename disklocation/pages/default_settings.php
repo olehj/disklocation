@@ -23,11 +23,11 @@
 //	Variable name		Default value			Description
 //	--------------------------------------------------------------------------------
 	$smart_exec_delay =		'200';			// set milliseconds for next execution for SMART shell_exec - needed to actually grab all the information for unassigned devices. Default: 200
-	$bgcolor_parity =		'ca3f33';		// background color for Unraid parity disks / critical temp
-	$bgcolor_unraid =		'ca7233';		// background color for Unraid data disks / warning temp // old default: ef6441
-	$bgcolor_cache =		'cabd33';		// background color for Unraid cache disks / normal temp // old default: ff884c
-	$bgcolor_others =		'3398ca';		// background color for unassigned/other disks / unknown temp // old default: 41b5ef
-	$bgcolor_empty =		'7c7c7c';		// background color for empty trays // old default: aaaaaa
+	$bgcolor_parity =		'aa2d2f';		// background color for Unraid parity disks / critical temp // old default: ca3f33
+	$bgcolor_unraid =		'be7317';		// background color for Unraid data disks / warning temp // old default: ef6441 / ca7233
+	$bgcolor_cache =		'5b7845';		// background color for Unraid cache disks / normal temp // old default: ff884c / cabd33
+	$bgcolor_others =		'7c7c7c';		// background color for unassigned/other disks / unknown temp // old default: 41b5ef / 3398ca
+	$bgcolor_empty =		'303030';		// background color for empty trays // old default: aaaaaa / 7c7c7c
 	$tray_reduction_factor =	'10';			// set the scale divider for the mini tray layout
 	$force_orb_led =		'0';			// set the LED to 0: show Unraid icons (triangle warning / hot critical) - 1: show circle LEDs (color coded circles).
 	$device_bg_color =		'1';			// choose background for the drives, Drive Type (0) or Heat Map (1)

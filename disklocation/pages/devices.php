@@ -40,8 +40,10 @@
 	require_once("array_devices.php");
 	
 	foreach($array_groups as $id => $value) {
+		$group_color = "";
 		extract($value);
-		if(!empty($value["group_name"])) {
+		
+		if(!empty($group_name)) {
 			$gid = $id;
 			$groupid = $gid;
 
@@ -237,12 +239,11 @@
 				}
 				else {
 					debug_print($debugging_active, __LINE__, "loop", "Populated tray: " . $tray_assign . "");
-					
 					$device = $data["device"];
 					$devicenode = $data["devicenode"];
 					$hash = $data["hash"];
 					$pool = "";
-					$color_override = $data["color"];
+					$color_override = ( !empty($data["color"]) ? $data["color"] : $group_color );
 					$temp_status = 0;
 					$temp_status_icon = "";
 					$color_status = "";
@@ -493,6 +494,7 @@
 							</div>
 						</div>
 					";
+					
 					$installed_drives[$gid] = $i_drive;
 					$i_drive++;
 				}

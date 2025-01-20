@@ -1098,7 +1098,6 @@
 				$sql_hash = array();
 				while($res = $results->fetchArray(1)) {
 					$locations[$res["hash"]]["groupid"] = $res["groupid"];
-					$locations[$res["hash"]]["empty"] = $res["empty"];
 					$locations[$res["hash"]]["tray"] = $res["tray"];
 				}
 			}

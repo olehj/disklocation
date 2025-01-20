@@ -21,6 +21,7 @@
 	
 	if(!strstr($_SERVER["SCRIPT_NAME"], "page_system.php")) {
 		require_once("variables.php");
+		include("load_settings.php");
 	}
 	
 	function debug_print($act, $line, $section, $message) {
@@ -385,9 +386,7 @@
 	
 	function get_tray_location($db, $hash, $gid) {
 		if($db[$hash]["groupid"] == $gid) {
-			if(!$db[$hash]["empty"]) {
-				return ( empty($db[$hash]["tray"]) ? false : $db[$hash]["tray"] );
-			}
+			return ( empty($db[$hash]["tray"]) ? false : $db[$hash]["tray"] );
 		}
 	}
 	

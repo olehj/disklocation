@@ -21,7 +21,8 @@
 	
 	unset($print_drives);
 	
-	$get_info_select = get_table_order($select_db_info, $sort_db_info, 1);
+	
+	$get_info_select = get_table_order($select_db_info, ( !empty($sort_db_info_override) ? $sort_db_info_override : $sort_db_info ), 1);
 	
 	$i=1;
 	$i_empty=1;
@@ -33,7 +34,7 @@
 	$data = array();
 	$raw_devices = array();
 	
-	list($table_info_order_user, $table_info_order_system, $table_info_order_name, $table_info_order_full, $table_info_order_forms) = get_table_order($select_db_info, $sort_db_info);
+	list($table_info_order_user, $table_info_order_system, $table_info_order_name, $table_info_order_full, $table_info_order_forms) = get_table_order($select_db_info, ( !empty($sort_db_info_override) ? $sort_db_info_override : $sort_db_info ));
 	
 	$arr_length = count($table_info_order_user);
 	for($i=0;$i<$arr_length;$i++) {
@@ -129,6 +130,7 @@
 	}
 ?>
 <?php if($db_update == 2) { print("<h3>Page unavailable due to database error.</h3><!--"); } ?>
+<table><tr><td style="padding: 10px 10px 10px 10px;">
 <h2 style="margin-top: -10px; padding: 0 0 25px 0;">Disk Information</h2>
 <form action="" method="post">
 <table style="width: 800px; border-spacing: 3px; border-collapse: separate;">
@@ -163,6 +165,7 @@
 		}
 	?>
 </table>
+<input type="submit" name="sort_reset" value="Set default sort" />
 </form>
 <h2>
 	Export:
@@ -175,4 +178,5 @@
 	<p>Download a TSV file based upon the selection and ordering of the Information table above. If you're using HTML in the comment section, it will include HTML code if inserted and will not parse it anyhow. TSV is the same as CSV, but the extension for TAB delimited instead of COMMA.</p>
 	<p>Output raw data will not format numbers for the file output. Eg. HDD sizes like 8.0TB will be 8001563222016 instead. However, the SMART units read and written is calculated with the logical block size and shown in raw after that.</p>
 </blockquote>
+</td></tr></table>
 <?php if($db_update == 2) { print("-->"); } ?>

@@ -92,8 +92,8 @@
 		$devices[$hash]["formatted"]["removed"] = $devices[$hash]["raw"]["removed"];
 		$devices[$hash]["raw"]["comment"] = $data["comment"];
 		$devices[$hash]["formatted"]["comment"] = $devices[$hash]["raw"]["comment"]; // bscode2html(stripslashes(htmlspecialchars($data["comment"])))
-		$devices[$hash]["raw"]["color"] = $data["color"];
-		$devices[$hash]["formatted"]["color"] = $devices[$hash]["raw"]["color"];
+		$devices[$hash]["raw"]["bgcolor"] = $data["color"];
+		$devices[$hash]["formatted"]["bgcolor"] = $devices[$hash]["raw"]["bgcolor"];
 		
 		// SMART files $smart_array:
 		$smart_file[$hash] = file_get_contents(DISKLOCATION_TMP_PATH."/smart/".str_replace(" ", "_", $devices[$hash]["raw"]["model"])."_" . $devices[$hash]["raw"]["serial"] . ".json");
@@ -116,10 +116,11 @@
 		$devices[$hash]["formatted"]["nvme_percentage_used"] =  $devices[$hash]["raw"]["nvme_percentage_used"] . "%";
 		
 		// Both DB $data & SMART files $smart_array:
-		$devices[$hash]["raw"]["smart_units_read"] = ( $data["smart_units_read"] ? $data["smart_units_read"] : 0 );
-		$devices[$hash]["formatted"]["smart_units_read"] = (($devices[$hash]["raw"]["rotation"] == -2) ? human_filesize(smart_units_to_bytes($devices[$hash]["raw"]["smart_units_read"], $devices[$hash]["raw"]["logical_block_size"], true), 1, true) : human_filesize(smart_units_to_bytes($devices[$hash]["raw"]["smart_units_read"], $devices[$hash]["raw"]["logical_block_size"], true, true), 1, true) );
-		$devices[$hash]["raw"]["smart_units_written"] = ( $data["smart_units_written"] ? $data["smart_units_written"] : 0 );
-		$devices[$hash]["formatted"]["smart_units_written"] = (($devices[$hash]["raw"]["rotation"] == -2) ? human_filesize(smart_units_to_bytes($devices[$hash]["raw"]["smart_units_written"], $devices[$hash]["raw"]["logical_block_size"], true), 1, true) : human_filesize(smart_units_to_bytes($devices[$hash]["raw"]["smart_units_written"], $devices[$hash]["raw"]["logical_block_size"], true, true), 1, true) );
+		$devices[$hash]["raw"]["smart_units_read"] = ( ($devices[$hash]["raw"]["rotation"] == -2) ? smart_units_to_bytes(($data["smart_units_read"] ? $data["smart_units_read"] : 0), $devices[$hash]["raw"]["logical_block_size"], true) : smart_units_to_bytes(($data["smart_units_read"] ? $data["smart_units_read"] : 0), $devices[$hash]["raw"]["logical_block_size"], true, true) );
+		$devices[$hash]["formatted"]["smart_units_read"] = human_filesize($devices[$hash]["raw"]["smart_units_read"], 1, true);
+		
+		$devices[$hash]["raw"]["smart_units_written"] = ( ($devices[$hash]["raw"]["rotation"] == -2) ? smart_units_to_bytes(($data["smart_units_written"] ? $data["smart_units_written"] : 0), $devices[$hash]["raw"]["logical_block_size"], true) : smart_units_to_bytes(($data["smart_units_written"] ? $data["smart_units_written"] : 0), $devices[$hash]["raw"]["logical_block_size"], true, true) );
+		$devices[$hash]["formatted"]["smart_units_written"] = human_filesize($devices[$hash]["raw"]["smart_units_written"], 1, true);
 		
 		// SMART data to be parsed on deeper level:
 		if(isset($smart_array["device"]["protocol"]) && $smart_array["device"]["protocol"] == "SCSI") {
@@ -219,7 +220,7 @@
 		// $display["date"] => %A, %Y-%m-%d --- might use in the future for formatting. Using ISO for now:
 		$devices[$hash]["formatted"]["purchased"] = $devices[$hash]["raw"]["purchased"];
 		$devices[$hash]["formatted"]["warranty"] = "" . $warranty_expire . "";
-		$devices[$hash]["raw"]["expires"] = "" . $warranty_left . "";
+		$devices[$hash]["raw"]["expires"] = "" . $warranty_end . "";
 		$devices[$hash]["formatted"]["expires"] = "" . $warranty_left . "";
 		$devices[$hash]["formatted"]["manufactured"] = $devices[$hash]["raw"]["manufactured"];
 	}

@@ -389,6 +389,7 @@
 	if($db_update == 2) { $system_limited_text = " - limited page during database error."; }
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/help.css")?>">
+<table><tr><td style="padding: 10px 10px 10px 10px;">
 <h2 style="margin-top: -10px; padding: 0 0 25px 0;">System<?php print($system_limited_text); ?></h2>
 <p style="margin-top: -20px; color: red;">
 	<b>NB! Operations done on this page will execute without warning or confirmation and cannot be undone after execution!</b>
@@ -399,3 +400,4 @@
 <?php echo $print_list_database ?>
 <?php echo $print_list_database_lock ?>
 <?php echo $print_list_undelete ?>
+</td></tr></table>

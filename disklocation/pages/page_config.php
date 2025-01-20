@@ -41,10 +41,16 @@
 	
 	$group_ids = ( is_array($get_groups) ? array_keys($get_groups) : null );
 	
+	$custom_group_colors_array = array();
+	
 	foreach($array_groups as $id => $array) {
 		//extract($array);
 		
 		$gid = $id;
+		
+		if($array_groups[$gid]["group_color"]) {
+			array_push($custom_group_colors_array, $array_groups[$gid]["group_color"]);
+		}
 		
 		$css_grid_group = "
 			grid-template-columns: " . $grid_columns_styles[$gid] . ";
@@ -152,6 +158,14 @@
 	for($i=0;$i<$arr_length;$i++) {
 		$inlinehelp_table_order .= "<tr style=\"white-space: nowrap; border: 1px solid black;\"><td style=\"white-space: nowrap;margin: 0; padding: 0 5px 0 5px;\">" . $table_order_user[$i] . "</td><td style=\"white-space: nowrap;margin: 0; padding: 0 5px 0 5px;\">" . $table_order_name[$i] . "</td><td style=\"margin: 0; padding: 0 5px 0 5px;\">" . $table_order_full[$i] . "</td></tr>";
 	}
+	
+	$bgcolor_group_custom_array = "";
+	if(isset($custom_group_colors_array)) {
+		$custom_group_colors_array_dedup = array_values(array_unique($custom_group_colors_array));
+		for($i=0; $i < count($custom_group_colors_array_dedup); ++$i) {
+			$bgcolor_group_custom_array .= "<option>#" . $custom_group_colors_array_dedup[$i] . "</option>\n";
+		}
+	}
 ?>
 <?php if($db_update == 2) { print("<h3>Page unavailable due to database error.</h3><!--"); } ?>
 <datalist id="disklocationColorsDef">
@@ -165,6 +179,7 @@
 	<?php echo ( $bgcolor_unraid != $bgcolor_unraid_default ? "<option>#" . $bgcolor_unraid_default . "</option>" : null ) ?>
 	<?php echo ( $bgcolor_cache != $bgcolor_cache_default ? "<option>#" . $bgcolor_cache_default . "</option>" : null ) ?>
 	<?php echo ( $bgcolor_others != $bgcolor_others_default ? "<option>#" . $bgcolor_others_default . "</option>" : null ) ?>
+	<?php echo $bgcolor_group_custom_array ?>
 </datalist>
 <script>
 $(document).ready(function(){
@@ -187,6 +202,7 @@ $(document).ready(function(){
     });
 });
 </script>
+<table><tr><td style="padding: 10px 10px 10px 10px;">
 <form action="" method="post">
 	<table>
 		<tr>
@@ -485,6 +501,7 @@ $(document).ready(function(){
 						<?php print($disk_layouts_config); ?>
 					</tr>
 				</table>
+				<p><b>Hint: If the colors do not match between default group colors and what you see in the legend, remove custom device colors in Tray Allocations.</b></p>
 			</td>
 			<td style="padding-left: 20px;">
 				<table style="width: 0;">
@@ -501,4 +518,5 @@ $(document).ready(function(){
 		</tr>
 	</table>
 </form>
+</td></tr></table>
 <?php if($db_update == 2) { print("-->"); } ?>

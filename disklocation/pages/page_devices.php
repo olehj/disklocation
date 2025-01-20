@@ -3,6 +3,7 @@
 <style type="text/css">
 	<?php include "/usr/local/emhttp/plugins/disklocation/pages/styles/disk.css.php"; ?>
 </style>
+<table><tr><td style="padding: 10px 10px 10px 10px;">
 <blockquote class='inline_help'>
 	<h3><b><?php echo $get_page_info["Title"] ?> ver. <?php echo DISKLOCATION_VERSION ?></b></h3>
 	<p>
@@ -58,6 +59,7 @@
 		<dd>You can delete the database under "System" tab. This will be recreated with blank defaults when you enter the plugin page next. Remember, all settings and tray allocations will be deleted for this plugin.</dd>
 	</dl>
 </blockquote>
+</td></tr></table>
 <?php 
 	if($db_update == 2) {
 		print("-->");

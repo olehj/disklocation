@@ -201,7 +201,7 @@
 		}
 		
 		foreach($new_array as $id => $setting) {
-			if($new_array[$id]["group_color"] && !preg_match("/#([a-f0-9]{3}){1,2}\b/i", $new_array[$id]["group_color"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Background color invalid."; } else { $new_array[$id]["group_color"] = str_replace("#", "", $new_array[$id]["group_color"]); }
+			if($new_array[$id]["group_color"] && !preg_match("/#([a-f0-9]{3}){1,2}\b/i", $new_array[$id]["group_color"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Background color invalid."; } else { $new_array[$id]["group_color"] = ( $new_array[$id]["group_color"] != "#".$bgcolor_empty ? str_replace("#", "", $new_array[$id]["group_color"]) : null ); }
 			if($new_array[$id]["grid_count"] && !preg_match("/\b(column|row)\b/", $new_array[$id]["grid_count"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Physical tray assignment invalid."; }
 			if($new_array[$id]["grid_columns"] && !preg_match("/[0-9]{1,3}/", $new_array[$id]["grid_columns"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Grid columns missing or number invalid."; }
 			if($new_array[$id]["grid_rows"] && !preg_match("/[0-9]{1,3}/", $new_array[$id]["grid_rows"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Grid rows missing or number invalid."; }
@@ -224,135 +224,82 @@
 	if(isset($_POST["save_allocations"])) {
 		debug_print($debugging_active, __LINE__, "POST", "Button: SAVE ALLOCATIONS has been pressed.");
 		// trays
-		$sql = "";
 		$post_drives = $_POST["drives"];
 		$post_groups = $_POST["groups"];
+		$array_devices = $get_devices;
+		$array_locations = $get_locations;
 		
 		if(empty($disklocation_error)) {
+			// Get new allocations and adjust location array:
+			
 			$keys_drives = array_keys($post_drives);
 			for($i=0; $i < count($keys_drives); ++$i) {
 				$tray_assign = ( empty($post_drives[$keys_drives[$i]]) ? null : $post_drives[$keys_drives[$i]] );
 				$group_assign = ( empty($post_groups[$keys_drives[$i]]) ? null : $post_groups[$keys_drives[$i]] );
 				
+				$array_devices[$keys_drives[$i]]["status"] = 'h'; // force all to be unassigned while allocating
+				
 				if(!$tray_assign || !$group_assign) {
-					$sql .= "
-						UPDATE disks SET
-							status = 'h'
-						WHERE hash = '" . $keys_drives[$i] . "'
-						;
-						DELETE FROM location
-							WHERE tray = '" . $tray_assign . "' AND groupid = '" . $group_assign . "'
-						;
-					";
+					unset($array_locations[$keys_drives[$i]]);
 				}
 				else {
-					$sql .= "
-						INSERT INTO
-							location(
-								hash,
-								tray,
-								groupid
-							)
-							VALUES(
-								'" . $keys_drives[$i] . "',
-								'" . $tray_assign . "',
-								'" . $group_assign . "'
-							)
-							ON CONFLICT(hash) DO UPDATE SET
-								tray='" . $tray_assign . "',
-								groupid='" . $group_assign . "'
-						;
-						UPDATE disks SET
-							status = NULL
-						WHERE hash = '" . $keys_drives[$i] . "'
-						;
-					";
+					$array_locations[$keys_drives[$i]]["groupid"] = $group_assign;
+					$array_locations[$keys_drives[$i]]["tray"] = $tray_assign;
 				}
+			}
+			
+			// Remove existing/duplciated allocations, keep the newest, and enable assigned device:
+			
+			$results = array();
+			foreach($array_locations as $hash => $value) {
+				$results[$value["groupid"] ."|". $value["tray"]] = $value;
+				$results[$value["groupid"] ."|". $value["tray"]]["hash"] = $hash;
+			}
+			
+			// Create new location array and adjust devices array:
+			
+			$array_locations = array(); // clear
+			foreach($results as $id => $array) {
+				$array_locations[$results[$id]["hash"]] = $results[$id];
+				unset($array_locations[$results[$id]["hash"]]["hash"]);
+				$array_devices[$results[$id]["hash"]]["status"] = null;  // enable found and assigned devices
+				
+				$array_devices[$results[$id]["hash"]]["manufactured"] = ( !empty($_POST["manufactured"][$results[$id]["hash"]]) ? $_POST["manufactured"][$results[$id]["hash"]] : null );
+				$array_devices[$results[$id]["hash"]]["purchased"] = ( !empty($_POST["purchased"][$results[$id]["hash"]]) ? $_POST["purchased"][$results[$id]["hash"]] : null );
+				$array_devices[$results[$id]["hash"]]["installed"] = ( !empty($_POST["installed"][$results[$id]["hash"]]) ? $_POST["installed"][$results[$id]["hash"]] : null );
+				$array_devices[$results[$id]["hash"]]["warranty"] = ( !empty($_POST["warranty"][$results[$id]["hash"]]) ? $_POST["warranty"][$results[$id]["hash"]] : null );
+				
+				$array_devices[$results[$id]["hash"]]["comment"] = ( !empty($_POST["comment"][$results[$id]["hash"]]) ? $_POST["comment"][$results[$id]["hash"]] : null );
+				
+				$array_devices[$results[$id]["hash"]]["color"] = ( (!empty($_POST["bgcolor_custom"][$results[$id]["hash"]]) && $_POST["bgcolor_custom"][$results[$id]["hash"]] != "#".$bgcolor_empty) ? str_replace("#", "", $_POST["bgcolor_custom"][$results[$id]["hash"]]) : null );
 			}
 			
 			debug_print($debugging_active, __LINE__, "SQL", "ALLOC: <pre>" . $sql . "</pre>");
 			
-			$ret = $db->exec($sql);
-			if(!$ret) {
-				echo $db->lastErrorMsg();
-			}
-			
-			$sql = "";
-			
-			// Remove conflicting tray allocations, use only the newest assigned tray
-			$sql = "SELECT id FROM location GROUP BY groupid,tray HAVING COUNT(*) > 1;";
-			$results = $db->query($sql);
-			
-			while($res = $results->fetchArray(1)) {
-				$sql_del = "DELETE FROM location WHERE id = '" . $res["id"] . "';";
-				$ret = $db->exec($sql_del);
-				if(!$ret) {
-					return $db->lastErrorMsg();
-				}
-			}
-			$sql = "";
-			
-			for($i=0; $i < count($keys_drives); ++$i) {
-				$sql .= "
-					UPDATE disks SET
-						manufactured = '" . SQLite3::escapeString($_POST["manufactured"][$keys_drives[$i]]) . "',
-						purchased = '" . SQLite3::escapeString($_POST["purchased"][$keys_drives[$i]]) . "',
-						installed = '" . SQLite3::escapeString($_POST["installed"][$keys_drives[$i]]) . "',
-				";
-				if($_POST["current_warranty_field"] == "u") {
-					$sql .= "warranty = '" . SQLite3::escapeString($_POST["warranty"][$keys_drives[$i]]) . "',";
-				}
-				else {
-					$sql .= "warranty_date = '" . SQLite3::escapeString($_POST["warranty_date"][$keys_drives[$i]]) . "',";
-				}
-				$sql .= "
-						comment = '" . SQLite3::escapeString($_POST["comment"][$keys_drives[$i]]) . "'
-					";
-				if(!in_array(str_replace("#", "", SQLite3::escapeString($_POST["bgcolor_custom"][$keys_drives[$i]])), array($bgcolor_parity, $bgcolor_unraid, $bgcolor_cache, $bgcolor_others, $bgcolor_empty))) {
-					$sql .= ", color = '" . str_replace("#", "", SQLite3::escapeString($_POST["bgcolor_custom"][$keys_drives[$i]])) . "'";
-				}
-				else {
-					$sql .= ", color = ''";
-				}
-				$sql .= "
-					WHERE hash = '" . $keys_drives[$i] . "'
-					;
-				";
-			}
-			
 			debug_print($debugging_active, __LINE__, "SQL", "POPULATED: <pre>" . $sql . "</pre>");
 			
-			$ret = $db->exec($sql);
-			if(!$ret) {
-				echo $db->lastErrorMsg();
-			}
+			config_array(DISKLOCATION_DEVICES, "w", $array_devices);
+			config_array(DISKLOCATION_LOCATIONS, "w", $array_locations);
 			
-			//$db->close();
-			
-			//header("Location: " . DISKLOCATION_URL);
-			//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
-			//exit;
+			$SUBMIT_RELOAD = 1;
 		}
 	}
 	
 	if(isset($_POST["sort"])) {
 		debug_print($debugging_active, __LINE__, "POST", "Button: SORT has been pressed.");
-		$sql = "";
-		print($_POST["sort"]);
+		
 		list($table, $dir, $column) = explode(":", $_POST["sort"]);
 		
 		$sort = $dir . ":" . $column;
 		
-		$sql = "UPDATE settings SET sort_db_" . $table . " = '" . SQLite3::escapeString($sort ?? $sort_db_info_default) . "' WHERE id = '1';";
-		
-		debug_print($debugging_active, __LINE__, "SQL", "SETTINGS: <pre>" . $sql . "</pre>");
-		
-		$ret = $db->exec($sql);
-		if(!$ret) {
-			echo $db->lastErrorMsg();
-		}
+		${"sort_db_" . $table . "_override"} = $sort;
 		
 		$SUBMIT_RELOAD = 0;
+	}
+	
+	if(isset($_POST["sort_reset"])) {
+		debug_print($debugging_active, __LINE__, "POST", "Button: SORT RESET has been pressed.");
+		$SUBMIT_RELOAD = 1;
 	}
 	
 	if(isset($_POST["reset_all_colors"])) {
