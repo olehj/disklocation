@@ -22,7 +22,7 @@ Icon="server"
 	 *  along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
 	 *
 	 */
-	
+	 
 	$pluginname = "Disk Location";
 	
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/system.php");
@@ -31,7 +31,7 @@ Icon="server"
 	$disklocation_dash_out = "";
 	
 	$array_groups = $get_groups;
-	ksort($array_groups, SORT_NUMERIC);
+	( is_array($array_groups) ?? ksort($array_groups, SORT_NUMERIC) );
 	
 	foreach($array_groups as $id => $value) {
 		extract($value);
@@ -64,6 +64,18 @@ Icon="server"
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/styles/disk.css.php");
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/styles/signals.css");
 	print("</style>");
+	
+	/*
+		Green:	#4f8a10
+		Red:	#f0000c
+	*/
+	
+	if(!check_smart_files()) {
+		$disklocation_dash_out = "<span style=\"color: #f0000c;\"><i class=\"icon-u-triangle failed\"></i>Go to Disk Location -&gt; System and initialize a \"Force SMART[+DB]\"</span>";
+	}
+	if(empty($array_groups)) {
+		$disklocation_dash_out = "<span style=\"color: #f0000c;\"><i class=\"icon-u-triangle failed\"></i>Disk Location is not configured.</span>";
+	}
 
 $mytiles[$pluginname]['column1'] =
 <<<EOT
