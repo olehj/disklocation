@@ -41,7 +41,19 @@
 	
 	$group_ids = ( is_array($get_groups) ? array_keys($get_groups) : null );
 	
-	$custom_group_colors_array = array();
+	$custom_colors_array = array();
+	
+	array_push($custom_colors_array, $bgcolor_empty);
+	array_push($custom_colors_array, $bgcolor_parity);
+	array_push($custom_colors_array, $bgcolor_unraid);
+	array_push($custom_colors_array, $bgcolor_cache);
+	array_push($custom_colors_array, $bgcolor_others);
+	
+	array_push($custom_colors_array, ( $bgcolor_empty != $bgcolor_empty_default ? $bgcolor_empty_default : null ) );
+	array_push($custom_colors_array, ( $bgcolor_parity != $bgcolor_parity_default ? $bgcolor_parity_default : null ) );
+	array_push($custom_colors_array, ( $bgcolor_unraid != $bgcolor_unraid_default ? $bgcolor_unraid_default : null ) );
+	array_push($custom_colors_array, ( $bgcolor_cache != $bgcolor_cache_default ? $bgcolor_cache_default : null ) );
+	array_push($custom_colors_array, ( $bgcolor_others != $bgcolor_others_default ? $bgcolor_others_default : null ) );
 	
 	foreach($array_groups as $id => $array) {
 		//extract($array);
@@ -49,7 +61,7 @@
 		$gid = $id;
 		
 		if($array_groups[$gid]["group_color"]) {
-			array_push($custom_group_colors_array, $array_groups[$gid]["group_color"]);
+			array_push($custom_colors_array, $array_groups[$gid]["group_color"]);
 		}
 		
 		$css_grid_group = "
@@ -160,25 +172,15 @@
 	}
 	
 	$bgcolor_group_custom_array = "";
-	if(isset($custom_group_colors_array)) {
-		$custom_group_colors_array_dedup = array_values(array_unique($custom_group_colors_array));
-		for($i=0; $i < count($custom_group_colors_array_dedup); ++$i) {
-			$bgcolor_group_custom_array .= "<option>#" . $custom_group_colors_array_dedup[$i] . "</option>\n";
+	if(isset($custom_colors_array)) {
+		$custom_colors_array_dedup = array_values(array_unique($custom_colors_array));
+		for($i=0; $i < count($custom_colors_array_dedup); ++$i) {
+			$bgcolor_group_custom_array .= "<option>#" . $custom_colors_array_dedup[$i] . "</option>\n";
 		}
 	}
 ?>
 <?php if($db_update == 2) { print("<h3>Page unavailable due to database error.</h3><!--"); } ?>
 <datalist id="disklocationColorsDef">
-	<option>#<?php echo $bgcolor_empty ?></option>
-	<option>#<?php echo $bgcolor_parity ?></option>
-	<option>#<?php echo $bgcolor_unraid ?></option>
-	<option>#<?php echo $bgcolor_cache ?></option>
-	<option>#<?php echo $bgcolor_others ?></option>
-	<?php echo ( $bgcolor_empty != $bgcolor_empty_default ? "<option>#" . $bgcolor_empty_default . "</option>" : null ) ?>
-	<?php echo ( $bgcolor_parity != $bgcolor_parity_default ? "<option>#" . $bgcolor_parity_default . "</option>" : null ) ?>
-	<?php echo ( $bgcolor_unraid != $bgcolor_unraid_default ? "<option>#" . $bgcolor_unraid_default . "</option>" : null ) ?>
-	<?php echo ( $bgcolor_cache != $bgcolor_cache_default ? "<option>#" . $bgcolor_cache_default . "</option>" : null ) ?>
-	<?php echo ( $bgcolor_others != $bgcolor_others_default ? "<option>#" . $bgcolor_others_default . "</option>" : null ) ?>
 	<?php echo $bgcolor_group_custom_array ?>
 </datalist>
 <script>
@@ -302,16 +304,16 @@ $(document).ready(function(){
 					<tr>
 						<td style="vertical-align: top; width: <?php echo $vi_width ?>px;">
 							<b>LED array:</b><br />
-							<input type="checkbox" name="displayinfo[tray]" value="1" <?php if(isset($displayinfo["tray"])) echo "checked"; ?> />Tray number<br />
-							<input type="checkbox" name="displayinfo[leddiskop]" value="1" <?php if(isset($displayinfo["leddiskop"])) echo "checked"; ?> />Disk Operation LED<br />
-							<input type="checkbox" name="displayinfo[ledsmart]" value="1" <?php if(isset($displayinfo["ledsmart"])) echo "checked"; ?> />SMART Status LED<br />
-							<input type="checkbox" name="displayinfo[ledtemp]" value="1" <?php if(isset($displayinfo["ledtemp"])) echo "checked"; ?> />Temperature LED<br />
+							<input type="checkbox" name="displayinfo[tray]" value="1" <?php if(!empty($displayinfo["tray"])) echo "checked"; ?> />Tray number<br />
+							<input type="checkbox" name="displayinfo[leddiskop]" value="1" <?php if(!empty($displayinfo["leddiskop"])) echo "checked"; ?> />Disk Operation LED<br />
+							<input type="checkbox" name="displayinfo[ledsmart]" value="1" <?php if(!empty($displayinfo["ledsmart"])) echo "checked"; ?> />SMART Status LED<br />
+							<input type="checkbox" name="displayinfo[ledtemp]" value="1" <?php if(!empty($displayinfo["ledtemp"])) echo "checked"; ?> />Temperature LED<br />
 						</td>
 						<td style="vertical-align: top; width: <?php echo $vi_width ?>px;">
 							<b>Other configurations:</b><br />
-							<input type="checkbox" name="displayinfo[hideemptycontents]" value="1" <?php if(isset($displayinfo["hideemptycontents"])) echo "checked"; ?> />Hide empty tray contents<br />
-							<input type="checkbox" name="displayinfo[flashwarning]" value="1" <?php if(isset($displayinfo["flashwarning"])) echo "checked"; ?> />Flash warning<br />
-							<input type="checkbox" name="displayinfo[flashcritical]" value="1" <?php if(isset($displayinfo["flashcritical"])) echo "checked"; ?> />Flash critical<br />
+							<input type="checkbox" name="displayinfo[hideemptycontents]" value="1" <?php if(!empty($displayinfo["hideemptycontents"])) echo "checked"; ?> />Hide empty tray contents<br />
+							<input type="checkbox" name="displayinfo[flashwarning]" value="1" <?php if(!empty($displayinfo["flashwarning"])) echo "checked"; ?> />Flash warning<br />
+							<input type="checkbox" name="displayinfo[flashcritical]" value="1" <?php if(!empty($displayinfo["flashcritical"])) echo "checked"; ?> />Flash critical<br />
 						</td>
 						<td style="vertical-align: top; width: 60%;" rowspan="2">
 							<b>Devices formatting:</b><br >
@@ -501,13 +503,12 @@ $(document).ready(function(){
 						<?php print($disk_layouts_config); ?>
 					</tr>
 				</table>
-				<p><b>Hint: If the colors do not match between default group colors and what you see in the legend, remove custom device colors in Tray Allocations.</b></p>
 			</td>
 			<td style="padding-left: 20px;">
 				<table style="width: 0;">
 					<tr>
-						<td style="vertical-align: middle;">
-							<?php if($total_groups > 1) { print("<button type=\"submit\" name=\"save_groupsettings\" title=\"Save all groups\" style=\"background-size: 0;\"><i style=\"font-size: 600%;\" class=\"fa fa-save fa-lg\"></i></button><br />"); } ?>
+						<td style="vertical-align: middle; text-align: left;">
+							<?php if($total_groups > 0) { print("<button type=\"submit\" name=\"save_groupsettings\" title=\"Save all groups\" style=\"background-size: 0;\"><i style=\"font-size: 600%;\" class=\"fa fa-save fa-lg\"></i></button><br />"); } ?>
 							<input type="hidden" name="last_group_id" value="<?php echo $last_group_id ?>" />
 							<button type="submit" name="group_add" title="Add a new group" style="background-size: 0;"><i style="font-size: 600%;" class="fa fa-plus-circle fa-lg"></i></button><br />
 							<?php if($total_groups > 1) { print("<button type=\"submit\" name=\"group_del\" title=\"Remove last group\" style=\"background-size: 0;\"><i style=\"font-size: 600%;\" class=\"fa fa-trash fa-lg\"></i></button>"); } ?>

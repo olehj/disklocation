@@ -65,6 +65,7 @@
 	}
 	
 	$print_loc_db_err = "";
+	$argv = ( !isset($argv) ? array() : $argv );
 	
 	function compress_file($src_array, $dst) {
 		$data = array();
@@ -228,14 +229,16 @@
 		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
-	if(isset($_POST["backup_db"])) {
+	if(isset($_POST["backup_db"]) || in_array("backup", $argv)) {
 		if(file_exists(DISKLOCATION_DEVICES) && file_exists(DISKLOCATION_GROUPS) && file_exists(DISKLOCATION_LOCATIONS)) {
 			database_backup(DISKLOCATION_CONF.",".DISKLOCATION_DEVICES.",".DISKLOCATION_GROUPS.",".DISKLOCATION_LOCATIONS, "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/");
 		}
 		else {
 			database_backup(DISKLOCATION_DB, "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/");
 		}
-		header("Location: " . DISKLOCATION_URL . "");
+		if(!in_array("backup", $argv)) {
+			header("Location: " . DISKLOCATION_URL . "");
+		}
 		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
@@ -358,7 +361,7 @@
 			<form action=\"" . DISKLOCATION_PATH . "/pages/page_system.php\" method=\"post\">
 				<b>Clicking the buttons will update data directly. It might take a few seconds to several minutes depending on the amount of devices it need to scan.</b>
 				<br />
-				<input type='button' value='SMART' onclick='openBox(\"" . CRONJOB_URL . "?active_smart_scan=1\",\"Updating SMART data on active devices\",600,800,true,\"loadlist\",\":return\")'>
+				<input type='button' " . ( (!check_smart_files()) ? "disabled=\"disabled\"" : null ) . " value='SMART' onclick='openBox(\"" . CRONJOB_URL . "?active_smart_scan=1\",\"Updating SMART data on active devices\",600,800,true,\"loadlist\",\":return\")'>
 				<input type='button' value='Force SMART' onclick='openBox(\"" . CRONJOB_URL . "?force_smart_scan=1\",\"Wake up all devices and update SMART data\",600,800,true,\"loadlist\",\":return\")'>
 				<input type='button' value='Force SMART+DB' onclick='openBox(\"" . CRONJOB_URL . "?force_smartdb_scan=1\",\"Wake up all devices and update SMART data and the database\",600,800,true,\"loadlist\",\":return\")'>
 				<blockquote class='inline_help'>
@@ -387,6 +390,8 @@
 		}
 	}
 	if($db_update == 2) { $system_limited_text = " - limited page during database error."; }
+	
+	if(in_array("backup", $argv)) { exit; }
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/help.css")?>">
 <table><tr><td style="padding: 10px 10px 10px 10px;">

@@ -475,23 +475,23 @@
 	
 	function get_unraid_disk_status($color, $type = '', $output = '', $force_orb_led = 0) {
 		switch($color) {
-			case 'green-on': $orb = 'circle'; $color = 'green'; $help = 'Normal operation, device is active'; break;
-			case 'green-blink': $orb = 'circle'; $color = 'grey'; $help = 'Device is in standby mode (spun-down)'; break;
-			case 'blue-on': $orb = 'square'; $color = 'blue'; $help = 'New device'; break;
-			case 'blue-blink': $orb = 'square'; $color = 'grey'; $help = 'New device, in standby mode (spun-down)'; break;
-			case 'yellow-on': $orb = 'warning'; $color = 'yellow'; $help = $type =='Parity' ? 'Parity is invalid' : 'Device contents emulated'; break;
-			case 'yellow-blink': $orb = 'warning'; $color = 'grey'; $help = $type =='Parity' ? 'Parity is invalid, in standby mode (spun-down)' : 'Device contents emulated, in standby mode (spun-down)'; break;
-			case 'red-on': $orb = 'times'; $color = 'red'; $help = $type=='Parity' ? 'Parity device is disabled' : 'Device is disabled, contents emulated'; break;
-			case 'red-blink': $orb = 'times'; $color = 'red'; $help = $type=='Parity' ? 'Parity device is disabled' : 'Device is disabled, contents emulated'; break;
-			case 'red-off': $orb = 'times'; $color = 'red'; $help = $type =='Parity' ? 'Parity device is missing' : 'Device is missing (disabled), contents emulated'; break;
-			case 'grey-off': $orb = 'square'; $color = 'grey'; $help = 'Device not present'; break;
+			case 'green-on': $orb = 'circle'; $color = 'green'; $blink=0; $help = 'Normal operation, device is active'; break;
+			case 'green-blink': $orb = 'circle'; $color = 'grey'; $blink=1; $help = 'Device is in standby mode (spun-down)'; break;
+			case 'blue-on': $orb = 'square'; $color = 'blue'; $blink=0; $help = 'New device'; break;
+			case 'blue-blink': $orb = 'square'; $color = 'grey'; $blink=1; $help = 'New device, in standby mode (spun-down)'; break;
+			case 'yellow-on': $orb = 'warning'; $color = 'yellow'; $blink=0; $help = $type =='Parity' ? 'Parity is invalid' : 'Device contents emulated'; break;
+			case 'yellow-blink': $orb = 'warning'; $color = 'grey'; $blink=1; $help = $type =='Parity' ? 'Parity is invalid, in standby mode (spun-down)' : 'Device contents emulated, in standby mode (spun-down)'; break;
+			case 'red-on': $orb = 'times'; $color = 'red'; $blink=0; $help = $type=='Parity' ? 'Parity device is disabled' : 'Device is disabled, contents emulated'; break;
+			case 'red-blink': $orb = 'times'; $color = 'red'; $blink=1; $help = $type=='Parity' ? 'Parity device is disabled' : 'Device is disabled, contents emulated'; break;
+			case 'red-off': $orb = 'times'; $color = 'red'; $blink=0; $help = $type =='Parity' ? 'Parity device is missing' : 'Device is missing (disabled), contents emulated'; break;
+			case 'grey-off': $orb = 'square'; $color = 'grey'; $blink=0; $help = 'Device not present'; break;
 			// ZFS values
-			case 'ONLINE': $orb = 'circle'; $color = 'green'; $help = 'Normal operation, device is online'; break;
-			case 'FAULTED': $orb = 'warning'; $color = 'yellow'; $help = 'Device has faulted'; break;
-			case 'DEGRADED': $orb = 'warning'; $color = 'yellow'; $help = 'Device is degraded'; break;
-			case 'AVAIL': $orb = 'circle'; $color = 'green'; $help = 'Device is available'; break;
-			case 'UNAVAIL': $orb = 'times'; $color = 'red'; $help = 'Device is unavailable'; break;
-			case 'OFFLINE': $orb = 'times'; $color = 'red'; $help = 'Device is offline'; break;
+			case 'ONLINE': $orb = 'circle'; $color = 'green'; $blink=0; $help = 'Normal operation, device is online'; break;
+			case 'FAULTED': $orb = 'warning'; $color = 'yellow'; $blink=1; $help = 'Device has faulted'; break;
+			case 'DEGRADED': $orb = 'warning'; $color = 'yellow'; $blink=1; $help = 'Device is degraded'; break;
+			case 'AVAIL': $orb = 'circle'; $color = 'green'; $blink=0; $help = 'Device is available'; break;
+			case 'UNAVAIL': $orb = 'times'; $color = 'red'; $blink=1; $help = 'Device is unavailable'; break;
+			case 'OFFLINE': $orb = 'times'; $color = 'red'; $blink=1; $help = 'Device is offline'; break;
 		}
 		
 		if($force_orb_led == 1) {
@@ -502,7 +502,7 @@
 			return $color;
 		}
 		if($output == "array") {
-			$orb = "fa fa-".$orb." orb-disklocation ".$color."-orb-disklocation";
+			$orb = "fa fa-".$orb." orb-disklocation ".$color."-orb-disklocation " . ( !empty($blink) ? $color."-blink-disklocation" : null ) . "";
 			return array(
 				'orb'	=> $orb,
 				'color'	=> $color,
@@ -510,7 +510,7 @@
 			);
 		}
 		else {
-			return ("<a class='info'><i class='fa fa-$orb orb-disklocation $color-orb-disklocation'></i><span>$help</span></a>");
+			return ("<a class='info'><i class='fa fa-$orb orb-disklocation $color-orb-disklocation " . ( !empty($blink) ? $color."-blink-disklocation" : null ) . "'></i><span>$help</span></a>");
 		}
 	}
 	
@@ -1006,5 +1006,10 @@
 	function get_disk_ack($device, $file = EMHTTP_VAR . "/" . UNRAID_MONITOR_FILE) {
 		$unraid_monitor = parse_ini_file($file, true);
 		return (isset($unraid_monitor["smart"][$device.".ack"]) ? true : false);
+	}
+	
+	function check_smart_files() { // return true if files found
+		$dir = array_diff(scandir(DISKLOCATION_TMP_PATH . "/smart"), array('..', '.'));
+		return ( empty($dir) ? false : true );
 	}
 ?>

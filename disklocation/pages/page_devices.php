@@ -7,7 +7,7 @@
 <blockquote class='inline_help'>
 	<h3><b><?php echo $get_page_info["Title"] ?> ver. <?php echo DISKLOCATION_VERSION ?></b></h3>
 	<p>
-		Made by <?php echo $get_page_info["Author"] ?>. Copyright ©2018-2025. All rights reserved.
+		Made by <?php echo $get_page_info["Author"] ?>. Copyright &copy;2018-2025. All rights reserved.
 	</p>
 	<form action="https://www.paypal.com/donate" method="post" target="_top">
 		<input type="hidden" name="cmd" value="_donations" />
@@ -39,7 +39,7 @@
 	<h3>Installation</h3>
 	<dl>
 		<dt>What else does it install in the system?</dt>
-		<dd>It will install a smartlocate script in /usr/local/bin/, this is needed for the "Locate" function. It will also add a script for cronjob in /etc/cron.hourly/</dd>
+		<dd>It will install a smartlocate script in /usr/local/bin/, this is needed for the "Locate" function.</dd>
 		
 		<dt>How is the versioning working?</dt>
 		<dd>The digits are as following: the first is the year, second the month, and third the day. Technically an ISO date. Multiple updates at the same day will get a letter behind the date increasing from [a]. First version released was 2019.01.22</dd>
@@ -52,19 +52,28 @@
 		<dt>Why did you make this when it already exists something similar?</dt>
 		<dd>The other script which inspired me creating this one, does not support drives not directly attached to Unraid. And since I have several attached to a hardware raid card, I found it useful to be able to list all the drives regardless.</dd>
 		
-		<dt>Where is the configuration file stored?</dt>
+		<dt>Where is the configuration files stored?</dt>
 		<dd>The configration are stored in: /boot/config/plugins/disklocation/</dd>
 		
 		<dt>I want to reset everything to "Factory defaults", how?</dt>
-		<dd>You can delete the database under "System" tab. This will be recreated with blank defaults when you enter the plugin page next. Remember, all settings and tray allocations will be deleted for this plugin.</dd>
+		<dd>
+			You can delete the database under "System" tab. This will be recreated with blank defaults when you enter the plugin page next. Remember, all settings and tray allocations will be deleted for this plugin.<br />
+			Manual reset can be performed by deleting the config files, run: rm /boot/config/plugins/disklocation/*.json
+		</dd>
 	</dl>
 </blockquote>
 </td></tr></table>
-<?php 
+<?php
 	if($db_update == 2) {
 		print("-->");
 	}
 	else {
-		print($disklocation_page_out);
+		
+		if(!check_smart_files()) {
+			print("<h1 style=\"color: #f0000c; text-align: center;\">Go to System and initialize a \"Force SMART[+DB]\"</h1>");
+		}
+		else {
+			print($disklocation_page_out);
+		}
 	}
 ?>

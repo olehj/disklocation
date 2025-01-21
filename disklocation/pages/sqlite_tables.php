@@ -625,14 +625,13 @@
 		}
 	}
 	
-	$db = new DLDB();
 	
+	$db = new DLDB();
 	if(!$db) {
 		echo $db->lastErrorMsg();
 	}
 	
 // Create and update database
-	if(!in_array("cronjob", $argv) && !$_POST["download_csv"]) { print("<h3 style=\"color: #FF0000;\">"); }
 	if(filesize(DISKLOCATION_DB) === 0) {
 		/*$sql = "
 			CREATE TABLE disks(
@@ -654,6 +653,8 @@
 			echo $db->lastErrorMsg();
 		}
 		*/
+		$db->close();
+		unlink(DISKLOCATION_DB);
 	}
 	else {
 		$sql = "PRAGMA user_version";
@@ -1178,7 +1179,6 @@
 				print("ERROR: could not save file " . DISKLOCATION_DEVICES . "");
 			}
 		
-		if(!in_array("cronjob", $argv) && !$_POST["download_csv"]) { print("</h3>"); }
 		if($db_update == 1) {
 			print("<h3>Database successfully converted.</h3>"); // updated.
 			if(!in_array("cronjob", $argv)) {

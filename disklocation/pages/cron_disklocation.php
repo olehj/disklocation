@@ -97,8 +97,8 @@
 			mkdir("/tmp/disklocation/smart");
 		}
 		
-		$devices_current = $get_devices;
-		$locations_current = $get_locations;
+		$devices_current = (empty($get_devices) ? array() : $get_devices);
+		$locations_current = (empty($get_locations) ? array() : $get_locations);
 		
 		if($force_scan_db && !in_array("status", $argv)) {
 			// wait until the cronjob has finished.

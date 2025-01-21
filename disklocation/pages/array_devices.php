@@ -201,7 +201,7 @@
 		$date_warranty = "";
 		$warranty_expire = "";
 		$warranty_left = "";
-		//"warranty_date" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><span style=\"cursor: help;\" title=\"Warranty: " . $date_warranty . " Expires: " . $warranty_left . "\">" . $warranty_expire . "</span></td>",
+		
 		if($devices[$hash]["raw"]["purchased"] && ($devices[$hash]["raw"]["warranty"])) {
 			$warranty_start = strtotime($devices[$hash]["raw"]["purchased"]);
 			

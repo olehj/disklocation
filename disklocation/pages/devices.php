@@ -43,7 +43,7 @@
 		$group_color = "";
 		extract($value);
 		
-		if(!empty($group_name)) {
+		if(!empty($id)) {
 			$gid = $id;
 			$groupid = $gid;
 
@@ -53,7 +53,7 @@
 			$disklocation_dash[$gid] = "";
 			
 			$i_arr=0;
-			if(!$total_groups) {
+			if(!$total_groups || empty($array_locations)) {
 				foreach($array_devices as $hash => $array) {
 					if(!$array_devices[$hash]["status"]) {
 						$datajson[$i_arr] = $array_devices[$hash];
@@ -70,8 +70,10 @@
 						$datajson[$i_arr] += $array_locations[$hash];
 						$i_arr++;
 					}
+					else {
+					}
 				}
-				$datajson = sort_array($datajson, 'groupid', SORT_ASC, SORT_NUMERIC, 'tray', SORT_ASC, SORT_NUMERIC);
+				$datajson = ( !empty($datajson) ? sort_array($datajson, 'groupid', SORT_ASC, SORT_NUMERIC, 'tray', SORT_ASC, SORT_NUMERIC) : array() );
 			}
 			
 			$total_trays = ( empty($grid_trays) ? $grid_columns * $grid_rows : $grid_trays );
@@ -264,8 +266,8 @@
 							$temp_status = 1;
 						}
 						if($unraid_array[$devicenode]["temp"] >= $unraid_array[$devicenode]["hotTemp"]) {
-							$temp_status_icon = "<a class='info' style=\"margin: 0; text-align:left;\"><i class='fa fa-" . ( !$force_orb_led ? 'fire' : 'circle' ) . " orb-disklocation yellow-orb-disklocation'></i><span>" . $smart_temperature . " (Warning: &gt;" . $devices[$hash]["formatted"]["hotTemp"] . ")</span></a>";
-							$temp_status_info = array('orb' => "fa fa-" . ( !$force_orb_led ? 'fire' : 'circle' ) . " orb-disklocation yellow-orb-disklocation", 'color' => 'yellow', 'text' => $devices[$hash]["formatted"]["temp"]);
+							$temp_status_icon = "<a class='info' style=\"margin: 0; text-align:left;\"><i class='fa fa-" . ( !$force_orb_led ? 'fire' : 'circle' ) . " orb-disklocation yellow-orb-disklocation yellow-blink-disklocation'></i><span>" . $smart_temperature . " (Warning: &gt;" . $devices[$hash]["formatted"]["hotTemp"] . ")</span></a>";
+							$temp_status_info = array('orb' => "fa fa-" . ( !$force_orb_led ? 'fire' : 'circle' ) . " orb-disklocation yellow-orb-disklocation yellow-blink-disklocation", 'color' => 'yellow', 'text' => $devices[$hash]["formatted"]["temp"]);
 							$temp_status = 2;
 						}
 						if($unraid_array[$devicenode]["temp"] >= $unraid_array[$devicenode]["maxTemp"]) {
@@ -282,16 +284,16 @@
 					$smart_status = ((!empty($smart_errors) && !empty($smart_status) && !get_disk_ack($unraid_array[$data["devicenode"]]["name"])) ? 2 : $smart_status);
 					switch($smart_status) {
 						case 0:
-							$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation red-orb-disklocation'></i><span>S.M.A.R.T: Failed! " . $devices[$hash]["formatted"]["smart_errors"] . "</span></a>";
-							$smart_status_info = array('orb' => 'fa fa-circle orb-disklocation red-orb-disklocation', 'color' => 'red', 'text' => 'Failed');
+							$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation red-orb-disklocation red-blink-disklocation'></i><span>S.M.A.R.T: Failed! " . $devices[$hash]["formatted"]["smart_errors"] . "</span></a>";
+							$smart_status_info = array('orb' => 'fa fa-circle orb-disklocation red-orb-disklocation red-blink-disklocation', 'color' => 'red', 'text' => 'Failed');
 							break;
 						case 1:
 							$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation green-orb-disklocation'></i><span>S.M.A.R.T: Passed</span></a>";
 							$smart_status_info = array('orb' => 'fa fa-circle orb-disklocation green-orb-disklocation', 'color' => 'green', 'text' => 'Passed');
 							break;
 						case 2:
-							$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation yellow-orb-disklocation'></i><span>S.M.A.R.T: Warning! " . $devices[$hash]["formatted"]["smart_errors"] . "</span></a>";
-							$smart_status_info = array('orb' => 'fa fa-circle orb-disklocation yellow-orb-disklocation', 'color' => 'yellow', 'text' => 'Warning');
+							$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation yellow-orb-disklocation yellow-blink-disklocation'></i><span>S.M.A.R.T: Warning! " . $devices[$hash]["formatted"]["smart_errors"] . "</span></a>";
+							$smart_status_info = array('orb' => 'fa fa-circle orb-disklocation yellow-orb-disklocation yellow-blink-disklocation', 'color' => 'yellow', 'text' => 'Warning');
 							break;
 						default:
 							$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation grey-orb-disklocation'></i><span>S.M.A.R.T: N/A</span></a>";
@@ -523,6 +525,7 @@
 	foreach($array_groups as $id => $value) {
 		extract($value);
 		$gid = $id;
+		$gid_name = ( empty($group_name) ? $gid : $group_name );
 		
 		$css_grid_group = "
 			grid-template-columns: " . $grid_columns_styles[$gid] . ";
@@ -532,7 +535,7 @@
 		
 		$disklocation_page_out .= "
 			<div style=\"float: left; top; padding: 0 10px 10px 10px;\">
-				<h2 style=\"text-align: center;\">" . stripslashes(htmlspecialchars($group_name)) . "</h2>
+				<h2 style=\"text-align: center;\">" . stripslashes(htmlspecialchars($gid_name)) . "</h2>
 				<div class=\"grid-container\" style=\"$css_grid_group\">
 					$disklocation_page[$gid]
 				</div>
@@ -542,9 +545,18 @@
 	
 	if(!count_table_rows($get_locations)) {
 		$disklocation_page_out = "
+			<table><tr><td style=\"padding: 10px 10px 10px 10px;\">
 			<h1>Please configure Disk Location</h1>
-			<p>Press the Unraid \"Help\" icon for additional information per page.</p>
+			<ol>
+				<li>First go to \"System\", click \"Force SMART+DB\", this might take some time depending on how many drives you have installed.</li>
+				<li>Then go to \"Configuration\" and add \"Disk Tray Layout\"</li>
+				<li>Finally, assign your drives to your newly created layout under \"Tray Allocations\"</li>
+			</ol>
+			<p>
+				More info available by pressing the Unraid \"Help\" icon for additional information per page.
+			</p>
 			<!--Go to <a href=\"" . DISKLOCATIONCONF_URL . "\">Disk Location Configuration</a>-->
+			</td></tr></table>
 		";
 	}
 	

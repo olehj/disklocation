@@ -55,7 +55,7 @@
 		$gid = ( empty($_POST["last_group_id"]) ? 1 : $_POST["last_group_id"]+1 );
 		$groups = config_array(DISKLOCATION_GROUPS, 'r');
 		$groups[$gid] = array(
-			"group_color" => $group_color,
+			"group_color" => null,
 			"grid_count" => $grid_count,
 			"grid_columns" => $grid_columns,
 			"grid_rows" => $grid_rows,
@@ -73,17 +73,20 @@
 	if(isset($_POST["group_del"]) && isset($_POST["last_group_id"])) {
 		$gid = $_POST["last_group_id"];
 		$groups = config_array(DISKLOCATION_GROUPS, 'r');
+		$devices = config_array(DISKLOCATION_DEVICES, 'r');
 		unset($groups[$gid]);
 		
 		$locations = config_array(DISKLOCATION_LOCATIONS, 'r');
 		foreach($locations as $hash => $array) {
 			if($locations[$hash]["groupid"] == $gid) {
 				unset($locations[$hash]);
+				$devices[$hash]["status"] = 'h';
 			}
 		}
 		
 		config_array(DISKLOCATION_GROUPS, 'w', $groups);
 		config_array(DISKLOCATION_LOCATIONS, 'w', $locations);
+		config_array(DISKLOCATION_DEVICES, 'w', $devices);
 		
 		$SUBMIT_RELOAD = 1;
 	}
@@ -248,7 +251,7 @@
 				}
 			}
 			
-			// Remove existing/duplciated allocations, keep the newest, and enable assigned device:
+			// Remove existing/duplicated allocations, keep the newest, and enable assigned device:
 			
 			$results = array();
 			foreach($array_locations as $hash => $value) {

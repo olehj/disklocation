@@ -52,14 +52,15 @@
 	$array_locations = $get_locations;
 	$print_drives = array();
 	$data = array();
-	$custom_colors_array = array();
 	$raw_devices = array();
+	$table_colspan = 0;
 	
 	list($table_trayalloc_order_user, $table_trayalloc_order_system, $table_trayalloc_order_name, $table_trayalloc_order_full, $table_trayalloc_order_forms) = get_table_order($select_db_trayalloc, $sort_db_trayalloc);
 	
 	$arr_length = count($table_trayalloc_order_user);
 	for($i=0;$i<$arr_length;$i++) {
 		$table_trayalloc_order_name_html .= "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\"><b style=\"cursor: help;\" title=\"" . $table_trayalloc_order_full[$i] . "\">" . $table_trayalloc_order_name[$i] . "</b></td>";
+		$table_colspan = $i;
 	}
 	
 	foreach($devices as $hash => $data) { // array as hash => array(raw/formatted)
@@ -85,6 +86,7 @@
 	foreach($raw_devices as $key => $data) {
 		if($data["hash"]) {
 			$status = ( !$data["status"] ? 'a' : $data["status"] );
+			$allocated = ( ($status != "a") ? "unallocated" : "allocated" );
 			$hash = $data["hash"];
 			
 			$data = $devices[$hash];
@@ -144,7 +146,7 @@
 				<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px; text-align: left;\">
 					<button type=\"submit\" name=\"hash_remove\" value=\"" . $hash . "\" title=\"This will force move the drive to the &quot;History&quot; section.\" style=\"margin: 0; padding: 0; min-width: 0; width: 20px; height: 20px; background-color: #FFFFFF;\"><i style=\"font-size: 15px;\" class=\"fa fa-minus-circle fa-lg\"/></i></button>
 				</td>
-				<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px; text-align: center;\"><input type=\"button\" class=\"diskLocation\" style=\"background-color: #F2F2F2; transform: none;\" onclick=\"locateStart()\" value=\"Locate\" id=\"" . $data["device"] . "\" name=\"allocated\" /></td>
+				<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px; text-align: center;\"><input type=\"button\" class=\"diskLocation\" style=\"background-color: #F2F2F2; transform: none;\" onclick=\"locateStart()\" value=\"Locate\" id=\"" . $data["device"] . "\" name=\"" . $allocated . "\" /></td>
 			";
 			
 			$arr_length = count($table_trayalloc_order_system);
@@ -302,7 +304,6 @@
 <?php if($db_update == 2) { print("<h3>Page unavailable due to database error.</h3><!--"); } ?>
 <script type="text/javascript" src="<?autov("" . DISKLOCATION_PATH . "/pages/script/locate_script_top.js.php")?><?php print("&amp;path=" . DISKLOCATION_PATH . ""); ?>"></script>
 <datalist id="disklocationColors">
-	<option>#<?php echo $bgcolor_empty ?></option>
 	<?php echo $bgcolor_custom_array ?>
 </datalist>
 <table><tr><td style="padding: 10px 10px 10px 10px;">
@@ -335,7 +336,7 @@
 			<td style="vertical-align: top; padding-left: 20px;">
 				<table style="table-layout: auto; width: 0; border-spacing: 2px; border-collapse: separate;">
 					<tr>
-						<td style="padding: 10px 10px 0 10px;" colspan="15">
+						<td style="padding: 10px 10px 0 10px;" colspan="<?php print($table_colspan + 4); ?>">
 							<h2>Allocations</h2>
 							<p style="margin-top: -10px;">
 								<b>Warning! Please use "Force scan all" button under "System" tab before manually deleting and/or re-adding devices manually.</b><br />
@@ -367,7 +368,7 @@
 						if(!empty($print_add_drives)) {
 							print("
 									<tr>
-										<td style=\"padding: 10px 10px 0 10px;\" colspan=\"15\">
+										<td style=\"padding: 10px 10px 0 10px;\" colspan=\"" . ($table_colspan + 4) . "\">
 											<h2>Unassigned Devices</h2>
 										</td>
 									</tr>
@@ -384,7 +385,7 @@
 						}
 					?>
 					<tr>
-						<td style="padding: 10px 10px 0 10px;" colspan="15">
+						<td style="padding: 10px 10px 0 10px;" colspan="<?php print($table_colspan + 4); ?>">
 							<hr />
 							<input type="submit" name="save_allocations" value="Save" />
 							<span style="padding-left: 50px;"></span>
@@ -404,7 +405,7 @@
 						print("
 							<table style=\"table-layout: auto; width: 0; border-spacing: 2px; border-collapse: separate; margin: 0;\">
 								<tr>
-									<td style=\"padding: 10px 10px 0 10px;\" colspan=\"15\">
+									<td style=\"padding: 10px 10px 0 10px;\" colspan=\"" . ($table_colspan + 4) . "\">
 										<h2>History</h2>
 										<p style=\"padding: 0 0 0 0;\">
 											Warning! The <i class=\"fa fa-minus-circle fa-lg\"></i> button will hide the device permanently from this plugin and can only be reverted by manually changing the flag in the database file (\"Force scan all\" button will not touch hidden devices).<br />
