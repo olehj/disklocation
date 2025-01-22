@@ -418,39 +418,28 @@
 						$zfs_disk_status = zfs_disk("" . $data["smart_serialnumber"] . "", $zfs_parser, $lsblk_array);
 					}
 					
-					if(!$zfs_disk_status && isset($unraid_array[$devicenode]["color"]) && isset($unraid_array[$devicenode]["status"])) {
+					if(!empty($unraid_array[$devicenode]["color"]) && !empty($unraid_array[$devicenode]["status"])) {
 						$unraid_array_icon = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"], '', $force_orb_led);
 						$unraid_array_info = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"],'array');
 						$color_status = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"],'color');
 					}
 					else {
-						$smart_powermode = config("/tmp/disklocation/powermode.ini", 'r', $device);
-						switch($smart_powermode) {
-							case "ACTIVE":
-								$unraid_disk_status_color = "green-on";
-								break;
-							case "IDLE":
-								$unraid_disk_status_color = "green-on";
-								break;
-							case "STANDBY":
-								$unraid_disk_status_color = "green-blink";
-								break;
-							case "UNKNOWN":
-								$unraid_disk_status_color = "grey-off";
-								break;
-							default:
-								$unraid_disk_status_color = "grey-off";
+						$unraid_disk_status_color = get_powermode($device);
+					}
+					if(!empty($zfs_disk_status)) {
+						$unraid_array_icon = get_unraid_disk_status($zfs_disk_status[1], '', '', $force_orb_led);
+						$unraid_array_info = get_unraid_disk_status($zfs_disk_status[1],'','array');
+						$color_status = get_unraid_disk_status($zfs_disk_status[1],'','color');
+						if($color_status == "green" && $unraid_disk_status_color == "green-blink") {
+							$unraid_array_icon = get_unraid_disk_status('STANDBY', '', '', $force_orb_led);
+							$unraid_array_info = get_unraid_disk_status('STANDBY','','array');
+							$color_status = get_unraid_disk_status('STANDBY','','color');
 						}
-						if($zfs_disk_status) {
-							$unraid_array_icon = get_unraid_disk_status($zfs_disk_status[1], '', '', $force_orb_led);
-							$unraid_array_info = get_unraid_disk_status($zfs_disk_status[1],'','array');
-							$color_status = get_unraid_disk_status($zfs_disk_status[1],'','color');
-						}
-						else {
-							$unraid_array_icon = get_unraid_disk_status($unraid_disk_status_color, '', '', $force_orb_led);
-							$unraid_array_info = get_unraid_disk_status($unraid_disk_status_color,'','array');
-							$color_status = get_unraid_disk_status($unraid_disk_status_color,'','color');
-						}
+					}
+					else if(empty($unraid_array_icon) && empty($unraid_array_info) && empty($color_status)) {
+						$unraid_array_icon = get_unraid_disk_status($unraid_disk_status_color, '', '', $force_orb_led);
+						$unraid_array_info = get_unraid_disk_status($unraid_disk_status_color,'','array');
+						$color_status = get_unraid_disk_status($unraid_disk_status_color,'','color');
 					}
 				}
 				
@@ -467,7 +456,7 @@
 						//$smart_status_icon = "<span class=\"red-on\" alt=\"S.M.A.R.T: Failed!\" title=\"S.M.A.R.T: Failed!\" />&#11044;</span>";
 						break;
 					default:
-						$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation grey-orb-disklocation yellow-blink-disklocation'></i><span>S.M.A.R.T: N/A</span></a>";
+						$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation grey-orb-disklocation'></i><span>S.M.A.R.T: N/A</span></a>";
 						$smart_status_info = array('orb' => 'fa fa-circle orb-disklocation grey-orb-disklocation', 'color' => 'grey', 'text' => 'N/A');
 						//$smart_status_icon = "<span class=\"grey-off\" alt=\"S.M.A.R.T: Off/None\" title=\"S.M.A.R.T: Off/None\" />&#11044;</span>";
 				}
