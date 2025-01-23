@@ -418,13 +418,12 @@
 						$zfs_disk_status = zfs_disk("" . $data["smart_serialnumber"] . "", $zfs_parser, $lsblk_array);
 					}
 					
+					$unraid_disk_status_color = get_powermode($device);
+					
 					if(!empty($unraid_array[$devicenode]["color"]) && !empty($unraid_array[$devicenode]["status"])) {
 						$unraid_array_icon = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"], '', $force_orb_led);
 						$unraid_array_info = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"],'array');
 						$color_status = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"],'color');
-					}
-					else {
-						$unraid_disk_status_color = get_powermode($device);
 					}
 					if(!empty($zfs_disk_status)) {
 						$unraid_array_icon = get_unraid_disk_status($zfs_disk_status[1], '', '', $force_orb_led);
@@ -436,7 +435,7 @@
 							$color_status = get_unraid_disk_status('STANDBY','','color');
 						}
 					}
-					else if(empty($unraid_array_icon) && empty($unraid_array_info) && empty($color_status)) {
+					else {
 						$unraid_array_icon = get_unraid_disk_status($unraid_disk_status_color, '', '', $force_orb_led);
 						$unraid_array_info = get_unraid_disk_status($unraid_disk_status_color,'','array');
 						$color_status = get_unraid_disk_status($unraid_disk_status_color,'','color');
