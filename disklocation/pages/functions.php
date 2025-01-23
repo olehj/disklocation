@@ -492,6 +492,7 @@
 			case 'AVAIL': $orb = 'circle'; $color = 'green'; $blink = ''; $help = 'Device is available'; break;
 			case 'UNAVAIL': $orb = 'times'; $color = 'red'; $blink = 'red'; $help = 'Device is unavailable'; break;
 			case 'OFFLINE': $orb = 'times'; $color = 'red'; $blink = 'red'; $help = 'Device is offline'; break;
+			case 'STANDBY': $orb = 'circle'; $color = 'grey'; $blink = 'green'; $help = 'Device is online and in standby mode'; break;
 		}
 		
 		if($force_orb_led == 1) {
@@ -511,6 +512,25 @@
 		}
 		else {
 			return ("<a class='info'><i class='fa fa-$orb orb-disklocation $color-orb-disklocation " . ( !empty($blink) ? $blink."-blink-disklocation" : null ) . "'></i><span>$help</span></a>");
+		}
+	}
+	
+	function get_powermode($device) {
+		switch(config("/tmp/disklocation/powermode.ini", 'r', $device)) {
+			case "ACTIVE":
+				return "green-on";
+				break;
+			case "IDLE":
+				return "green-on";
+				break;
+			case "STANDBY":
+				return "green-blink";
+				break;
+			case "UNKNOWN":
+				return "grey-off";
+				break;
+			default:
+				return "grey-off";
 		}
 	}
 	
