@@ -3,9 +3,9 @@
 		margin: 0;
 		padding: 0 2px 0;
 	}
-	.grey-orb-disklocation { color: #C0C0C0 }
-	.green-orb-disklocation { color: #33CC33 }
-	.green-blink-disklocation-disklocation {
+	.grey-orb-disklocation { color: #C0C0C0; }
+	.green-orb-disklocation { color: #33CC33; }
+	.green-blink-disklocation {
 		animation: blinker-disklocation-green 2s ease-in-out infinite;
 		font-size: 8pt;
 	}
@@ -14,7 +14,7 @@
 		50% {color: #33CC33;}
 		100% {color: #AAAAAA;}
 	}
-	.yellow-orb-disklocation { color: #FF9900 }
+	.yellow-orb-disklocation { color: #FF9900; }
 	.yellow-blink-disklocation {
 		animation: blinker-disklocation-yellow 2s ease-in-out infinite;
 		font-size: 8pt;
@@ -32,7 +32,7 @@
 		50% {background-color: #FF9900;}
 		100% {background-color: #000000;}
 	}
-	.red-orb-disklocation { color: #FF3300 }
+	.red-orb-disklocation { color: #FF3300; }
 	.red-blink-disklocation {
 		animation: blinker-disklocation-red 1s ease-in-out infinite;
 		font-size: 8pt;
@@ -54,7 +54,7 @@
 		75% {background-color: #000000;}
 		100% {background-color: #FF0000;}
 	}
-	.blue-orb-disklocation { color: #0099FF }
+	.blue-orb-disklocation { color: #0099FF; }
 	.blue-blink-disklocation {
 		animation: blinker-disklocation-blue 2s ease-in-out infinite;
 		font-size: 8pt;
