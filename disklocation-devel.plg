@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.01.23-0112">
+<!ENTITY version          "2025.01.23-0123">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -196,10 +196,8 @@ EOL
   rm -Rf "/tmp/&name;-packages"
   rm -f "/tmp/&name;-install"
   
-  CURRENT_DATE=$(date +"%Y%m%d-%H%M%S")
-  mkdir -p "&pluginLOC;/backup/$CURRENT_DATE"
   php -f &emhttpLOC;/pages/page_system.php backup
-  logit "Made backup of database (&pluginLOC;/backup/$CURRENT_DATE)"
+  logit "Made backup of database."
 
 logit "Configuring..."
 # Get sub-configuration
