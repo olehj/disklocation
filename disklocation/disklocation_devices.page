@@ -5,7 +5,7 @@ Title="Devices"
 ---
 <?php
 	/*
-	 *  Copyright 2019-2024, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2025, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -23,6 +23,8 @@ Title="Devices"
 	 *  along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
 	 *
 	 */
+	$total_time_start = (isset($_GET["benchmark"]) ? hrtime(true) : null);
+	
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/system.php");
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/devices.php");
 	

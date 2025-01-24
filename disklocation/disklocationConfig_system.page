@@ -12,4 +12,6 @@ Title="System"
 	//if(file_exists(DISKLOCATION_LOCK_FILE)) {
 	//	unlink(DISKLOCATION_LOCK_FILE);
 	//}
+	
+	print(isset($_GET["benchmark"]) ? "<h1 style=\"color: #0099FF;\">Disk Location completed in " . (round((hrtime(true)-$total_time_start)/1e+6, 1) . " milliseconds.</h1>\n") : null);
 ?>
