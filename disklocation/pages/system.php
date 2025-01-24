@@ -137,11 +137,11 @@
 		}
 		
 		// settings
-		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_parity"])) { $disklocation_error[] = "Background color for \"Parity\" invalid."; } else { $_POST["bgcolor_parity"] = str_replace("#", "", $_POST["bgcolor_parity"]); }
-		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_unraid"])) { $disklocation_error[] = "Background color for \"Data\" invalid."; } else { $_POST["bgcolor_unraid"] = str_replace("#", "", $_POST["bgcolor_unraid"]); }
-		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_cache"])) { $disklocation_error[] = "Background color for \"Cache\" invalid."; } else { $_POST["bgcolor_cache"] = str_replace("#", "", $_POST["bgcolor_cache"]); }
-		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_others"])) { $disklocation_error[] = "Background color for \"Unassigned devices\" invalid."; } else { $_POST["bgcolor_others"] = str_replace("#", "", $_POST["bgcolor_others"]); }
-		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_empty"])) { $disklocation_error[] = "Background color for \"Empty trays\" invalid."; } else { $_POST["bgcolor_empty"] = str_replace("#", "", $_POST["bgcolor_empty"]); }
+		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_parity"])) { $disklocation_error[] = "Background color for \"Parity\" invalid."; } else { $_POST["bgcolor_parity"] = str_replace("#", "", strtoupper($_POST["bgcolor_parity"])); }
+		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_unraid"])) { $disklocation_error[] = "Background color for \"Data\" invalid."; } else { $_POST["bgcolor_unraid"] = str_replace("#", "", strtoupper($_POST["bgcolor_unraid"])); }
+		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_cache"])) { $disklocation_error[] = "Background color for \"Cache\" invalid."; } else { $_POST["bgcolor_cache"] = str_replace("#", "", strtoupper($_POST["bgcolor_cache"])); }
+		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_others"])) { $disklocation_error[] = "Background color for \"Unassigned devices\" invalid."; } else { $_POST["bgcolor_others"] = str_replace("#", "", strtoupper($_POST["bgcolor_others"])); }
+		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_empty"])) { $disklocation_error[] = "Background color for \"Empty trays\" invalid."; } else { $_POST["bgcolor_empty"] = str_replace("#", "", strtoupper($_POST["bgcolor_empty"])); }
 		if(!is_numeric($_POST["tray_reduction_factor"])) { $disklocation_error[] = "The size divider is not numeric."; }
 		if(!preg_match("/(0|1)/", $_POST["force_orb_led"])) { $disklocation_error[] = "LED display field is invalid."; }
 		if(!preg_match("/[0-9]{1,4}/", $_POST["serial_trim"])) { $disklocation_error[] = "Serial number trim number invalid."; }
@@ -151,22 +151,22 @@
 		// Infomation
 		if(empty($_POST["select_db_info"])) { $_POST["select_db_info"] = $select_db_info_default; }
 		if(empty($_POST["sort_db_info"])) { $_POST["sort_db_info"] = $sort_db_info_default; }
-		$get_table_order_info = get_table_order($_POST["select_db_info"], $_POST["sort_db_info"], 2, "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1");
-		$get_table_order_info .= get_table_order($_POST["select_db_info"], $_POST["sort_db_info"], 3, "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1");
+		$get_table_order_info = get_table_order($_POST["select_db_info"], $_POST["sort_db_info"], 2, $allowed_db_select_info);
+		$get_table_order_info .= get_table_order($_POST["select_db_info"], $_POST["sort_db_info"], 3, $allowed_db_sort_info);
 		if($get_table_order_info) { $disklocation_error[] = "Table \"Information\": " . $get_table_order_info; }
 		
 		// Tray Allocations / Unassigned
 		if(empty($_POST["select_db_trayalloc"])) { $_POST["select_db_trayalloc"] = $select_db_trayalloc_default; }
 		if(empty($_POST["sort_db_trayalloc"])) { $_POST["sort_db_trayalloc"] = $sort_db_trayalloc_default; }
-		$get_table_order_trayalloc = get_table_order($_POST["select_db_trayalloc"], $_POST["sort_db_trayalloc"], 2, "0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1");
-		$get_table_order_trayalloc .= get_table_order($_POST["select_db_trayalloc"], $_POST["sort_db_trayalloc"], 3, "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1");
+		$get_table_order_trayalloc = get_table_order($_POST["select_db_trayalloc"], $_POST["sort_db_trayalloc"], 2, $allowed_db_select_trayalloc);
+		$get_table_order_trayalloc .= get_table_order($_POST["select_db_trayalloc"], $_POST["sort_db_trayalloc"], 3, $allowed_db_sort_trayalloc);
 		if($get_table_order_trayalloc) { $disklocation_error[] = "Table \"Tray Allocations\": " . $get_table_order_trayalloc; }
 		
 		// History
 		if(empty($_POST["select_db_drives"])) { $_POST["select_db_drives"] = $select_db_drives_default; }
 		if(empty($_POST["sort_db_drives"])) { $_POST["sort_db_drives"] = $sort_db_drives_default; }
-		$get_table_order_drives = get_table_order($_POST["select_db_drives"], $_POST["sort_db_drives"], 2, "0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1");
-		$get_table_order_drives .= get_table_order($_POST["select_db_drives"], $_POST["sort_db_drives"], 3, "0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1");
+		$get_table_order_drives = get_table_order($_POST["select_db_drives"], $_POST["sort_db_drives"], 2, $allowed_db_select_drives);
+		$get_table_order_drives .= get_table_order($_POST["select_db_drives"], $_POST["sort_db_drives"], 3, $allowed_db_sort_drives);
 		if($get_table_order_drives) { $disklocation_error[] = "Table \"History\": " . $get_table_order_drives; }
 		
 		// Devices textarea, manual sort
@@ -204,7 +204,7 @@
 		}
 		
 		foreach($new_array as $id => $setting) {
-			if($new_array[$id]["group_color"] && !preg_match("/#([a-f0-9]{3}){1,2}\b/i", $new_array[$id]["group_color"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Background color invalid."; } else { $new_array[$id]["group_color"] = ( $new_array[$id]["group_color"] != "#".$bgcolor_empty ? str_replace("#", "", $new_array[$id]["group_color"]) : null ); }
+			if($new_array[$id]["group_color"] && !preg_match("/#([a-f0-9]{3}){1,2}\b/i", $new_array[$id]["group_color"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Background color invalid."; } else { $new_array[$id]["group_color"] = ( strtoupper($new_array[$id]["group_color"]) != "#".strtoupper($bgcolor_empty) ? str_replace("#", "", strtoupper($new_array[$id]["group_color"])) : null ); }
 			if($new_array[$id]["grid_count"] && !preg_match("/\b(column|row)\b/", $new_array[$id]["grid_count"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Physical tray assignment invalid."; }
 			if($new_array[$id]["grid_columns"] && !preg_match("/[0-9]{1,3}/", $new_array[$id]["grid_columns"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Grid columns missing or number invalid."; }
 			if($new_array[$id]["grid_rows"] && !preg_match("/[0-9]{1,3}/", $new_array[$id]["grid_rows"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Grid rows missing or number invalid."; }
@@ -274,7 +274,7 @@
 				
 				$array_devices[$results[$id]["hash"]]["comment"] = ( !empty($_POST["comment"][$results[$id]["hash"]]) ? $_POST["comment"][$results[$id]["hash"]] : null );
 				
-				$array_devices[$results[$id]["hash"]]["color"] = ( (!empty($_POST["bgcolor_custom"][$results[$id]["hash"]]) && $_POST["bgcolor_custom"][$results[$id]["hash"]] != "#".$bgcolor_empty) ? str_replace("#", "", $_POST["bgcolor_custom"][$results[$id]["hash"]]) : null );
+				$array_devices[$results[$id]["hash"]]["color"] = ( (!empty($_POST["bgcolor_custom"][$results[$id]["hash"]]) && strtoupper($_POST["bgcolor_custom"][$results[$id]["hash"]]) != "#".strtoupper($bgcolor_empty)) ? str_replace("#", "", strtoupper($_POST["bgcolor_custom"][$results[$id]["hash"]])) : null );
 			}
 			
 			debug_print($debugging_active, __LINE__, "SQL", "ALLOC: <pre>" . $sql . "</pre>");

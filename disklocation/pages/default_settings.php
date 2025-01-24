@@ -22,12 +22,11 @@
 //	Common settings
 //	Variable name		Default value			Description
 //	--------------------------------------------------------------------------------
-	$smart_exec_delay =		'200';			// set milliseconds for next execution for SMART shell_exec - needed to actually grab all the information for unassigned devices. Default: 200
-	$bgcolor_parity =		'aa2d2f';		// background color for Unraid parity disks / critical temp // old default: ca3f33
-	$bgcolor_unraid =		'be7317';		// background color for Unraid data disks / warning temp // old default: ef6441 / ca7233
-	$bgcolor_cache =		'5b7845';		// background color for Unraid cache disks / normal temp // old default: ff884c / cabd33
-	$bgcolor_others =		'7c7c7c';		// background color for unassigned/other disks / unknown temp // old default: 41b5ef / 3398ca
-	$bgcolor_empty =		'303030';		// background color for empty trays // old default: aaaaaa / 7c7c7c
+	$bgcolor_parity =		'AA2D2F';		// background color for Unraid parity disks / critical temp // old default: CA3F33
+	$bgcolor_unraid =		'BE7317';		// background color for Unraid data disks / warning temp // old default: EF6441 / CA7233
+	$bgcolor_cache =		'5B7845';		// background color for Unraid cache disks / normal temp // old default: FF884C / CABD33
+	$bgcolor_others =		'7C7C7C';		// background color for unassigned/other disks / unknown temp // old default: 41B5EF / 3398CA
+	$bgcolor_empty =		'303030';		// background color for empty trays // old default: AAAAAA / 7C7C7C
 	$tray_reduction_factor =	'10';			// set the scale divider for the mini tray layout
 	$force_orb_led =		'0';			// set the LED to 0: show Unraid icons (triangle warning / hot critical) - 1: show circle LEDs (color coded circles).
 	$device_bg_color =		'1';			// choose background for the drives, Drive Type (0) or Heat Map (1)
@@ -43,22 +42,22 @@
 		'flashcritical' => 1
 	);
 	
-	$select_db_info = "group,tray,manufacturer,model,serial,capacity,cache,rotation,formfactor,read,written,manufactured,purchased,installed,expires,comment";
+	$select_db_info = "group,tray,manufacturer,model,serial,capacity,cache,rotation,formfactor,read,written,manufactured,purchased,expires,comment";
 	$sort_db_info = "asc:group,tray";
 	
 	// mandatory: group,tray,locate,color
-	$select_db_trayalloc = "node,manufacturer,model,serial,capacity,rotation,formfactor,manufactured,purchased,installed,warranty,comment";
+	$select_db_trayalloc = "device,node,model,serial,capacity,rotation,manufactured,purchased,warranty,comment";
 	$sort_db_trayalloc = "asc:group,tray";
 	
-	$select_db_drives = "manufacturer,model,serial,capacity,rotation,formfactor,manufactured,purchased,installed,removed,comment";
-	$sort_db_drives = "asc:serial";
+	$select_db_drives = "manufacturer,model,serial,capacity,rotation,formfactor,manufactured,purchased,removed,warranty,comment";
+	$sort_db_drives = "asc:purchased,serial";
 	
 	//not used, but prepared just in case it will be added in the future:
-	$select_db_devices = "[huge]*pool*[/huge] name node capacity rotation formfactor [color:11ff00]*[serial]*[/color]\r\nmanufacturer model\r\ncomment";
+	$select_db_devices = "[huge]*pool*[/huge] name node capacity rotation formfactor [color:FFFFFF]*[serial]*[/color]\r\nmanufacturer model\r\ncomment";
 	
 //	Group settings
 	
-	$group_color = 		$bgcolor_empty;	// set default group background color to "empty/disabled"
+	$group_color = 		'';	// set default group background color to "empty/disabled"
 	$grid_count =		'column';	// how to count the trays: [column]: trays ordered from top to bottom from left to right | [row]: ..from left to right from top to bottom
 	$grid_columns =		'4';		// number of horizontal trays
 	$grid_rows =		'6';		// number of verical trays

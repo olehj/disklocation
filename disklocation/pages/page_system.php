@@ -24,6 +24,7 @@
 		error_reporting(E_ALL);
 		
 		define("UNRAID_CONFIG_PATH", "/boot/config");
+		define("EMHTTP_ROOT", "/usr/local/emhttp");
 		define("DISKLOCATION_PATH", "/plugins/disklocation");
 		define("DISKLOCATION_URL", "/Tools/disklocation");
 		define("DISKLOCATION_TMP_PATH", "/tmp/disklocation");
@@ -32,6 +33,8 @@
 		define("DISKLOCATION_LOCATIONS", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/locations.json");
 		define("DISKLOCATION_GROUPS", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/groups.json");
 		define("DISKLOCATION_LOCK_FILE", DISKLOCATION_TMP_PATH . "/db.lock");
+		define("CRONJOB_URL", DISKLOCATION_PATH . "/pages/cronjob.php");
+		define("CRONJOB_FILE", EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/cronjob.php");
 		
 		if(file_exists(DISKLOCATION_CONF)) {
 			$get_disklocation_config = json_decode(file_get_contents(DISKLOCATION_CONF), true);
@@ -362,23 +365,23 @@
 				<b>Clicking the buttons will update data directly. It might take a few seconds to several minutes depending on the amount of devices it need to scan.</b>
 				<br />
 				<input type='button' " . ( (!check_smart_files()) ? "disabled=\"disabled\"" : null ) . " value='SMART' onclick='openBox(\"" . CRONJOB_URL . "?active_smart_scan=1\",\"Updating SMART data on active devices\",600,800,true,\"loadlist\",\":return\")'>
-				<input type='button' value='Force SMART' onclick='openBox(\"" . CRONJOB_URL . "?force_smart_scan=1\",\"Wake up all devices and update SMART data\",600,800,true,\"loadlist\",\":return\")'>
+				<input type='button' " . ( (!file_exists(DISKLOCATION_DEVICES)) ? "disabled=\"disabled\"" : null ) . " value='Force SMART' onclick='openBox(\"" . CRONJOB_URL . "?force_smart_scan=1\",\"Wake up all devices and update SMART data\",600,800,true,\"loadlist\",\":return\")'>
 				<input type='button' value='Force SMART+DB' onclick='openBox(\"" . CRONJOB_URL . "?force_smartdb_scan=1\",\"Wake up all devices and update SMART data and the database\",600,800,true,\"loadlist\",\":return\")'>
 				<blockquote class='inline_help'>
 					<ul>
 						<li>\"SMART\" button will update only active (spinning) drives for SMART data, It might take a while to complete depending on your configuration.</li>
 						<li>You can also run \"SMART\" from the shell and get direct output which might be useful for debugging:<br />
-						<code style=\"white-space: nowrap;\">php -f /usr/local/emhttp/plugins/disklocation/pages/cron_disklocation.php cronjob [silent]</code></li>
+						<code style=\"white-space: nowrap;\">php -f " . CRONJOB_FILE . " cronjob [silent]</code></li>
 					</ul>
 					<ul>
 						<li>\"Force SMART\" button will force update all drives for SMART data. This button will and must wake up all drives into a spinning state and does so one by one. It might take a while to complete depending on your configuration.</li>
 						<li>You can also run \"Force SMART\" from the shell and get direct output which might be useful for debugging:<br />
-						<code style=\"white-space: nowrap;\">php -f /usr/local/emhttp/plugins/disklocation/pages/cron_disklocation.php force [silent]</code></li>
+						<code style=\"white-space: nowrap;\">php -f " . CRONJOB_FILE . " force [silent]</code></li>
 					</ul>
 					<ul>
 						<li>\"Force SMART+DB\" button will force update all drives for SMART data and move removed disks into the \"lost\" table under the \"Information\" tab. This button will and must wake up all drives into a spinning state and does so one by one. It might take a while to complete depending on your configuration.</li>
-						<li>You can also run \"Force Update All\" from the shell and get direct output which might be useful for debugging:<br />
-						<code style=\"white-space: nowrap;\">php -f /usr/local/emhttp/plugins/disklocation/pages/cron_disklocation.php forceall [silent]</code></li>
+						<li>You can also run \"Force SMART+DB\" from the shell and get direct output which might be useful for debugging:<br />
+						<code style=\"white-space: nowrap;\">php -f " . CRONJOB_FILE . " forceall [silent]</code></li>
 					</ul>
 				</blockquote>
 			</form>

@@ -52,7 +52,7 @@
 			$pool = $zfs_disk_info["pool"];
 		}
 		if(!$pool) {
-			$pool = "";
+			$pool = "Unassigned";
 		}
 		
 		// DB $data:
@@ -79,13 +79,15 @@
 		$devices[$hash]["raw"]["rotation"] = $data["rotation"];
 		$devices[$hash]["formatted"]["rotation"] = get_smart_rotation($devices[$hash]["raw"]["rotation"]);
 		$devices[$hash]["raw"]["formfactor"] = $data["formfactor"];
-		$devices[$hash]["formatted"]["formfactor"] = str_replace(" inches", "&quot;", $devices[$hash]["raw"]["formfactor"]);
+		$devices[$hash]["formatted"]["formfactor"] = str_replace(" inches", "\"", $devices[$hash]["raw"]["formfactor"]);
 		$devices[$hash]["raw"]["cache"] = $data["smart_cache"];
 		$devices[$hash]["formatted"]["cache"] = "" . ( $devices[$hash]["raw"]["cache"] ? $devices[$hash]["raw"]["cache"] . "MB" : null );
 		$devices[$hash]["raw"]["loadcycle"] = $data["loadcycle"];
-		$devices[$hash]["formatted"]["loadcycle"] = ( !is_numeric($smart_loadcycle) ? null : $smart_loadcycle . "c" );
-		$devices[$hash]["raw"]["powerontime"] = $data["powerontime"];
-		$devices[$hash]["formatted"]["powerontime"] = ( !is_numeric($devices[$hash]["raw"]["powerontime"]) ? null : "" . $devices[$hash]["raw"]["powerontime"] . "h (" . seconds_to_time($devices[$hash]["raw"]["powerontime"] * 60 * 60) . ")" );
+		$devices[$hash]["formatted"]["loadcycle"] = ( !is_numeric($devices[$hash]["raw"]["loadcycle"]) ? null : $devices[$hash]["raw"]["loadcycle"] . "" );
+		$devices[$hash]["raw"]["powerontime_hours"] = $data["powerontime"];
+		$devices[$hash]["formatted"]["powerontime_hours"] = ( !is_numeric($devices[$hash]["raw"]["powerontime_hours"]) ? null : "" . $devices[$hash]["raw"]["powerontime_hours"] . "" );
+		$devices[$hash]["raw"]["powerontime"] = $devices[$hash]["raw"]["powerontime_hours"];
+		$devices[$hash]["formatted"]["powerontime"] = ( !is_numeric($devices[$hash]["raw"]["powerontime"]) ? null : seconds_to_time($devices[$hash]["raw"]["powerontime"] * 60 * 60) );
 		$devices[$hash]["raw"]["installed"] = $data["installed"];
 		$devices[$hash]["formatted"]["installed"] = $devices[$hash]["raw"]["installed"];
 		$devices[$hash]["raw"]["removed"] = $data["removed"];
@@ -109,11 +111,11 @@
 		$devices[$hash]["raw"]["logical_block_size"] = $smart_array["logical_block_size"];
 		$devices[$hash]["formatted"]["logical_block_size"] = $devices[$hash]["raw"]["logical_block_size"];
 		$devices[$hash]["raw"]["nvme_available_spare"]  = $smart_array["nvme_smart_health_information_log"]["available_spare"];
-		$devices[$hash]["formatted"]["nvme_available_spare"]  = "Spare: " . $devices[$hash]["raw"]["nvme_available_spare"] . "%";
+		$devices[$hash]["formatted"]["nvme_available_spare"]  = ( !empty($devices[$hash]["raw"]["nvme_available_spare"]) ? $devices[$hash]["raw"]["nvme_available_spare"] . "%" : null );
 		$devices[$hash]["raw"]["nvme_available_spare_threshold"] = $smart_array["nvme_smart_health_information_log"]["available_spare_threshold"];
 		$devices[$hash]["formatted"]["nvme_available_spare_threshold"] = $devices[$hash]["raw"]["nvme_available_spare_threshold"];
 		$devices[$hash]["raw"]["nvme_percentage_used"] =  $smart_array["nvme_smart_health_information_log"]["percentage_used"];
-		$devices[$hash]["formatted"]["nvme_percentage_used"] =  $devices[$hash]["raw"]["nvme_percentage_used"] . "%";
+		$devices[$hash]["formatted"]["nvme_percentage_used"] = ( !empty($devices[$hash]["raw"]["nvme_percentage_used"]) ? $devices[$hash]["raw"]["nvme_percentage_used"] . "%" : null );
 		
 		// Both DB $data & SMART files $smart_array:
 		$devices[$hash]["raw"]["smart_units_read"] = ( ($devices[$hash]["raw"]["rotation"] == -2) ? smart_units_to_bytes(($data["smart_units_read"] ? $data["smart_units_read"] : 0), $devices[$hash]["raw"]["logical_block_size"], true) : smart_units_to_bytes(($data["smart_units_read"] ? $data["smart_units_read"] : 0), $devices[$hash]["raw"]["logical_block_size"], true, true) );
@@ -157,8 +159,8 @@
 		
 		// Various Unraid files $unraid_array (various selected variables in multiple INI files)
 		
-		$unraid_array[$data["devicenode"]]["hotTemp"] = ( $unraid_array[$data["devicenode"]]["hotTemp"] ? $unraid_array[$data["devicenode"]]["hotTemp"] : $GLOBALS["display"]["hot"] );
-		$unraid_array[$data["devicenode"]]["maxTemp"] = ( $unraid_array[$data["devicenode"]]["maxTemp"] ? $unraid_array[$data["devicenode"]]["maxTemp"] : $GLOBALS["display"]["max"] );
+		$unraid_array[$data["devicenode"]]["hotTemp"] = ( !empty($unraid_array[$data["devicenode"]]["hotTemp"]) ? $unraid_array[$data["devicenode"]]["hotTemp"] : $GLOBALS["display"]["hot"] );
+		$unraid_array[$data["devicenode"]]["maxTemp"] = ( !empty($unraid_array[$data["devicenode"]]["maxTemp"]) ? $unraid_array[$data["devicenode"]]["maxTemp"] : $GLOBALS["display"]["max"] );
 		
 		if(!empty($unraid_array[$data["devicenode"]]["temp"]) && is_numeric($unraid_array[$data["devicenode"]]["temp"]) && is_numeric($unraid_array[$devicenode]["temp"])) {
 			switch($display["unit"]) {
@@ -220,9 +222,9 @@
 		// $display["date"] => %A, %Y-%m-%d --- might use in the future for formatting. Using ISO for now:
 		$devices[$hash]["formatted"]["purchased"] = $devices[$hash]["raw"]["purchased"];
 		$devices[$hash]["formatted"]["warranty"] = "" . $warranty_expire . "";
-		$devices[$hash]["raw"]["expires"] = "" . $warranty_end . "";
+		$devices[$hash]["raw"]["expires"] = "" . $warranty_expire . "";
 		$devices[$hash]["formatted"]["expires"] = "" . $warranty_left . "";
 		$devices[$hash]["formatted"]["manufactured"] = $devices[$hash]["raw"]["manufactured"];
 	}
-	//print_r($devices); // for debugging
+	//print_r($devices); die(); // for debugging
 ?>

@@ -43,17 +43,17 @@
 	
 	$custom_colors_array = array();
 	
-	array_push($custom_colors_array, $bgcolor_empty);
-	array_push($custom_colors_array, $bgcolor_parity);
-	array_push($custom_colors_array, $bgcolor_unraid);
-	array_push($custom_colors_array, $bgcolor_cache);
-	array_push($custom_colors_array, $bgcolor_others);
+	array_push($custom_colors_array, strtoupper($bgcolor_empty));
+	array_push($custom_colors_array, strtoupper($bgcolor_parity));
+	array_push($custom_colors_array, strtoupper($bgcolor_unraid));
+	array_push($custom_colors_array, strtoupper($bgcolor_cache));
+	array_push($custom_colors_array, strtoupper($bgcolor_others));
 	
-	array_push($custom_colors_array, ( $bgcolor_empty != $bgcolor_empty_default ? $bgcolor_empty_default : null ) );
-	array_push($custom_colors_array, ( $bgcolor_parity != $bgcolor_parity_default ? $bgcolor_parity_default : null ) );
-	array_push($custom_colors_array, ( $bgcolor_unraid != $bgcolor_unraid_default ? $bgcolor_unraid_default : null ) );
-	array_push($custom_colors_array, ( $bgcolor_cache != $bgcolor_cache_default ? $bgcolor_cache_default : null ) );
-	array_push($custom_colors_array, ( $bgcolor_others != $bgcolor_others_default ? $bgcolor_others_default : null ) );
+	array_push($custom_colors_array, ( strtoupper($bgcolor_empty) != strtoupper($bgcolor_empty_default) ? $bgcolor_empty_default : null ) );
+	array_push($custom_colors_array, ( strtoupper($bgcolor_parity) != strtoupper($bgcolor_parity_default) ? $bgcolor_parity_default : null ) );
+	array_push($custom_colors_array, ( strtoupper($bgcolor_unraid) != strtoupper($bgcolor_unraid_default) ? $bgcolor_unraid_default : null ) );
+	array_push($custom_colors_array, ( strtoupper($bgcolor_cache) != strtoupper($bgcolor_cache_default) ? $bgcolor_cache_default : null ) );
+	array_push($custom_colors_array, ( strtoupper($bgcolor_others) != strtoupper($bgcolor_others_default) ? $bgcolor_others_default : null ) );
 	
 	foreach($array_groups as $id => $array) {
 		//extract($array);
@@ -61,7 +61,7 @@
 		$gid = $id;
 		
 		if($array_groups[$gid]["group_color"]) {
-			array_push($custom_colors_array, $array_groups[$gid]["group_color"]);
+			array_push($custom_colors_array, strtoupper($array_groups[$gid]["group_color"]));
 		}
 		
 		$css_grid_group = "
@@ -165,7 +165,7 @@
 	$signal_css = config(DISKLOCATION_CONF, 'r', 'signal_css');
 	
 	list($table_order_user, $table_order_system, $table_order_name, $table_order_full) = get_table_order("all", 0);
-	
+	array_multisort($table_order_user, $table_order_system, $table_order_name, $table_order_full);
 	$arr_length = count($table_order_user);
 	for($i=0;$i<$arr_length;$i++) {
 		$inlinehelp_table_order .= "<tr style=\"white-space: nowrap; border: 1px solid black;\"><td style=\"white-space: nowrap;margin: 0; padding: 0 5px 0 5px;\">" . $table_order_user[$i] . "</td><td style=\"white-space: nowrap;margin: 0; padding: 0 5px 0 5px;\">" . $table_order_name[$i] . "</td><td style=\"margin: 0; padding: 0 5px 0 5px;\">" . $table_order_full[$i] . "</td></tr>";
@@ -175,7 +175,7 @@
 	if(isset($custom_colors_array)) {
 		$custom_colors_array_dedup = array_values(array_unique($custom_colors_array));
 		for($i=0; $i < count($custom_colors_array_dedup); ++$i) {
-			$bgcolor_group_custom_array .= "<option>#" . $custom_colors_array_dedup[$i] . "</option>\n";
+			$bgcolor_group_custom_array .= "<option>#" . strtoupper($custom_colors_array_dedup[$i]) . "</option>\n";
 		}
 	}
 ?>
@@ -264,14 +264,14 @@ $(document).ready(function(){
 					</table>
 				</div>
 				<blockquote class='inline_help'>
-					<dt>Select the color(s) you want, defaults are:</dt>
-					<ul>
-						<li><?php echo $bgcolor_parity_default ?> "Parity"</li>
-						<li><?php echo $bgcolor_unraid_default ?> "Data"</li>
-						<li><?php echo $bgcolor_cache_default ?> "Cache"</li>
-						<li><?php echo $bgcolor_others_default ?> "Unassigned devices"</li>
-						<li><?php echo $bgcolor_empty_default ?> "Empty/available trays"</li>
-					</ul>
+					<p>Select the color(s) you want, defaults are:</p>
+					<p>
+						<span style="color: #<?php echo $bgcolor_parity_default ?>">&#11200;</span> #<?php echo $bgcolor_parity_default ?> "Parity"<br />
+						<span style="color: #<?php echo $bgcolor_unraid_default ?>">&#11200;</span> #<?php echo $bgcolor_unraid_default ?> "Data"<br />
+						<span style="color: #<?php echo $bgcolor_cache_default ?>">&#11200;</span> #<?php echo $bgcolor_cache_default ?> "Cache/Pool"<br />
+						<span style="color: #<?php echo $bgcolor_others_default ?>">&#11200;</span> #<?php echo $bgcolor_others_default ?> "Unassigned devices"<br />
+						<span style="color: #<?php echo $bgcolor_empty_default ?>">&#11200;</span> #<?php echo $bgcolor_empty_default ?> "Empty/Available trays"<br />
+					</p>
 				</blockquote>
 				<p>
 					<b>Set the size divider for mini layout:</b><br />
@@ -389,7 +389,8 @@ $(document).ready(function(){
 						<td colspan="3" style="margin: 0; padding: 0 0 0 0 ;">
 							<blockquote class='inline_help'>
 								<ul>
-									<li><b>Possible selectors:</b> group, tray, device, node, pool, name, lun, manufacturer, model, serial, capacity, cache, rotation, formfactor, manufactured, purchased, installed, warranty, expires, comment</li>
+									<li><b>Possible selectors:</b> <?php print(implode(", ", get_table_order("allowed", 0, 4, $allowed_db_select_info))); ?></li>
+									<li><b>Sort:</b> [asc|desc]:<?php print(implode(", ", get_table_order("allowed", 0, 4, $allowed_db_sort_info))); ?>
 								</ul>
 							</blockquote>
 						</td>
@@ -410,8 +411,10 @@ $(document).ready(function(){
 						<td colspan="3" style="margin: 0; padding: 0 0 0 0 ;">
 							<blockquote class='inline_help'>
 								<ul>
-									<li><b>Possible selectors:</b> (group, tray)*, device, node, pool, name, lun, manufacturer, model, serial, capacity, cache, rotation, formfactor, manufactured, purchased, installed, warranty, expires, comment</li>
-									<li><b>Sort:</b> "Unassigned Devices" will only sort by an internal ID, but will follow the set direction, ascending or descending. *) Sorting by group and tray is therefore possible with "Tray Allocations", but not to be included in columns.</li>
+									<li><b>Possible selectors:</b> <?php print(implode(", ", get_table_order("allowed", 0, 4, $allowed_db_select_trayalloc))); ?></li>
+									<li><b>Sort:</b> [asc|desc]:<?php print(implode(", ", get_table_order("allowed", 0, 4, $allowed_db_sort_trayalloc))); ?></li></li>
+									<li>"Unassigned Devices" will only sort by an internal ID, but will follow the set direction.</li>
+									<li>Sorting by group and tray is possible with "Tray Allocations", but not to be included in columns as it's enabled by default and is required.</li>
 								</ul>
 							</blockquote>
 						</td>
@@ -431,7 +434,8 @@ $(document).ready(function(){
 						<td colspan="3" style="margin: 0; padding: 0 0 0 0 ;">
 							<blockquote class='inline_help'>
 								<ul>
-									<li><b>Possible selectors:</b> device, node, lun, manufacturer, model, serial, capacity, cache, rotation, formfactor, manufactured, purchased, installed, removed, warranty, comment</li>
+									<li><b>Possible selectors:</b> <?php print(implode(", ", get_table_order("allowed", 0, 4, $allowed_db_select_drives))); ?></li>
+									<li><b>Sort:</b> [asc|desc]:<?php print(implode(", ", get_table_order("allowed", 0, 4, $allowed_db_sort_drives))); ?>
 								</ul>
 							</blockquote>
 						</td>
@@ -450,7 +454,7 @@ $(document).ready(function(){
 								<p>
 									<b>Column format: column1,column2,column3</b><br />
 									<br />
-									column?: see the table reference for valid inputs. Columns can be repeated, and any order is possible. Columns containing input data will erase contents from database if disabled (e.g. Tray Allocations). 
+									column?: see the table reference for valid inputs. Columns can be repeated, and any order is possible. 
 									Tray Allocations will always have "group,tray" at the beginning including the "Locate" button. No elements with input forms should be duplicated even if it's possible to do it.
 									Only selectors underneath each section is possible to use, others will show the column with "unavailable".
 								</p>
@@ -459,7 +463,7 @@ $(document).ready(function(){
 									Values can be reset to default by deleting the contents and saving it.
 								</p>
 								<p style="padding: 0 0 50px 0;">
-									NB! "bench_r" and "bench_w" are not supported yet but prepared for future project.
+									
 								</p>
 								<table style="background: none; border-spacing: 0px;; width: 300px;">
 									<tr style="border: 1px solid black;">

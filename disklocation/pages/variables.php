@@ -39,8 +39,8 @@
 	define("DISKLOCATION_LOCATIONS", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/locations.json");
 	define("DISKLOCATION_GROUPS", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/groups.json");
 	define("DISKLOCATION_LOCK_FILE", DISKLOCATION_TMP_PATH . "/db.lock");
-	define("CRONJOB_URL", DISKLOCATION_PATH . "/pages/cron_disklocation.php");
-	define("CRONJOB_FILE", EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/cron_disklocation.php");
+	define("CRONJOB_URL", DISKLOCATION_PATH . "/pages/cronjob.php");
+	define("CRONJOB_FILE", EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/cronjob.php");
 	define("DISKLOGFILE", UNRAID_CONFIG_PATH . "/disk.log");
 	define("UNRAID_DISKS_FILE", "disks.ini");
 	define("UNRAID_DEVS_FILE", "devs.ini");
@@ -94,35 +94,38 @@
 		$argv = array();
 	}
 	
-	if(!is_file(DISKLOCATION_DEVICES)) {
-		$disklocation_new_install = 1;
-	}
-	
 	require_once("default_settings.php");
 	
 	if(!file_exists(DISKLOCATION_DEVICES)) { // do not load SQLite anymore if the devices.json exists.
+		$disklocation_new_install = 1;
 		require_once("sqlite_tables.php");
 	}
 	//( (file_exists("sqlite_tables.php") && file_exists(DISKLOCATION_DEVICES) && file_exists(DISKLOCATION_LOCATIONS) && file_exists(DISKLOCATION_GROUPS)) ?? unlink("sqlite_table.php") );
 	
 	$select_db_info_default = $select_db_info;
 	$sort_db_info_default = $sort_db_info;
-
+	$allowed_db_select_info =      "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1";
+	$allowed_db_sort_info =        "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1";
+	
 	$select_db_trayalloc_default = $select_db_trayalloc;
 	$sort_db_trayalloc_default = $sort_db_trayalloc;
+	$allowed_db_select_trayalloc = "0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1";
+	$allowed_db_sort_trayalloc =   "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1";
 	
 	$select_db_drives_default = $select_db_drives;
 	$sort_db_drives_default = $sort_db_drives;
+	$allowed_db_select_drives =    "0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,0,0,0";
+	$allowed_db_sort_drives =      "0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,0,0,0";
 	
 	$select_db_devices_default = $select_db_devices;
 	
 	$css_serial_number_highlight_default = $css_serial_number_highlight;
 	
-	$bgcolor_parity_default = $bgcolor_parity;
-	$bgcolor_unraid_default = $bgcolor_unraid;
-	$bgcolor_cache_default = $bgcolor_cache;
-	$bgcolor_others_default = $bgcolor_others;
-	$bgcolor_empty_default = $bgcolor_empty;
+	$bgcolor_parity_default = strtoupper($bgcolor_parity);
+	$bgcolor_unraid_default = strtoupper($bgcolor_unraid);
+	$bgcolor_cache_default = strtoupper($bgcolor_cache);
+	$bgcolor_others_default = strtoupper($bgcolor_others);
+	$bgcolor_empty_default = strtoupper($bgcolor_empty);
 	
 	$sql_status = "";
 

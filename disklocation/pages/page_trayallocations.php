@@ -191,8 +191,27 @@
 	unset($sort_dynamic);
 	unset($raw_devices);
 	
+	$i=0;
 	foreach($devices as $hash => $data) { // array as hash => array(raw/formatted)
-		$raw_devices[] = array("hash" => $hash)+$data["raw"];
+		if($devices[$hash]["raw"]["status"] == "r") {
+			$raw_devices[$i] = array("hash" => $hash)+$data["raw"];
+			// override from devices.json as SMART data will be gone when the disk is gone.
+			$raw_devices[$i]["lun"] = $get_devices[$hash]["lun"];
+			$raw_devices[$i]["manufacturer"] = $get_devices[$hash]["manufacturer"];
+			$raw_devices[$i]["smart_status"] = $get_devices[$hash]["smart_status"];
+			$raw_devices[$i]["powerontime"] = $get_devices[$hash]["powerontime"];
+			$raw_devices[$i]["loadcycle"] = $get_devices[$hash]["loadcycle"];
+			$raw_devices[$i]["capacity"] = $get_devices[$hash]["capacity"];
+			$raw_devices[$i]["rotation"] = $get_devices[$hash]["rotation"];
+			$raw_devices[$i]["formfactor"] = $get_devices[$hash]["formfactor"];
+			$raw_devices[$i]["manufactured"] = $get_devices[$hash]["manufactured"];
+			$raw_devices[$i]["purchased"] = $get_devices[$hash]["purchased"];
+			$raw_devices[$i]["installed"] = $get_devices[$hash]["installed"];
+			$raw_devices[$i]["removed"] = $get_devices[$hash]["removed"];
+			$raw_devices[$i]["warranty"] = $get_devices[$hash]["warranty"];
+			
+			$i++;
+		}
 	}
 	
 	$db_sort = explode(",", $get_drives_select["db_sort"]);
@@ -210,50 +229,33 @@
 	( is_array($raw_devices) ? call_user_func_array('array_multisort', array_merge($sort_dynamic, array(&$raw_devices))) : null );
 	
 	foreach($raw_devices as $key => $data) {
-		if($data["status"] == 'r') {
-			$hash = $data["hash"];
-			
-			$data = $devices[$hash];
-			
-			$formatted = $data["formatted"];
-			$raw = $data["raw"];
-			$data = $data["raw"];
-			
-			$gid = $data["groupid"];
-
-			// override from devices.json as SMART data will be gone when the disk is gone.
-			$formatted["lun"] = $get_devices[$hash]["lun"];
-			$formatted["manufacturer"] = $get_devices[$hash]["manufacturer"];
-			$formatted["smart_status"] = $get_devices[$hash]["smart_status"];
-			$formatted["powerontime"] = ( !is_numeric($get_devices[$hash]["powerontime"]) ? null : "" . $get_devices[$hash]["powerontime"] . "h (" . seconds_to_time($get_devices[$hash]["powerontime"] * 60 * 60) . ")" );
-			$formatted["loadcycle"] = ( !is_numeric($get_devices[$hash]["loadcycle"]) ? null : $get_devices[$hash]["loadcycle"] . "c" );
-			$formatted["capacity"] = ( !is_numeric($get_devices[$hash]["capacity"]) ? null : human_filesize($get_devices[$hash]["capacity"], 1, true) );
-			$formatted["rotation"] = get_smart_rotation($get_devices[$hash]["rotation"]);
-			$formatted["formfactor"] = str_replace(" inches", "&quot;", $get_devices[$hash]["formfactor"]);
-			$formatted["manufactured"] = $get_devices[$hash]["manufactured"];
-			$formatted["purchased"] = $get_devices[$hash]["purchased"];
-			$formatted["installed"] = $get_devices[$hash]["installed"];
-			$formatted["removed"] = $get_devices[$hash]["removed"];
-			$formatted["warranty"] = $get_devices[$hash]["warranty"];
-			
-			$listarray = list_array($formatted, 'html', $physical_traynumber);
-			//unset($listarray["groupid"]);
-			//unset($listarray["tray"]);
-			
-			$print_removed_drives .= "<tr style=\"background: #" . $color_array[$hash] . ";\">";
-			$print_removed_drives .= "
-				<td style=\"padding: 0 10px 0 10px; white-space: nowrap;\">
-					<button type=\"submit\" name=\"hash_delete\" value=\"" . $hash . "\" title=\"Delete, this will flag the drive hidden in the database.\" style=\"min-width: 0; background-size: 0; margin: 0; padding: 0;\"><i style=\"font-size: 15px;\" class=\"fa fa-minus-circle fa-lg\"></i></button>
-					<button type=\"submit\" name=\"hash_add\" value=\"" . $hash . "\" title=\"Add, will revert to &quot;not found list&quot; if the drive really does not exists.\" style=\"min-width: 0; background-size: 0; margin: 0; padding: 0;\"><i style=\"font-size: 15px;\" class=\"fa fa-plus-circle fa-lg\"></i></button>
-				</td>
-			";
-			
-			$arr_length = count($table_drives_order_system);
-			for($i=0;$i<$arr_length;$i++) {
-				$print_removed_drives .= $listarray[$table_drives_order_system[$i]];
-			}
-			$print_removed_drives .= "</tr>";
+		$hash = $data["hash"];
+		
+		$data = $devices[$hash];
+		
+		$formatted = $data["formatted"];
+		$raw = $data["raw"];
+		$data = $data["raw"];
+		
+		$gid = $data["groupid"];
+		
+		$listarray = list_array($formatted, 'html', $physical_traynumber);
+		//unset($listarray["groupid"]);
+		//unset($listarray["tray"]);
+		
+		$print_removed_drives .= "<tr style=\"background: #" . $color_array[$hash] . ";\">";
+		$print_removed_drives .= "
+			<td style=\"padding: 0 10px 0 10px; white-space: nowrap;\">
+				<button type=\"submit\" name=\"hash_delete\" value=\"" . $hash . "\" title=\"Delete, this will flag the drive hidden in the database.\" style=\"min-width: 0; background-size: 0; margin: 0; padding: 0;\"><i style=\"font-size: 15px;\" class=\"fa fa-minus-circle fa-lg\"></i></button>
+				<button type=\"submit\" name=\"hash_add\" value=\"" . $hash . "\" title=\"Add, will revert to &quot;not found list&quot; if the drive really does not exists.\" style=\"min-width: 0; background-size: 0; margin: 0; padding: 0;\"><i style=\"font-size: 15px;\" class=\"fa fa-plus-circle fa-lg\"></i></button>
+			</td>
+		";
+		
+		$arr_length = count($table_drives_order_system);
+		for($i=0;$i<$arr_length;$i++) {
+			$print_removed_drives .= $listarray[$table_drives_order_system[$i]];
 		}
+		$print_removed_drives .= "</tr>";
 	}
 	
 	$array_groups = $get_groups;
@@ -297,7 +299,7 @@
 	if(isset($custom_colors_array)) {
 		$custom_colors_array_dedup = array_values(array_unique($custom_colors_array));
 		for($i=0; $i < count($custom_colors_array_dedup); ++$i) {
-			$bgcolor_custom_array .= "<option>#" . $custom_colors_array_dedup[$i] . "</option>\n";
+			$bgcolor_custom_array .= "<option>#" . strtoupper($custom_colors_array_dedup[$i]) . "</option>\n";
 		}
 	}
 ?>

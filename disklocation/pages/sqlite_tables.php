@@ -1054,6 +1054,8 @@
 			}
 			( file_exists(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.noscan") ? unlink(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.noscan") : null );
 			
+			$removed_selectors = array("reallocated", "reported", "timeout", "pending", "offline", "bench_r", "bench_w");
+			
 			$sql = "SELECT * FROM settings";
 			$ret = $db->exec($sql);
 			if(!$ret) {
@@ -1064,23 +1066,23 @@
 				$results = $db->query($sql);
 				$sql_hash = array();
 				while($res = $results->fetchArray(1)) {
-					$settings["bgcolor_parity"] = $res["bgcolor_parity"];
-					$settings["bgcolor_unraid"] = $res["bgcolor_unraid"];
-					$settings["bgcolor_cache"] = $res["bgcolor_cache"];
-					$settings["bgcolor_others"] = $res["bgcolor_others"];
-					$settings["bgcolor_empty"] = $res["bgcolor_empty"];
+					$settings["bgcolor_parity"] = strtoupper($res["bgcolor_parity"]);
+					$settings["bgcolor_unraid"] = strtoupper($res["bgcolor_unraid"]);
+					$settings["bgcolor_cache"] = strtoupper($res["bgcolor_cache"]);
+					$settings["bgcolor_others"] = strtoupper($res["bgcolor_others"]);
+					$settings["bgcolor_empty"] = strtoupper($res["bgcolor_empty"]);
 					$settings["tray_reduction_factor"] = $res["tray_reduction_factor"];
 					$settings["force_orb_led"] = $res["force_orb_led"];
 					$settings["device_bg_color"] = $res["dashboard_widget"];
 					$settings["serial_trim"] = $res["dashboard_widget_pos"];
 					$settings["displayinfo"] = json_decode($res["displayinfo"], true);
-					$settings["select_db_info"] = $res["select_db_info"];
-					$settings["sort_db_info"] = $res["sort_db_info"];
-					$settings["select_db_trayalloc"] = $res["select_db_trayalloc"];
-					$settings["sort_db_trayalloc"] = $res["sort_db_trayalloc"];
-					$settings["select_db_drives"] = $res["select_db_drives"];
-					$settings["sort_db_drives"] = $res["sort_db_drives"];
-					$settings["select_db_devices"] = $res["select_db_devices"];
+					$settings["select_db_info"] = implode(",", array_filter(explode(",", preg_replace("/\b(" . implode("|", $removed_selectors) . ")\b/", "", $res["select_db_info"]))));
+					$settings["sort_db_info"] = implode(",", array_filter(explode(",", preg_replace("/\b(" . implode("|", $removed_selectors) . ")\b/", "", $res["sort_db_info"]))));
+					$settings["select_db_trayalloc"] = implode(",", array_filter(explode(",", preg_replace("/\b(" . implode("|", $removed_selectors) . ")\b/", "", $res["select_db_trayalloc"]))));
+					$settings["sort_db_trayalloc"] = implode(",", array_filter(explode(",", preg_replace("/\b(" . implode("|", $removed_selectors) . ")\b/", "", $res["sort_db_trayalloc"]))));
+					$settings["select_db_drives"] = implode(",", array_filter(explode(",", preg_replace("/\b(" . implode("|", $removed_selectors) . ")\b/", "", $res["select_db_drives"]))));
+					$settings["sort_db_drives"] = implode(",", array_filter(explode(",", preg_replace("/\b(" . implode("|", $removed_selectors) . ")\b/", "", $res["sort_db_drives"]))));
+					$settings["select_db_devices"] = $select_db_devices_default;
 				}
 			}
 			if(!file_put_contents(DISKLOCATION_CONF, json_encode($settings, JSON_PRETTY_PRINT))) {
@@ -1118,7 +1120,7 @@
 				$sql_hash = array();
 				while($res = $results->fetchArray(1)) {
 					$groups[$res["id"]]["group_name"] = $res["group_name"];
-					$groups[$res["id"]]["group_color"] = $res["group_color"];
+					$groups[$res["id"]]["group_color"] = strtoupper($res["group_color"]);
 					$groups[$res["id"]]["grid_count"] = $res["grid_count"];
 					$groups[$res["id"]]["grid_columns"] = $res["grid_columns"];
 					$groups[$res["id"]]["grid_rows"] = $res["grid_rows"];
@@ -1152,7 +1154,7 @@
 					$devices[$res["hash"]]["smart_serialnumber"] = $res["smart_serialnumber"];
 					$devices[$res["hash"]]["smart_cache"] = $res["smart_cache"];
 					$devices[$res["hash"]]["status"] = $res["status"];
-					$devices[$res["hash"]]["color"] = $res["color"];
+					$devices[$res["hash"]]["color"] = strtoupper($res["color"]);
 					$devices[$res["hash"]]["installed"] = $res["installed"];
 					$devices[$res["hash"]]["removed"] = $res["removed"];
 					$devices[$res["hash"]]["comment"] = $res["comment"];

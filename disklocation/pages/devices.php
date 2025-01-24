@@ -37,6 +37,8 @@
 	$array_devices = $get_devices;
 	$array_locations = $get_locations;
 	
+	$select_db_devices = ( !empty($select_db_devices) ? $select_db_devices : $select_db_devices_default );
+	
 	require_once("array_devices.php");
 	
 	foreach($array_groups as $id => $value) {
@@ -528,23 +530,6 @@
 					$disklocation_page[$gid]
 				</div>
 			</div>
-		";
-	}
-	
-	if(!count_table_rows($get_locations)) {
-		$disklocation_page_out = "
-			<table><tr><td style=\"padding: 10px 10px 10px 10px;\">
-			<h1>Please configure Disk Location</h1>
-			<ol>
-				<li>First go to \"System\", click \"Force SMART+DB\", this might take some time depending on how many drives you have installed.</li>
-				<li>Then go to \"Configuration\" and add \"Disk Tray Layout\"</li>
-				<li>Finally, assign your drives to your newly created layout under \"Tray Allocations\"</li>
-			</ol>
-			<p>
-				More info available by pressing the Unraid \"Help\" icon for additional information per page.
-			</p>
-			<!--Go to <a href=\"" . DISKLOCATIONCONF_URL . "\">Disk Location Configuration</a>-->
-			</td></tr></table>
 		";
 	}
 	

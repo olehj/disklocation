@@ -68,8 +68,23 @@
 		print("-->");
 	}
 	else {
-		
-		if(!check_smart_files()) {
+		if(empty($array_groups) || empty($array_locations)) {
+			print("
+				<table><tr><td style=\"padding: 10px 10px 10px 10px;\">
+				<h1>Please configure Disk Location</h1>
+				<ol>
+					<li>First go to \"System\", click \"Force SMART+DB\", this might take some time depending on how many drives you have installed.</li>
+					<li>Then go to \"Configuration\" and add \"Disk Tray Layout\"</li>
+					<li>Finally, assign your drives to your newly created layout under \"Tray Allocations\"</li>
+				</ol>
+				<p>
+					More info available by pressing the Unraid \"Help\" icon for additional information per page.
+				</p>
+				<!--Go to <a href=\"" . DISKLOCATIONCONF_URL . "\">Disk Location Configuration</a>-->
+				</td></tr></table>
+			");
+		}
+		else if(!check_smart_files()) {
 			print("<h1 style=\"color: #f0000c; text-align: center;\">Go to System and initialize a \"Force SMART[+DB]\"</h1>");
 		}
 		else {

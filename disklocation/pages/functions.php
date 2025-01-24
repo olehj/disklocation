@@ -154,25 +154,30 @@
 		$select = preg_replace('/\s+/', '', $select);
 		$sort = preg_replace('/\s+/', '', $sort);
 		$table = array( // Table names:
-			"groupid", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial", "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "expires", "comment", "smart_units_read", "smart_units_written"
+			"groupid", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial", "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "expires", "comment", "smart_units_read", "smart_units_written", "smart_status", "temperature", "powerontime_hours", "powerontime", "loadcycle", "nvme_available_spare", "nvme_available_spare_threshold", "nvme_percentage_used"
 		);
 		$input = array( // User input names - must also match $sort:
-			"group", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial", "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "expires", "comment", "read", "written"
+			"group", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial", "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "expires", "comment", "read", "written", "status", "temp", "powerontime_hours", "powerontime", "loadcycle", "nvme_spare", "nvme_spare_thres", "nvme_used"
 		);
 		$nice_names = array(
-			"Group", "Tray", "Path", "Node", "Pool", "Name", "LUN", "Manufacturer", "Device Model", "S/N", "Capacity", "Cache", "Rotation", "FF", "Manufactured", "Purchased", "Installed", "Removed", "Warranty", "Expires", "Comment", "Read", "Written"
+			"Group", "Tray", "Path", "Node", "Pool", "Name", "LUN", "Manufacturer", "Device Model", "S/N", "Capacity", "Cache", "Rotation", "FF", "Manufactured", "Purchased", "Installed", "Removed", "Warranty", "Expires", "Comment", "Read", "Written", "Status", "Temperature", "Powered Hours", "Powered", "Cycles", "Spare", "Spare Threshold", "Used"
 		);
 		$full_names = array(
-			"Group", "Tray", "Path", "Node", "Pool Name", "Disk Name", "Logic Unit Number", "Manufacturer", "Device Model", "Serial Number", "Capacity", "Cache Size", "Rotation", "Form Factor", "Manufactured Date", "Purchased Date", "Installed Date", "Removed Date", "Warranty Period", "Warranty Expires", "Comment", "Smart Units Read", "Smart Units Written"
+			"Group", "Tray", "Path", "Node", "Pool Name", "Disk Name", "Logic Unit Number", "Manufacturer", "Device Model", "Serial Number", "Capacity", "Cache Size", "Rotation", "Form Factor", "Manufactured Date", "Purchased Date", "Installed Date", "Removed Date", "Warranty Period", "Warranty Expires", "Comment", "Smart Units Read", "Smart Units Written", "Status", "Temperature", "Power On Time Hours", "Power On Time", "Load Cycle Count", "Available Spare", "Available Spare Threshold", "Percentage Used"
 		);
 		$input_form = array(
 			//                10                  20                  30
-			1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,0,1,0,0
+			1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0
 		);
 		
 		if($select == "all") {
 			$select = implode(",", $input);
 			$sort = "asc:group";
+		}
+		
+		if($select == "allowed") {
+			$select = implode(",", $input);
+			$sort = "asc:".implode(",", $input);
 		}
 		
 		$table_sql = array_combine($table, $input);
@@ -196,46 +201,56 @@
 		$return_allow_colm = array();
 		$return_allow_sort = array();
 		
-		if($return != 3) {
-			$arr_length = count($select);
-			for($i=0;$i<$arr_length;$i++) {
-				$return_table[$i] = array_search($select[$i], $table_sql);
-				$return_names[$i] = array_search($select[$i], $table_names);
-				$return_full[$i] = array_search($select[$i], $table_full);
-				$return_forms[$i] = $table_forms[$select[$i]];
-				if($return == 2 && !empty($test)) {
-					if($table_allowed[$select[$i]] == 0) {
-						$return_allow_colm[$select[$i]] = $table_allowed[$select[$i]];
+		if($return != 4) {
+			if($return != 3) {
+				$arr_length = count($select);
+				for($i=0;$i<$arr_length;$i++) {
+					$return_table[$i] = array_search($select[$i], $table_sql);
+					$return_names[$i] = array_search($select[$i], $table_names);
+					$return_full[$i] = array_search($select[$i], $table_full);
+					$return_forms[$i] = $table_forms[$select[$i]];
+					if($return == 2 && !empty($test)) {
+						if($table_allowed[$select[$i]] == 0) {
+							$return_allow_colm[$select[$i]] = $table_allowed[$select[$i]];
+						}
+					}
+					
+					if($return_table[$i] === false) { 
+						return "Table column \"" . $select[$i] . "\" does not exist.\n";
+						break;
 					}
 				}
-				
-				if($return_table[$i] === false) { 
-					return "Table column \"" . $select[$i] . "\" does not exist.\n";
-					break;
+			}
+			
+			if($return != 2) {
+				$return_sort = array();
+				$arr_length = count($sort_col);
+				for($i=0;$i<$arr_length;$i++) {
+					$check_sort = array_search($sort_col[$i], $input);
+					$return_sort[] = $table_user[$sort_col[$i]];
+					if($return == 3 && !empty($test)) {
+						if($table_allowed[$sort_col[$i]] == 0) {
+							$return_allow_sort[$sort_col[$i]] = $table_allowed[$sort_col[$i]];
+						}
+					}
+					if($check_sort === false) { 
+						return "Sort value \"" . $sort_col[$i] . "\" does not exist.\n";
+						break;
+					}
+				}
+				for($i=0;$i<count($return_sort);$i++) {
+					$return_sort_str .= $return_sort[$i] . " SORT_" . strtoupper($sort_dir[0]);
+					if($return_sort[$i+1]) { $return_sort_str .= ","; }
 				}
 			}
 		}
-		
-		if($return != 2) {
-			$return_sort = array();
-			$arr_length = count($sort_col);
-			for($i=0;$i<$arr_length;$i++) {
-				$check_sort = array_search($sort_col[$i], $input);
-				$return_sort[] = $table_user[$sort_col[$i]];
-				if($return == 3 && !empty($test)) {
-					if($table_allowed[$sort_col[$i]] == 0) {
-						$return_allow_sort[$sort_col[$i]] = $table_allowed[$sort_col[$i]];
-					}
-				}
-				if($check_sort === false) { 
-					return "Sort value does not exist.\n";
-					break;
+		else {
+			foreach($table_allowed as $table => $value) {
+				if($value == 1) {
+					$return_table[] = $table;
 				}
 			}
-			for($i=0;$i<count($return_sort);$i++) {
-				$return_sort_str .= $return_sort[$i] . " SORT_" . strtoupper($sort_dir[0]);
-				if($return_sort[$i+1]) { $return_sort_str .= ","; }
-			}
+			sort($return_table);
 		}
 		
 		if($sort_dir[0] != "asc" && $sort_dir[0] != "desc") {
@@ -277,6 +292,10 @@
 					return false;
 				}
 				break;
+			case 4:
+				return $return_table;
+				
+				break;
 			default:
 				return false;
 		}
@@ -285,9 +304,9 @@
 	function list_array($array, $type, $tray = '') {
 		if($type == "html") {
 			return array(
-				"groupid" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . stripslashes(htmlspecialchars($array["group_name"])) . "</td>",
+				"groupid" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . stripslashes(htmlspecialchars($array["group_name"])) . "</td>",
 				"tray" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $tray . "</td>",
-				"device" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["device"] . "</td>",
+				"device" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["device"] . "</td>",
 				"pool" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["pool"] . "</td>",
 				"name" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["name"] . "</td>",
 				"node" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["node"] . "</td>",
@@ -300,16 +319,15 @@
 				"rotation" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["rotation"] . "</td>",
 				"formfactor" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["formfactor"] . "</td>",
 				"smart_status" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: center;\">" . $array["smart_status"] . "</td>",
-				"temperature" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: left;\">" . $array["temp"] . " (" . $array["hotTemp"] . "/" . $array["maxTemp"] . ")</td>",
-				"powerontime" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["powerontime"] . "</span></td>",
+				"temperature" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: left;\">" . $array["temp"] . " " . ( !empty($array["temp"]) ? "(" . $array["hotTemp"] . "/" . $array["maxTemp"] . ")" : null ) . "</td>",
+				"powerontime_hours" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["powerontime_hours"] . "</span></td>",
+				"powerontime" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["powerontime"] . "</span></td>",
 				"loadcycle" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["loadcycle"] . "</td>",
 				"nvme_percentage_used" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["nvme_percentage_used"] . "</td>",
 				"smart_units_read" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["smart_units_read"] . "</td>",
 				"smart_units_written" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["smart_units_written"] . "</td>",
 				"nvme_available_spare" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["nvme_available_spare"] . "</td>",
 				"nvme_available_spare_threshold" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["nvme_available_spare_threshold"] . "</td>",
-				//"benchmark_r" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $data["benchmark_r"] . "</td>",
-				//"benchmark_w" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $data["benchmark_w"] . "</td>",
 				"installed" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["installed"] . "</td>",
 				"removed" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["removed"] . "</td>",
 				"manufactured" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["manufactured"] . "</td>",
@@ -336,16 +354,15 @@
 				"rotation" => "" . $array["rotation"] . "",
 				"formfactor" => "" . $array["formfactor"] . "",
 				"smart_status" => "" . $array["smart_status"] . "",
-				"temperature" => "" . $array["temp"] . " (" . $array["hotTemp"] . "/" . $array["maxTemp"] . ")",
-				"powerontime" => "" . $array["powerontime"] . "</span>",
+				"temperature" => "" . $array["temp"] . " " . ( !empty($array["temp"]) ? "(" . $array["hotTemp"] . "/" . $array["maxTemp"] . ")" : null ) . "",
+				"powerontime_hours" => "" . $array["powerontime_hours"] . "",
+				"powerontime" => "" . $array["powerontime"] . "",
 				"loadcycle" => "" . $array["loadcycle"] . "",
 				"nvme_percentage_used" => "" . $array["nvme_percentage_used"] . "",
 				"smart_units_read" => "" . $array["smart_units_read"] . "",
 				"smart_units_written" => "" . $array["smart_units_written"] . "",
 				"nvme_available_spare" => "" . $array["nvme_available_spare"] . "",
 				"nvme_available_spare_threshold" => "" . $array["nvme_available_spare_threshold"] . "",
-				//"benchmark_r" => "" . $data["benchmark_r"] . "",
-				//"benchmark_w" => "" . $data["benchmark_w"] . "",
 				"installed" => "" . $array["installed"] . "",
 				"removed" => "" . $array["removed"] . "",
 				"manufactured" => "" . $array["manufactured"] . "",
@@ -741,7 +758,7 @@
 				$devices[$id]["color"] = '';
 			}
 			foreach($groups as $id => $data) {
-				$groups[$id]["group_color"] = 'test';
+				$groups[$id]["group_color"] = '';
 			}
 			return ((config_array(DISKLOCATION_DEVICES, 'w', $devices) && config_array(DISKLOCATION_GROUPS, 'w', $groups)) ? true : false );
 		}
@@ -1029,7 +1046,10 @@
 	}
 	
 	function check_smart_files() { // return true if files found
-		$dir = array_diff(scandir(DISKLOCATION_TMP_PATH . "/smart"), array('..', '.'));
-		return ( empty($dir) ? false : true );
+		if(file_exists(DISKLOCATION_TMP_PATH . "/smart")) {
+			$dir = array_diff(scandir(DISKLOCATION_TMP_PATH . "/smart"), array('..', '.'));
+			return ( empty($dir) ? false : true );
+		}
+		else return false;
 	}
 ?>
