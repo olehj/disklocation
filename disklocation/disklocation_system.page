@@ -6,4 +6,5 @@ Title="System"
 <?php
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/system.php");
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/page_system.php");
+	print(isset($_GET["benchmark"]) ? "<h1 style=\"color: #0099FF;\">Disk Location completed in " . (round((hrtime(true)-$total_time_start)/1e+6, 1) . " milliseconds.</h1>\n") : null);
 ?>

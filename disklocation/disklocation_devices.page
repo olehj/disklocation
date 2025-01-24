@@ -4,6 +4,8 @@ Tag="server"
 Title="Dashboard"
 ---
 <?php
+	$total_time_start = (isset($_GET["benchmark"]) ? hrtime(true) : null);
+	
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/system.php");
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/devices.php");
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/page_devices.php");
