@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.01.23-0123">
+<!ENTITY version          "2025.01.24-1938">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -221,14 +221,15 @@ logit "Configuring..."
   <!--# Add cronjob for powermode -->
   cat &gt;&pluginLOC;-&branch;/powermode.cron &lt;&lt;EOL
 # Crontab for Disk Location plugin to retrieve SMART power status in the background
-*/5 * * * * php -f &emhttpLOC;/pages/cron_disklocation.php cronjob status &amp;&gt; /dev/null
+*/5 * * * * php -f &emhttpLOC;/pages/cronjob.php cronjob status &amp;&gt; /dev/null
 EOL
-  php -f &emhttpLOC;/pages/cron_disklocation.php cronjob status
+  php -f &emhttpLOC;/pages/cronjob.php cronjob status
   cat &gt;&pluginLOC;-&branch;/smartdata.cron &lt;&lt;EOL
 # Crontab for Disk Location plugin to retrieve SMART data in the background
-55 */12 * * * php -f &emhttpLOC;/pages/cron_disklocation.php cronjob silent &amp;&gt; /dev/null
+@reboot php -f &emhttpLOC;/pages/cronjob.php cronjob silent &amp;&gt; /dev/null
+56 */12 * * * php -f &emhttpLOC;/pages/cronjob.php cronjob silent &amp;&gt; /dev/null
 EOL
-  php -f &emhttpLOC;/pages/cron_disklocation.php cronjob status
+  php -f &emhttpLOC;/pages/cronjob.php cronjob status
   chmod +x &pluginLOC;-&branch;/powermode.cron
   chmod +x &pluginLOC;-&branch;/smartdata.cron
   /usr/local/sbin/update_cron
