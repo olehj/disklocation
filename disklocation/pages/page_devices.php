@@ -1,7 +1,7 @@
 <link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/signals.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/help.css")?>">
 <style type="text/css">
-	<?php include "/usr/local/emhttp/plugins/disklocation/pages/styles/disk.css.php"; ?>
+	<?php include("/usr/local/emhttp/plugins/disklocation/pages/styles/disk.css.php"); ?>
 </style>
 <table><tr><td style="padding: 10px 10px 10px 10px;">
 <blockquote class='inline_help'>
