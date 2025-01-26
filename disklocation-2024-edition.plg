@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.01.24">
+<!ENTITY version          "2025.01.26">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "2024-edition">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -46,6 +46,9 @@
 
 -->
 <CHANGES>
+###2025.01.26
+ - Commit #349 - MINOR: A few CSS fixes regarding the LEDs, and some color adjustments.
+
 ###2025.01.24
  - Commit #352 - FEATURE: Disk Location plugin time benchmark added, but must be executed manually by entering ?benchmark=1 in the address field. Value is visible in the "System" tab.
 
