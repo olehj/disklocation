@@ -3,29 +3,31 @@
 		margin: 0;
 		padding: 0 2px 0;
 	}
-	.grey-orb-disklocation { color: #C0C0C0; }
+	.grey-orb-disklocation { color: #222222; }
 	.green-orb-disklocation { color: #33CC33; }
 	.green-blink-disklocation {
 		animation: blinker-disklocation-green 2s ease-in-out infinite;
 		font-size: 8pt;
 	}
 	@keyframes blinker-disklocation-green {
-		0% {color: #AAAAAA;}
+		0% {color: #222222;}
+		49% {color: #222222;}
 		50% {color: #33CC33;}
-		100% {color: #AAAAAA;}
+		100% {color: #33CC33;}
 	}
 	.yellow-orb-disklocation { color: #FF9900; }
 	.yellow-blink-disklocation {
-		animation: blinker-disklocation-yellow 2s ease-in-out infinite;
+		animation: blinker-disklocation-yellow 1s ease-in-out infinite;
 		font-size: 8pt;
 	}
 	@keyframes blinker-disklocation-yellow {
-		0% {color: #AAAAAA;}
+		0% {color: #222222;}
+		49% {color: #222222;}
 		50% {color: #FF9900;}
-		100% {color: #AAAAAA;}
+		100% {color: #FF9900;}
 	}
 	.yellow-blink-disklocation-bg {
-		animation: blinker-disklocation-yellow-bg 2s ease-in-out infinite;
+		animation: blinker-disklocation-yellow-bg 1s ease-in-out infinite;
 	}
 	@keyframes blinker-disklocation-yellow-bg {
 		0% {background-color: #000000;}
@@ -38,21 +40,24 @@
 		font-size: 8pt;
 	}
 	@keyframes blinker-disklocation-red {
-		0% {color: #FF0000;}
-		25% {color: #FF9900;}
-		50% {color: #FF0000;}
-		75% {color: #FF9900;}
-		100% {color: #FF0000;}
+		0% {color: #222222;}
+		24% {color: #222222;}
+		25% {color: #FF3030;}
+		49% {color: #FF3030;}
+		50% {color: #222222;}
+		74% {color: #222222;}
+		75% {color: #FF3030;}
+		100% {color: #FF3030;}
 	}
 	.red-blink-disklocation-bg {
 		animation: blinker-disklocation-red-bg 1s ease-in-out infinite;
 	}
 	@keyframes blinker-disklocation-red-bg {
-		0% {background-color: #FF0000;}
+		0% {background-color: #FF3030;}
 		25% {background-color: #000000;}
-		50% {background-color: #FF0000;}
+		50% {background-color: #FF3030;}
 		75% {background-color: #000000;}
-		100% {background-color: #FF0000;}
+		100% {background-color: #FF3030;}
 	}
 	.blue-orb-disklocation { color: #0099FF; }
 	.blue-blink-disklocation {
@@ -60,7 +65,8 @@
 		font-size: 8pt;
 	}
 	@keyframes blinker-disklocation-blue {
-		0% {color: #AAAAAA;}
+		0% {color: #222222;}
+		49% {color: #222222;}
 		50% {color: #0099FF;}
-		100% {color: #AAAAAA;}
+		100% {color: #0099FF;}
 	}
