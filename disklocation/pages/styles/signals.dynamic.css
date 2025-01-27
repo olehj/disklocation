@@ -6,24 +6,29 @@
 	.grey-orb-disklocation { color: #222222; }
 	.green-orb-disklocation { color: #33CC33; }
 	.green-blink-disklocation {
-		animation: blinker-disklocation-green 2s ease-in-out infinite;
+		animation: blinker-disklocation-green 4s ease-in-out infinite;
 		font-size: 8pt;
 	}
 	@keyframes blinker-disklocation-green {
 		0% {color: #222222;}
-		49% {color: #222222;}
+		45% {color: #222222;}
 		50% {color: #33CC33;}
-		100% {color: #33CC33;}
+		95% {color: #33CC33;}
+		100% {color: #222222;}
 	}
 	.yellow-orb-disklocation { color: #FF9900; }
 	.yellow-blink-disklocation {
-		animation: blinker-disklocation-yellow 1s ease-in-out infinite;
+		animation: blinker-disklocation-yellow 3s linear infinite;
 		font-size: 8pt;
 	}
 	@keyframes blinker-disklocation-yellow {
-		0% {color: #222222;}
-		49% {color: #222222;}
+		0% {color: #FF9900;}
+		30% {color: #FF9900;}
+		35% {color: #222222;}
+		40% {color: #FF9900;}
 		50% {color: #FF9900;}
+		55% {color: #222222;}
+		60% {color: #FF9900;}
 		100% {color: #FF9900;}
 	}
 	.yellow-blink-disklocation-bg {
@@ -36,18 +41,14 @@
 	}
 	.red-orb-disklocation { color: #FF3300; }
 	.red-blink-disklocation {
-		animation: blinker-disklocation-red 1s ease-in-out infinite;
+		animation: blinker-disklocation-red 0.5s linear infinite;
 		font-size: 8pt;
 	}
 	@keyframes blinker-disklocation-red {
-		0% {color: #222222;}
-		24% {color: #222222;}
-		25% {color: #FF3030;}
+		0% {color: #FF3030;}
 		49% {color: #FF3030;}
 		50% {color: #222222;}
-		74% {color: #222222;}
-		75% {color: #FF3030;}
-		100% {color: #FF3030;}
+		100% {color: #222222;}
 	}
 	.red-blink-disklocation-bg {
 		animation: blinker-disklocation-red-bg 1s ease-in-out infinite;
@@ -61,12 +62,12 @@
 	}
 	.blue-orb-disklocation { color: #0099FF; }
 	.blue-blink-disklocation {
-		animation: blinker-disklocation-blue 2s ease-in-out infinite;
+		animation: blinker-disklocation-blue 3s ease-in-out infinite;
 		font-size: 8pt;
 	}
 	@keyframes blinker-disklocation-blue {
-		0% {color: #222222;}
-		49% {color: #222222;}
-		50% {color: #0099FF;}
-		100% {color: #0099FF;}
+		0% {color: #0099FF;}
+		75% {color: #0099FF;}
+		76% {color: #33CC33;}
+		100% {color: #33CC33;}
 	}
