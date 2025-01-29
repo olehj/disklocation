@@ -30,7 +30,8 @@
 	$tray_reduction_factor =	'10';			// set the scale divider for the mini tray layout
 	$force_orb_led =		'0';			// set the LED to 0: show Unraid icons (triangle warning / hot critical) - 1: show circle LEDs (color coded circles).
 	$device_bg_color =		'1';			// choose background for the drives, Drive Type (0) or Heat Map (1)
-	$serial_trim		 = 	'0';			// make serial number friendlier, substr() value -99 - 99.
+	$serial_trim =		 	'0';			// make serial number friendlier, substr() value -99 - 99.
+	$allow_unraid_edit =		'0';			// (dis)allow editing of UNRAID config.
 	$displayinfo =	array(			// this will store an array of display settings for the "Device" page.
 		'tray' => 1,
 		'leddiskop' => 1,
@@ -44,6 +45,9 @@
 	
 	$select_db_info = "group,tray,manufacturer,model,serial,capacity,cache,rotation,formfactor,read,written,manufactured,purchased,expires,comment";
 	$sort_db_info = "asc:group,tray";
+	
+	$select_db_smart = "model,serial,manufactured,expires,name";
+	$sort_db_smart = "desc:expires";
 	
 	// mandatory: group,tray,locate,color
 	$select_db_trayalloc = "device,node,model,serial,capacity,rotation,manufactured,purchased,warranty,comment";

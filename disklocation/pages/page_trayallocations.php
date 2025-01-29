@@ -322,7 +322,7 @@
 				<b><?php echo (!$device_bg_color ? "Data" : "Warning") ?></b>
 			</td>
 			<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_cache); ?>">
-				<b><?php echo (!$device_bg_color ? "Cache" : "Normal") ?></b>
+				<b><?php echo (!$device_bg_color ? "Cache/Pool" : "Normal") ?></b>
 			</td>
 			<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_others); ?>">
 				<b><?php echo (!$device_bg_color ? "Unassigned devices" : "Temperature N/A") ?></b>

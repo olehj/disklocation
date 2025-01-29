@@ -297,6 +297,16 @@ $(document).ready(function(){
 					The sort function will still sort after the actual serial number, and not the shortened ones.
 					<br />
 				</blockquote>
+				<p style="color: red;">
+					<b>Allow editing of Unraid config:</b><br />
+					<input type="radio" name="allow_unraid_edit" value="0" <?php if($allow_unraid_edit == 0) echo "checked"; ?> />No
+					<input type="radio" name="allow_unraid_edit" value="1" <?php if($allow_unraid_edit == 1) echo "checked"; ?>/>Yes
+				</p>
+				<blockquote class='inline_help'>
+					This will allow or disallow editing of Unraid config files via this plugin. E.g. acknowledgement of all drives at once, or editing warranty dates etc.
+					When setting this to "NO", the options are neither visible nor editable.
+					<br />
+				</blockquote>
 			</td>
 			<td style="padding-left: 25px; vertical-align: top;">
 				<h2 style="padding-bottom: 25px;">Visible Frontpage Information</h2>
@@ -391,6 +401,27 @@ $(document).ready(function(){
 								<ul>
 									<li><b>Possible selectors:</b> <?php print(implode(", ", get_table_order("allowed", 0, 4, $allowed_db_select_info))); ?></li>
 									<li><b>Sort:</b> [asc|desc]:<?php print(implode(", ", get_table_order("allowed", 0, 4, $allowed_db_sort_info))); ?>
+								</ul>
+							</blockquote>
+						</td>
+					</tr>
+					<tr>
+						<td>
+							S.M.A.R.T
+						</td>
+						<td>
+							<input type="text" name="sort_db_smart" value="<?php print($sort_db_smart); ?>" style="width: 95%;" />
+						</td>
+						<td style="width: 75%">
+							<input type="text" name="select_db_smart" value="<?php print($select_db_smart); ?>" style="width: 95%;" />
+						</td>
+					</tr>
+					<tr>
+						<td colspan="3" style="margin: 0; padding: 0 0 0 0 ;">
+							<blockquote class='inline_help'>
+								<ul>
+									<li><b>Possible selectors:</b> <?php print(implode(", ", get_table_order("allowed", 0, 4, $allowed_db_select_smart))); ?></li>
+									<li><b>Sort:</b> [asc|desc]:<?php print(implode(", ", get_table_order("allowed", 0, 4, $allowed_db_sort_smart))); ?>
 								</ul>
 							</blockquote>
 						</td>

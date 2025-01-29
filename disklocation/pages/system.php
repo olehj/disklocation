@@ -144,6 +144,7 @@
 		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_empty"])) { $disklocation_error[] = "Background color for \"Empty trays\" invalid."; } else { $_POST["bgcolor_empty"] = str_replace("#", "", strtoupper($_POST["bgcolor_empty"])); }
 		if(!is_numeric($_POST["tray_reduction_factor"])) { $disklocation_error[] = "The size divider is not numeric."; }
 		if(!preg_match("/(0|1)/", $_POST["force_orb_led"])) { $disklocation_error[] = "LED display field is invalid."; }
+		if(!preg_match("/(0|1)/", $_POST["allow_unraid_edit"])) { $disklocation_error[] = "Unraid condig edit field is invalid."; }
 		if(!preg_match("/[0-9]{1,4}/", $_POST["serial_trim"])) { $disklocation_error[] = "Serial number trim number invalid."; }
 		
 		use_stylesheet($_POST["signal_css"]);
@@ -154,6 +155,13 @@
 		$get_table_order_info = get_table_order($_POST["select_db_info"], $_POST["sort_db_info"], 2, $allowed_db_select_info);
 		$get_table_order_info .= get_table_order($_POST["select_db_info"], $_POST["sort_db_info"], 3, $allowed_db_sort_info);
 		if($get_table_order_info) { $disklocation_error[] = "Table \"Information\": " . $get_table_order_info; }
+		
+		// SMART
+		if(empty($_POST["select_db_smart"])) { $_POST["select_db_smart"] = $select_db_smart_default; }
+		if(empty($_POST["sort_db_smart"])) { $_POST["sort_db_smart"] = $sort_db_smart_default; }
+		$get_table_order_smart = get_table_order($_POST["select_db_smart"], $_POST["sort_db_smart"], 2, $allowed_db_select_smart);
+		$get_table_order_smart .= get_table_order($_POST["select_db_smart"], $_POST["sort_db_smart"], 3, $allowed_db_sort_smart);
+		if($get_table_order_smart) { $disklocation_error[] = "Table \"S.M.A.R.T\": " . $get_table_order_smart; }
 		
 		// Tray Allocations / Unassigned
 		if(empty($_POST["select_db_trayalloc"])) { $_POST["select_db_trayalloc"] = $select_db_trayalloc_default; }
@@ -311,6 +319,11 @@
 	}
 	if(isset($_POST["reset_common_colors"])) {
 		force_reset_color($get_disklocation_config, $get_devices, $get_groups);
+		$SUBMIT_RELOAD = 1;
+	}
+	
+	if(isset($_POST["disk_ack_all_ok"]) && isset($_POST["disk_ack_drives"])) {
+		set_disk_ack($_POST["disk_ack_drives"], EMHTTP_VAR . "/" . UNRAID_MONITOR_FILE);
 		$SUBMIT_RELOAD = 1;
 	}
 	

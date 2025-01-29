@@ -107,6 +107,11 @@
 	$allowed_db_select_info =      "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1";
 	$allowed_db_sort_info =        "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1";
 	
+	$select_db_smart_default = $select_db_smart;
+	$sort_db_smart_default = $sort_db_smart;
+	$allowed_db_select_smart =     "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1";
+	$allowed_db_sort_smart =       "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1";
+	
 	$select_db_trayalloc_default = $select_db_trayalloc;
 	$sort_db_trayalloc_default = $sort_db_trayalloc;
 	$allowed_db_select_trayalloc = "0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1";

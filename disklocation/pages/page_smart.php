@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2025, Ole-Henrik Jakobsen
+	 *  Copyright 2025, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -19,9 +19,10 @@
 	 *
 	 */
 	
-	unset($print_drives);
+	unset($print_drives, $table_info_order_name_html);
+	unset($get_info_select, $table_info_order_user, $table_info_order_system, $table_info_order_name, $table_info_order_full, $table_info_order_forms);
 	
-	$get_info_select = get_table_order($select_db_info, ( !empty($sort_db_info_override) ? $sort_db_info_override : $sort_db_info ), 1);
+	$get_info_select = get_table_order($select_db_smart, ( !empty($sort_db_smart_override) ? $sort_db_smart_override : $sort_db_smart ), 1);
 	
 	$i=1;
 	$i_empty=1;
@@ -30,18 +31,20 @@
 	$array_groups = $get_groups;
 	$array_locations = $get_locations;
 	$print_drives = array();
+	$print_smart = array();
 	$data = array();
 	$raw_devices = array();
+	$disk_not_ack = array();
 	
-	list($table_info_order_user, $table_info_order_system, $table_info_order_name, $table_info_order_full, $table_info_order_forms) = get_table_order($select_db_info, ( !empty($sort_db_info_override) ? $sort_db_info_override : $sort_db_info ));
+	list($table_info_order_user, $table_info_order_system, $table_info_order_name, $table_info_order_full, $table_info_order_forms) = get_table_order($select_db_smart, ( !empty($sort_db_smart_override) ? $sort_db_smart_override : $sort_db_smart ));
 	
 	$arr_length = count($table_info_order_user);
 	for($i=0;$i<$arr_length;$i++) {
 		$table_info_order_name_html .= "
 		<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">
 			<b style=\"cursor: help;\" title=\"" . $table_info_order_full[$i] . "\">" . $table_info_order_name[$i] . "</b><br />
-			<button type=\"submit\" name=\"sort\" value=\"info:asc:" . $table_info_order_user[$i] . "\" style=\"margin: 0; padding: 0; min-width: 0; width: 20px; height: 20px;\" /><i style=\"font-size: 15px;\" class=\"fa fa-solid fa-sort-up\"/></i></button>
-			<button type=\"submit\" name=\"sort\" value=\"info:desc:" . $table_info_order_user[$i] . "\" style=\"margin: 0; padding: 0; min-width: 0; width: 20px; height: 20px;\" /><i style=\"font-size: 15px;\" class=\"fa fa-solid fa-sort-down\"/></i></button>
+			<button type=\"submit\" name=\"sort\" value=\"smart:asc:" . $table_info_order_user[$i] . "\" style=\"margin: 0; padding: 0; min-width: 0; width: 20px; height: 20px;\" /><i style=\"font-size: 15px;\" class=\"fa fa-solid fa-sort-up\"/></i></button>
+			<button type=\"submit\" name=\"sort\" value=\"smart:desc:" . $table_info_order_user[$i] . "\" style=\"margin: 0; padding: 0; min-width: 0; width: 20px; height: 20px;\" /><i style=\"font-size: 15px;\" class=\"fa fa-solid fa-sort-down\"/></i></button>
 		</td>";
 	}
 	
@@ -115,24 +118,44 @@
 				$physical_traynumber = ( !isset($tray_number_override_start) ? --$drive_tray_order[$hash] : $drive_tray_order[$hash]);
 			}
 			
-			$listarray = list_array($formatted, 'html', $physical_traynumber);
-			
-			$print_drives[$i_drive] = "<tr style=\"border: 1px solid #000000; background: #" . $color_array[$hash] . ";\">";
-			
-			$arr_length = count($table_info_order_system);
-			for($i=0;$i<$arr_length;$i++) {
-				$print_drives[$i_drive] .= $listarray[$table_info_order_system[$i]];
+			$get_smart_errors = array_values($data["smart_errors"]);
+			if(count($get_smart_errors) > 0) {
+				$listarray = list_array($formatted, 'html', $physical_traynumber);
+				
+				$print_drives[$i_drive] = "<tr style=\"border: 1px solid #000000; background: #" . $color_array[$hash] . ";\">";
+				
+				$arr_length = count($table_info_order_system);
+				for($i=0;$i<$arr_length;$i++) {
+					$print_drives[$i_drive] .= $listarray[$table_info_order_system[$i]];
+				}
+				
+				$print_drives[$i_drive] .= "<td style=\"padding: 0 0 0 0; vertical-align: top;\"><table style=\"background-color: transparent; margin: 0;\">";
+				$smart_i = 0;
+				while($smart_i < count($get_smart_errors)) {
+					$print_drives[$i_drive] .= "
+						<tr><td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px;\">" . $get_smart_errors[$smart_i]["name"] . "</td><td style=\"text-align: right; vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px;\">" . $get_smart_errors[$smart_i]["value"] . "</td></tr>
+					";
+					
+					$smart_i++;
+				}
+				if(get_disk_ack($data["name"])) {
+					$disk_ack = "YES";
+				}
+				else {
+					$disk_ack = "NO";
+					$disk_not_ack[] = $data["name"];
+				}
+				
+				$print_drives[$i_drive] .= "</table></td><td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px; text-align: center;\">" . $disk_ack . "</td></tr>";
+				
+				$i_drive++;
 			}
-			
-			$print_drives[$i_drive] .= "</tr>";
-			
-			$i_drive++;
 		}
 	}
 ?>
 <?php if($db_update == 2) { print("<h3>Page unavailable due to database error.</h3><!--"); } ?>
 <table><tr><td style="padding: 10px 10px 10px 10px;">
-<h2 style="margin-top: -10px; padding: 0 0 25px 0;">Disk Information</h2>
+<h2 style="margin-top: -10px; padding: 0 0 25px 0;">S.M.A.R.T Errors</h2>
 <form action="" method="post">
 <table style="width: 800px; border-spacing: 3px; border-collapse: separate;">
 	<tr>
@@ -157,6 +180,8 @@
 <table style="width: 0;">
 	<tr style="border: solid 1px #000000;">
 		<?php print($table_info_order_name_html); ?>
+		<td style="width: 0; padding: 0 10px 0 10px; vertical-align: top;"><b>Smart Attribute / Value</b></td>
+		<td style="width: 0; padding: 0 10px 0 10px; vertical-align: top;"><b>Acknowledged</b></td>
 	</tr>
 	<?php 
 		$i=1;
@@ -167,17 +192,11 @@
 	?>
 </table>
 <input type="submit" name="sort_reset" value="Set default sort" />
+<?php 
+	if(!empty($disk_not_ack) && $allow_unraid_edit) {
+		print("<input type=\"hidden\" name=\"disk_ack_drives\" value=\"" . implode(",", $disk_not_ack) . "\"><input type=\"submit\" name=\"disk_ack_all_ok\" value=\"Acknowledge all drives\" />");
+	}
+?>
 </form>
-<h2>
-	Export:
-	<a href="<?php echo DISKLOCATION_PATH ?>/pages/export_tsv.php?download_csv=1">formatted</a>
-	|
-	<a href="<?php echo DISKLOCATION_PATH ?>/pages/export_tsv.php?download_csv=1&amp;raw_data_csv=1">raw data</a>
-	
-</h2>
-<blockquote class='inline_help'>
-	<p>Download a TSV file based upon the selection and ordering of the Information table above. If you're using HTML in the comment section, it will include HTML code if inserted and will not parse it anyhow. TSV is the same as CSV, but the extension for TAB delimited instead of COMMA.</p>
-	<p>Output raw data will not format numbers for the file output. Eg. HDD sizes like 8.0TB will be 8001563222016 instead. However, the SMART units read and written is calculated with the logical block size and shown in raw after that.</p>
-</blockquote>
 </td></tr></table>
 <?php if($db_update == 2) { print("-->"); } ?>

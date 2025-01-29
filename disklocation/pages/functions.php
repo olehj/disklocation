@@ -99,23 +99,72 @@
 		else return false;
 	}
 	
-	function put_ini_file($file, $array, $i = 0) {
-		$str="";
-		foreach ($array as $k => $v){
-			if (is_array($v)){
-				$str.=str_repeat(" ",$i*2)."[$k]".PHP_EOL; 
-				$str.=put_ini_file("",$v, $i+1);
-			}
-			else {
-				$str.=str_repeat(" ",$i*2)."$k = $v".PHP_EOL; 
-			}
-			if($file) {
-				return file_put_contents($file,$str);
-			}
-			else {
-				return $str;
-			}
+	function write_ini_file($file, $array = []) {
+		// check first argument is string
+		if (!is_string($file)) {
+			throw new \InvalidArgumentException('Function argument 1 must be a string.');
 		}
+		
+		// check second argument is array
+		if (!is_array($array)) {
+			throw new \InvalidArgumentException('Function argument 2 must be an array.');
+		}
+		
+		// process array
+		$data = array();
+		foreach ($array as $key => $val) {
+		if (is_array($val)) {
+			$data[] = "[$key]";
+			foreach ($val as $skey => $sval) {
+			if (is_array($sval)) {
+				foreach ($sval as $_skey => $_sval) {
+				if (is_numeric($_skey)) {
+					$data[] = $skey.'[] = '.(is_numeric($_sval) ? $_sval : (ctype_upper($_sval) ? $_sval : '"'.$_sval.'"'));
+				} else {
+					$data[] = $skey.'['.$_skey.'] = '.(is_numeric($_sval) ? $_sval : (ctype_upper($_sval) ? $_sval : '"'.$_sval.'"'));
+				}
+				}
+			} else {
+				$data[] = $skey.' = '.(is_numeric($sval) ? $sval : (ctype_upper($sval) ? $sval : '"'.$sval.'"'));
+			}
+			}
+		} else {
+			$data[] = $key.' = '.(is_numeric($val) ? $val : (ctype_upper($val) ? $val : '"'.$val.'"'));
+		}
+		// empty line
+		$data[] = null;
+		}
+		
+		// open file pointer, init flock options
+		$fp = fopen($file, 'w');
+		$retries = 0;
+		$max_retries = 100;
+		
+		if (!$fp) {
+		return false;
+		}
+		
+		// loop until get lock, or reach max retries
+		do {
+		if ($retries > 0) {
+			usleep(rand(1, 5000));
+		}
+		$retries += 1;
+		} while (!flock($fp, LOCK_EX) && $retries <= $max_retries);
+		
+		// couldn't get the lock
+		if ($retries == $max_retries) {
+		return false;
+		}
+		
+		// got lock, write data
+		fwrite($fp, implode(PHP_EOL, $data).PHP_EOL);
+		
+		// release lock
+		flock($fp, LOCK_UN);
+		fclose($fp);
+		
+		return true;
 	}
 	
 	function bscode2html($text) {
@@ -304,37 +353,37 @@
 	function list_array($array, $type, $tray = '') {
 		if($type == "html") {
 			return array(
-				"groupid" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . stripslashes(htmlspecialchars($array["group_name"])) . "</td>",
-				"tray" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $tray . "</td>",
-				"device" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["device"] . "</td>",
-				"pool" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["pool"] . "</td>",
-				"name" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["name"] . "</td>",
-				"node" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["node"] . "</td>",
-				"lun" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["lun"] . "</td>",
-				"manufacturer" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["manufacturer"] . "</td>",
-				"model" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["model"] . "</td>",
-				"serial" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["serial"] . "</td>",
-				"capacity" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["capacity"] . "</td>",
-				"cache" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["cache"] . "</td>",
-				"rotation" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["rotation"] . "</td>",
-				"formfactor" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["formfactor"] . "</td>",
-				"smart_status" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: center;\">" . $array["smart_status"] . "</td>",
-				"temperature" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: left;\">" . $array["temp"] . " " . ( !empty($array["temp"]) ? "(" . $array["hotTemp"] . "/" . $array["maxTemp"] . ")" : null ) . "</td>",
-				"powerontime_hours" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["powerontime_hours"] . "</span></td>",
-				"powerontime" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["powerontime"] . "</span></td>",
-				"loadcycle" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["loadcycle"] . "</td>",
-				"nvme_percentage_used" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["nvme_percentage_used"] . "</td>",
-				"smart_units_read" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["smart_units_read"] . "</td>",
-				"smart_units_written" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["smart_units_written"] . "</td>",
-				"nvme_available_spare" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["nvme_available_spare"] . "</td>",
-				"nvme_available_spare_threshold" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["nvme_available_spare_threshold"] . "</td>",
-				"installed" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["installed"] . "</td>",
-				"removed" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["removed"] . "</td>",
-				"manufactured" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["manufactured"] . "</td>",
-				"purchased" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["purchased"] . "</td>",
-				"warranty" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["warranty"] . "</td>",
-				"expires" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["expires"] . "</td>",
-				"comment" => "<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">" . bscode2html(stripslashes(htmlspecialchars($array["comment"]))) . "</td>"
+				"groupid" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px;\">" . stripslashes(htmlspecialchars($array["group_name"])) . "</td>",
+				"tray" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $tray . "</td>",
+				"device" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["device"] . "</td>",
+				"pool" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["pool"] . "</td>",
+				"name" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px;\"><a class=\"none\" style=\"text-decoration: underline;\" href=\"/Main/Device?name=" . $array["name"] . "\">" . $array["name"] . "</a></td>",
+				"node" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["node"] . "</td>",
+				"lun" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["lun"] . "</td>",
+				"manufacturer" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["manufacturer"] . "</td>",
+				"model" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["model"] . "</td>",
+				"serial" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["serial"] . "</td>",
+				"capacity" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["capacity"] . "</td>",
+				"cache" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["cache"] . "</td>",
+				"rotation" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["rotation"] . "</td>",
+				"formfactor" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["formfactor"] . "</td>",
+				"smart_status" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px; text-align: center;\">" . $array["smart_status"] . "</td>",
+				"temperature" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px; text-align: left;\">" . $array["temp"] . " " . ( !empty($array["temp"]) ? "(" . $array["hotTemp"] . "/" . $array["maxTemp"] . ")" : null ) . "</td>",
+				"powerontime_hours" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["powerontime_hours"] . "</span></td>",
+				"powerontime" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["powerontime"] . "</span></td>",
+				"loadcycle" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["loadcycle"] . "</td>",
+				"nvme_percentage_used" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["nvme_percentage_used"] . "</td>",
+				"smart_units_read" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["smart_units_read"] . "</td>",
+				"smart_units_written" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["smart_units_written"] . "</td>",
+				"nvme_available_spare" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["nvme_available_spare"] . "</td>",
+				"nvme_available_spare_threshold" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["nvme_available_spare_threshold"] . "</td>",
+				"installed" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["installed"] . "</td>",
+				"removed" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["removed"] . "</td>",
+				"manufactured" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["manufactured"] . "</td>",
+				"purchased" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["purchased"] . "</td>",
+				"warranty" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["warranty"] . "</td>",
+				"expires" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["expires"] . "</td>",
+				"comment" => "<td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px;\">" . bscode2html(stripslashes(htmlspecialchars($array["comment"]))) . "</td>"
 			);
 		}
 		else {
@@ -1043,6 +1092,19 @@
 	function get_disk_ack($device, $file = EMHTTP_VAR . "/" . UNRAID_MONITOR_FILE) {
 		$unraid_monitor = parse_ini_file($file, true);
 		return (isset($unraid_monitor["smart"][$device.".ack"]) ? true : false);
+	}
+	
+	function set_disk_ack($devices, $file = EMHTTP_VAR . "/" . UNRAID_MONITOR_FILE) {
+		$unraid_monitor = parse_ini_file($file, true);
+		$devices = explode(",", $devices);
+		
+		foreach($devices as $disk) {
+			$unraid_monitor["smart"][$disk.".ack"] = "true";
+		}
+		if(!write_ini_file($file, $unraid_monitor)) {
+			return false;
+		}
+		else return true;
 	}
 	
 	function check_smart_files() { // return true if files found
