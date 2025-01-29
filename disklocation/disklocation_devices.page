@@ -1,6 +1,6 @@
 Menu="disklocation:1"
-Icon="server"
-Tag="server"
+Icon="database"
+Tag="database"
 Title="Dashboard"
 ---
 <?php

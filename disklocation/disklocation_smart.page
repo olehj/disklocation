@@ -1,0 +1,8 @@
+Menu="disklocation:3"
+Icon="address-card"
+Tag="address-card"
+Title="S.M.A.R.T"
+---
+<?php
+	require_once("/usr/local/emhttp/plugins/disklocation/pages/page_smart.php");
+?>
