@@ -1,4 +1,5 @@
 <link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/signals.css")?>">
+<!--<link type="text/css" rel="stylesheet" href="<?php print("" . DISKLOCATION_PATH . "/pages/styles/signals.css?nocache=" . time()); ?>">-->
 <link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/help.css")?>">
 <style type="text/css">
 	<?php include("/usr/local/emhttp/plugins/disklocation/pages/styles/disk.css.php"); ?>

@@ -24,6 +24,7 @@
 	$array_groups = $get_groups;
 	$array_devices = $get_devices;
 	$array_locations = $get_locations;
+	$count_installed_devices = 0;
 	
 	foreach($get_devices as $hash => $data) {
 		$device = $data["device"];
@@ -196,7 +197,7 @@
 		$devices[$hash]["raw"]["maxTemp"] = $unraid_array[$data["devicenode"]]["maxTemp"];
 		$devices[$hash]["formatted"]["maxTemp"] = $smart_temperature_critical;
 		
-		// Unraid disk.ini $unraid_disklog
+		// Unraid disk.log $unraid_disklog
 		$devices[$hash]["raw"]["purchased"] = "" . $unraid_disklog["" . str_replace(" ", "_", $devices[$hash]["raw"]["model"]) . "_" . str_replace(" ", "_", $devices[$hash]["raw"]["serial"]) . ""]["purchase"] . "";
 		$devices[$hash]["raw"]["warranty"] = "" . $unraid_disklog["" . str_replace(" ", "_", $devices[$hash]["raw"]["model"]) . "_" . str_replace(" ", "_", $devices[$hash]["raw"]["serial"]) . ""]["warranty"] . "";
 		$devices[$hash]["raw"]["manufactured"] = "" . $unraid_disklog["" . str_replace(" ", "_", $devices[$hash]["raw"]["model"]) . "_" . str_replace(" ", "_", $devices[$hash]["raw"]["serial"]) . ""]["date"] . "";
@@ -225,6 +226,10 @@
 		$devices[$hash]["raw"]["expires"] = "" . $warranty_expire . "";
 		$devices[$hash]["formatted"]["expires"] = "" . $warranty_left . "";
 		$devices[$hash]["formatted"]["manufactured"] = $devices[$hash]["raw"]["manufactured"];
+		
+		if(empty($devices[$hash]["raw"]["status"]) || $devices[$hash]["raw"]["status"] == 'h') {
+			$count_installed_devices++;
+		}
 	}
 	//print_r($devices); die(); // for debugging
 ?>

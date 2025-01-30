@@ -290,11 +290,19 @@ $(document).ready(function(){
 				</blockquote>
 				<p>
 					<b>Trim serial numbers:</b><br />
-					<input type="number" required min="-99" max="99" step="1" name="serial_trim" value="<?php print($serial_trim); // reusing the deprecated dashboard_pos variable instead of messing with the database ?>" style="width: 50px;" />
+					<input type="number" required min="-99" max="99" step="1" name="serial_trim" value="<?php print($serial_trim); ?>" style="width: 50px;" />
 				</p>
 				<blockquote class='inline_help'>
 					Serial number will be cut either the first or last part of this value, 0 does nothing. Negative number will display X last characters, positive the X first characters.
 					The sort function will still sort after the actual serial number, and not the shortened ones.
+					<br />
+				</blockquote>
+				<p>
+					<b>Auto backup every:</b><br />
+					<input type="number" required min="0" max="999999999" step="1" name="auto_backup_days" value="<?php print($auto_backup_days); ?>" style="width: 50px;" /> days
+				</p>
+				<blockquote class='inline_help'>
+					Run auto backup every set full days, 0 to disable. This will only backup Disk Location files, and not Unraid config edited via this plugin, if enabled.
 					<br />
 				</blockquote>
 				<p style="color: red;">
@@ -369,8 +377,7 @@ $(document).ready(function(){
 									Flash critical: the background will flash when the drive has a critical issue.
 								</p>
 								<p>
-									Select if you want LEDs to flash or not. This will not affect flashing backgrounds.<br />
-									After changing this, you might need to press CTRL+F5 to force a refresh and clear up the cache.
+									Select if you want LEDs to flash or not. This will not affect flashing backgrounds.
 								</p>
 							</blockquote>
 						</td>

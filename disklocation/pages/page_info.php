@@ -115,7 +115,7 @@
 				$physical_traynumber = ( !isset($tray_number_override_start) ? --$drive_tray_order[$hash] : $drive_tray_order[$hash]);
 			}
 			
-			$listarray = list_array($formatted, 'html', $physical_traynumber);
+			$listarray = list_array($formatted, 'html', $physical_traynumber, 'top');
 			
 			$print_drives[$i_drive] = "<tr style=\"border: 1px solid #000000; background: #" . $color_array[$hash] . ";\">";
 			

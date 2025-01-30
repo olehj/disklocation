@@ -27,12 +27,13 @@
 	$bgcolor_cache =		'5B7845';		// background color for Unraid cache disks / normal temp // old default: FF884C / CABD33
 	$bgcolor_others =		'7C7C7C';		// background color for unassigned/other disks / unknown temp // old default: 41B5EF / 3398CA
 	$bgcolor_empty =		'303030';		// background color for empty trays // old default: AAAAAA / 7C7C7C
-	$tray_reduction_factor =	'10';			// set the scale divider for the mini tray layout
-	$force_orb_led =		'0';			// set the LED to 0: show Unraid icons (triangle warning / hot critical) - 1: show circle LEDs (color coded circles).
-	$device_bg_color =		'1';			// choose background for the drives, Drive Type (0) or Heat Map (1)
-	$serial_trim =		 	'0';			// make serial number friendlier, substr() value -99 - 99.
-	$allow_unraid_edit =		'0';			// (dis)allow editing of UNRAID config.
-	$displayinfo =	array(			// this will store an array of display settings for the "Device" page.
+	$tray_reduction_factor =	10;			// set the scale divider for the mini tray layout
+	$force_orb_led =		0;			// set the LED to 0: show Unraid icons (triangle warning / hot critical) - 1: show circle LEDs (color coded circles).
+	$device_bg_color =		1;			// choose background for the drives, Drive Type (0) or Heat Map (1)
+	$serial_trim =		 	0;			// make serial number friendlier, substr() value -99 - 99.
+	$allow_unraid_edit =		0;			// (dis)allow editing of UNRAID config.
+	$auto_backup_days = 		30;			// automatically make a backup during installation if the latest one is more than [$auto_backup_days] days old
+	$displayinfo =	array(					// this will store an array of display settings for the "Device" page.
 		'tray' => 1,
 		'leddiskop' => 1,
 		'ledsmart' => 1,
@@ -61,14 +62,21 @@
 	
 //	Group settings
 	
-	$group_color = 		'';	// set default group background color to "empty/disabled"
+	$group_color = 		'';		// set default group background color to "empty/disabled"
 	$grid_count =		'column';	// how to count the trays: [column]: trays ordered from top to bottom from left to right | [row]: ..from left to right from top to bottom
-	$grid_columns =		'4';		// number of horizontal trays
-	$grid_rows =		'6';		// number of verical trays
+	$grid_columns =		4;		// number of horizontal trays
+	$grid_rows =		6;		// number of verical trays
 	$grid_trays = 		'';		// total number of trays. default this is (grid_columns * grid_rows), but we choose to add some flexibility for drives outside normal trays
 	$disk_tray_direction =	'h';		// direction of the hard drive trays [h]horizontal | [v]ertical
-	$tray_direction =	'1';		// tray count direction
-	$tray_start_num = 	'1';		// tray count start number, 0 or 1
-	$tray_width =		'400';		// the pixel width of the hard drive tray: in the horizontal direction ===
-	$tray_height =		'70';		// the pixel height of the hard drive tray: in the horizontal direction ===
+	$tray_direction =	1;		// tray count direction
+	$tray_start_num = 	1;		// tray count start number, 0 or 1
+	$tray_width =		400;		// the pixel width of the hard drive tray: in the horizontal direction ===
+	$tray_height =		70;		// the pixel height of the hard drive tray: in the horizontal direction ===
+	
+//	Benchmark settings
+	
+	$bench_iterations = 	5;		// run X amount of times
+	$bench_median = 	1;		// skip slowest and fastest results before calculating the average
+	$bench_force = 		1;		// force run benchmark regardless of SMART power status
+	$bench_auto_cron =	0;		// run benchmark monthly, $bench_force will be ignored and set to 1 during cronjob.
 ?>

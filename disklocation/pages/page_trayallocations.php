@@ -124,7 +124,7 @@
 			$warranty_months = array('6','12','18','24','36','48','60');
 			for($warr_i = 0; $warr_i < count($warranty_months); ++$warr_i) {
 				if($data["warranty"] == $warranty_months[$warr_i]) { $selected="selected"; } else { $selected=""; }
-				$warr_options .= "<option value=\"$warranty_months[$warr_i]\" " . $selected . " style=\"text-align: right;\">$warranty_months[$warr_i] months</option>";
+				$warr_options .= "<option value=\"$warranty_months[$warr_i]\" " . $selected . " " . ( (!$allow_unraid_edit && !$selected) ? "disabled=\"disabled\"" : null ) . " style=\"text-align: right;\">$warranty_months[$warr_i] months</option>";
 			}
 			
 			$bgcolor = ( empty($data["bgcolor"]) ? $bgcolor_empty : $data["bgcolor"] );
@@ -135,10 +135,10 @@
 			// Override array for writable forms
 			$listarray["groupid"] = "<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><select name=\"groups[" . $hash . "]\" style=\"min-width: 0; max-width: 150px; min-width: 40px;\"><option value=\"\" selected style=\"text-align: left;\">--</option>" . $group_options . "</select></td>";
 			$listarray["tray"] = "<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><select name=\"drives[" . $hash . "]\" style=\"min-width: 0; max-width: 50px; width: 40px;\"><option value=\"\" selected style=\"text-align: right;\">--</option>" . $tray_options . "</select></td>";
-			$listarray["manufactured"] = "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><input type=\"date\" name=\"manufactured[" . $hash . "]\" max=\"9999-12-31\" value=\"" . $data["manufactured"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" /></td>";
-			$listarray["purchased"] = "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><input type=\"date\" name=\"purchased[" . $hash . "]\" max=\"9999-12-31\" value=\"" . $data["purchased"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" /></td>";
+			$listarray["manufactured"] = "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><input " . ( $allow_unraid_edit ? null : "readonly=\"readonly\"" ) . " type=\"date\" name=\"manufactured[" . $hash . "]\" max=\"9999-12-31\" value=\"" . $data["manufactured"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" /></td>";
+			$listarray["purchased"] = "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><input " . ( $allow_unraid_edit ? null : "readonly=\"readonly\"" ) . " type=\"date\" name=\"purchased[" . $hash . "]\" max=\"9999-12-31\" value=\"" . $data["purchased"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" /></td>";
 			$listarray["installed"] = "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><input type=\"date\" name=\"installed[" . $hash . "]\" max=\"9999-12-31\" value=\"" . $data["installed"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" /></td>";
-			$listarray["warranty"] = "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><select name=\"warranty[" . $hash . "]\" style=\"min-width: 0; max-width: 80px; width: 80px;\"><option value=\"\" style=\"text-align: right;\">unknown</option>" . $warr_options . "</select></td>";
+			$listarray["warranty"] = "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><select name=\"warranty[" . $hash . "]\" style=\"min-width: 0; max-width: 80px; width: 80px;\"><option value=\"\" style=\"text-align: right;\" " . ( $allow_unraid_edit ? null : "disabled=\"disabled\"" ) . ">unknown</option>" . $warr_options . "</select></td>";
 			$listarray["comment"] = "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><input type=\"text\" name=\"comment[" . $hash . "]\" value=\"" . stripslashes(htmlspecialchars($data["comment"])) . "\" style=\"width: 150px;\" /></td>";
 			
 			$print_drives[$i_drive][$status] .= "<tr style=\"background: #" . $color_array[$hash] . ";\">";
@@ -353,8 +353,6 @@
 					<tr>
 						<td style="width: 0; padding: 0 10px 0 10px;"><b>#</b></td>
 						<td style="width: 0; padding: 0 10px 0 10px;"><b>Locate</b></td>
-						<!--<td style="width: 0; padding: 0 10px 0 10px;"><b>Group</b></td>
-						<td style="width: 0; padding: 0 10px 0 10px;"><b>TrayID</b></td>-->
 						<?php print($table_trayalloc_order_name_html); ?>
 						<td style="width: 0; padding: 0 10px 0 10px;"><b>Custom Color</b></td>
 					</tr>
@@ -377,8 +375,6 @@
 									<tr style=\"border: solid 1px #000000;\">
 										<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px;\"><b>#</b></td>
 										<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px;\"><b>Locate</b></td>
-										<!--<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px;\"><b>Group</b></td>
-										<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px;\"><b>TrayID</b></td>-->
 										$table_trayalloc_order_name_html
 										<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px;\"><b>Custom Color</b></td>
 									</tr>
@@ -388,6 +384,7 @@
 					?>
 					<tr>
 						<td style="padding: 10px 10px 0 10px;" colspan="<?php print($table_colspan + 4); ?>">
+							<?php print( !$allow_unraid_edit ? "<span class=\"red\">Columns containing \"Manufactured\", \"Purchased\" and \"Warranty\" is read-only. To enable editing, go to Configuration and set \"Allow editing of Unraid config\" to \"Yes\"</span>" : "" ); ?>
 							<hr />
 							<input type="submit" name="save_allocations" value="Save" />
 							<span style="padding-left: 50px;"></span>

@@ -120,7 +120,7 @@
 			
 			$get_smart_errors = array_values($data["smart_errors"]);
 			if(count($get_smart_errors) > 0) {
-				$listarray = list_array($formatted, 'html', $physical_traynumber);
+				$listarray = list_array($formatted, 'html', $physical_traynumber, 'top');
 				
 				$print_drives[$i_drive] = "<tr style=\"border: 1px solid #000000; background: #" . $color_array[$hash] . ";\">";
 				
@@ -194,9 +194,14 @@
 <input type="submit" name="sort_reset" value="Set default sort" />
 <?php 
 	if(!empty($disk_not_ack) && $allow_unraid_edit) {
-		print("<input type=\"hidden\" name=\"disk_ack_drives\" value=\"" . implode(",", $disk_not_ack) . "\"><input type=\"submit\" name=\"disk_ack_all_ok\" value=\"Acknowledge all drives\" />");
+		print("<input type=\"hidden\" name=\"disk_ack_drives\" value=\"" . implode(",", $disk_not_ack) . "\">");
 	}
+	print("<input " . (!empty($disk_not_ack) && $allow_unraid_edit ? null : "disabled=disabled" ) . " type=\"submit\" name=\"disk_ack_all_ok\" value=\"Acknowledge all drives\" />");
 ?>
+<blockquote class='inline_help'>
+	"Acknowledge all drives" button is only accessible if "Allow editing of Unraid config" is set to "Yes" and there is drives that are not acknowledged.
+	<br />
+</blockquote>
 </form>
 </td></tr></table>
 <?php if($db_update == 2) { print("-->"); } ?>

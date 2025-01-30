@@ -41,6 +41,8 @@
 	define("DISKLOCATION_LOCK_FILE", DISKLOCATION_TMP_PATH . "/db.lock");
 	define("CRONJOB_URL", DISKLOCATION_PATH . "/pages/cronjob.php");
 	define("CRONJOB_FILE", EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/cronjob.php");
+	define("BENCHMARK_URL", DISKLOCATION_PATH . "/pages/benchmark.php");
+	define("BENCHMARK_FILE", EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/benchmark.php");
 	define("DISKLOGFILE", UNRAID_CONFIG_PATH . "/disk.log");
 	define("UNRAID_DISKS_FILE", "disks.ini");
 	define("UNRAID_DEVS_FILE", "devs.ini");
@@ -199,7 +201,7 @@
 	$lsscsi_arr = explode(PHP_EOL, $lsscsi_cmd);
 	
 	// get disk logs
-	if(is_file(DISKLOGFILE)) {
+	if(file_exists(DISKLOGFILE)) {
 		$unraid_disklog = parse_ini_file(DISKLOGFILE, true);
 	}
 	

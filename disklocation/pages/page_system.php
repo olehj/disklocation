@@ -18,6 +18,7 @@
 	 *  along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
 	 *
 	 */
+	
 	if(strstr($_SERVER["SCRIPT_NAME"], "page_system.php")) {
 		// Set warning level
 		//error_reporting(E_ERROR | E_WARNING | E_PARSE);
@@ -48,6 +49,8 @@
 		if(file_exists(DISKLOCATION_GROUPS)) {
 			$get_groups = json_decode(file_get_contents(DISKLOCATION_GROUPS), true);
 		}
+		
+		$auto_backup_days = ( !empty($get_disklocation_config["auto_backup_days"]) ? $get_disklocation_config["auto_backup_days"] : 0 );
 		
 		$debugging_active = 0;
 		require_once("functions.php");
@@ -142,8 +145,10 @@
 			if($operation == "list") {
 				$file = explode("\n", (shell_exec("ls -1 " . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/*/*.gz")));
 				for($i=0; $i < count($file); ++$i) {
-					$array[$i]["file"] = $file[$i];
-					$array[$i]["size"] = filesize($file[$i]);
+					if(!empty($file[$i])) {
+						$array[$i]["file"] = $file[$i];
+						$array[$i]["size"] = filesize($file[$i]);
+					}
 				}
 				if($array[0]["file"]) {
 					return $array;
@@ -234,7 +239,28 @@
 	}
 	if(isset($_POST["backup_db"]) || in_array("backup", $argv)) {
 		if(file_exists(DISKLOCATION_DEVICES) && file_exists(DISKLOCATION_GROUPS) && file_exists(DISKLOCATION_LOCATIONS)) {
-			database_backup(DISKLOCATION_CONF.",".DISKLOCATION_DEVICES.",".DISKLOCATION_GROUPS.",".DISKLOCATION_LOCATIONS, "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/");
+			if(in_array("auto", $argv)) {
+				$get_backup_files = disklocation_system("backup", "list");
+				$get_backup_files = end($get_backup_files);
+				
+				$time_backup = preg_replace("/" . preg_quote(UNRAID_CONFIG_PATH, "/") . "" . preg_quote(DISKLOCATION_PATH, "/") . "\/backup\/(.*)\/disklocation.json.gz/", "$1", $get_backup_files["file"]);
+				
+				$time_now = new DateTime("now");
+				$time_backup = DateTime::createFromFormat('Ymd-His', $time_backup);
+				$time_diff = $time_now->diff($time_backup);
+				
+				if($auto_backup_days && $time_diff->format("%a") > $auto_backup_days) {
+					database_backup(DISKLOCATION_CONF.",".DISKLOCATION_DEVICES.",".DISKLOCATION_GROUPS.",".DISKLOCATION_LOCATIONS, "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/");
+					
+					print(in_array("silent", $argv) ? null : "Previous backup was more than $auto_backup_days days old, new backup created.\n");
+				}
+				else {
+					print(in_array("silent", $argv) ? null : "Backup was made in the recent $auto_backup_days days or backup is disabled, skipping.\n");
+				}
+			}
+			else {
+				database_backup(DISKLOCATION_CONF.",".DISKLOCATION_DEVICES.",".DISKLOCATION_GROUPS.",".DISKLOCATION_LOCATIONS, "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/");
+			}
 		}
 		else {
 			database_backup(DISKLOCATION_DB, "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/");
@@ -269,7 +295,7 @@
 						</td>
 					</tr>
 		";
-		for($i=0; $i < count($list_backup)-1; ++$i) {
+		for($i=0; $i < count($list_backup); ++$i) {
 			$print_list_backup .= "
 					<tr>
 						<td>

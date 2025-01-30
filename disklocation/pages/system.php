@@ -136,6 +136,10 @@
 			$post_info = "";
 		}
 		
+		$_POST["force_orb_led"] = $_POST["force_orb_led"] ? 1 : 0;
+		$_POST["allow_unraid_edit"] = $_POST["allow_unraid_edit"] ? 1 : 0;
+		$_POST["auto_backup_days"] = $_POST["auto_backup_days"] ? $_POST["auto_backup_days"] : 0;
+		
 		// settings
 		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_parity"])) { $disklocation_error[] = "Background color for \"Parity\" invalid."; } else { $_POST["bgcolor_parity"] = str_replace("#", "", strtoupper($_POST["bgcolor_parity"])); }
 		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_unraid"])) { $disklocation_error[] = "Background color for \"Data\" invalid."; } else { $_POST["bgcolor_unraid"] = str_replace("#", "", strtoupper($_POST["bgcolor_unraid"])); }
@@ -146,6 +150,7 @@
 		if(!preg_match("/(0|1)/", $_POST["force_orb_led"])) { $disklocation_error[] = "LED display field is invalid."; }
 		if(!preg_match("/(0|1)/", $_POST["allow_unraid_edit"])) { $disklocation_error[] = "Unraid condig edit field is invalid."; }
 		if(!preg_match("/[0-9]{1,4}/", $_POST["serial_trim"])) { $disklocation_error[] = "Serial number trim number invalid."; }
+		if(!preg_match("/[0-9]{1,9}/", $_POST["auto_backup_days"])) { $disklocation_error[] = "Invalid number of days."; }
 		
 		use_stylesheet($_POST["signal_css"]);
 		
@@ -182,6 +187,7 @@
 		if(!bscode2html($_POST["select_db_devices"])) { $disklocation_error[] = "Table \"Devices\": Content could not be parsed."; }
 		
 		if(empty($disklocation_error)) {
+			$array = config_array(DISKLOCATION_CONF, 'r');
 			unset($_POST["save_settings"]);
 			unset($_POST["database_noscan"]);
 			unset($_POST["warranty_field"]);
@@ -239,6 +245,7 @@
 		$post_groups = $_POST["groups"];
 		$array_devices = $get_devices;
 		$array_locations = $get_locations;
+		$create_disklog_ini = array();
 		
 		if(empty($disklocation_error)) {
 			// Get new allocations and adjust location array:
@@ -283,14 +290,50 @@
 				$array_devices[$results[$id]["hash"]]["comment"] = ( !empty($_POST["comment"][$results[$id]["hash"]]) ? $_POST["comment"][$results[$id]["hash"]] : null );
 				
 				$array_devices[$results[$id]["hash"]]["color"] = ( (!empty($_POST["bgcolor_custom"][$results[$id]["hash"]]) && strtoupper($_POST["bgcolor_custom"][$results[$id]["hash"]]) != "#".strtoupper($bgcolor_empty)) ? str_replace("#", "", strtoupper($_POST["bgcolor_custom"][$results[$id]["hash"]])) : null );
+				
+				if($allow_unraid_edit) {
+					if($array_devices[$results[$id]["hash"]]["manufactured"]) { $create_disklog_ini[str_replace(" ", "_", $array_devices[$results[$id]["hash"]]["model_name"] . "_" . $array_devices[$results[$id]["hash"]]["smart_serialnumber"])]["date"] = $_POST["manufactured"][$results[$id]["hash"]]; }
+					if($array_devices[$results[$id]["hash"]]["purchased"]) { $create_disklog_ini[str_replace(" ", "_", $array_devices[$results[$id]["hash"]]["model_name"] . "_" . $array_devices[$results[$id]["hash"]]["smart_serialnumber"])]["purchase"] = $_POST["purchased"][$results[$id]["hash"]]; }
+					if($array_devices[$results[$id]["hash"]]["warranty"]) { $create_disklog_ini[str_replace(" ", "_", $array_devices[$results[$id]["hash"]]["model_name"] . "_" . $array_devices[$results[$id]["hash"]]["smart_serialnumber"])]["warranty"] = $_POST["warranty"][$results[$id]["hash"]]; }
+				}
 			}
 			
-			debug_print($debugging_active, __LINE__, "SQL", "ALLOC: <pre>" . $sql . "</pre>");
-			
-			debug_print($debugging_active, __LINE__, "SQL", "POPULATED: <pre>" . $sql . "</pre>");
+			debug_print($debugging_active, __LINE__, "SQL", "POPULATED: <pre>" . $results . "</pre>");
 			
 			config_array(DISKLOCATION_DEVICES, "w", $array_devices);
 			config_array(DISKLOCATION_LOCATIONS, "w", $array_locations);
+			
+			if($allow_unraid_edit) { 
+				$new_disklog = array_merge($unraid_disklog, $create_disklog_ini);
+				write_ini_file(DISKLOGFILE, $new_disklog);
+			}
+			
+			$SUBMIT_RELOAD = 1;
+		}
+	}
+	
+	if(isset($_POST["save_benchmark_settings"])) {
+		if(!preg_match("/[0-9]{1,2}/", $_POST["bench_iterations"])) { $disklocation_error[] = "Iterations value is not a number."; }
+		if($_POST["bench_iterations"] < 1 && $_POST["bench_iterations"] > 10) { $disklocation_error[] = "Iterations value is out of range."; };
+		if(!preg_match("/(^$|1)/", $_POST["bench_median"])) { $disklocation_error[] = "Median value invalid."; }
+		if(!preg_match("/(^$|1)/", $_POST["bench_force"])) { $disklocation_error[] = "Force value invalid."; }
+		if(!preg_match("/(^$|1)/", $_POST["bench_auto_cron"])) { $disklocation_error[] = "Auto crontab value invalid."; }
+		
+		$_POST["bench_median"] = $_POST["bench_median"] ? 1 : 0;
+		$_POST["bench_force"] = $_POST["bench_force"] ? 1 : 0;
+		$_POST["bench_auto_cron"] = $_POST["bench_auto_cron"] ? 1 : 0;
+		
+		if(empty($disklocation_error)) {
+			$array = config_array(DISKLOCATION_CONF, 'r');
+			
+			unset($_POST["save_benchmark_settings"]);
+			foreach($_POST as $key => $data) {
+				$array[$key] = $data;
+			}
+			
+			debug_print($debugging_active, __LINE__, "SQL", "SETTINGS: <pre>" . $array . "</pre>");
+			
+			config_array(DISKLOCATION_CONF, 'w', $array);
 			
 			$SUBMIT_RELOAD = 1;
 		}

@@ -48,6 +48,11 @@
 		extract($get_disklocation_config);
 	}
 	
+	// get disk logs
+	if(file_exists(DISKLOGFILE)) {
+		$unraid_disklog = parse_ini_file(DISKLOGFILE, true);
+	}
+	
 	$color_array = array();
 	$color_array["empty"] = $bgcolor_empty;
 ?>
