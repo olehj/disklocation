@@ -1,4 +1,4 @@
-<?php
+// <?php
 	/*
 	 *  Copyright 2019-2025, Ole-Henrik Jakobsen
 	 *
@@ -444,8 +444,6 @@ $(document).ready(function(){
 							<b>LED signals:</b><br />
 							<input type="radio" name="signal_css" value="signals.dynamic.css" <?php if(!$signal_css || $signal_css == "signals.dynamic.css") { echo "checked"; } ?> />Dynamic
 							<input type="radio" name="signal_css" value="signals.static.css" <?php if($signal_css == "signals.static.css") { echo "checked"; } ?> />Static
-							<br />
-							After changing this, you might need to press CTRL+F5 to force a refresh and clear up the cache.
 							<blockquote class='inline_help'>
 								<p>
 									Select if you want LEDs to flash or not. This will not affect flashing backgrounds.

@@ -1089,7 +1089,7 @@
 		if(is_file(EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/styles/" . $css . "")) {
 			unlink(EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/styles/signals.css");
 			symlink(EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/styles/" . $css . "", EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/styles/signals.css");
-			
+			touch(EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/styles/signals.css", time(), time());
 			return EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/styles/" . $css . "";
 		}
 		else {
