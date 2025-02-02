@@ -4,12 +4,13 @@ Tag="cogs"
 Title="Configuration"
 ---
 <?php 
-	$time_start = (isset($_GET["benchmark"]) ? hrtime(true) : null);
+	$time_start = (($debug || isset($_GET["benchmark"])) ? hrtime(true) : null);
 	
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/system.php");
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/devices.php");
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/locate.php");
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/page_config.php");
 	
-	print(isset($_GET["benchmark"]) ? "<h1 style=\"position: fixed; left: 5px; bottom: 20px; white-space: no-wrap; color: #0099FF; background-color: #111111;\">This tab completed in " . (round((hrtime(true)-$time_start)/1e+6, 1) . " milliseconds.</h1>\n") : null);
+	$page_time_load["config"] = ( $debug ? round((hrtime(true)-$time_start)/1e+6, 1) : null );
+	print(isset($_GET["benchmark"]) ? "<h1 style=\"position: fixed; left: 5px; bottom: 20px; white-space: no-wrap; color: #0099FF; background-color: #111111;\">Configuration: " . (round((hrtime(true)-$time_start)/1e+6, 1) . " ms</h1>\n") : null);
 ?>

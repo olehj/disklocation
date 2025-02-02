@@ -4,11 +4,18 @@ Tag="database"
 Title="Dashboard"
 ---
 <?php
-	$total_time_start = (isset($_GET["benchmark"]) ? hrtime(true) : null);
+	define("DISKLOCATION_TMP_PATH", "/tmp/disklocation");
+	
+	// $output = 0: off | 1: write logfile | 2: return log | 3: write logfile & return log
+	$debug = (file_exists(DISKLOCATION_TMP_PATH . "/.debug") ? 1 : 0 );
+	
+	$time_start = (($debug || isset($_GET["benchmark"])) ? hrtime(true) : null);
+	$total_time_start = $time_start;
 	
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/system.php");
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/devices.php");
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/page_devices.php");
 	
-	print(isset($_GET["benchmark"]) ? "<h1 style=\"position: fixed; left: 5px; bottom: 20px; white-space: no-wrap; color: #0099FF; background-color: #111111;\">This tab completed in " . (round((hrtime(true)-$total_time_start)/1e+6, 1) . " milliseconds.</h1>\n") : null);
+	$page_time_load["dashboard"] = ( $debug ? round((hrtime(true)-$time_start)/1e+6, 1) : null );
+	print(isset($_GET["benchmark"]) ? "<h1 style=\"position: fixed; left: 5px; bottom: 20px; white-space: no-wrap; color: #0099FF; background-color: #111111;\">Dashboard: " . (round((hrtime(true)-$time_start)/1e+6, 1) . " ms</h1>\n") : null);
 ?>
