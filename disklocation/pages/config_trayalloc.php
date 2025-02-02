@@ -511,6 +511,8 @@
 							<input type="hidden" name="current_warranty_field" value="<?php echo $warranty_field ?>" />
 							<input type="submit" name="save_allocations" value="Save" />
 							<span style="padding-left: 50px;"></span>
+							<input type="submit" name="killall_smartlocate" value="Force Stop All Locate" />
+							<span style="padding-left: 50px;"></span>
 							<input type="submit" name="reset_all_colors" value="Reset All Custom Colors" /> <b>or choose "Empty" color (first color listed) per device under "Custom Color" to reset, and then hit the "Save" button.</b>
 							<blockquote class='inline_help'>
 								<ul>

@@ -483,6 +483,10 @@
 		//}
 	}
 	
+	if(isset($_POST["killall_smartlocate"])) {
+		shell_exec("pkill -f smartlocate");
+	}
+	
 	// RELOAD: get settings from DB as $var
 	include("load_settings.php");
 
