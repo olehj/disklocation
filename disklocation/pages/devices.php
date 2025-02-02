@@ -111,7 +111,7 @@
 				$tray_width = $tray_swap_height;
 			}
 			
-			debug_print($debugging_active, __LINE__, "var", "Total trays: " . $total_trays . "");
+			$debug_log = debug($debug, basename(__FILE__), __LINE__, "total_trays", $total_trays);
 			
 			$i_empty=1;
 			$i_drive=1;
@@ -129,7 +129,7 @@
 				$empty_traytext = "";
 				
 				if(( isset($data["tray"]) ? $data["tray"] : 0 ) != $i) {
-					debug_print($debugging_active, __LINE__, "loop", "Empty tray: " . $tray_assign . "");
+					$debug_log = debug($debug, basename(__FILE__), __LINE__, "tray_assign", $tray_assign);
 					
 					if($displayinfo["tray"] && empty($displayinfo["hideemptycontents"])) {
 						if($tray_number_override[$tray_assign]) {
@@ -242,7 +242,7 @@
 					$i_empty++;
 				}
 				else {
-					debug_print($debugging_active, __LINE__, "loop", "Populated tray: " . $tray_assign . "");
+					$debug_log = debug($debug, basename(__FILE__), __LINE__, "tray_assign", $tray_assign);
 					$device = $data["device"];
 					$devicenode = $data["devicenode"];
 					$hash = $data["hash"];

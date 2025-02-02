@@ -24,27 +24,27 @@
 		include("load_settings.php");
 	}
 	
-	function debug_print($act, $line, $section, $message) {
-		if($act == 1 && $section && $message) {
-			// write out directly and flush out the results asap
-			$out = "[" . date("H:i:s") . "] " . basename(__FILE__) . ":" . $line . " @ " . $section . ": " . $message . "\n";
-			file_put_contents("" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.log", $out, FILE_APPEND);
-			return true;
-		}
-		if($act == 2 && $section != "SQL") {
-			print("[" . date("H:i:s") . "] " . basename(__FILE__) . ":" . $line . " @ " . $section . ": " . $message . "\n");
-			flush();
-		}
-		if($act == 3 && $section == "loop") {
-			print("[" . date("H:i:s") . "] " . $message . "<br />\n");
-			flush();
+	function debug($output, $file, $line, $program, $input = '') { // $output = 0: off | 1: write logfile | 2: return log | 3: write logfile & return log
+		if($output) {
+			if($output && $line && $program && $input) {
+				$log = "[" . date("H:i:s") . "] " . $file . ":" . $line . " @ " . $program . ": " . ( is_array($input) ? print_r($input, true) : $input ) . "\n";
+			}
+			
+			if($output == 1 || $output == 3) {
+				file_put_contents(DISKLOCATION_TMP_PATH . "/disklocation.log", $log, FILE_APPEND);
+				if($output == 2) {
+					return true;
+				}
+			}
+			
+			if($output == 2 || $output == 3) {
+				return $log;
+			}
 		}
 		else {
 			return false;
 		}
 	}
-	
-	debug_print($debugging_active, __LINE__, "functions", "Debug function active.");
 	
 	function config($file, $operation, $key = '', $val = '') { // file, [r]ead/[w]rite, key (req. write), value (req. write)
 		if($operation == 'w') {
@@ -82,9 +82,9 @@
 				touch($file);
 			}
 			
-			$new_array = json_encode($array, JSON_PRETTY_PRINT);
+			$func_array = json_encode($array, JSON_PRETTY_PRINT);
 			
-			if(file_put_contents($file, $new_array)) {
+			if(file_put_contents($file, $func_array)) {
 				return true;
 			}
 			else {
@@ -93,8 +93,8 @@
 		}
 		if($operation == 'r') {
 			$contents = file_get_contents($file);
-			$cur_array = json_decode($contents, true);
-			return $cur_array;
+			$func_array = json_decode($contents, true);
+			return $func_array;
 		}
 		else return false;
 	}
@@ -192,7 +192,8 @@
 	function keys_to_content($input, $array) {
 		$input_array = explode(" ", $input);
 		if(is_array($array) && is_array($input_array)) {
-			return str_replace(array_keys($array), array_values($array), $input);
+			$data = str_replace(array_keys($array), array_values($array), $input);
+			return $data;
 		}
 		else {
 			return false;

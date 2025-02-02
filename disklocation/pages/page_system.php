@@ -37,6 +37,17 @@
 		define("CRONJOB_URL", DISKLOCATION_PATH . "/pages/cronjob.php");
 		define("CRONJOB_FILE", EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/cronjob.php");
 		
+		if(isset($_GET["logfile"])) {
+			// open raw memory as file so no temp files needed, you might run out of memory though
+			$logfile = DISKLOCATION_TMP_PATH . "/disklocation.log";
+			$fp = fopen($logfile, 'r');
+			header('Content-Type: text/plain');
+			header("Content-Length: " . filesize($logfile));
+			header('Content-Disposition: attachment; filename=disklocation-'.date("Y-m-d").'.log;');
+			fpassthru($fp);
+			exit;
+		}
+		
 		if(file_exists(DISKLOCATION_CONF)) {
 			$get_disklocation_config = json_decode(file_get_contents(DISKLOCATION_CONF), true);
 		}
@@ -52,7 +63,7 @@
 		
 		$auto_backup_days = ( !empty($get_disklocation_config["auto_backup_days"]) ? $get_disklocation_config["auto_backup_days"] : 0 );
 		
-		$debugging_active = 0;
+		$debug = 0;
 		require_once("functions.php");
 	}
 	
@@ -185,16 +196,22 @@
 		}
 		
 		if($type == "debug") {
+			if($operation == "enable") {
+				touch(DISKLOCATION_TMP_PATH . "/.debug");
+			}
+			if($operation == "disable") {
+				unlink(DISKLOCATION_TMP_PATH . "/.debug");
+			}
 			if($operation == "list") {
-				if(file_exists("" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.log")) {
-					return filesize("" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.log");
+				if(file_exists("" . DISKLOCATION_TMP_PATH . "/disklocation.log")) {
+					return filesize("" . DISKLOCATION_TMP_PATH . "/disklocation.log");
 				}
 				else {
 					return false;
 				}
 			}
 			if($operation == "delete") {
-				unlink("" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.log");
+				unlink("" . DISKLOCATION_TMP_PATH . "/disklocation.log");
 			}
 		}
 
@@ -233,6 +250,18 @@
 	}
 	if(isset($_POST["undelete_devices"])) {
 		force_undelete_devices($get_devices, 'm');
+		header("Location: " . DISKLOCATION_URL . "");
+		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+		exit;
+	}
+	if(isset($_POST["debug_enable"])) {
+		disklocation_system('debug', 'enable');
+		header("Location: " . DISKLOCATION_URL . "");
+		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
+		exit;
+	}
+	if(isset($_POST["debug_disable"])) {
+		disklocation_system('debug', 'disable');
 		header("Location: " . DISKLOCATION_URL . "");
 		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
@@ -358,18 +387,23 @@
 		";
 	}	
 	$list_debug = disklocation_system("debug", "list");
+	$print_list_debug = "
+		<h3>Debugging</h3>
+		<form action=\"" . DISKLOCATION_PATH . "/pages/page_system.php\" method=\"post\">
+			" . ( !file_exists(DISKLOCATION_TMP_PATH . "/.debug") ? "<input type=\"submit\" name=\"debug_enable\" value=\"Enable\" />" : "<input type=\"submit\" name=\"debug_disable\" value=\"Disable\" />" ) . "
+	";
 	if($list_debug) {
-		$print_list_debug = "
-			<h3>Debug file</h3>
-			<p>Debug filesize: " . ( function_exists('human_filesize') ? human_filesize($list_debug, 1, true) : $list_debug . " bytes" ) . "</p>
-			<form action=\"" . DISKLOCATION_PATH . "/pages/page_system.php\" method=\"post\">
-				<input type=\"submit\" name=\"del_debug\" value=\"Delete debug file\" />
-			</form>
+		$print_list_debug .= "
+			<input type=\"submit\" name=\"del_debug\" value=\"Delete debug file\" />
+			<a href=\"/plugins/disklocation/pages/page_system.php?logfile=1\">Download debug file</a> (" . ( function_exists('human_filesize') ? human_filesize($list_debug, 1, true) : $list_debug . " bytes" ) . ")
 			<blockquote class='inline_help'>
-				This will delete the debug file, in general you don't want to have this enabled and running.
+				Enable and disable debugging, in general you don't want to have this enabled and running. Will automatically turn off after reboot.<br />
+				<span class=\"red\">WARNING! Logfile contains full serial numbers and all other information about your drive setup and layout.</span>
 			</blockquote>
 		";
 	}
+	$print_list_debug .= "</form>";
+	
 	if(!strstr($_SERVER["SCRIPT_NAME"], "page_system.php") && $db_update != 2) {
 		$list_undelete = force_undelete_devices($get_devices, 'r');
 		
@@ -397,7 +431,7 @@
 					<ul>
 						<li>\"SMART\" button will update only active (spinning) drives for SMART data, It might take a while to complete depending on your configuration.</li>
 						<li>You can also run \"SMART\" from the shell and get direct output which might be useful for debugging:<br />
-						<code style=\"white-space: nowrap;\">php -f " . CRONJOB_FILE . " cronjob [silent]</code></li>
+						<code style=\"white-space: nowrap;\">php -f " . CRONJOB_FILE . " start [silent]</code></li>
 					</ul>
 					<ul>
 						<li>\"Force SMART\" button will force update all drives for SMART data. This button will and must wake up all drives into a spinning state and does so one by one. It might take a while to complete depending on your configuration.</li>

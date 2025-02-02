@@ -19,9 +19,6 @@
 	 *
 	 */
 	
-	// Set to 1 (log to file) | 2 (same as 1, but prints directly on the page)| 3 (prints directly, limited log) to enable debugging (it is slow!):
-	$debugging_active = 0;
-	
 	// Set warning level
 	//error_reporting(E_ERROR | E_WARNING | E_PARSE);
 	error_reporting(E_ERROR);
@@ -50,22 +47,33 @@
 	define("SMART_ALL_FILE", "smart-all.cfg");
 	define("SMART_ONE_FILE", "smart-one.cfg");
 	
+	// $output = 0: off | 1: write logfile | 2: return log | 3: write logfile & return log
+	$debug = (file_exists(DISKLOCATION_TMP_PATH . "/.debug") ? 1 : 0 );
+	
+	$debug_log = array();
+	$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "debug()", "----- DEBUGGING SESSION STARTED -----");
+	
 	$get_page_info = array();
 	$get_page_info["Version"] = "";
 	$get_page_info = parse_ini_file("" . EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/disklocation.page");
 	define("DISKLOCATION_VERSION", $get_page_info["Version"]);
+	$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: get_page_info", $get_page_info);
 	
 	if(file_exists(DISKLOCATION_CONF)) {
 		$get_disklocation_config = json_decode(file_get_contents(DISKLOCATION_CONF), true);
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: get_disklocation_config", $get_disklocation_config);
 	}
 	if(file_exists(DISKLOCATION_DEVICES)) {
 		$get_devices = json_decode(file_get_contents(DISKLOCATION_DEVICES), true);
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: get_devices", $get_devices);
 	}
 	if(file_exists(DISKLOCATION_LOCATIONS)) {
 		$get_locations = json_decode(file_get_contents(DISKLOCATION_LOCATIONS), true);
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: get_locations", $get_locations);
 	}
 	if(file_exists(DISKLOCATION_GROUPS)) {
 		$get_groups = json_decode(file_get_contents(DISKLOCATION_GROUPS), true);
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: get_groups", $get_groups);
 	}
 	
 	$unraid_disks = array();
@@ -73,15 +81,19 @@
 	
 	if(is_file(EMHTTP_VAR . "/" . UNRAID_DISKS_FILE)) {
 		$unraid_disks = parse_ini_file(EMHTTP_VAR . "/" . UNRAID_DISKS_FILE, true);
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: unraid_disks", $unraid_disks);
 	}
 	if(is_file(EMHTTP_VAR . "/" . UNRAID_DEVS_FILE)) {
 		$unraid_devs = parse_ini_file(EMHTTP_VAR . "/" . UNRAID_DEVS_FILE, true);
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: unraid_devs", $unraid_devs);
 	}
 	if(is_file(UNRAID_CONFIG_PATH . "/" . SMART_ALL_FILE)) {
 		$unraid_smart_all = parse_ini_file(UNRAID_CONFIG_PATH . "/" . SMART_ALL_FILE, true);
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: unraid_smart_all", $unraid_smart_all);
 	}
 	if(is_file(UNRAID_CONFIG_PATH . "/" . SMART_ONE_FILE)) {
 		$unraid_smart_one = parse_ini_file(UNRAID_CONFIG_PATH . "/" . SMART_ONE_FILE, true);
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: unraid_smart_one", $unraid_smart_one);
 	}
 	
 	$disklocation_error = array();
@@ -101,6 +113,7 @@
 	if(!file_exists(DISKLOCATION_DEVICES)) { // do not load SQLite anymore if the devices.json exists.
 		$disklocation_new_install = 1;
 		require_once("sqlite_tables.php");
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "REQUIRE", "sqlite_tables.php");
 	}
 	//( (file_exists("sqlite_tables.php") && file_exists(DISKLOCATION_DEVICES) && file_exists(DISKLOCATION_LOCATIONS) && file_exists(DISKLOCATION_GROUPS)) ?? unlink("sqlite_table.php") );
 	
@@ -194,20 +207,23 @@
 		}
 		$i++;
 	}
+	$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: unraid_array", $unraid_array);
 	
 	// get all attached SCSI drives - usually should grab all local drives available
 	//$lsscsi_cmd = shell_exec("lsscsi -u -g");
 	$lsscsi_cmd = shell_exec("lsscsi -b -g");
 	$lsscsi_arr = explode(PHP_EOL, $lsscsi_cmd);
+	$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: lsscsi_arr", $lsscsi_arr);
 	
 	// get disk logs
 	if(file_exists(DISKLOGFILE)) {
 		$unraid_disklog = parse_ini_file(DISKLOGFILE, true);
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: unraid_disklog", $unraid_disklog);
 	}
 	
 	if(in_array("cronjob", $argv) || in_array("force", $argv)) {
 		if(!isset($argv[2])) { 
-			$debugging_active = 0;
+			$debug = 0;
 		}
 		set_time_limit(3600); // set to 1 hour.
 	}

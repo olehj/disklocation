@@ -81,7 +81,6 @@
 				<pre class=\"mono\" style=\"margin: 0; padding: 0 0 0 0;\">");
 		}
 	}
-	debug_print($debugging_active, __LINE__, "array", "DEVICES:" . count($get_devices ) . "");
 	
 	$i=0;
 	foreach($get_devices as $hash => $data) {
@@ -124,14 +123,13 @@
 				flush();
 				
 				$deviceid[$i] = $hash;
-				//$hdparm_cache_cmd = shell_exec("hdparm -T " . "/dev/" . $devicenode . "");
 				
 				for($dev=0;$dev<$iterations;$dev++) {
 					$hdparm_device_cmd = shell_exec("hdparm -t " . "/dev/" . $devicenode . "");
 					unset($this_device, $this_results);
 					list($nothing, $this_device, $this_results) = preg_split('/\r\n|\r|\n/', $hdparm_device_cmd);
 					list($garbage, $speed) = explode("=", $this_results);
-					list($garbage, $number, $unit) = explode(" ", $speed);
+					list($number, $unit) = explode(" ", trim($speed));
 					$smart_output = str_pad("[" . $dev+1 . "] " . $number . " ", 13);
 					print($smart_output);
 					$smart_log .= $smart_output;
@@ -207,5 +205,6 @@
 	if($smart_log) {
 		file_put_contents(DISKLOCATION_TMP_PATH."/benchmark." . date("Y-m-d") . ".log", $smart_log);
 	}
-
+	
+	$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "BENCHMARK LOGFILE", DISKLOCATION_TMP_PATH."/benchmark." . date("Y-m-d") . ".log");
 ?>

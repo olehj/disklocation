@@ -31,12 +31,14 @@
 		config_array(DISKLOCATION_DEVICES, 'w', $get_devices);
 		
 		$SUBMIT_RELOAD = 1;
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: hash_delete", $get_devices);
 	}
 	
 	if(isset($_POST["hash_remove"])) {
 		if(!force_set_removed_device_status($get_devices, $get_locations, $_POST["hash_remove"])) { print("<p style=\"color: red;\">ERROR: Could not set status for the drive with hash: " . $_POST["hash_remove"] . "</p>"); }
 		
 		$SUBMIT_RELOAD = 1;
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: hash_remove", $_POST["hash_remove"]);
 	}
 	
 	if(isset($_POST["hash_add"])) {
@@ -49,6 +51,7 @@
 		config_array(DISKLOCATION_DEVICES, 'w', $get_devices);
 		
 		$SUBMIT_RELOAD = 1;
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: hash_add", $get_devices);
 	}
 	
 	if(isset($_POST["group_add"])) {
@@ -69,6 +72,7 @@
 		config_array(DISKLOCATION_GROUPS, 'w', $groups);
 		
 		$SUBMIT_RELOAD = 1;
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: group_add", $groups);
 	}
 	if(isset($_POST["group_del"]) && isset($_POST["last_group_id"])) {
 		$gid = $_POST["last_group_id"];
@@ -89,6 +93,7 @@
 		config_array(DISKLOCATION_DEVICES, 'w', $devices);
 		
 		$SUBMIT_RELOAD = 1;
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: group_del", array($devices, $locations, $groups));
 	}
 	if(isset($_POST["group_swap"])) {
 		list($group_left, $group_right) = explode(":", $_POST["group_swap"]);
@@ -124,11 +129,10 @@
 		config_array(DISKLOCATION_LOCATIONS, 'w', $locations);
 		
 		$SUBMIT_RELOAD = 1;
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: group_swap", array($locations, $groups));
 	}
 	
 	if(isset($_POST["save_settings"])) {
-		debug_print($debugging_active, __LINE__, "POST", "Button: SAVE SETTINGS has been pressed.");
-		
 		if(isset($_POST["displayinfo"])) {
 			$post_info = json_encode($_POST["displayinfo"]);
 		}
@@ -195,17 +199,17 @@
 				$array[$key] = $data;
 			}
 			
-			debug_print($debugging_active, __LINE__, "SQL", "SETTINGS: <pre>" . $array . "</pre>");
-			
 			config_array(DISKLOCATION_CONF, 'w', $array);
 			
 			$SUBMIT_RELOAD = 1;
+			$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: save_settings", $array);
+		}
+		else {
+			$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: save_settings", $disklocation_error);
 		}
 	}
 	
 	if(isset($_POST["save_groupsettings"])) {
-		debug_print($debugging_active, __LINE__, "POST", "Button: SAVE GROUP SETTINGS has been pressed.");
-		
 		unset($_POST["save_groupsettings"]);
 		unset($_POST["last_group_id"]);
 		
@@ -235,11 +239,14 @@
 			config_array(DISKLOCATION_GROUPS, "w", $new_array);
 			
 			$SUBMIT_RELOAD = 1;
+			$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: save_groupsettings", $new_array);
+		}
+		else {
+			$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: save_groupsettings", $disklocation_error);
 		}
 	}
 	
 	if(isset($_POST["save_allocations"])) {
-		debug_print($debugging_active, __LINE__, "POST", "Button: SAVE ALLOCATIONS has been pressed.");
 		// trays
 		$post_drives = $_POST["drives"];
 		$post_groups = $_POST["groups"];
@@ -298,8 +305,6 @@
 				}
 			}
 			
-			debug_print($debugging_active, __LINE__, "SQL", "POPULATED: <pre>" . $results . "</pre>");
-			
 			config_array(DISKLOCATION_DEVICES, "w", $array_devices);
 			config_array(DISKLOCATION_LOCATIONS, "w", $array_locations);
 			
@@ -309,6 +314,10 @@
 			}
 			
 			$SUBMIT_RELOAD = 1;
+			$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: save_allocations", array($results, $array_devices, $array_locations, $new_disklog));
+		}
+		else {
+			$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: save_allocations", $disklocation_error);
 		}
 	}
 	
@@ -318,6 +327,8 @@
 		if(!preg_match("/(^$|1)/", $_POST["bench_median"])) { $disklocation_error[] = "Median value invalid."; }
 		if(!preg_match("/(^$|1)/", $_POST["bench_force"])) { $disklocation_error[] = "Force value invalid."; }
 		if(!preg_match("/(^$|1)/", $_POST["bench_auto_cron"])) { $disklocation_error[] = "Auto crontab value invalid."; }
+		if(!preg_match("/[0-9]{1,4}/", $_POST["bench_last_values"])) { $disklocation_error[] = "Last benchmarks value is not a number."; }
+		if($_POST["bench_last_values"] < 1 && $_POST["bench_last_values"] > 1000) { $disklocation_error[] = "Last benchmarks value is out of range."; };
 		
 		$_POST["bench_median"] = $_POST["bench_median"] ? 1 : 0;
 		$_POST["bench_force"] = $_POST["bench_force"] ? 1 : 0;
@@ -331,17 +342,17 @@
 				$array[$key] = $data;
 			}
 			
-			debug_print($debugging_active, __LINE__, "SQL", "SETTINGS: <pre>" . $array . "</pre>");
-			
 			config_array(DISKLOCATION_CONF, 'w', $array);
 			
 			$SUBMIT_RELOAD = 1;
+			$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: save_benchmark_settings", $array);
+		}
+		else {
+			$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: save_benchmark_settings", $disklocation_error);
 		}
 	}
 	
 	if(isset($_POST["sort"])) {
-		debug_print($debugging_active, __LINE__, "POST", "Button: SORT has been pressed.");
-		
 		list($table, $dir, $column) = explode(":", $_POST["sort"]);
 		
 		$sort = $dir . ":" . $column;
@@ -349,25 +360,29 @@
 		${"sort_db_" . $table . "_override"} = $sort;
 		
 		$SUBMIT_RELOAD = 0;
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: sort", $sort);
 	}
 	
 	if(isset($_POST["sort_reset"])) {
-		debug_print($debugging_active, __LINE__, "POST", "Button: SORT RESET has been pressed.");
 		$SUBMIT_RELOAD = 1;
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: sort_reset", "true");
 	}
 	
 	if(isset($_POST["reset_all_colors"])) {
 		force_reset_color($get_disklocation_config, $get_devices, $get_groups, "*");
 		$SUBMIT_RELOAD = 1;
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: reset_all_colors", "true");
 	}
 	if(isset($_POST["reset_common_colors"])) {
 		force_reset_color($get_disklocation_config, $get_devices, $get_groups);
 		$SUBMIT_RELOAD = 1;
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: force_reset_color", "true");
 	}
 	
 	if(isset($_POST["disk_ack_all_ok"]) && isset($_POST["disk_ack_drives"])) {
 		set_disk_ack($_POST["disk_ack_drives"], EMHTTP_VAR . "/" . UNRAID_MONITOR_FILE);
 		$SUBMIT_RELOAD = 1;
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: disk_ack_all_ok", "true");
 	}
 	
 	// RELOAD: get settings from DB as $var
@@ -382,4 +397,7 @@
 	$total_groups = ( is_array($array_groups) ? count($array_groups) : 0 );
 	
 	$last_group_id = ( is_array($array_groups) ? array_key_last($array_groups) : 0 );
+	
+	$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "VAR: total_groups", $total_groups);
+	$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "VAR: last_group_id", $last_group_id);
 ?>

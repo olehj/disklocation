@@ -79,4 +79,5 @@
 	$bench_median = 	1;		// skip slowest and fastest results before calculating the average
 	$bench_force = 		1;		// force run benchmark regardless of SMART power status
 	$bench_auto_cron =	0;		// run benchmark monthly, $bench_force will be ignored and set to 1 during cronjob.
+	$bench_last_values =   12;		// set number of benchmarks to include, from the last one.
 ?>

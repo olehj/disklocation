@@ -227,6 +227,10 @@
 		$devices[$hash]["formatted"]["expires"] = "" . $warranty_left . "";
 		$devices[$hash]["formatted"]["manufactured"] = $devices[$hash]["raw"]["manufactured"];
 		
+		// get benchmarks
+		$benchmark_file[$hash] = UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/benchmark/".str_replace(" ", "_", $data["model_name"])."_" . $data["smart_serialnumber"] . ".json";
+		$devices[$hash]["benchmark"] = file_exists($benchmark_file[$hash]) ? array_slice(json_decode(file_get_contents($benchmark_file[$hash]), true), "-" . $bench_last_values . "") : null ;
+		
 		if(empty($devices[$hash]["raw"]["status"]) || $devices[$hash]["raw"]["status"] == 'h') {
 			$count_installed_devices++;
 		}

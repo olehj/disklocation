@@ -170,9 +170,9 @@
 </form>
 <h2>
 	Export:
-	<a href="<?php echo DISKLOCATION_PATH ?>/pages/export_tsv.php?download_csv=1">formatted</a>
+	<a href="<?php echo DISKLOCATION_PATH ?>/pages/export_info_tsv.php?download_csv=1">formatted</a>
 	|
-	<a href="<?php echo DISKLOCATION_PATH ?>/pages/export_tsv.php?download_csv=1&amp;raw_data_csv=1">raw data</a>
+	<a href="<?php echo DISKLOCATION_PATH ?>/pages/export_info_tsv.php?download_csv=1&amp;raw_data_csv=1">raw data</a>
 	
 </h2>
 <blockquote class='inline_help'>

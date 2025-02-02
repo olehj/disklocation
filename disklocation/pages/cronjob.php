@@ -1,4 +1,4 @@
-<?php
+// <?php
 	/*
 	 *  Copyright 2019-2025, Ole-Henrik Jakobsen
 	 *
@@ -80,7 +80,7 @@
 	$force_scan_db = 0;
 	
 	// add and update disk info
-	if(isset($_POST["force_smartdb_scan"]) || isset($_GET["force_smartdb_scan"]) || isset($_POST["force_smart_scan"]) || isset($_GET["force_smart_scan"]) || isset($_GET["crontab"]) || in_array("install", $argv) || in_array("force", $argv) || in_array("forceall", $argv)) {
+	if(isset($_POST["force_smartdb_scan"]) || isset($_GET["force_smartdb_scan"]) || isset($_POST["force_smart_scan"]) || isset($_GET["force_smart_scan"]) || in_array("install", $argv) || in_array("force", $argv) || in_array("forceall", $argv)) {
 		$force_scan = 1; // trigger force_smart_scan post if it is a new install or if it is forced at CLI
 	}
 	
@@ -94,7 +94,7 @@
 		}
 	}
 	
-	if($force_scan || in_array("cronjob", $argv) || $_GET["active_smart_scan"] || $_POST["active_smart_scan"]) {
+	if($force_scan || in_array("start", $argv) || $_GET["active_smart_scan"] || $_POST["active_smart_scan"]) {
 		if(!file_exists("/tmp/disklocation/smart")) {
 			mkdir("/tmp/disklocation/smart");
 		}
@@ -109,7 +109,7 @@
 				print("Disk Location is performing background tasks, please wait.");
 			}
 			while(file_exists(DISKLOCATION_LOCK_FILE)) {
-				debug_print($debugging_active, __LINE__, "delay", "PGREP: Cronjob running, retry: $retry_delay");
+				$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "PGREP: Cronjob running, retry: " . $retry_delay . "");
 				if(!isset($argv) || !in_array("silent", $argv)) {
 					print(".");
 				}
@@ -127,7 +127,8 @@
 		
 		$i=0;
 		
-		debug_print($debugging_active, __LINE__, "array", "LSSCSI:" . count($lsscsi_arr) . "");
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "LSSCSI:" . count($lsscsi_arr) . "");
+		
 		while($i < count($lsscsi_arr)) {
 			usleep($smart_exec_delay . 000); // delay script to get the output of the next shell_exec()
 			$time_start_individual = hrtime(true);
@@ -145,7 +146,7 @@
 			$lsscsi_devicenodesg[$i] = $lsscsi_parser_array["sgnode"];				// get the full path to SCSI Generic device node: "/dev/sg1|/dev/nvme*"
 			
 			if($lsscsi_device[$i] && $lsscsi_devicenodesg[$i]) {
-				debug_print($debugging_active, __LINE__, "loop", "Scanning: " . $lsscsi_device[$i] . " Node: " . $lsscsi_devicenodesg[$i] . "");
+				$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "Scanning: " . $lsscsi_device[$i] . " Node: " . $lsscsi_devicenodesg[$i] . "");
 				
 				$smart_check_operation = shell_exec("smartctl -n standby " . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . " | grep -i 'Device'");
 				$smart_powermode = (isset($smart_check_operation) ? trim($smart_check_operation) : '');
@@ -192,7 +193,7 @@
 					
 					$smart_model_name = ( $smart_array["scsi_model_name"] ? $smart_array["scsi_model_name"] : $smart_array["model_name"] );
 					
-					debug_print($debugging_active, __LINE__, "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "|PROTOCOL=" . ( isset($smart_array["device"]["protocol"]) ? $smart_array["device"]["protocol"] : null . ""));
+					$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "|PROTOCOL=" . ( isset($smart_array["device"]["protocol"]) ? $smart_array["device"]["protocol"] : null . ""));
 					
 					$deviceid[$i] = hash('sha256', $smart_model_name . ( isset($smart_array["serial_number"]) ? $smart_array["serial_number"] : null));
 					
@@ -202,8 +203,9 @@
 						file_put_contents($filename_smart_data_tmp, $smart_cmd[$i]);
 					}
 					
-					debug_print($debugging_active, __LINE__, "SMART", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "=" . ( is_array($smart_array) ? "array" : "empty" ) . "");
-					debug_print($debugging_active, __LINE__, "SMART", "CMD: smartctl $smart_standby_cmd -x --json --quietmode=silent " . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . "");
+					$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "=" . ( is_array($smart_array) ? "array" : "empty" ) . "");
+					$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "CMD: smartctl $smart_standby_cmd -x --json --quietmode=silent " . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" .
+					$unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . "");
 					$smart_lun = "";
 
 					if(!isset($argv) || !in_array("silent", $argv)) {
@@ -220,7 +222,7 @@
 					}
 					
 					if($force_scan_db) {
-						debug_print($debugging_active, __LINE__, "HASH", "#:" . $i . ":" . $deviceid[$i] . "");
+						$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "#:" . $i . ":" . $deviceid[$i] . "");
 						
 						$smart_model_family = ( $smart_array["scsi_product"] ? $smart_array["scsi_product"] : ( $smart_array["product"] ?: $smart_array["model_family"] ) );
 						$smart_cache = get_smart_cache("" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . "");
@@ -288,7 +290,7 @@
 							$devices = array_replace_recursive($location_update, $new_device);
 						}
 						else {
-							debug_print($debugging_active, __LINE__, "DB", "#:" . $i . ":<pre>Invalid SMART information, skipping...</pre>");
+							$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "#:" . $i . ":Invalid SMART information, skipping.");
 						}
 					}
 				}
@@ -305,7 +307,7 @@
 						$smart_log .= $smart_output;
 					}
 					
-					if(!isset($argv) || !in_array("cronjob", $argv) && !in_array("force", $argv)) {
+					if(!isset($argv) || !in_array("start", $argv) && !in_array("force", $argv)) {
 						//print("<br />");
 					}
 				}
@@ -318,7 +320,7 @@
 		}
 		
 		if($force_scan_db) {
-			debug_print($debugging_active, __LINE__, "DB", "#:<pre>" . $devices . "</pre>");
+			$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "#:" . $devices . "");
 			
 			if(!isset($argv) || !in_array("silent", $argv)) { 
 				$smart_output = "\nWriting to the database... ";
@@ -359,6 +361,8 @@
 	if($smart_log) {
 		file_put_contents(DISKLOCATION_TMP_PATH."/cron_smart.log", $smart_log);
 	}
+	
+	$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB LOGFILE", DISKLOCATION_TMP_PATH."/cron_smart.log");
 	
 	if(file_exists(DISKLOCATION_LOCK_FILE)) {
 		unlink(DISKLOCATION_LOCK_FILE);
