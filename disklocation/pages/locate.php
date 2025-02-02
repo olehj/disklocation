@@ -32,7 +32,4 @@
 		shell_exec("pkill -f smartlocate");
 		exit;
 	}
-	
-	// Kill all on reload:
-	shell_exec("pkill -f smartlocate");
 ?>
