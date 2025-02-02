@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2023, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2025, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -32,7 +32,4 @@
 		shell_exec("pkill -f smartlocate");
 		exit;
 	}
-	
-	// Kill all on reload:
-	shell_exec("pkill -f smartlocate");
 ?>

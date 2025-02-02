@@ -18,20 +18,13 @@
 	 *  along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
 	 *
 	 */
+	
 	unset($disklocation_page);
 	unset($disklocation_layout);
 	
 	$biggest_tray_group = 0;
 	$total_trays_group = 0;
 	$datajson = array();
-	
-	$zfs_check = 0;
-	if(zfs_check()) {
-		$zfs_parser = zfs_parser();
-		$lsblk_array = json_decode(shell_exec("lsblk -p -o NAME,MOUNTPOINT,SERIAL,PATH --json"), true);
-		$zfs_check = 1;
-	}
-	
 	$array_groups = $get_groups;
 	( is_array($array_groups) ?? ksort($array_groups, SORT_NUMERIC) );
 	$array_devices = $get_devices;

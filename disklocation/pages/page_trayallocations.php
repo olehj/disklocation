@@ -388,10 +388,13 @@
 							<hr />
 							<input type="submit" name="save_allocations" value="Save" />
 							<span style="padding-left: 50px;"></span>
+							<input type="submit" name="killall_smartlocate" value="Force Stop All Locate" />
+							<span style="padding-left: 50px;"></span>
 							<input type="submit" name="reset_all_colors" value="Reset All Custom Colors" /> <b>or choose "Empty" color (first color listed) per device under "Custom Color" to reset, and then hit the "Save" button.</b>
 							<blockquote class='inline_help'>
 								<ul>
 									<li>"Save" button will store all information entered.</li>
+									<li>"Force stop locate" button will terminate all "Locate" runs.</li>
 									<li>"Reset All Custom Colors" will delete all custome stored colors from the database.</li>
 								</ul>
 							</blockquote>

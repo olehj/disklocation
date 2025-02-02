@@ -235,5 +235,5 @@
 			$count_installed_devices++;
 		}
 	}
-	//print_r($devices); die(); // for debugging
+	$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: devices", $devices);
 ?>

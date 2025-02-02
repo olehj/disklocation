@@ -162,8 +162,6 @@
 		$count_groups++;
 	}
 	
-	$signal_css = config(DISKLOCATION_CONF, 'r', 'signal_css');
-	
 	list($table_order_user, $table_order_system, $table_order_name, $table_order_full) = get_table_order("all", 0);
 	array_multisort($table_order_user, $table_order_system, $table_order_name, $table_order_full);
 	$arr_length = count($table_order_user);
@@ -562,4 +560,6 @@ $(document).ready(function(){
 	</table>
 </form>
 </td></tr></table>
-<?php if($db_update == 2) { print("-->"); } ?>
+<?php
+	if($db_update == 2) { print("-->"); }
+?>

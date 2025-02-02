@@ -112,7 +112,7 @@
 				$graph_pos_y = $graph_height - round(($percent * $graph_height) / 100);
 				$graph_pos .= "" . $graph_dates_x . "," . $graph_pos_y . "\n";
 				
-				$graph_pos_dots .= "<circle class=\"bench-graph-dot\" cx=\"" . $graph_dates_x . "\" cy=\"" . $graph_pos_y . "\" data-value=\"" . $speed . "\" r=\"5\" title=\"" . $date . "\"><title>" . $speed . " MB/s</title></circle>\n";
+				$graph_pos_dots .= "<circle class=\"bench-graph-dot\" cx=\"" . $graph_dates_x . "\" cy=\"" . $graph_pos_y . "\" data-value=\"" . round($speed) . "\" r=\"5\" title=\"" . $date . "\"><title>" . round($speed) . " MB/s</title></circle>\n";
 				
 				$graph_dates_x+=100;
 			}

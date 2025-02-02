@@ -605,7 +605,7 @@
 		if(is_file("/usr/sbin/zpool")) {
 			$status = shell_exec("/usr/sbin/zpool status");
 			if(preg_match("/\bstate\b/i", $status)) {
-				return 1;
+				return $status;
 			}
 			else {
 				return 0;
@@ -615,31 +615,16 @@
 			return 0;
 		}
 	}
-	
-	function zfs_pools() {
-		$str = shell_exec("/usr/sbin/zpool list");
-		$matches = preg_split("/\r\n|\n|\r/", $str);
+	function zfs_parser($str) {
 		$result = array();
 		
-		$i = 1; // skip first row
-		while($i < count($matches)) {
-			list($NAME,$SIZE,$ALLOC,$FREE,$CKPOINT,$EXPANDSZ,$FRAG,$CAP,$DEDUP,$HEALTH,$ALTROOT) = explode(" ", $matches[$i]);
-			$result[] = $NAME;
-			$i++;
-		}
+		$pools_pattern = "/pool:.*errors:.*(\n\n|$)/Uis";
+		preg_match_all($pools_pattern, $str, $pools, PREG_SET_ORDER);
 		
-		return array_filter($result);
-	}
-	
-	function zfs_parser() {
-		$pools = zfs_pools();
-		
-		$result = array();
 		$i = 0;
 		while($i < count($pools)) {
-			$str = shell_exec("/usr/sbin/zpool status " . $pools[$i] . "");
 			$pattern = "/((pool|state|scan|errors): (.*)?\n|(config):[\s]+(.*)?\s\n)/Uis";
-			preg_match_all($pattern, $str, $matches, PREG_SET_ORDER);
+			preg_match_all($pattern, $pools[$i][0], $matches, PREG_SET_ORDER);
 			
 			foreach($matches as $match) {
 				$length = count($match);

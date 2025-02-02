@@ -126,6 +126,7 @@
 		$print_csv[$i_drive+1][$i+0] = "Disk Location";
 		$print_csv[$i_drive+1][$i+1] = "" . DISKLOCATION_VERSION . "";
 		$print_csv[$i_drive+1][$i+2] = ( isset($_GET["raw_data_csv"]) ? "RAW" : "FORMATTED" );
+		$print_csv[$i_drive+1][$i+3] = date("Y-m-d");
 		//print_r($print_csv);
 		array_to_csv_download($print_csv, "disklocation-" . date("Ymd-His") . "" . $raw_data_csv_file . ".tsv", "\t");
 	}

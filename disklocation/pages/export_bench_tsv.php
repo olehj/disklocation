@@ -55,13 +55,13 @@
 		}
 		for($i=1; $i < count($print_csv[0])+1; ++$i) {
 			for($i2=0; $i2 < count($drive_array); ++$i2) {
-				$print_csv[$i2+1][$i] = $benchmark[$drive_array[$i2]][$print_csv[0][$i]];
+				$print_csv[$i2+1][$i] = ( !empty($benchmark[$drive_array[$i2]][$print_csv[0][$i]]) ? round($benchmark[$drive_array[$i2]][$print_csv[0][$i]]) : '' );
 			}
 		}
 		
 		$rows = count($drive_array)+2;
-		$print_csv[$rows][0] = "Disk Location - Benchmark";
-		$print_csv[$rows][1] = "" . DISKLOCATION_VERSION . "";
+		$print_csv[$rows][0] = "Disk Location (" . DISKLOCATION_VERSION . ") Benchmark";
+		$print_csv[0][0] = "Exported: " . date("Y-m-d");
 		//print_r($print_csv);
 		array_to_csv_download($print_csv, "disklocation-benchmark-" . date("Ymd-His") . ".tsv", "\t");
 	}

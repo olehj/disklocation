@@ -1,4 +1,4 @@
-// <?php
+<?php
 	/*
 	 *  Copyright 2019-2025, Ole-Henrik Jakobsen
 	 *
@@ -19,6 +19,7 @@
 	 *
 	 */
 	require_once("functions.php");
+	require_once("default_settings.php");
 	
 	$smart_exec_delay = 200; // set milliseconds for next execution for SMART shell_exec - needed to actually grab all the information for unassigned devices. Default: 200
 	
@@ -55,7 +56,7 @@
 					src:url('/webGui/styles/bitstream.eot');src:url('/webGui/styles/bitstream.eot?#iefix') format('embedded-opentype'),url('/webGui/styles/bitstream.woff') format('woff'),url('/webGui/styles/bitstream.ttf') format('truetype'),url('/webGui/styles/bitstream.svg#bitstream') format('svg');
 					}
 					html{font-family:clear-sans;font-size:62.5%;height:100%}
-					body{font-size:1.2rem;color:#1c1c1c;background:#f2f2f2;padding:0;margin:0;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+					body{font-size:1.2rem;color:#f2f2f2;background:#" . $bgcolor_empty . ";padding:0;margin:0;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 					.mono {font: small 'lucida console', Monaco, monospace;}
 					input[type=button],input[type=reset],input[type=submit],button,button[type=button],a.button { 
 						font-family:clear-sans;font-size:1.1rem;font-weight:bold;letter-spacing:2px;text-transform:uppercase;margin:10px 12px 10px 0;padding:9px 18px;text-decoration:none;white-space:nowrap;cursor:pointer;outline:none;border-radius:4px;border:0;color:#ff8c2f;background:-webkit-gradient(linear,left top,right top,from(#e22828),to(#ff8c2f)) 0 0 no-repeat,-webkit-gradient(linear,left top,right top,from(#e22828),to(#ff8c2f)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#e22828),to(#e22828)) 0 100% no-repeat,-webkit-gradient(linear,left bottom,left top,from(#ff8c2f),to(#ff8c2f)) 100% 100% no-repeat;background:linear-gradient(90deg,#e22828 0,#ff8c2f) 0 0 no-repeat,linear-gradient(90deg,#e22828 0,#ff8c2f) 0 100% no-repeat,linear-gradient(0deg,#e22828 0,#e22828) 0 100% no-repeat,linear-gradient(0deg,#ff8c2f 0,#ff8c2f) 100% 100% no-repeat;background-size:100% 2px,100% 2px,2px 100%,2px 100%
@@ -86,12 +87,7 @@
 	
 	if(isset($_POST["force_smartdb_scan"]) || isset($_GET["force_smartdb_scan"]) || in_array("install", $argv) || in_array("forceall", $argv)) {
 		$force_scan_db = 1; // trigger force_smart_scan post if it is a new install or if it is forced at CLI
-		$zfs_check = 0;
-		if(zfs_check()) {
-			$zfs_parser = zfs_parser();
-			$lsblk_array = json_decode(shell_exec("lsblk -p -o NAME,MOUNTPOINT,SERIAL,PATH --json"), true);
-			$zfs_check = 1;
-		}
+		include("system.php");
 	}
 	
 	if($force_scan || in_array("start", $argv) || $_GET["active_smart_scan"] || $_POST["active_smart_scan"]) {
@@ -121,7 +117,6 @@
 			if(!file_exists(DISKLOCATION_LOCK_FILE)) {
 				mkdir(dirname(DISKLOCATION_LOCK_FILE), 0755, true);
 				touch(DISKLOCATION_LOCK_FILE);
-				print("\n");
 			}
 		}
 		

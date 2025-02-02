@@ -30,7 +30,7 @@
 	define("DISKLOCATION_URL", "/Tools/disklocation");
 	define("DISKLOCATIONCONF_URL", "/Tools/disklocation");
 	define("DISKLOCATION_PATH", "/plugins/disklocation");
-	define("DISKLOCATION_TMP_PATH", "/tmp/disklocation");
+	define("DISKLOCATION_TMP_PATH", "/tmp/disklocation"); // DISKLOCATION_TMP_PATH is also defined in disklocation_devices.page as it has to be defined early.
 	define("DISKLOCATION_CONF", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/settings.json");
 	define("DISKLOCATION_DEVICES", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/devices.json");
 	define("DISKLOCATION_LOCATIONS", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/locations.json");
@@ -47,9 +47,9 @@
 	define("SMART_ALL_FILE", "smart-all.cfg");
 	define("SMART_ONE_FILE", "smart-one.cfg");
 	
-	// $output = 0: off | 1: write logfile | 2: return log | 3: write logfile & return log
-	$debug = (file_exists(DISKLOCATION_TMP_PATH . "/.debug") ? 1 : 0 );
+	$page_time_load =  array();
 	
+	// $debug is defined in disklocation_devices.page as it has to be defined early.
 	$debug_log = array();
 	$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "debug()", "----- DEBUGGING SESSION STARTED -----");
 	
@@ -210,7 +210,6 @@
 	$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: unraid_array", $unraid_array);
 	
 	// get all attached SCSI drives - usually should grab all local drives available
-	//$lsscsi_cmd = shell_exec("lsscsi -u -g");
 	$lsscsi_cmd = shell_exec("lsscsi -b -g");
 	$lsscsi_arr = explode(PHP_EOL, $lsscsi_cmd);
 	$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: lsscsi_arr", $lsscsi_arr);

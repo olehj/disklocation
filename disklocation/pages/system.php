@@ -21,6 +21,14 @@
 	
 	require_once("functions.php");
 	
+	$zfs_check = zfs_check();
+	if(!empty($zfs_check)) {
+		$zfs_parser = ( empty($zfs_parser) ? zfs_parser($zfs_check) : $zfs_parser );
+		$lsblk_array = json_decode(shell_exec("lsblk -p -o NAME,MOUNTPOINT,SERIAL,PATH --json"), true);
+		$zfs_check = 1;
+	}
+	if(!empty($force_scan_db)) { return true; } // do not run rest of this file if it's a cronjob.
+	
 	if(isset($_POST["hash_delete"])) {
 		foreach($get_devices as $key => $data) {
 			if($_POST["hash_delete"] == $key) {
@@ -383,6 +391,12 @@
 		set_disk_ack($_POST["disk_ack_drives"], EMHTTP_VAR . "/" . UNRAID_MONITOR_FILE);
 		$SUBMIT_RELOAD = 1;
 		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: disk_ack_all_ok", "true");
+	}
+	
+	if(isset($_POST["killall_smartlocate"])) {
+		shell_exec("pkill -f smartlocate");
+		$SUBMIT_RELOAD = 1;
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: killall_smartlocate", "true");
 	}
 	
 	// RELOAD: get settings from DB as $var
