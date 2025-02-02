@@ -1,4 +1,4 @@
-// <?php
+<?php
 	/*
 	 *  Copyright 2019-2025, Ole-Henrik Jakobsen
 	 *
