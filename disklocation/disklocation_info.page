@@ -4,5 +4,9 @@ Tag="info"
 Title="Information"
 ---
 <?php
+	$time_start = (isset($_GET["benchmark"]) ? hrtime(true) : null);
+	
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/page_info.php");
+	
+	print(isset($_GET["benchmark"]) ? "<h1 style=\"position: fixed; left: 5px; bottom: 20px; white-space: no-wrap; color: #0099FF; background-color: #111111;\">This tab completed in " . (round((hrtime(true)-$time_start)/1e+6, 1) . " milliseconds.</h1>\n") : null);
 ?>
