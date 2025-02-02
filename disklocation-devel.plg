@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.01.30-1812">
+<!ENTITY version          "2025.02.02-0403">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -221,16 +221,26 @@ logit "Configuring..."
   <!--# Add cronjob for Disk Location -->
   cat &gt;&pluginLOC;-&branch;/disklocation.cron &lt;&lt;EOL
 # Crontab for Disk Location plugin to retrieve SMART data, power status and run backup in the background.
-@reboot php -f &emhttpLOC;/pages/cronjob.php cronjob silent &amp;&gt; /dev/null
-56 */12 * * * php -f &emhttpLOC;/pages/cronjob.php cronjob silent &amp;&gt; /dev/null
-*/5 * * * * php -f &emhttpLOC;/pages/cronjob.php cronjob status &amp;&gt; /dev/null
+56 */12 * * * php -f &emhttpLOC;/pages/cronjob.php start silent &amp;&gt; /dev/null
+*/5 * * * * php -f &emhttpLOC;/pages/cronjob.php start status silent &amp;&gt; /dev/null
 0 0 * * * php -f &emhttpLOC;/pages/page_system.php backup auto silent &amp;&gt; /dev/null
 0 5 1 * * php -f &emhttpLOC;/pages/benchmark.php auto silent &amp;&gt; /dev/null
 EOL
 
-  php -f &emhttpLOC;/pages/cronjob.php cronjob status
+  php -f &emhttpLOC;/pages/cronjob.php start status
   chmod +x &pluginLOC;-&branch;/disklocation.cron
   /usr/local/sbin/update_cron
+
+# Consider if this is an installation or newly booted server. If the system has been running for less than 15 minutes, run cronjob to gather SMART data. @reboot cron does not work on Unraid.
+  UPTIME_DATE=`uptime -s`
+  UPTIME_UNIX=`date --date "$UPTIME_DATE" +%s`
+  UPTIME_SEC=$((`date +%s` - $UPTIME_UNIX))
+  if [ $UPTIME_SEC -lt 900 ]; then
+    logit "System newly booted, gathering SMART data"
+    php -f &emhttpLOC;/pages/cronjob.php install
+  else
+    logit "Uptime is above 15 minutes: Force SMART must be started manually unless the files already exists."
+  fi
   
   logit "Plugin installed successfully!"
   exit 0
