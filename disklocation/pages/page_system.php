@@ -106,12 +106,13 @@
 		else {
 			$json = json_decode($gzdata, true);
 			foreach($json as $filename => $content) {
+				if(!file_exists(dirname($dst . $filename))) { mkdir(dirname($dst . $filename), 0777, 1); }
 				file_put_contents($dst . $filename, $json[$filename]);
 			}
 		}
 	}
 	
-	function database_backup($files, $backup_location) {
+	function database_backup($files, $destination, $backup_filename = 'disklocation') {
 		$files = explode(",", $files);
 		for($i=0; $i < count($files); ++$i) {
 			if(file_exists($files[$i])) {
@@ -119,23 +120,23 @@
 			}
 		}
 		$datetime = date("Ymd-His");
-		mkdir($backup_location . "/" . $datetime, 0700, true);
+		mkdir($destination . "/" . $datetime, 0700, true);
 		
 		if(!empty($file)) {
 			if(in_array(DISKLOCATION_DB, $file)) {
-				compress_file($file, $backup_location . "/" . $datetime . "/disklocation.sqlite.gz");
+				compress_file($file, $destination . "/" . $datetime . "/" . $backup_filename . ".sqlite.gz");
 			}
 			else {
-				compress_file($file, $backup_location . "/" . $datetime . "/disklocation.json.gz");
+				compress_file($file, $destination . "/" . $datetime . "/" . $backup_filename . ".json.gz");
 			}
 		}
 		else {
 			return "No files available.";
 		}
 	}
-	function database_restore($file, $restore_location) {
+	function database_restore($file, $destination) {
 		if(str_contains($file, "sqlite")) {
-			$restore_location = DISKLOCATION_DB;
+			$destination = DISKLOCATION_DB;
 			// must delete new json files if restoring old SQLite DB:
 			( file_exists(DISKLOCATION_CONF) ? unlink(DISKLOCATION_CONF) : false );
 			( file_exists(DISKLOCATION_DEVICES) ? unlink(DISKLOCATION_DEVICES) : false );
@@ -144,7 +145,7 @@
 		}
 		
 		if(file_exists($file)) {
-			decompress_file($file, $restore_location);
+			decompress_file($file, $destination);
 		}
 		else {
 			return "Database does not exist.";
@@ -155,6 +156,7 @@
 		if($type == "backup") {
 			if($operation == "list") {
 				$file = explode("\n", (shell_exec("ls -1 " . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/*/*.gz")));
+				
 				for($i=0; $i < count($file); ++$i) {
 					if(!empty($file[$i])) {
 						$array[$i]["file"] = $file[$i];
@@ -214,6 +216,28 @@
 				unlink("" . DISKLOCATION_TMP_PATH . "/disklocation.log");
 			}
 		}
+		
+		if($type == "reset") {
+			if($operation == "settings" || $operation == "all" || $operation == "wipe") {
+				unlink(DISKLOCATION_CONF);
+			}
+			if($operation == "groups" || $operation == "all" || $operation == "wipe") {
+				unlink(DISKLOCATION_GROUPS);
+				unlink(DISKLOCATION_LOCATIONS);
+			}
+			if($operation == "locations" || $operation == "all" || $operation == "wipe") {
+				unlink(DISKLOCATION_LOCATIONS);
+			}
+			if($operation == "devices" || $operation == "all" || $operation == "wipe") {
+				unlink(DISKLOCATION_DEVICES);
+			}
+			if($operation == "wipe") {
+				array_map('unlink', glob(DISKLOCATION_TMP_PATH . "/smart/*.json"));
+				rmdir(DISKLOCATION_TMP_PATH . "/smart");
+				array_map('unlink', glob(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/benchmark/*.json"));
+				rmdir(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/benchmark");
+			}
+		}
 
 	}
 	if(isset($_POST["res_backup"])) {
@@ -266,21 +290,34 @@
 		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
+	if(isset($_POST["reset"]) && isset($_POST["reset_op"])) {
+		disklocation_system('reset', $_POST["reset_op"]);
+		header("Location: " . DISKLOCATION_URL . "");
+		exit;
+	}
+		
 	if(isset($_POST["backup_db"]) || in_array("backup", $argv)) {
 		if(file_exists(DISKLOCATION_DEVICES) && file_exists(DISKLOCATION_GROUPS) && file_exists(DISKLOCATION_LOCATIONS)) {
+			if(file_exists(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/benchmark/")) {
+				$benchmark_files = array_diff(scandir(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/benchmark/"), array('..', '.'));
+				foreach($benchmark_files as $file => $foo) {
+					$benchmark_backup[] = UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/benchmark/" . $benchmark_files[$file];
+				}
+				$get_benchmark_files = implode(",", $benchmark_backup);
+			}
+			
 			if(in_array("auto", $argv)) {
 				$get_backup_files = disklocation_system("backup", "list");
 				$get_backup_files = end($get_backup_files);
 				
-				$time_backup = preg_replace("/" . preg_quote(UNRAID_CONFIG_PATH, "/") . "" . preg_quote(DISKLOCATION_PATH, "/") . "\/backup\/(.*)\/disklocation.json.gz/", "$1", $get_backup_files["file"]);
+				$time_backup = trim(str_replace(dirname($get_backup_files["file"], 2) . "/", '', dirname($get_backup_files["file"], 1)));
 				
 				$time_now = new DateTime("now");
 				$time_backup = DateTime::createFromFormat('Ymd-His', $time_backup);
 				$time_diff = $time_now->diff($time_backup);
 				
 				if($auto_backup_days && $time_diff->format("%a") > $auto_backup_days) {
-					database_backup(DISKLOCATION_CONF.",".DISKLOCATION_DEVICES.",".DISKLOCATION_GROUPS.",".DISKLOCATION_LOCATIONS, "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/");
-					
+					database_backup(DISKLOCATION_CONF.",".DISKLOCATION_DEVICES.",".DISKLOCATION_GROUPS.",".DISKLOCATION_LOCATIONS.( !empty($get_benchmark_files) ? "," . $get_benchmark_files : null ), "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/");
 					print(in_array("silent", $argv) ? null : "Previous backup was more than $auto_backup_days days old, new backup created.\n");
 				}
 				else {
@@ -288,7 +325,7 @@
 				}
 			}
 			else {
-				database_backup(DISKLOCATION_CONF.",".DISKLOCATION_DEVICES.",".DISKLOCATION_GROUPS.",".DISKLOCATION_LOCATIONS, "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/");
+				database_backup(DISKLOCATION_CONF.",".DISKLOCATION_DEVICES.",".DISKLOCATION_GROUPS.",".DISKLOCATION_LOCATIONS.( !empty($get_benchmark_files) ? "," . $get_benchmark_files : null ), "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/");
 			}
 		}
 		else {
@@ -312,7 +349,12 @@
 	if($list_backup) {
 		$print_list_backup .= "
 			<form action=\"" . DISKLOCATION_PATH . "/pages/page_system.php\" method=\"post\">
-				<h3>Database backups</h3><br />
+				<h3 style=\"padding: 0; margin: 0;\">Database backups</h3>
+				<p>
+					Backup your configuration and benchmarks. When restoring, you must likely run a Force SMART+DB afterwards.<br />
+					This will NOT backup Unraid files (data containing manufacturer and purchase date and warranty period including SMART acknowledgements.). ONLY plugin related files.
+				</p>
+				<br />
 				<table style=\"width: 0;\">
 					<tr>
 						<td></td>
@@ -320,18 +362,30 @@
 							<b>File</b>
 						</td>
 						<td style=\"padding: 0 0 0 20px;\">
+							<b>Type</b>
+						</td>
+						<td style=\"padding: 0 0 0 20px;\">
 							<b>Size</b>
 						</td>
 					</tr>
 		";
 		for($i=0; $i < count($list_backup); ++$i) {
+			
+			$file_type = ( strstr($list_backup[$i]["file"], "json") ? "JSON" : "SQLite" );
+			$date_file = trim(str_replace(dirname($list_backup[$i]["file"], 2) . "/", "", dirname($list_backup[$i]["file"], 1)));
+			$date_file = DateTime::createFromFormat('Ymd-His', $date_file);
+			$date_file = $date_file->format("Y-m-d H:i:s");
+			
 			$print_list_backup .= "
 					<tr>
 						<td>
 							<input type=\"radio\" name=\"backup_file_list\" value=\"" . $list_backup[$i]["file"] . "\" />
 						</td>
 						<td style=\"white-space: nowrap;\">
-							" . $list_backup[$i]["file"] . "
+							" . $date_file . "
+						</td>
+						<td style=\"padding: 0 0 0 20px; white-space: nowrap;\">
+							" . $file_type . "
 						</td>
 						<td style=\"text-align: right; padding: 0 0 0 20px; white-space: nowrap;\">
 							" . ( function_exists('human_filesize') ? human_filesize($list_backup[$i]["size"], 1, true) : $list_backup[$i]["size"] . " bytes" ) . "
@@ -404,6 +458,21 @@
 	}
 	$print_list_debug .= "</form>";
 	
+	$print_reset = "
+		<h3>Plugin reset</h3>
+		<form action=\"" . DISKLOCATION_PATH . "/pages/page_system.php\" method=\"post\">
+			<input type=\"radio\" name=\"reset_op\" value=\"\" checked=\"checked\" /> none
+			" . ( file_exists(DISKLOCATION_CONF) ? "<input type=\"radio\" name=\"reset_op\" value=\"settings\" /> configuration" : null ) . "
+			" . ( file_exists(DISKLOCATION_GROUPS) ? "<input type=\"radio\" name=\"reset_op\" value=\"groups\" /> layout (includes tray allocations)" : null ) . "
+			" . ( file_exists(DISKLOCATION_LOCATIONS) ? "<input type=\"radio\" name=\"reset_op\" value=\"locations\" /> tray allocations" : null ) . "
+			" . ( file_exists(DISKLOCATION_DEVICES) ? "<input type=\"radio\" name=\"reset_op\" value=\"devices\" /> devices" : null ) . "
+			" . ( (file_exists(DISKLOCATION_CONF) || file_exists(DISKLOCATION_GROUPS) || file_exists(DISKLOCATION_LOCATIONS) || file_exists(DISKLOCATION_DEVICES)) ? "<input type=\"radio\" name=\"reset_op\" value=\"all\" /> all" : null ) . "
+			" . ( (file_exists(DISKLOCATION_CONF) || file_exists(DISKLOCATION_GROUPS) || file_exists(DISKLOCATION_LOCATIONS) || file_exists(DISKLOCATION_DEVICES) || file_exists(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/benchmark") || file_exists(DISKLOCATION_TMP_PATH . "/smart")) ? "<input type=\"radio\" name=\"reset_op\" value=\"wipe\" /> wipe (including backups, benchmarks and smart data)" : null ) . "
+			<br />
+			<input type=\"submit\" name=\"reset\" value=\"Reset\" />
+		<form>
+	";
+	
 	if(!strstr($_SERVER["SCRIPT_NAME"], "page_system.php") && $db_update != 2) {
 		$list_undelete = force_undelete_devices($get_devices, 'r');
 		
@@ -468,4 +537,5 @@
 <?php echo $print_list_database ?>
 <?php echo $print_list_database_lock ?>
 <?php echo $print_list_undelete ?>
+<?php echo $print_reset ?>
 </td></tr></table>
