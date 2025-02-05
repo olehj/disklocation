@@ -604,9 +604,10 @@
 	";
 	
 	define("DISKLOCATION_DB_DEFAULT", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.sqlite");
+	define("DISKLOCATION_CONF_OLD", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.conf");
 	
-	if(file_exists(DISKLOCATION_CONF)) {
-		$get_disklocation_config = json_decode(file_get_contents(DISKLOCATION_CONF), true);
+	if(file_exists(DISKLOCATION_CONF_OLD)) {
+		$get_disklocation_config = json_decode(file_get_contents(DISKLOCATION_CONF_OLD), true);
 		if(isset($get_disklocation_config["database_location"])) {
 			define("DISKLOCATION_DB", $get_disklocation_config["database_location"]);
 		}
