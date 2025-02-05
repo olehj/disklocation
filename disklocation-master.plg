@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.01.00">
+<!ENTITY version          "2025.02.00">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,7 +45,8 @@
 -->
 
 <CHANGES>
-###2025.XX.XX
+###2025.02.XX
+ - Commit #365 - FEATURE: Added selected dashboard info to LED "hover" info on Unraid dashboard.
  - Commit #362 - FEATURE: Created a possibility to hide/bypass trays in a group.
  - Commit #361 - IMPROVEMENT: Performace tweak, cleaned up functions and system to improve loading speed.
  - Commit #360 - IMPROVEMENT: Debug function overhauled and made a bit more useful in some cases.
