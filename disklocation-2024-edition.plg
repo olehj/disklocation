@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.02.03">
+<!ENTITY version          "2025.02.06">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "2024-edition">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -46,6 +46,9 @@
 
 -->
 <CHANGES>
+###2025.02.06
+ - Commit #366 - IMPROVEMENT: Revert a change to do a SMART scan during boot to prevent confusions. Also preparing for Overhaul '25.
+
 ###2025.02.03
  - Commit #361 - IMPROVEMENT: Cleaned up a function to improve loading speed.
 
@@ -754,13 +757,13 @@ EOL
   fi
   logit "Package file &packagefile; extracted."
 
-# Get sub-configuration
+  <!-- Get sub-configuration -->
   if [ -f "&pluginLOC;/disklocation.conf" ]; then
     DISKLOCATION_CSS_SIGNALS=($(jq -re '.signal_css // empty' &pluginLOC;/disklocation.conf))
     DISKLOCATION_DB_LOCATION=($(jq -re '.database_location // empty' &pluginLOC;/disklocation.conf))
   fi
 
-# Stylesheet configuration
+  <!-- Stylesheet configuration -->
   if [ -z $DISKLOCATION_CSS_SIGNALS ]; then
     DISKLOCATION_CSS_SIGNALS="signals.dynamic.css"
   fi
@@ -768,7 +771,7 @@ EOL
   ln -s &emhttpLOC;/pages/styles/$DISKLOCATION_CSS_SIGNALS &emhttpLOC;/pages/styles/signals.css
   logit "SIGNALS: $DISKLOCATION_CSS_SIGNALS activated."
 
-# Database configuration
+  <!-- Database configuration -->
   DISKLOCATION_DB_LOCATION_DEFAULT="&pluginLOC;/disklocation.sqlite"
   
   if [ -z $DISKLOCATION_DB_LOCATION ]; then
@@ -782,11 +785,21 @@ EOL
     logit "Adding devices into database, please wait... this might take a while..."
     php -f &emhttpLOC;/pages/cron_disklocation.php cronjob install
   else
-    logit "No database update, skipping adding or updating devices during install."
+  <!-- Consider if this is an installation or newly booted server. If the system has been running for less than 15 minutes, run cronjob to gather SMART data. @reboot cron does not work on Unraid.-->
+    UPTIME_DATE=`uptime -s`
+    UPTIME_UNIX=`date --date "$UPTIME_DATE" +%s`
+    UPTIME_SEC=$((`date +%s` - $UPTIME_UNIX))
+    if [ $UPTIME_SEC -lt 900 ]; then
+      logit "System newly booted, gathering SMART data"
+      php -f &emhttpLOC;/pages/cron_disklocation.php cronjob install
+    else
+      logit "Uptime is above 15 minutes: Force SMART must be started manually unless the files already exists."
+    fi
+    <!--logit "No database update, skipping adding or updating devices during install."-->
   fi
   
   logit "Installing cronjob..."
-  <!--# Add cronjob for powermode -->
+  <!-- Add cronjob for powermode -->
   cat &gt;&pluginLOC;-&branch;/powermode.cron &lt;&lt;EOL
 # Crontab for Disk Location plugin to retrieve SMART power status in the background
 */5 * * * * php -f &emhttpLOC;/pages/cron_disklocation.php cronjob status &amp;&gt; /dev/null
