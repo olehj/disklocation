@@ -264,22 +264,20 @@
 	$array_locations = $get_locations;
 	$disk_layouts_alloc = "";
 	
-	foreach($array_groups as $id => $value) {
-		extract($group);
-		
-		$gid = $id;
+	foreach($array_groups as $gid => $value) {
 		$groupid = $gid;
+		$gid_name = ( empty($array_groups[$gid]["group_name"]) ? $gid : $array_groups[$gid]["group_name"] );
 		
 		$css_grid_group = "
 			grid-template-columns: " . $grid_columns_styles[$gid] . ";
 			grid-template-rows: " . $grid_rows_styles[$gid] . ";
-			grid-auto-flow: " . $grid_count . ";
+			grid-auto-flow: " . $array_groups[$gid]["grid_count"] . ";
 		";
 		
 		$disk_layouts_alloc .= "
 			<div style=\"float: left; padding: 10px 20px 10px 20px;\">
 				<h2 style=\"text-align: center;\">
-					" . ( empty($group_name) ? $gid : $group_name ) . "
+					" . stripslashes(htmlspecialchars($gid_name)) . "
 				</h2>
 				<blockquote class='inline_help'>
 					This is the group name (if any)
@@ -345,7 +343,7 @@
 								The <i class="fa fa-minus-circle fa-lg"></i> button will force the drive to be moved to the "History" section below. Use this if you have false drive(s) in your list.
 								If you accidentally click the button on the wrong drive you have to do a "Force scan all" and reassign the drive.
 							</p>
-							<p style="color: red; padding: 0 0 30px 0;"><b>OBS! When allocating drives you must use the TrayID numbers shown in bold and not the physical tray assignment shown on the right/bottom (these are only shown if the numbers differ).</b>
+							<p style="color: red; padding: 0 0 30px 0;"><b>OBS! When allocating drives you must use the TrayID numbers shown in red bold and not the physical tray assignment shown on the right/bottom (these are only shown if the numbers differ).</b>
 							<?php ( !empty($device_bg_color) ?? print("<br />Custom Color is disabled when \"Heat Map\" is used.") ); ?>
 							</p>
 						</td>

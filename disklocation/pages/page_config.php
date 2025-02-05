@@ -55,11 +55,7 @@
 	array_push($custom_colors_array, ( strtoupper($bgcolor_cache) != strtoupper($bgcolor_cache_default) ? $bgcolor_cache_default : null ) );
 	array_push($custom_colors_array, ( strtoupper($bgcolor_others) != strtoupper($bgcolor_others_default) ? $bgcolor_others_default : null ) );
 	
-	foreach($array_groups as $id => $array) {
-		//extract($array);
-		
-		$gid = $id;
-		
+	foreach($array_groups as $gid => $value) {
 		if($array_groups[$gid]["group_color"]) {
 			array_push($custom_colors_array, strtoupper($array_groups[$gid]["group_color"]));
 		}
@@ -72,28 +68,20 @@
 		
 		$tray_direction = ( empty($array_groups[$gid]["tray_direction"]) ? 1 : $array_groups[$gid]["tray_direction"]);
 		
-		if($count_groups > 0) {
-			$disk_layouts_config .= "
-				<td style=\"max-width: 80px; vertical-align: middle; position: relative; top: -10px;\">
-					<button type=\"submit\" name=\"group_swap\" title=\"Swap groups\" value=\"" . $group_ids[($count_groups-1)] . ":" . $gid . "\" style=\"background-size: 0;\"><i style=\"font-size: 500%;\" class=\"fa fa-exchange fa-lg\"></i></button>
-				</td>
-			";
-		}
-		
 		$disk_layouts_config .= "
 			<td style=\"min-width: 240px; vertical-align: top;\">
 				<p>
 					<b>Name:</b><br />
 					<input type=\"text\" name=\"group_name[$gid]\" value=\"" . stripslashes(htmlspecialchars($array_groups[$gid]["group_name"])) . "\" style=\"width: " . $vi_width . "px;\" />
 				</p>
-				<blockquote class=\"inline_help\">
+				<blockquote class=\"inline_help\" style=\"white-space: wrap;\">
 					Enter a name for the group, optional.
 				</blockquote>
 				<p>
 					<b>Default group color:</b><br />
 					<input type=\"color\" required name=\"group_color[$gid]\" list=\"disklocationColorsDef\" value=\"#" . (!empty($array_groups[$gid]["group_color"]) ? $array_groups[$gid]["group_color"] : $bgcolor_empty) . "\" />
 				</p>
-				<blockquote class=\"inline_help\">
+				<blockquote class=\"inline_help\" style=\"white-space: wrap;\">
 					Choose a color for the group, select the first color to disable it.
 				</blockquote>
 				<p>
@@ -101,32 +89,34 @@
 					<input type=\"number\" required min=\"100\" max=\"2000\" name=\"tray_width[$gid]\" value=\"" . $array_groups[$gid]["tray_width"] . "\" style=\"width: 50px;\" /> px longest side<br />
 					<input type=\"number\" required min=\"30\" max=\"700\" name=\"tray_height[$gid]\" value=\"" . $array_groups[$gid]["tray_height"] . "\" style=\"width: 50px;\" /> px shortest side
 				</p>
-				<blockquote class=\"inline_help\">
+				<blockquote class=\"inline_help\" style=\"white-space: wrap;\">
 					This is the HTML/CSS pixel size for a single harddisk tray, default sizes are: 400px longest side, and 70px shortest side.
 				</blockquote>
 				<p>
 					<b>Set grid size:</b><br />
 					<input type=\"number\" required min=\"1\" max=\"255\" name=\"grid_columns[$gid]\" value=\"" . $array_groups[$gid]["grid_columns"] . "\" style=\"width: 50px;\" /> columns<br />
 					<input type=\"number\" required min=\"1\" max=\"255\" name=\"grid_rows[$gid]\" value=\"" . $array_groups[$gid]["grid_rows"] . "\" style=\"width: 50px;\" /> rows<br />
-					<input type=\"number\" min=\"" . $array_groups[$gid]["grid_columns"] * $array_groups[$gid]["grid_rows"] . "\" max=\"255\" name=\"grid_trays[$gid]\" value=\"" . ( ( empty($array_groups[$gid]["grid_trays"]) ) ? null :  $array_groups[$gid]["tray_width"] ) . "\" style=\"width: 50px;\" /> total trays, override
+					" . ( !empty($array_groups[$gid]["grid_trays"]) ? "<span style=\"color: #FF0000;\"><b>Override is DEPRECATED!</b><br /><input type=\"number\" min=\"" . $array_groups[$gid]["grid_columns"] * $array_groups[$gid]["grid_rows"] . "\" max=\"255\" name=\"grid_trays[$gid]\" value=\"" . ( ( empty($array_groups[$gid]["grid_trays"]) ) ? null : $array_groups[$gid]["grid_trays"] ) . "\" style=\"width: 50px;\" /> total trays, override</span>" : null ) . "
+					
 				</p>
-				<blockquote class=\"inline_help\">
-					Set columns and rows to simulate the looks of your trays, ex. 4 columns * 6 rows = 24 total trays. However, you can override the total amount for additional drives you might have which you don\"t want to include in the main setup. The total trays will always scale unless you enter a larger value yourself. This value can be left blank for saving.
+				<blockquote class=\"inline_help\" style=\"white-space: wrap;\">
+					Set columns and rows to simulate the looks of your trays, ex. 4 columns * 6 rows = 24 total trays.<br />
+					" . ( !empty($array_groups[$gid]["grid_trays"]) ? "<span style=\"color: #FF0000;\">Override is now deprecated and should not be used, please adjust the configuration. Adjust the grid size or create a new group and move the devices to new allocations, then delete the override number (blank) or the group altogheter after the devices has been moved.</span>" : null ) . "
 				</blockquote>
 				<p>
 					<b>Set physical tray direction:</b><br />
 					<input type=\"radio\" name=\"disk_tray_direction[$gid]\" value=\"h\" " . ( ($array_groups[$gid]["disk_tray_direction"] == "h") ? "checked" : null ) . " />horizontal
 					<input type=\"radio\" name=\"disk_tray_direction[$gid]\" value=\"v\" " . ( ($array_groups[$gid]["disk_tray_direction"] == "v") ? "checked" : null ) . " />vertical
 				</p>
-				<blockquote class=\"inline_help\">
+				<blockquote class=\"inline_help\" style=\"white-space: wrap;\">
 					This is the direction of the tray itself. Is it laying flat/horizontal, or is it vertical?
 				</blockquote>
 				<p>
 					<b>Tray assigment count properties:</b><br />
-					<input type=\"radio\" name=\"grid_count[$gid]\" value=\"column\" " . ( ($array_groups[$gid]["grid_count"] == "column") ? "checked" : null ) . " />count rows
-					<input type=\"radio\" name=\"grid_count[$gid]\" value=\"row\" " . ( ($array_groups[$gid]["grid_count"] == "row") ? "checked" : null ) . " />count colums
+					<input type=\"radio\" name=\"grid_count[$gid]\" value=\"column\" " . ( ($array_groups[$gid]["grid_count"] == "column") ? "checked" : null ) . " />count columns
+					<input type=\"radio\" name=\"grid_count[$gid]\" value=\"row\" " . ( ($array_groups[$gid]["grid_count"] == "row") ? "checked" : null ) . " />count rows
 				</p>
-				<blockquote class=\"inline_help\">
+				<blockquote class=\"inline_help\" style=\"white-space: wrap;\">
 					Select how to count the tray:<br />
 					&middot; column: \"top to bottom\" or \"bottom to top\"<br />
 					&middot; row: \"left to right\" or \"right to left\"
@@ -139,25 +129,43 @@
 					<input type=\"radio\" name=\"tray_direction[$gid]\" value=\"3\" " . ( ($array_groups[$gid]["tray_direction"] == 3) ? "checked" : null ) . " />right/top
 					<input type=\"radio\" name=\"tray_direction[$gid]\" value=\"4\" " . ( ($array_groups[$gid]["tray_direction"] == 4) ? "checked" : null ) . " />right/bottom
 				</p>
-				<blockquote class=\"inline_help\">
+				<blockquote class=\"inline_help\" style=\"white-space: wrap;\">
 					Select the direction you want to count the trays.
 				</blockquote>
 				<p>
 					<b>Tray count start:</b><br />
 					<input type=\"number\" required min=\"0\" max=\"9999999\" name=\"tray_start_num[$gid]\" value=\"" . $array_groups[$gid]["tray_start_num"] . "\" style=\"width: 50px;\" />
 				</p>
-				<blockquote class=\"inline_help\">
+				<blockquote class=\"inline_help\" style=\"white-space: wrap;\">
 					<p>Start counting tray from the entered number.</p>
 				</blockquote>
-				<hr style=\"border: 1px solid black; height: 0!important;\" />
+				<p>
+					<b>Select trays to bypass/hide:</b><br />
+				</p>
+				<p>
+					<input type=\"checkbox\" name=\"count_bypass_tray[$gid]\" value=\"1\" " . (!empty($array_groups[$gid]["count_bypass_tray"]) ? "checked=\"checked\"" : null ) . " />
+					Count bypassed tray numbers
+				</p>
 				<div class=\"grid-container\" style=\"" . $css_grid_group . "\">
-					" . $disklocation_layout[$id] . "
+					" . $disklocation_layout[$gid] . "
 				</div>
-				<blockquote class=\"inline_help\">
-					This shows you an overview of your configured tray layout
+				<blockquote class=\"inline_help\" style=\"white-space: wrap;\">
+					This shows you an overview of your configured tray layout, you can also bypass/hide selected trays (only empty/unassigned trays can be selected). Choose also if you want to count the bypassed trays or not.
 				</blockquote>
 			</td>
 		";
+		
+		if($count_groups >= 0) {
+			$disk_layouts_config .= "
+				<td style=\"max-width: 80px; vertical-align: top; position: relative; top: 20px;\">
+					<button type=\"submit\" name=\"group_del\" onclick=\"return confirm('Are you sure you want to delete " . ( !empty($array_groups[$gid]["group_name"]) ? stripslashes(htmlspecialchars($array_groups[$gid]["group_name"])) : $gid ) . "?');\" title=\"Remove " . ( !empty($array_groups[$gid]["group_name"]) ? stripslashes(htmlspecialchars($array_groups[$gid]["group_name"])) : $gid ) . "\" value=\"" . $gid . "\" style=\"background-size: 0;\"><i style=\"font-size: 600%;\" class=\"fa fa-trash fa-lg\"></i></button><br />
+					" . ( !empty($group_ids[($count_groups+1)]) ? "<button type=\"submit\" name=\"group_swap\" title=\"Swap groups\" value=\"" . $gid . ":" . $group_ids[($count_groups+1)] . "\" style=\"background-size: 0;\"><i style=\"font-size: 500%;\" class=\"fa fa-exchange fa-lg\"></i></button>" : null ) . "
+					" . ( empty($group_ids[($count_groups+1)]) ? "<button type=\"submit\" name=\"group_add\" title=\"Add a new group\" value=\"" . $gid . "\" style=\"background-size: 0;\"><i style=\"font-size: 600%;\" class=\"fa fa-plus-circle fa-lg\"></i></button><br />" : null ) . "
+					" . ( (empty($group_ids[($count_groups+1)]) && $total_groups > 0 ) ? "<button type=\"submit\" name=\"save_groupsettings\" title=\"Save all groups\" style=\"background-size: 0;\"><i style=\"font-size: 600%;\" class=\"fa fa-save fa-lg\"></i></button><br />" : null ) . "
+				</td>
+			";
+		}
+		
 		$last_group_id = $gid;
 		$count_groups++;
 	}
@@ -215,7 +223,7 @@ $(document).ready(function(){
 					<input type="radio" name="device_bg_color" id="bgcolor_display_0" value="0" <?php if($device_bg_color == "0") echo "checked"; // reusing the deprecated dashboard variable instead of messing with the database ?> />Disk Type
 					<input type="radio" name="device_bg_color" id="bgcolor_display_1" value="1" <?php if($device_bg_color == "1") echo "checked"; // reusing the deprecated dashboard variable instead of messing with the database ?> />Heat Map
 				</p>
-				<blockquote class='inline_help'>
+				<blockquote class="inline_help" style="white-space: wrap;">
 					Choose "Disk Type" for the traditional color scheme over the array and disk type.<br />
 					Choose "Heat Map" for backgrounds that depends on the temperature range set in Unraid, per disk or global.
 				</blockquote>
@@ -261,7 +269,7 @@ $(document).ready(function(){
 						</tr>
 					</table>
 				</div>
-				<blockquote class='inline_help'>
+				<blockquote class="inline_help" style="white-space: wrap;">
 					<p>Select the color(s) you want, defaults are:</p>
 					<p>
 						<span style="color: #<?php echo $bgcolor_parity_default ?>">&#11200;</span> #<?php echo $bgcolor_parity_default ?> "Parity"<br />
@@ -275,7 +283,7 @@ $(document).ready(function(){
 					<b>Set the size divider for mini layout:</b><br />
 					<input type="number" required min="1" max="1000" step="0.1" name="tray_reduction_factor" value="<?php print($tray_reduction_factor); ?>" style="width: 50px;" />
 				</p>
-				<blockquote class='inline_help'>
+				<blockquote class="inline_help" style="white-space: wrap;">
 					This number will divide from the set height and width sizes defined per group, and display its divided size as a mini layout/dashboard device. Default: 10 [1.0-1000.0 stepping 0.1]. Larger number is smaller in size.
 				</blockquote>
 				<p>
@@ -283,14 +291,14 @@ $(document).ready(function(){
 					<input type="radio" name="force_orb_led" value="0" <?php if($force_orb_led == 0) echo "checked"; ?> />Unraid icons
 					<input type="radio" name="force_orb_led" value="1" <?php if($force_orb_led == 1) echo "checked"; ?>/>Circular LEDs
 				</p>
-				<blockquote class='inline_help'>
+				<blockquote class="inline_help" style="white-space: wrap;">
 					Show how to display the LEDs on the overview and dashboard. Unraid icons will show triangluar warning signs, crossed critival signs etc. Circular LEDs will all be color coded circular lights.
 				</blockquote>
 				<p>
 					<b>Trim serial numbers:</b><br />
 					<input type="number" required min="-99" max="99" step="1" name="serial_trim" value="<?php print($serial_trim); ?>" style="width: 50px;" />
 				</p>
-				<blockquote class='inline_help'>
+				<blockquote class="inline_help" style="white-space: wrap;">
 					Serial number will be cut either the first or last part of this value, 0 does nothing. Negative number will display X last characters, positive the X first characters.
 					The sort function will still sort after the actual serial number, and not the shortened ones.
 					<br />
@@ -299,7 +307,7 @@ $(document).ready(function(){
 					<b>Auto backup every:</b><br />
 					<input type="number" required min="0" max="999999999" step="1" name="auto_backup_days" value="<?php print($auto_backup_days); ?>" style="width: 50px;" /> days
 				</p>
-				<blockquote class='inline_help'>
+				<blockquote class="inline_help" style="white-space: wrap;">
 					Run auto backup every set full days, 0 to disable. This will only backup Disk Location files, and not Unraid config edited via this plugin, if enabled.
 					<br />
 				</blockquote>
@@ -308,7 +316,7 @@ $(document).ready(function(){
 					<input type="radio" name="allow_unraid_edit" value="0" <?php if($allow_unraid_edit == 0) echo "checked"; ?> />No
 					<input type="radio" name="allow_unraid_edit" value="1" <?php if($allow_unraid_edit == 1) echo "checked"; ?>/>Yes
 				</p>
-				<blockquote class='inline_help'>
+				<blockquote class="inline_help" style="white-space: wrap;">
 					This will allow or disallow editing of Unraid config files via this plugin. E.g. acknowledgement of all drives at once, or editing warranty dates etc.
 					When setting this to "NO", the options are neither visible nor editable.
 					<br />
@@ -334,7 +342,7 @@ $(document).ready(function(){
 						<td style="vertical-align: top; width: 60%;" rowspan="2">
 							<b>Devices formatting:</b><br >
 							<textarea type="text" name="select_db_devices" style="height: 80px; width: 95%;" /><?php print(!$select_db_devices ? $select_db_devices_default : $select_db_devices) ?></textarea>
-							<blockquote class='inline_help'>
+							<blockquote class="inline_help" style="white-space: wrap;">
 								<ul>
 									<li><b>Possible selectors:</b> pool, name, device, node, lun, manufacturer, model, serial, temp, capacity, cache, rotation, formfactor, comment</li>
 									<li><b>Formatting tools:</b></li>
@@ -368,7 +376,7 @@ $(document).ready(function(){
 					</tr>
 					<tr>
 						<td colspan="2">
-							<blockquote class='inline_help'>
+							<blockquote class="inline_help" style="white-space: wrap;">
 								<p>
 									Hide empty tray contents: Nothing but the background color.<br />
 									Flash warning: the background will flash when the drive has a warning.<br />
@@ -402,7 +410,7 @@ $(document).ready(function(){
 					</tr>
 					<tr>
 						<td colspan="3" style="margin: 0; padding: 0 0 0 0 ;">
-							<blockquote class='inline_help'>
+							<blockquote class="inline_help" style="white-space: wrap;">
 								<ul>
 									<li><b>Possible selectors:</b> <?php print(implode(", ", get_table_order("allowed", 0, 4, $allowed_db_select_info))); ?></li>
 									<li><b>Sort:</b> [asc|desc]:<?php print(implode(", ", get_table_order("allowed", 0, 4, $allowed_db_sort_info))); ?>
@@ -423,7 +431,7 @@ $(document).ready(function(){
 					</tr>
 					<tr>
 						<td colspan="3" style="margin: 0; padding: 0 0 0 0 ;">
-							<blockquote class='inline_help'>
+							<blockquote class="inline_help" style="white-space: wrap;">
 								<ul>
 									<li><b>Possible selectors:</b> <?php print(implode(", ", get_table_order("allowed", 0, 4, $allowed_db_select_smart))); ?></li>
 									<li><b>Sort:</b> [asc|desc]:<?php print(implode(", ", get_table_order("allowed", 0, 4, $allowed_db_sort_smart))); ?>
@@ -445,7 +453,7 @@ $(document).ready(function(){
 					</tr>
 					<tr>
 						<td colspan="3" style="margin: 0; padding: 0 0 0 0 ;">
-							<blockquote class='inline_help'>
+							<blockquote class="inline_help" style="white-space: wrap;">
 								<ul>
 									<li><b>Possible selectors:</b> <?php print(implode(", ", get_table_order("allowed", 0, 4, $allowed_db_select_trayalloc))); ?></li>
 									<li><b>Sort:</b> [asc|desc]:<?php print(implode(", ", get_table_order("allowed", 0, 4, $allowed_db_sort_trayalloc))); ?></li></li>
@@ -468,7 +476,7 @@ $(document).ready(function(){
 					</tr>
 					<tr>
 						<td colspan="3" style="margin: 0; padding: 0 0 0 0 ;">
-							<blockquote class='inline_help'>
+							<blockquote class="inline_help" style="white-space: wrap;">
 								<ul>
 									<li><b>Possible selectors:</b> <?php print(implode(", ", get_table_order("allowed", 0, 4, $allowed_db_select_drives))); ?></li>
 									<li><b>Sort:</b> [asc|desc]:<?php print(implode(", ", get_table_order("allowed", 0, 4, $allowed_db_sort_drives))); ?>
@@ -478,7 +486,7 @@ $(document).ready(function(){
 					</tr>
 					<tr>
 						<td colspan="3">
-							<blockquote class='inline_help'>
+							<blockquote class="inline_help" style="white-space: wrap;">
 								<p>
 									<b>Sort format: direction:column1[,column2]</b><br />
 									<br />
@@ -525,7 +533,7 @@ $(document).ready(function(){
 					<span style="padding-left: 50px;"></span>
 					<input type="submit" name="reset_common_colors" value="Reset Common Colors" />
 				</span>
-				<blockquote class='inline_help'>
+				<blockquote class="inline_help" style="white-space: wrap;">
 					<p>Save the Common Configuration and the Visible Frontpage Information. This does not save the Disk Tray Layout.</p>
 				</blockquote>
 			</td>
@@ -541,18 +549,6 @@ $(document).ready(function(){
 				<table style="width: 0; margin: 0;">
 					<tr>
 						<?php print($disk_layouts_config); ?>
-					</tr>
-				</table>
-			</td>
-			<td style="padding-left: 20px;">
-				<table style="width: 0;">
-					<tr>
-						<td style="vertical-align: middle; text-align: left;">
-							<?php if($total_groups > 0) { print("<button type=\"submit\" name=\"save_groupsettings\" title=\"Save all groups\" style=\"background-size: 0;\"><i style=\"font-size: 600%;\" class=\"fa fa-save fa-lg\"></i></button><br />"); } ?>
-							<input type="hidden" name="last_group_id" value="<?php echo $last_group_id ?>" />
-							<button type="submit" name="group_add" title="Add a new group" style="background-size: 0;"><i style="font-size: 600%;" class="fa fa-plus-circle fa-lg"></i></button><br />
-							<?php if($total_groups > 1) { print("<button type=\"submit\" name=\"group_del\" title=\"Remove last group\" style=\"background-size: 0;\"><i style=\"font-size: 600%;\" class=\"fa fa-trash fa-lg\"></i></button>"); } ?>
-						</td>
 					</tr>
 				</table>
 			</td>

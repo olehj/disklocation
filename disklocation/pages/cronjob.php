@@ -95,9 +95,6 @@
 			mkdir("/tmp/disklocation/smart");
 		}
 		
-		$devices_current = (empty($get_devices) ? array() : $get_devices);
-		$locations_current = (empty($get_locations) ? array() : $get_locations);
-		
 		if($force_scan_db && !in_array("status", $argv)) {
 			// wait until the cronjob has finished.
 			$retry_delay = 1;
@@ -118,6 +115,9 @@
 				mkdir(dirname(DISKLOCATION_LOCK_FILE), 0755, true);
 				touch(DISKLOCATION_LOCK_FILE);
 			}
+			
+			$devices_current = (empty($get_devices) ? array() : $get_devices);
+			$locations_current = (empty($get_locations) ? array() : $get_locations);
 		}
 		
 		$i=0;

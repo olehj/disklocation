@@ -846,7 +846,7 @@
 		return array_pop($args);
 	}
 	
-	function tray_number_assign($col, $row, $dir, $grid) {
+	function tray_number_assign($col, $row, $dir, $grid, $skip = array()) {
 		$total = $col * $row; // 6 = 3 * 2
 		
 		$start = 1;
@@ -865,8 +865,16 @@
 						1-3-5
 						2-4-6
 					*/
+					
+					$i_skip = 1;
 					for($i=1; $i <= $total; ++$i) {
-						$data[] = $i;
+						if(empty($skip)) {
+							$data[$i] = $i;
+						}
+						else if(!$skip[$i]) {
+							$data[$i] = $i_skip;
+							$i_skip++;
+						}
 					}
 					array_unshift($data, $grid);
 					
@@ -884,8 +892,16 @@
 						1-2-3
 					*/
 					$i_col = 1;
+					$i_skip = 1;
 					for($i=1; $i <= $total; ++$i) {
-						$data[$i_col][$i] = $i;
+						if(empty($skip)) {
+							$data[$i_col][$i] = $i;
+						}
+						else if(!$skip[$i]) {
+							$data[$i_col][$i] = $i_skip;
+							$i_skip++;
+							
+						}
 						if($i % $col == 0) {
 							$i_col++;
 						}
@@ -905,8 +921,16 @@
 					*/
 					
 					$i_row = 1;
+					$i_skip = 1;
 					for($i=1; $i <= $total; $i++) {
-						$data[$i_row][$i] = $i;
+						if(empty($skip)) {
+							$data[$i_row][$i] = $i;
+						}
+						else if(!$skip[$i]) {
+							$data[$i_row][$i] = $i_skip;
+							$i_skip++;
+							
+						}
 						if($i % $row == 0) {
 							$i_row++;
 						}
@@ -933,8 +957,15 @@
 						6-5-4
 					*/
 					$i_col = 1;
+					$i_skip = 1;
 					for($i=1; $i <= $total; $i++) {
-						$data[$i_col][$i] = $i;
+						if(empty($skip)) {
+							$data[$i_col][$i] = $i;
+						}
+						else if(!$skip[$i]) {
+							$data[$i_col][$i] = $i_skip;
+							$i_skip++;
+						}
 						if($i % $col == 0) {
 							$i_col++;
 						}
@@ -954,8 +985,15 @@
 					*/
 					
 					$i_row = 1;
+					$i_skip = 1;
 					for($i=1; $i <= $total; ++$i) {
-						$data[$i_row][$i] = $i;
+						if(empty($skip)) {
+							$data[$i_row][$i] = $i;
+						}
+						else if(!$skip[$i]) {
+							$data[$i_row][$i] = $i_skip;
+							$i_skip++;
+						}
 						if($i % $row == 0) {
 							$i_row++;
 						}
@@ -983,10 +1021,17 @@
 						6-4-2
 						5-3-1
 					*/
-
+					$i_skip = 1;
 					for($i=1; $i <= $total; ++$i) {
-						$data[] = $i;
+						if(empty($skip)) {
+							$data[$i] = $i;
+						}
+						else if(!$skip[$i]) {
+							$data[$i] = $i_skip;
+							$i_skip++;
+						}
 					}
+					
 					rsort($data);
 					array_unshift($data, $grid);
 					

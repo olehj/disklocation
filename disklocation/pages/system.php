@@ -63,7 +63,7 @@
 	}
 	
 	if(isset($_POST["group_add"])) {
-		$gid = ( empty($_POST["last_group_id"]) ? 1 : $_POST["last_group_id"]+1 );
+		$gid = ( empty($_POST["group_add"]) ? 1 : $_POST["group_add"]+1 );
 		$groups = config_array(DISKLOCATION_GROUPS, 'r');
 		$groups[$gid] = array(
 			"group_color" => null,
@@ -82,8 +82,8 @@
 		$SUBMIT_RELOAD = 1;
 		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: group_add", $groups);
 	}
-	if(isset($_POST["group_del"]) && isset($_POST["last_group_id"])) {
-		$gid = $_POST["last_group_id"];
+	if(isset($_POST["group_del"])) {
+		$gid = $_POST["group_del"];
 		$groups = config_array(DISKLOCATION_GROUPS, 'r');
 		$devices = config_array(DISKLOCATION_DEVICES, 'r');
 		unset($groups[$gid]);
@@ -234,7 +234,6 @@
 			if($new_array[$id]["grid_count"] && !preg_match("/\b(column|row)\b/", $new_array[$id]["grid_count"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Physical tray assignment invalid."; }
 			if($new_array[$id]["grid_columns"] && !preg_match("/[0-9]{1,3}/", $new_array[$id]["grid_columns"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Grid columns missing or number invalid."; }
 			if($new_array[$id]["grid_rows"] && !preg_match("/[0-9]{1,3}/", $new_array[$id]["grid_rows"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Grid rows missing or number invalid."; }
-			if($new_array[$id]["grid_trays"] && !preg_match("/[0-9]{1,3}/", $new_array[$id]["grid_trays"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Grid trays number invalid."; }
 			if($new_array[$id]["disk_tray_direction"] && !preg_match("/(h|v)/", $new_array[$id]["disk_tray_direction"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Physical tray direction invalid."; }
 			if($new_array[$id]["tray_direction"] && !preg_match("/[0-9]{1}/", $new_array[$id]["tray_direction"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Tray number direction invalid."; }
 			if($new_array[$id]["tray_start_num"] && !preg_match("/[0-9]{1,7}/", $new_array[$id]["tray_start_num"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Tray start number invalid."; }
@@ -260,6 +259,7 @@
 		$post_groups = $_POST["groups"];
 		$array_devices = $get_devices;
 		$array_locations = $get_locations;
+		$array_groups = $get_groups;
 		$create_disklog_ini = array();
 		
 		if(empty($disklocation_error)) {
@@ -278,6 +278,11 @@
 				else {
 					$array_locations[$keys_drives[$i]]["groupid"] = $group_assign;
 					$array_locations[$keys_drives[$i]]["tray"] = $tray_assign;
+					
+					if(!empty($array_groups[$group_assign]["hide_tray"][$tray_assign])) {
+						$disklocation_error[] = "Tray " . $tray_assign . " in group " . $group_assign . " is marked as bypassed. Drive can't be assigned.";
+						unset($array_locations[$keys_drives[$i]]);
+					}
 				}
 			}
 			
@@ -324,7 +329,7 @@
 			$SUBMIT_RELOAD = 1;
 			$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: save_allocations", array($results, $array_devices, $array_locations, $new_disklog));
 		}
-		else {
+		if(!empty($disklocation_error)) {
 			$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: save_allocations", $disklocation_error);
 		}
 	}

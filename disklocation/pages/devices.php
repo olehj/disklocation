@@ -36,12 +36,17 @@
 	
 	foreach($array_groups as $id => $value) {
 		$group_color = "";
+		$grid_trays = 0;
+		
+		$hide_tray = array();
+		$count_bypass_tray = 0;
+		
 		extract($value);
 		
 		if(!empty($id)) {
 			$gid = $id;
 			$groupid = $gid;
-
+			$debug_log = debug($debug, basename(__FILE__), __LINE__, "groupid", $groupid);
 			$disklocation_page[$gid] = "";
 			$disklocation_layout[$gid] = "";
 			$disklocation_alloc[$gid] = "";
@@ -79,7 +84,8 @@
 			}
 			
 			if(!$tray_direction) { $tray_direction = 1; }
-			$tray_number_override = tray_number_assign($grid_columns, $grid_rows, $tray_direction, $grid_count);
+			$tray_number_override = tray_number_assign($grid_columns, $grid_rows, $tray_direction, $grid_count, $hide_tray);
+			$tray_number_override = ( !$count_bypass_tray && is_array($hide_tray) ? tray_number_assign($grid_columns, $grid_rows, $tray_direction, $grid_count, $hide_tray) : tray_number_assign($grid_columns, $grid_rows, $tray_direction, $grid_count) );
 			
 			if(!isset($tray_start_num)) { $tray_start_num = 1; }
 			$tray_number_override_start = $tray_start_num;
@@ -105,11 +111,13 @@
 			}
 			
 			$debug_log = debug($debug, basename(__FILE__), __LINE__, "total_trays", $total_trays);
+			$debug_log = debug($debug, basename(__FILE__), __LINE__, "tray_number_override", $tray_number_override);
 			
 			$i_empty=1;
 			$i_drive=1;
 			$i=1;
 			$empty_tray = 0;
+			$tray_number = 0;
 			
 			while($i <= $total_trays) {
 				$data = isset($datajson[$i_drive-1]) ? $datajson[$i_drive-1] : 0;
@@ -118,25 +126,37 @@
 				$empty_leddiskop = "";
 				$empty_ledsmart = "";
 				$empty_ledtemp = "";
-				$empty_tray_assign = "";
 				$empty_traytext = "";
 				
 				if(( isset($data["tray"]) ? $data["tray"] : 0 ) != $i) {
+					if(!empty($hide_tray)) {
+						if($count_bypass_tray) {
+							$tray_number = $tray_assign;
+						}
+						else if(!$hide_tray[$tray_assign]) {
+							$tray_number++;
+						}
+					}
+					else {
+						$tray_number = $tray_assign;
+					}
+					
 					$debug_log = debug($debug, basename(__FILE__), __LINE__, "tray_assign", $tray_assign);
+					$debug_log = debug($debug, basename(__FILE__), __LINE__, "tray_number", $tray_number);
 					
 					if($displayinfo["tray"] && empty($displayinfo["hideemptycontents"])) {
-						if($tray_number_override[$tray_assign]) {
-							$empty_tray = ( !isset($tray_number_override_start) ? --$tray_number_override[$tray_assign] : ($tray_number_override_start + $tray_number_override[$tray_assign] - 1));
-							$empty_tray_assign = $tray_number_override[$tray_assign];
+						if($tray_number_override[$tray_number]) {
+							$empty_tray = ( !isset($tray_number_override_start) ? --$tray_number_override[$tray_number] : ($tray_number_override_start + (!is_numeric($tray_number_override[$tray_number]) ? 0 : $tray_number_override[$tray_number] - 1)));
 						}
 						else {
-							$empty_tray = ( !isset($tray_number_override_start) ? --$tray_assign : $tray_number_override_start + $tray_assign -1);
-							$empty_tray_assign = $tray_assign;
+							$empty_tray = ( !isset($tray_number_override_start) ? --$tray_number : $tray_number_override_start + $tray_number - 1);
 						}
 					}
 					else {
 						$empty_tray = "";
 					}
+					
+					$debug_log = debug($debug, basename(__FILE__), __LINE__, "empty_tray", $empty_tray);
 					
 					if(isset($displayinfo["leddiskop"]) && $displayinfo["leddiskop"] == 1 && empty($displayinfo["hideemptycontents"])) {
 						$empty_leddiskop = get_unraid_disk_status("grey-off", '', '', $force_orb_led);
@@ -150,8 +170,10 @@
 					if(empty($displayinfo["hideemptycontents"])) {
 						$empty_traytext = "<b>Available disk slot</b>";
 					}
+					
 					$disklocation_page[$gid] .= "
 						<div style=\"order: " . $tray_assign . "\">
+							" . ( $hide_tray[$tray_assign] ? "<!--" : null ) . "
 							<div class=\"flex-container_" . $disk_tray_direction . "\">
 								<div style=\"background-color: #" . $color_array["empty"] . "; width: " . $tray_width . "px; height: " . $tray_height . "px;\">
 									<div class=\"flex-container-start\" style=\"white-space: nowrap;\">
@@ -163,11 +185,12 @@
 									<div class=\"flex-container-middle_" . $disk_tray_direction . "\">
 										$empty_traytext
 									</div>
-									<div class=\"flex-container-end\">
+									<div class=\"flex-container-end\" style=\"white-space: nowrap;\">
 										&nbsp;
 									</div>
 								</div>
 							</div>
+							" . ( $hide_tray[$tray_assign] ? "-->" : null ) . "
 						</div>
 					";
 					
@@ -181,11 +204,12 @@
 							<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
 								<div style=\"background-color: #" . $color_array["empty"] . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
 									<div class=\"flex-container-start\">
-										<b>$empty_tray</b>
+										<b>" .  ( (!$count_bypass_tray && $hide_tray[$tray_assign]) ? "" : $empty_tray ) . "</b>
 									</div>
 									<div class=\"flex-container-middle_" . $disk_tray_direction . "\">
 									</div>
 									<div class=\"flex-container-end\">
+										<input type=\"checkbox\" name=\"hide_tray[$groupid][$tray_assign]\" value=\"1\" " . (!empty($hide_tray[$tray_assign]) ? "checked=\"checked\"" : null ) . " style=\"background: transparent; margin: 0; padding: 0;\" />
 										<!--" . $add_empty_physical_tray_order . "-->
 									</div>
 								</div>
@@ -200,10 +224,11 @@
 					
 					$disklocation_alloc[$gid] .= "
 						<div style=\"order: " . $tray_assign . "\">
+							" . ( $hide_tray[$tray_assign] ? "<!--" : null ) . "
 							<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
 								<div style=\"background-color: #" . $color_array["empty"] . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
 									<div class=\"flex-container-start\" style=\"/*min-height: 15px;*/\">
-										<b>$tray_assign</b>
+										<b><span style=\"color: #FF0000;\">$tray_assign</span></b>
 									</div>
 									<div class=\"flex-container-middle_" . $disk_tray_direction . "\">
 									</div>
@@ -212,11 +237,13 @@
 									</div>
 								</div>
 							</div>
+							" . ( $hide_tray[$tray_assign] ? "-->" : null ) . "
 						</div>
 					";
 					
 					$disklocation_dash[$gid] .= "
 						<div style=\"order: " . $tray_assign . "\">
+							" . ( $hide_tray[$tray_assign] ? "<!--" : null ) . "
 							<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
 								<div style=\"background-color: #" . $color_array["empty"] . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
 									<div class=\"flex-container-start\" style=\"/*min-height: 15px;*/\">
@@ -229,6 +256,7 @@
 									</div>
 								</div>
 							</div>
+							" . ( $hide_tray[$tray_assign] ? "-->" : null ) . "
 						</div>
 					";
 					
@@ -417,6 +445,7 @@
 									<div class=\"flex-container-middle_" . $disk_tray_direction . "\">
 									</div>
 									<div class=\"flex-container-end\">
+										<!--<input type=\"checkbox\" name=\"hide_tray[$drive_tray_order[$hash]]\" value=\"1\" style=\"background: transparent; margin: 0; padding: 0;\" />-->
 										<!--" . $add_physical_tray_order . "-->
 									</div>
 								</div>
@@ -480,6 +509,7 @@
 						</div>
 					";
 					
+					$tray_number = $drive_tray_order[$hash];
 					$installed_drives[$gid] = $i_drive;
 					$i_drive++;
 				}
@@ -505,15 +535,13 @@
 	$array_groups = $get_groups;
 	( is_array($array_groups) ?? ksort($array_groups, SORT_NUMERIC) );
 	
-	foreach($array_groups as $id => $value) {
-		extract($value);
-		$gid = $id;
-		$gid_name = ( empty($group_name) ? $gid : $group_name );
+	foreach($array_groups as $gid => $value) {
+		$gid_name = ( empty($array_groups[$gid]["group_name"]) ? $gid : $array_groups[$gid]["group_name"] );
 		
 		$css_grid_group = "
 			grid-template-columns: " . $grid_columns_styles[$gid] . ";
 			grid-template-rows: " . $grid_rows_styles[$gid] . ";
-			grid-auto-flow: " . $grid_count . ";
+			grid-auto-flow: " . $array_groups[$gid]["grid_count"] . ";
 		";
 		
 		$disklocation_page_out .= "
