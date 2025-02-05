@@ -1,7 +1,7 @@
 Menu="disklocation:3"
 Icon="address-card"
 Tag="address-card"
-Title="S.M.A.R.T"
+Title="SMART"
 ---
 <?php
 	$time_start = (($debug || isset($_GET["benchmark"])) ? hrtime(true) : null);
