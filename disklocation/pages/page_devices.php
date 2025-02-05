@@ -1,5 +1,4 @@
 <link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/signals.css")?>">
-<!--<link type="text/css" rel="stylesheet" href="<?php print("" . DISKLOCATION_PATH . "/pages/styles/signals.css?nocache=" . time()); ?>">-->
 <link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/help.css")?>">
 <style type="text/css">
 	<?php include("/usr/local/emhttp/plugins/disklocation/pages/styles/disk.css.php"); ?>
@@ -75,7 +74,7 @@
 				<h1>Please configure Disk Location</h1>
 				<ol>
 					<li>First go to \"System\", click \"Force SMART+DB\", this might take some time depending on how many drives you have installed.</li>
-					<li>Then go to \"Configuration\" and add \"Disk Tray Layout\"</li>
+					<li>Then go to \"Layout\" and add \"Disk Tray Layout\"</li>
 					<li>Finally, assign your drives to your newly created layout under \"Tray Allocations\"</li>
 				</ol>
 				<p>
