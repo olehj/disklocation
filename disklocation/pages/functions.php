@@ -167,18 +167,18 @@
 		return true;
 	}
 	
-	function bscode2html($text) {
+	function bscode2html($text, $strip = false) {
 		$text = preg_replace("/\*(.*?)\*/", "<b>$1</b>", $text);
 		$text = preg_replace("/_(.*?)_/", "<i>$1</i>", $text);
 		$text = preg_replace("/\[b\](.*)\[\/b\]/", "<b>$1</b>", $text);
 		$text = preg_replace("/\[i\](.*)\[\/i\]/", "<i>$1</i>", $text);
-		$text = preg_replace("/\[tiny\](.*)\[\/tiny\]/", "<span style=\"font-size: xx-small;\">$1</span>", $text);
-		$text = preg_replace("/\[small\](.*)\[\/small\]/", "<span style=\"font-size: x-small;\">$1</span>", $text);
-		$text = preg_replace("/\[medium\](.*)\[\/medium\]/", "<span style=\"font-size: medium;\">$1</span>", $text);
-		$text = preg_replace("/\[large\](.*)\[\/large\]/", "<span style=\"font-size: large;\">$1</span>", $text);
-		$text = preg_replace("/\[huge\](.*)\[\/huge\]/", "<span style=\"font-size: x-large;\">$1</span>", $text);
-		$text = preg_replace("/\[massive\](.*)\[\/massive\]/", "<span style=\"font-size: xx-large;\">$1</span>", $text);
-		$text = preg_replace("/\[color:((?:[0-9a-fA-F]{3}){1,2})\](.*)\[\/color\]/", "<span style=\"color: #$1;\">$2</span>", $text);
+		$text = preg_replace("/\[tiny\](.*)\[\/tiny\]/", "" . ( !$strip ? "<span style=\"font-size: xx-small;\">$1</span>" : "$1" ) . "", $text);
+		$text = preg_replace("/\[small\](.*)\[\/small\]/", "" . ( !$strip ? "<span style=\"font-size: x-small;\">$1</span>" : "$1" ) . "", $text);
+		$text = preg_replace("/\[medium\](.*)\[\/medium\]/", "" . ( !$strip ? "<span style=\"font-size: medium;\">$1</span>" : "$1" ) . "", $text);
+		$text = preg_replace("/\[large\](.*)\[\/large\]/", "" . ( !$strip ? "<span style=\"font-size: large;\">$1</span>" : "$1" ) . "", $text);
+		$text = preg_replace("/\[huge\](.*)\[\/huge\]/", "" . ( !$strip ? "<span style=\"font-size: x-large;\">$1</span>" : "$1" ) . "", $text);
+		$text = preg_replace("/\[massive\](.*)\[\/massive\]/", "" . ( !$strip ? "<span style=\"font-size: xx-large;\">$1</span>" : "$1" ) . "", $text);
+		$text = preg_replace("/\[color:((?:[0-9a-fA-F]{3}){1,2})\](.*)\[\/color\]/", "" . ( !$strip ? "<span style=\"color: #$1;\">$2</span>" : "$2" ) . "", $text);
 		$text = preg_replace("/\[br\]/", "<br />", $text);
 		
 		if($text) {
@@ -583,7 +583,7 @@
 	}
 	
 	function get_powermode($device) {
-		switch(config("/tmp/disklocation/powermode.ini", 'r', $device)) {
+		switch(config(POWERMODE_FILE, 'r', $device)) {
 			case "ACTIVE":
 				return "green-on";
 				break;

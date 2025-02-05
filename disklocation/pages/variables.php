@@ -38,6 +38,7 @@
 	define("DISKLOCATION_LOCK_FILE", DISKLOCATION_TMP_PATH . "/db.lock");
 	define("CRONJOB_URL", DISKLOCATION_PATH . "/pages/cronjob.php");
 	define("CRONJOB_FILE", EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/cronjob.php");
+	define("POWERMODE_FILE", DISKLOCATION_TMP_PATH . "/powermode.json");
 	define("BENCHMARK_URL", DISKLOCATION_PATH . "/pages/benchmark.php");
 	define("BENCHMARK_FILE", EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/benchmark.php");
 	define("DISKLOGFILE", UNRAID_CONFIG_PATH . "/disk.log");

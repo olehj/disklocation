@@ -163,7 +163,7 @@
 						$smart_powermode_status = "UNKNOWN";
 				}
 				
-				config(DISKLOCATION_TMP_PATH."/powermode.ini", 'w', $lsscsi_device[$i], $smart_powermode_status);
+				config(POWERMODE_FILE, 'w', $lsscsi_device[$i], $smart_powermode_status);
 				
 				if(in_array("status", $argv)) {
 					$i++;

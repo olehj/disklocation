@@ -490,14 +490,15 @@
 						$dashboard_orb = $smart_status_info["orb"];
 						
 					}
-					$dashboard_text = "" . $temp_status_info["text"] . " | SMART: " . $smart_status_info["text"] . ", " . $unraid_array_info["text"] . "";
+					$dashboard_text = "" . $temp_status_info["text"] . " | SMART: " . $smart_status_info["text"] . " | " . $unraid_array_info["text"] . "";
+					$dashboard_text .= "<br />" . keys_to_content(bscode2html(nl2br(stripslashes(htmlspecialchars($select_db_devices))), true), $devices[$hash]["formatted"]) . "";
 					
 					$disklocation_dash[$gid] .= "
 						<div style=\"order: " . $drive_tray_order[$hash] . "\">
 							<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
 								<div id=\"bg4-" . $device . "\" $add_anim_bg_class style=\"background-color: #" . ( !empty($add_anim_bg_class) ? $color_array_blinker : $color_array[$hash] ) . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
 									<div class=\"flex-container-start\" style=\"text-align: center;/*min-height: 15px;*/\">
-										<a class='info'><i class='" . $dashboard_orb . "'></i><span>" . $dashboard_text . "</span></a>
+										<a href=\"/Main/Device?name=" . $devices[$hash]["raw"]["name"] . "\" class='info'><i class='" . $dashboard_orb . "'></i><span style=\"text-align: left;\">" . $dashboard_text . "</span></a>
 									</div>
 									<div class=\"flex-container-middle_" . $disk_tray_direction . "\" style=\"padding: 0 0 10px 0;\">
 									</div>

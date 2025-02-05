@@ -102,7 +102,7 @@
 			}
 			
 			if($data["bgcolor"] && $status == "a") {
-				array_push($custom_colors_array, $data["bgcolor"]);
+				array_push($custom_colors_array, strtoupper($data["bgcolor"]));
 			}
 			
 			$tray_assign = ( empty($data["tray"]) ? null : $data["tray"] );
@@ -156,7 +156,7 @@
 			
 			$print_drives[$i_drive][$status] .= "
 				<td style=\"white-space: nowrap; padding: 0 10px 0 10px;\">
-					<input type=\"color\" name=\"bgcolor_custom[" . $hash . "]\" list=\"disklocationColors\" value=\"#" . $bgcolor . "\" " . ($device_bg_color ? "disabled=\"disabled\"" : null ) . " />
+					<input type=\"color\" name=\"bgcolor_custom[" . $hash . "]\" list=\"disklocationColorsCus\" value=\"#" . $bgcolor . "\" " . ($device_bg_color ? "disabled=\"disabled\"" : null ) . " />
 					" . ($device_bg_color ? "<input type=\"hidden\" name=\"bgcolor_custom[" . $hash . "]\" value=\"#" . $bgcolor . "\" />" : null ) . "
 				</td>
 
@@ -297,13 +297,13 @@
 	if(isset($custom_colors_array)) {
 		$custom_colors_array_dedup = array_values(array_unique($custom_colors_array));
 		for($i=0; $i < count($custom_colors_array_dedup); ++$i) {
-			$bgcolor_custom_array .= "<option>#" . strtoupper($custom_colors_array_dedup[$i]) . "</option>\n";
+			$bgcolor_custom_array .= ( isset($custom_colors_array_dedup[$i]) ? "<option>#" . strtoupper($custom_colors_array_dedup[$i]) . "</option>\n" : null );
 		}
 	}
 ?>
 <?php if($db_update == 2) { print("<h3>Page unavailable due to database error.</h3><!--"); } ?>
 <script type="text/javascript" src="<?autov("" . DISKLOCATION_PATH . "/pages/script/locate_script_top.js.php")?><?php print("&amp;path=" . DISKLOCATION_PATH . ""); ?>"></script>
-<datalist id="disklocationColors">
+<datalist id="disklocationColorsCus">
 	<?php echo $bgcolor_custom_array ?>
 </datalist>
 <table><tr><td style="padding: 10px 10px 10px 10px;">

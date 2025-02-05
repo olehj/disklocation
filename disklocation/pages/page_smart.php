@@ -155,7 +155,7 @@
 ?>
 <?php if($db_update == 2) { print("<h3>Page unavailable due to database error.</h3><!--"); } ?>
 <table><tr><td style="padding: 10px 10px 10px 10px;">
-<h2 style="margin-top: -10px; padding: 0 0 25px 0;">S.M.A.R.T Errors</h2>
+<h2 style="margin-top: -10px; padding: 0 0 25px 0;">SMART Errors</h2>
 <form action="" method="post">
 <table style="width: 800px; border-spacing: 3px; border-collapse: separate;">
 	<tr>
