@@ -48,7 +48,7 @@
 ###2025.02.XX
  - Commit #365 - FEATURE: Added selected dashboard info to LED "hover" info on Unraid dashboard.
  - Commit #362 - FEATURE: Created a possibility to hide/bypass trays in a group.
- - Commit #361 - IMPROVEMENT: Performace tweak, cleaned up functions and system to improve loading speed.
+ - Commit #361 - IMPROVEMENT: Performance tweak, cleaned up functions and system to improve loading speed.
  - Commit #360 - IMPROVEMENT: Debug function overhauled and made a bit more useful in some cases.
  - Commit #352 - FEATURE: Disk Location plugin time benchmark added, but must be executed manually by entering ?benchmark=1 in the address field. Value is visible in the "System" tab.
  - Commit #351 - FEATURE: Collect SMART errors in an own separate list. Also added possibility to acknowledge all drives at once, but only if plugin is set to allow Unraid config.
@@ -173,7 +173,6 @@ if [ "$INSTALL_PKG" == "true" ] ; then
   <!--# Extract files and move correct directory -->
   unzip "&pluginLOC;/&packagefile;" -d /tmp/&name;-packages/
   mv "/tmp/&name;-packages/&name;-&branch;/&name;" "&emplugLOC;/"
-  <!--tar -jxf "&pluginLOC;/&packagefile;" -C "&emplugLOC;"-->
   <!--# Edit PAGE file  - Dynamically add version number -->
   if [ -f "&emhttpLOC;/&name;.page" ] ; then
     echo "Version=\"&version;\"" &gt;&gt; "&emhttpLOC;/&name;.page"
@@ -216,7 +215,7 @@ EOL
   php -f &emhttpLOC;/pages/page_system.php backup auto
 
 logit "Configuring..."
-# Get sub-configuration
+<!--# Get sub-configuration-->
   if [ -f "&pluginLOC;/disklocation.conf" ]; then
     DISKLOCATION_CSS_SIGNALS=($(jq -re '.signal_css // empty' &pluginLOC;/disklocation.conf))
   fi
@@ -225,7 +224,7 @@ logit "Configuring..."
     DISKLOCATION_CSS_SIGNALS=($(jq -re '.signal_css // empty' &pluginLOC;/settings.json))
   fi
 
-# Stylesheet configuration
+  <!--# Stylesheet configuration-->
   if [ -z $DISKLOCATION_CSS_SIGNALS ]; then
     DISKLOCATION_CSS_SIGNALS="signals.dynamic.css"
   fi
@@ -247,7 +246,7 @@ EOL
   chmod +x &pluginLOC;-&branch;/disklocation.cron
   /usr/local/sbin/update_cron
 
-# Consider if this is an installation or newly booted server. If the system has been running for less than 15 minutes, run cronjob to gather SMART data. @reboot cron does not work on Unraid.
+  <!--# Consider if this is an installation or newly booted server. If the system has been running for less than 15 minutes, run cronjob to gather SMART data. @reboot cron does not work on Unraid.-->
   UPTIME_DATE=`uptime -s`
   UPTIME_UNIX=`date --date "$UPTIME_DATE" +%s`
   UPTIME_SEC=$((`date +%s` - $UPTIME_UNIX))

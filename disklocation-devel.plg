@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.02.05-2337">
+<!ENTITY version          "2025.02.05-0039">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -157,7 +157,6 @@ if [ "$INSTALL_PKG" == "true" ] ; then
   <!--# Extract files and move correct directory -->
   unzip "&pluginLOC;/&packagefile;" -d /tmp/&name;-packages/
   mv "/tmp/&name;-packages/&name;-&branch;/&name;" "&emplugLOC;/"
-  <!--tar -jxf "&pluginLOC;/&packagefile;" -C "&emplugLOC;"-->
   <!--# Edit PAGE file  - Dynamically add version number -->
   if [ -f "&emhttpLOC;/&name;.page" ] ; then
     echo "Version=\"&version;\"" &gt;&gt; "&emhttpLOC;/&name;.page"
@@ -200,7 +199,7 @@ EOL
   php -f &emhttpLOC;/pages/page_system.php backup auto
 
 logit "Configuring..."
-# Get sub-configuration
+<!--# Get sub-configuration-->
   if [ -f "&pluginLOC;/disklocation.conf" ]; then
     DISKLOCATION_CSS_SIGNALS=($(jq -re '.signal_css // empty' &pluginLOC;/disklocation.conf))
   fi
@@ -209,7 +208,7 @@ logit "Configuring..."
     DISKLOCATION_CSS_SIGNALS=($(jq -re '.signal_css // empty' &pluginLOC;/settings.json))
   fi
 
-# Stylesheet configuration
+  <!--# Stylesheet configuration-->
   if [ -z $DISKLOCATION_CSS_SIGNALS ]; then
     DISKLOCATION_CSS_SIGNALS="signals.dynamic.css"
   fi
@@ -231,7 +230,7 @@ EOL
   chmod +x &pluginLOC;-&branch;/disklocation.cron
   /usr/local/sbin/update_cron
 
-# Consider if this is an installation or newly booted server. If the system has been running for less than 15 minutes, run cronjob to gather SMART data. @reboot cron does not work on Unraid.
+  <!--# Consider if this is an installation or newly booted server. If the system has been running for less than 15 minutes, run cronjob to gather SMART data. @reboot cron does not work on Unraid.-->
   UPTIME_DATE=`uptime -s`
   UPTIME_UNIX=`date --date "$UPTIME_DATE" +%s`
   UPTIME_SEC=$((`date +%s` - $UPTIME_UNIX))
