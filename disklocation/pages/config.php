@@ -318,6 +318,7 @@ $(document).ready(function(){
 			</td>
 			<td style="padding-left: 25px; vertical-align: top;">
 				<h2>Updates</h2>
+				<!--
 				<p>
 					<b>Automatic system boot and update scan:</b><br />
 					<input type="radio" name="database_noscan" value="0" <?php if($database_noscan == 0) echo "checked"; ?> />Enabled
@@ -327,6 +328,7 @@ $(document).ready(function(){
 					Enable or disable the auto scan during a plugin installation, update or system boot. If it's disabled it will rely on manual updates (Force Scan All) and S.M.A.R.T update schedules (cronjob).
 					Should likely be disabled if using custom database location which requires Unraid to start and mount arrays.
 				</blockquote>
+				-->
 				<p>
 					<b>S.M.A.R.T updates:</b><br />
 					<input type="radio" name="smart_updates" value="hourly" <?php if($smart_updates_file == "hourly") echo "checked"; ?> />Hourly

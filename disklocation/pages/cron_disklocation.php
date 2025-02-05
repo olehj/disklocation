@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2024, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2025, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -21,7 +21,7 @@
 	require_once("functions.php");
 	
 	$sql_loop = "";
-	
+	/*
 	if(in_array("install", $argv)) {
 		if(file_exists(DISKLOCATION_CONF)) {
 			$config_json = file_get_contents(DISKLOCATION_CONF);
@@ -31,7 +31,7 @@
 			}
 		}
 	}
-	
+	*/
 	if(isset($_GET["force_smart_scan"]) || isset($_GET["active_smart_scan"])) {
 		$time_start = time();
 		if(!isset($argv) || !in_array("silent", $argv)) {
@@ -86,7 +86,7 @@
 	$force_scan = 0;
 	
 	// add and update disk info
-	if(isset($_POST["force_smart_scan"]) || isset($_GET["force_smart_scan"]) || isset($_GET["crontab"]) || $disklocation_new_install || in_array("force", $argv)) {
+	if(isset($_POST["force_smart_scan"]) || isset($_GET["force_smart_scan"]) || isset($_GET["crontab"]) || $disklocation_new_install || in_array("install", $argv) || in_array("force", $argv)) {
 		$force_scan = 1; // trigger force_smart_scan post if it is a new install or if it is forced at CLI
 	}
 	
