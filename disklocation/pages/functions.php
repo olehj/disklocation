@@ -1145,4 +1145,17 @@
 		}
 		else return false;
 	}
+	
+	function check_devicepath_conflict($array) { // return difference, empty if no conflict
+		foreach($array as $key => $value) {
+			$devicepath[] = ( !$array[$key]["raw"]["status"] ? $array[$key]["raw"]["device"] : null );
+		}
+		sort($devicepath);
+		
+		$json_powermode = array_diff(json_decode(file_get_contents(DISKLOCATION_TMP_PATH . "/powermode.json"), true), ['UNKNOWN']);
+		$powermode = array_keys($json_powermode);
+		sort($powermode);
+		
+		return (array_diff($powermode, array_filter($devicepath)));
+	}
 ?>
