@@ -3,9 +3,9 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.02.06">
+<!ENTITY version          "2025.02.07">
 <!ENTITY launch           "Tools/&name;">
-<!ENTITY branch           "2024-edition">
+<!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
 <!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/&branch;/&name;-&branch;.plg">
 <!ENTITY packagefile      "&name;.&version;.zip">
@@ -46,6 +46,9 @@
 
 -->
 <CHANGES>
+###2025.02.07
+ - Commit #368 - MINOR: Fixed an issue were "Fix Common Problems" would trigger a warning about unknown application in "Community Apps"
+
 ###2025.02.06
  - Commit #366 - IMPROVEMENT: Revert a change to do a SMART scan during boot to prevent confusions. Also preparing for Overhaul '25.
 
