@@ -27,6 +27,62 @@
 	
 	$time_start = hrtime(true);
 	
+	if(in_array("syslogread", $argv)) {
+		$file = "/var/log/syslog";
+		
+		$contents = file_get_contents($file, false, null, -8192); // Get last 8KB
+		
+		if($contents === false) {
+			$contents = file_get_contents($file, false, null);
+			if ($contents === false) {
+				die(); // ($file . " does not exists.");
+			}
+		}
+		preg_match_all("/([A-Za-z]{3,3}) .([0-9]{1,2}) ([0-9]{2}:[0-9]{2}:[0-9]{2}) [\w]+ emhttpd: read SMART \/dev\/([a-z]{2,})/", $contents, $matches, PREG_SET_ORDER);
+		
+		$time_now = time();
+		
+		foreach ($matches as $value) {
+			$time_log = $value[1] ." ". $value[2] ." ". $value[3];
+			
+			$time_log = DateTime::createFromFormat('M j H:i:s', $time_log);
+			$time_log_ISO = $time_log->format("Y-m-d H:i:s");
+			$time_log_UNIX = strtotime($time_log_ISO);
+			
+			if(($time_now - $time_log_UNIX) < 290) { // Only care about read devices the last 4:50 (min:sec). Less than 5 minutes cronjob to prevent multiple SMART reads.
+				usleep($smart_exec_delay . 000); // delay script to get the output of the next shell_exec()
+				
+				$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "SMART READ", "TIME: " . $time_log_ISO . " DEVICE: " . $value[4] . "");
+				if(!in_array("silent", $argv)) { print("TIME: " . $time_log_ISO . " DEVICE: " . $value[4] . " "); }
+				
+				// get all SMART data for this device, we grab it ourselves to get all drives also attached to hardware raid cards.
+				$smart_cmd = "smartctl -x --json --quietmode=silent " . $unraid_array[$value[4]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$value[4]]["smart_controller_cmd"] . "") ? "/dev/" . $value[4] : "" ) . "";
+				$smart_run = shell_exec($smart_cmd);
+				
+				$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "SMART CMD", $smart_cmd);
+				
+				$smart_array = json_decode($smart_run, true);
+				
+				$smart_model_name = ( $smart_array["scsi_model_name"] ? $smart_array["scsi_model_name"] : $smart_array["model_name"] );
+				
+				$deviceid[$i] = hash('sha256', $smart_model_name . ( isset($smart_array["serial_number"]) ? $smart_array["serial_number"] : null));
+				
+				// store files in /tmp
+				if(isset($smart_array["serial_number"]) && $smart_model_name) {
+					$filename_smart_data_tmp = DISKLOCATION_TMP_PATH."/smart/".str_replace(" ", "_", $smart_model_name)."_" . $smart_array["serial_number"] . ".json";
+					$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "SMART FILE", $filename_smart_data_tmp);
+					if(!in_array("silent", $argv)) { print("SMART FILE: " . $filename_smart_data_tmp . "\n"); }
+					file_put_contents($filename_smart_data_tmp, $smart_run);
+				}
+			}
+			else {
+				$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "SMART OVERTIME", "TIME: " . $time_log_ISO . " DEVICE: " . $value[4] . "");
+				if(!in_array("silent", $argv)) { print("SMART SKIPPED: " . $value[4] . " (exceeded time limit)\n"); }
+			}
+		}
+		exit();
+	}
+	
 	if(isset($_GET["force_smartdb_scan"]) || isset($_GET["force_smart_scan"]) || isset($_GET["active_smart_scan"])) {
 		if(!isset($argv) || !in_array("silent", $argv)) {
 			print("
