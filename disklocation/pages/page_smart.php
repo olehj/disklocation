@@ -176,6 +176,11 @@
 		</td>
 	</tr>
 </table>
+<?php
+	if(check_smart_files() && empty($print_drives)) {
+		print("<h3 class=\"green\">No errors found</h3><!--");
+	}
+?>
 <div><br /><br /><br /></div>
 <table style="width: 0;">
 	<tr style="border: solid 1px #000000;">
@@ -184,10 +189,12 @@
 		<td style="width: 0; padding: 0 10px 0 10px; vertical-align: top;"><b>Acknowledged</b></td>
 	</tr>
 	<?php 
-		$i=1;
-		while($i <= count($print_drives)) {
-			print($print_drives[$i]);
-			$i++;
+		if(!empty($print_drives)) {
+			$i=1;
+			while($i <= count($print_drives)) {
+				print($print_drives[$i]);
+				$i++;
+			}
 		}
 	?>
 </table>
@@ -202,6 +209,11 @@
 	"Acknowledge all drives" button is only accessible if "Allow editing of Unraid config" is set to "Yes" and there is drives that are not acknowledged.
 	<br />
 </blockquote>
+<?php
+	if(check_smart_files() && empty(!$print_drives)) {
+		print("-->");
+	}
+?>
 </form>
 </td></tr></table>
 <?php if($db_update == 2) { print("-->"); } ?>
