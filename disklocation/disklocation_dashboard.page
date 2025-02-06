@@ -70,7 +70,7 @@ Icon="server"
 		Red:	#f0000c
 	*/
 	
-	if(!check_smart_files()) {
+	if(!check_smart_files() || check_devicepath_conflict($devices)) {
 		$disklocation_dash_out = "<span class=\"red\"><i class=\"icon-u-triangle failed\"></i>Go to Disk Location -&gt; System and initialize a \"Force SMART+DB\"</span>";
 	}
 	if(empty($array_groups)) {
