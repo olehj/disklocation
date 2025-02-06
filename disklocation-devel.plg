@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.02.06-2101">
+<!ENTITY version          "2025.02.06-2314">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -229,7 +229,6 @@ EOL
 
   php -f &emhttpLOC;/pages/cronjob.php start status
   chmod +x &pluginLOC;-&branch;/disklocation.cron
-  /usr/local/sbin/update_cron
 
   <!--# Consider if this is an installation or newly booted server. If the system has been running for less than 15 minutes, run cronjob to gather SMART data. @reboot cron does not work on Unraid.-->
   UPTIME_DATE=`uptime -s`
@@ -241,6 +240,9 @@ EOL
   else
     logit "Uptime is above 15 minutes: Force SMART must be started manually unless the files already exists."
   fi
+  
+  <!--# Update installed cronjob -->
+  /usr/local/sbin/update_cron
   
   logit "Plugin installed successfully!"
   exit 0
@@ -306,6 +308,7 @@ logit "Removing plugin..."
 [ -d "/tmp/disklocation" ] &amp;&amp; rm -rf "/tmp/disklocation"
 [ -f "&pluginLOC;-&branch;/powermode.cron" ] &amp;&amp; rm -f "&pluginLOC;-&branch;/powermode.cron"
 [ -f "&pluginLOC;-&branch;/disklocation.cron" ] &amp;&amp; rm -f "&pluginLOC;-&branch;/disklocation.cron"
+[ -d "&pluginLOC;-&branch;" ] &amp;&amp; rmdir "&pluginLOC;-&branch;"
 /usr/local/sbin/update_cron
 rm -f &pluginLOC;/disklocation.*.tar.bz2
 rm -f &pluginLOC;/disklocation.*.zip

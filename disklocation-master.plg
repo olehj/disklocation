@@ -46,7 +46,7 @@
 
 <CHANGES>
 ###2025.02.XX
- - Commit #369 - IMPROVEMENT: Use syslog to detect SMART read events..
+ - Commit #369 - IMPROVEMENT: Use syslog to detect SMART read events.
  - Commit #365 - FEATURE: Added selected dashboard info to LED "hover" info on Unraid dashboard.
  - Commit #362 - FEATURE: Created a possibility to hide/bypass trays in a group.
  - Commit #361 - IMPROVEMENT: Performance tweak, cleaned up functions and system to improve loading speed.
@@ -246,7 +246,6 @@ EOL
 
   php -f &emhttpLOC;/pages/cronjob.php start status
   chmod +x &pluginLOC;-&branch;/disklocation.cron
-  /usr/local/sbin/update_cron
 
   <!--# Consider if this is an installation or newly booted server. If the system has been running for less than 15 minutes, run cronjob to gather SMART data. @reboot cron does not work on Unraid.-->
   UPTIME_DATE=`uptime -s`
@@ -258,6 +257,9 @@ EOL
   else
     logit "Uptime is above 15 minutes: Force SMART must be started manually unless the files already exists."
   fi
+  
+  <!--# Update installed cronjob -->
+  /usr/local/sbin/update_cron
   
   logit "Plugin installed successfully!"
   exit 0
@@ -323,6 +325,7 @@ logit "Removing plugin..."
 [ -d "/tmp/disklocation" ] &amp;&amp; rm -rf "/tmp/disklocation"
 [ -f "&pluginLOC;-&branch;/powermode.cron" ] &amp;&amp; rm -f "&pluginLOC;-&branch;/powermode.cron"
 [ -f "&pluginLOC;-&branch;/disklocation.cron" ] &amp;&amp; rm -f "&pluginLOC;-&branch;/disklocation.cron"
+[ -d "&pluginLOC;-&branch;" ] &amp;&amp; rmdir "&pluginLOC;-&branch;"
 /usr/local/sbin/update_cron
 rm -f &pluginLOC;/disklocation.*.tar.bz2
 rm -f &pluginLOC;/disklocation.*.zip
