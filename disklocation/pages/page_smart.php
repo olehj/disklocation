@@ -210,7 +210,7 @@
 	<br />
 </blockquote>
 <?php
-	if(check_smart_files() && empty(!$print_drives)) {
+	if(check_smart_files() && empty($print_drives)) {
 		print("-->");
 	}
 ?>
