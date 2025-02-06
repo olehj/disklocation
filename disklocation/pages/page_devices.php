@@ -85,7 +85,7 @@
 			");
 		}
 		else if(!check_smart_files()) {
-			print("<h1 style=\"color: #f0000c; text-align: center;\">Go to System and initialize a \"Force SMART[+DB]\"</h1>");
+			print("<h1 class=\"red\" style=\"text-align: center;\">Go to System and initialize a \"Force SMART+DB\"</h1>");
 		}
 		else {
 			print($disklocation_page_out);
