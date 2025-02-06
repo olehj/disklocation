@@ -71,10 +71,10 @@ Icon="server"
 	*/
 	
 	if(!check_smart_files()) {
-		$disklocation_dash_out = "<span style=\"color: #f0000c;\"><i class=\"icon-u-triangle failed\"></i>Go to Disk Location -&gt; System and initialize a \"Force SMART[+DB]\"</span>";
+		$disklocation_dash_out = "<span class=\"red\"><i class=\"icon-u-triangle failed\"></i>Go to Disk Location -&gt; System and initialize a \"Force SMART+DB\"</span>";
 	}
 	if(empty($array_groups)) {
-		$disklocation_dash_out = "<span style=\"color: #f0000c;\"><i class=\"icon-u-triangle failed\"></i>Disk Location is not configured.</span>";
+		$disklocation_dash_out = "<span class=\"red\"><i class=\"icon-u-triangle failed\"></i>Disk Location is not configured.</span>";
 	}
 
 $mytiles[$pluginname]['column1'] =
