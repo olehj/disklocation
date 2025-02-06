@@ -46,6 +46,7 @@
 
 <CHANGES>
 ###2025.02.XX
+ - Commit #369 - IMPROVEMENT: Use syslog to detect SMART read events..
  - Commit #365 - FEATURE: Added selected dashboard info to LED "hover" info on Unraid dashboard.
  - Commit #362 - FEATURE: Created a possibility to hide/bypass trays in a group.
  - Commit #361 - IMPROVEMENT: Performance tweak, cleaned up functions and system to improve loading speed.
@@ -238,6 +239,7 @@ logit "Configuring..."
 # Crontab for Disk Location plugin to retrieve SMART data, power status and run backup in the background.
 56 */12 * * * php -f &emhttpLOC;/pages/cronjob.php start silent &amp;&gt; /dev/null
 */5 * * * * php -f &emhttpLOC;/pages/cronjob.php start status silent &amp;&gt; /dev/null
+*/5 * * * * php -f &emhttpLOC;/pages/cronjob.php start syslogread silent &amp;&gt; /dev/null
 0 0 * * * php -f &emhttpLOC;/pages/page_system.php backup auto silent &amp;&gt; /dev/null
 0 5 1 * * php -f &emhttpLOC;/pages/benchmark.php auto silent &amp;&gt; /dev/null
 EOL
