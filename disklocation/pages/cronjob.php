@@ -146,9 +146,9 @@
 		include("system.php");
 	}
 	
-	if($force_scan || in_array("start", $argv) || $_GET["active_smart_scan"] || $_POST["active_smart_scan"]) {
+	if($force_scan || $force_scan_db || in_array("start", $argv) || $_GET["active_smart_scan"] || $_POST["active_smart_scan"]) {
 		if(!file_exists("/tmp/disklocation/smart")) {
-			mkdir("/tmp/disklocation/smart");
+			mkdir("/tmp/disklocation/smart", 0777, true);
 		}
 		
 		if($force_scan_db && !in_array("status", $argv)) {
