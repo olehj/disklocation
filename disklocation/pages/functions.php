@@ -127,6 +127,8 @@
 	$bgcolor_others_default = $bgcolor_others;
 	$bgcolor_empty_default = $bgcolor_empty;
 	
+	$displayinfo_default = $displayinfo;
+	
 	$sql_status = "";
 
 	// get Unraid disks
