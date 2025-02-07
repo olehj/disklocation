@@ -86,8 +86,6 @@
 		'flashcritical' => 1
 	));
 	
-	$displayinfo_default = $displayinfo;
-	
 	$select_db_info = "group,tray,manufacturer,model,serial,capacity,cache,rotation,formfactor,read,written,manufactured,purchased,installed,warranty,comment";
 	$sort_db_info = "asc:group,tray";
 	
