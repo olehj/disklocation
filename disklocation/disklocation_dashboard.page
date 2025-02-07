@@ -65,13 +65,11 @@ Icon="server"
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/styles/signals.css");
 	print("</style>");
 	
-	/*
-		Green:	#4f8a10
-		Red:	#f0000c
-	*/
+	$check_smart_files = check_smart_files();
+	$check_devicepath_conflict = check_devicepath_conflict($devices);
 	
-	if(!check_smart_files() || check_devicepath_conflict($devices)) {
-		$disklocation_dash_out = "<span class=\"red\"><i class=\"icon-u-triangle failed\"></i>Go to Disk Location -&gt; System and initialize a \"Force SMART+DB\"</span>";
+	if(!$check_smart_files || $check_devicepath_conflict) {
+		$disklocation_dash_out = "<span class=\"red\"><i class=\"icon-u-triangle failed\"></i>Go to Disk Location -&gt; System and initialize a \"Force SMART" . ( !empty($check_devicepath_conflict) ? "+DB" : null ) . "\"</span>";
 	}
 	if(empty($array_groups)) {
 		$disklocation_dash_out = "<span class=\"red\"><i class=\"icon-u-triangle failed\"></i>Disk Location is not configured.</span>";
