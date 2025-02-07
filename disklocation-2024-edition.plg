@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.02.07">
+<!ENTITY version          "2025.02.08">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "2024-edition">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -46,6 +46,9 @@
 
 -->
 <CHANGES>
+###2025.02.08
+ - Commit #370 - MINOR: Blank displayinfo on update in some occasions, likely due to empty config without pulling the default config.
+
 ###2025.02.07
  - Commit #368 - MINOR: Fixed an issue were "Fix Common Problems" would trigger a warning about unknown application in "Community Apps"
 
