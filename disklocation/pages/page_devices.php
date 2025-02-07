@@ -64,6 +64,9 @@
 </blockquote>
 
 <?php
+	$check_smart_files = check_smart_files();
+	$check_devicepath_conflict = check_devicepath_conflict($devices);
+	
 	if($db_update == 2) {
 		print("-->");
 	}
@@ -84,9 +87,10 @@
 				</td></tr></table>
 			");
 		}
-		else if(!check_smart_files() || check_devicepath_conflict($devices)) {
+		else if(!$check_smart_files || $check_devicepath_conflict) {
+			$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "FUNCTION: check_smart_files", (check_smart_files() ? 1 : 0 ));
 			$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "FUNCTION: check_devicepath_conflict", check_devicepath_conflict($devices));
-			print("<h1 class=\"red\" style=\"text-align: center;\">Go to System and initialize a \"Force SMART+DB\"</h1>");
+			print("<h1 class=\"red\" style=\"text-align: center;\">Go to System and initialize a \"Force SMART" . ( !empty($check_devicepath_conflict) ? "+DB" : null ) . "\"</h1>");
 		}
 		else {
 			print($disklocation_page_out);

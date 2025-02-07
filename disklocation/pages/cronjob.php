@@ -174,6 +174,8 @@
 			
 			$devices_current = (empty($get_devices) ? array() : $get_devices);
 			$locations_current = (empty($get_locations) ? array() : $get_locations);
+			
+			unlink(POWERMODE_FILE); // remove powermode file when force scanning.
 		}
 		
 		$i=0;

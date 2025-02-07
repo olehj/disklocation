@@ -1146,16 +1146,26 @@
 		else return false;
 	}
 	
-	function check_devicepath_conflict($array) { // return difference, empty if no conflict
-		foreach($array as $key => $value) {
-			$devicepath[] = ( !$array[$key]["raw"]["status"] ? $array[$key]["raw"]["device"] : null );
+	function check_devicepath_conflict($array) { // return difference or 1 if conflict, empty if no conflict
+		if(is_array($array) && !empty($array)) {
+			if(file_exists(DISKLOCATION_TMP_PATH . "/powermode.json")) {
+				$json_array = json_decode(file_get_contents(DISKLOCATION_TMP_PATH . "/powermode.json"), true);
+				if(is_array($json_array) && !empty($json_array)) {
+					foreach($array as $key => $value) {
+						$devicepath[] = ( $array[$key]["raw"]["status"] != 'r' ? $array[$key]["raw"]["device"] : null );
+					}
+					sort($devicepath);
+					
+					$json_powermode = array_diff($json_array, ['UNKNOWN']);
+					$powermode = array_keys($json_powermode);
+					sort($powermode);
+					
+					return (array_diff($powermode, array_filter($devicepath)));
+				}
+				else return 1; // 1 = found conflict
+			}
+			else return 1;
 		}
-		sort($devicepath);
-		
-		$json_powermode = array_diff(json_decode(file_get_contents(DISKLOCATION_TMP_PATH . "/powermode.json"), true), ['UNKNOWN']);
-		$powermode = array_keys($json_powermode);
-		sort($powermode);
-		
-		return (array_diff($powermode, array_filter($devicepath)));
+		else return 1;
 	}
 ?>
