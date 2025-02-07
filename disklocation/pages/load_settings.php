@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2024, Ole-Henrik Jakobsen
+	 *  Copyright 2024-2025, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -26,7 +26,7 @@
 		extract($data);
 	}
 	
-	$displayinfo = json_decode($displayinfo, true);
+	$displayinfo = ( !empty($displayinfo) ? json_decode($displayinfo, true) : json_decode($displayinfo_default, true) ) ;
 	
 	//dashboard_toggle($dashboard_widget_pos); 
 	//cronjob_timer($smart_updates);
