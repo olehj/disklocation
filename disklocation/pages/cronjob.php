@@ -305,6 +305,27 @@
 							}
 						}
 						
+						$smart_endurance_used = null;
+						if(isset($smart_array["ata_device_statistics"]["pages"])) {
+							$smart_i = 0;
+							while($smart_i < count($smart_array["ata_device_statistics"]["pages"])) {
+								if($smart_array["ata_device_statistics"]["pages"][$smart_i]["name"] == "Solid State Device Statistics") {
+									$smart_ssd_stats = ( isset($smart_array["ata_device_statistics"]["pages"][$smart_i]["table"]) ? $smart_array["ata_device_statistics"]["pages"][$smart_i]["table"] : null );
+									if(isset($smart_ssd_stats)) {
+										foreach($smart_ssd_stats as $id => $value) {
+											if($value["name"] == "Percentage Used Endurance Indicator") {
+												$smart_endurance_used = 100-$value["value"];
+											}
+										}
+									}
+								}
+								$smart_i++;
+							}
+						}
+						
+						$smart_endurance_used = ( isset($smart_array["nvme_smart_health_information_log"]["percentage_used"]) ? 100-$smart_array["nvme_smart_health_information_log"]["percentage_used"] : $smart_endurance_used );
+						$devices[$hash]["formatted"]["endurance"] = ( isset($devices[$hash]["raw"]["endurance"]) ? $devices[$hash]["raw"]["endurance"] . "%" : null );
+						
 						if(isset($smart_array["serial_number"]) && $smart_model_name) {
 							$update[$deviceid[$i]] = array( // overwrite selected values
 								"device" => ($lsscsi_device[$i] ?? null),
@@ -319,6 +340,7 @@
 								"logical_block_size" => $smart_array["logical_block_size"],
 								"smart_units_read" => $smart_units_read,
 								"smart_units_written" => $smart_units_written,
+								"endurance" => $smart_endurance_used,
 								"loadcycle" => $smart_loadcycle,
 								"powerontime" => $smart_array["power_on_time"]["hours"],
 								"status" => ( !file_exists(DISKLOCATION_DEVICES) ? 'h' : $devices_current[$deviceid[$i]]["status"] )

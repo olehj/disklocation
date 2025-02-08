@@ -204,6 +204,9 @@
 			$raw_devices[$i]["capacity"] = $get_devices[$hash]["capacity"];
 			$raw_devices[$i]["rotation"] = $get_devices[$hash]["rotation"];
 			$raw_devices[$i]["formfactor"] = $get_devices[$hash]["formfactor"];
+			$raw_devices[$i]["smart_units_read"] = $get_devices[$hash]["smart_units_read"];
+			$raw_devices[$i]["smart_units_written"] = $get_devices[$hash]["smart_units_written"];
+			$raw_devices[$i]["endurance"] = $get_devices[$hash]["endurance"];
 			$raw_devices[$i]["manufactured"] = $get_devices[$hash]["manufactured"];
 			$raw_devices[$i]["purchased"] = $get_devices[$hash]["purchased"];
 			$raw_devices[$i]["installed"] = $get_devices[$hash]["installed"];

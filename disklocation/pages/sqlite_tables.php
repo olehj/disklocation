@@ -1018,6 +1018,14 @@
 					$settings["device_bg_color"] = $res["dashboard_widget"];
 					$settings["serial_trim"] = $res["dashboard_widget_pos"];
 					$settings["displayinfo"] = json_decode($res["displayinfo"], true);
+					
+					$res["select_db_info"] = str_replace("nvme_used", "endurance", $res["select_db_info"]);
+					$res["sort_db_info"] = str_replace("nvme_used", "endurance", $res["sort_db_info"]);
+					$res["select_db_trayalloc"] = str_replace("nvme_used", "endurance", $res["select_db_trayalloc"]);
+					$res["sort_db_trayalloc"] = str_replace("nvme_used", "endurance", $res["sort_db_trayalloc"]);
+					$res["select_db_drives"] = str_replace("nvme_used", "endurance", $res["select_db_drives"]);
+					$res["sort_db_drives"] = str_replace("nvme_used", "endurance", $res["sort_db_drives"]);
+					
 					$settings["select_db_info"] = implode(",", array_filter(explode(",", preg_replace("/\b(" . implode("|", $removed_selectors) . ")\b/", "", $res["select_db_info"]))));
 					$settings["sort_db_info"] = implode(",", array_filter(explode(",", preg_replace("/\b(" . implode("|", $removed_selectors) . ")\b/", "", $res["sort_db_info"]))));
 					$settings["select_db_trayalloc"] = implode(",", array_filter(explode(",", preg_replace("/\b(" . implode("|", $removed_selectors) . ")\b/", "", $res["select_db_trayalloc"]))));
@@ -1112,6 +1120,7 @@
 					$devices[$res["hash"]]["logical_block_size"] = $res["smart_logical_block_size"];
 					$devices[$res["hash"]]["smart_units_read"] = $res["smart_units_read"];
 					$devices[$res["hash"]]["smart_units_written"] = $res["smart_units_written"];
+					$devices[$res["hash"]]["endurance"] = $res["smart_nvme_percentage_used"];
 					$devices[$res["hash"]]["manufactured"] = $res["manufactured"];
 					$devices[$res["hash"]]["purchased"] = $res["purchased"];
 					$devices[$res["hash"]]["installed"] = $res["installed"];

@@ -39,6 +39,7 @@
 		$smart_powermode = "";
 		$smart_loadcycle = "";
 		$smart_temperature = 0;
+		$smart_endurance_used = null;
 		
 		$gid = $array_locations[$hash]["groupid"];
 		$groupid = $gid;
@@ -112,17 +113,38 @@
 		$devices[$hash]["raw"]["logical_block_size"] = $smart_array["logical_block_size"];
 		$devices[$hash]["formatted"]["logical_block_size"] = $devices[$hash]["raw"]["logical_block_size"];
 		$devices[$hash]["raw"]["nvme_available_spare"]  = $smart_array["nvme_smart_health_information_log"]["available_spare"];
-		$devices[$hash]["formatted"]["nvme_available_spare"]  = ( !empty($devices[$hash]["raw"]["nvme_available_spare"]) ? $devices[$hash]["raw"]["nvme_available_spare"] . "%" : null );
+		$devices[$hash]["formatted"]["nvme_available_spare"]  = ( isset($devices[$hash]["raw"]["nvme_available_spare"]) ? $devices[$hash]["raw"]["nvme_available_spare"] . "%" : null );
 		$devices[$hash]["raw"]["nvme_available_spare_threshold"] = $smart_array["nvme_smart_health_information_log"]["available_spare_threshold"];
 		$devices[$hash]["formatted"]["nvme_available_spare_threshold"] = $devices[$hash]["raw"]["nvme_available_spare_threshold"];
-		$devices[$hash]["raw"]["nvme_percentage_used"] =  $smart_array["nvme_smart_health_information_log"]["percentage_used"];
-		$devices[$hash]["formatted"]["nvme_percentage_used"] = ( !empty($devices[$hash]["raw"]["nvme_percentage_used"]) ? $devices[$hash]["raw"]["nvme_percentage_used"] . "%" : null );
+		
+		if(isset($smart_array["ata_device_statistics"]["pages"])) {
+			$smart_i = 0;
+			while($smart_i < count($smart_array["ata_device_statistics"]["pages"])) {
+				if($smart_array["ata_device_statistics"]["pages"][$smart_i]["name"] == "Solid State Device Statistics") {
+					$smart_ssd_stats = ( isset($smart_array["ata_device_statistics"]["pages"][$smart_i]["table"]) ? $smart_array["ata_device_statistics"]["pages"][$smart_i]["table"] : null );
+					if(isset($smart_ssd_stats)) {
+						foreach($smart_ssd_stats as $id => $value) {
+							if($value["name"] == "Percentage Used Endurance Indicator") {
+								$smart_endurance_used = 100-$value["value"];
+							}
+						}
+					}
+				}
+				$smart_i++;
+			}
+		}
+		
+		$devices[$hash]["raw"]["endurance"] = ( isset($smart_array["nvme_smart_health_information_log"]["percentage_used"]) ? 100-$smart_array["nvme_smart_health_information_log"]["percentage_used"] : $smart_endurance_used );
+		$devices[$hash]["formatted"]["endurance"] = ( isset($devices[$hash]["raw"]["endurance"]) ? $devices[$hash]["raw"]["endurance"] . "%" : null );
 		
 		// Both DB $data & SMART files $smart_array:
-		$devices[$hash]["raw"]["smart_units_read"] = ( ($devices[$hash]["raw"]["rotation"] == -2) ? smart_units_to_bytes(($data["smart_units_read"] ? $data["smart_units_read"] : 0), $devices[$hash]["raw"]["logical_block_size"], true) : smart_units_to_bytes(($data["smart_units_read"] ? $data["smart_units_read"] : 0), $devices[$hash]["raw"]["logical_block_size"], true, true) );
+		$dev_calc_unit_size = ( $devices[$hash]["raw"]["rotation"] == -1 ? 32 : $devices[$hash]["raw"]["logical_block_size"] );
+		$dev_calc_unit_factor = ( $devices[$hash]["raw"]["rotation"] == -1 ? 1024*1024 : 1000 );
+		
+		$devices[$hash]["raw"]["smart_units_read"] = ( ($devices[$hash]["raw"]["rotation"] < 0) ? smart_units_to_bytes(($data["smart_units_read"] ? $data["smart_units_read"] : 0), $dev_calc_unit_size, $dev_calc_unit_factor) : smart_units_to_bytes(($data["smart_units_read"] ? $data["smart_units_read"] : 0), $dev_calc_unit_size, $dev_calc_unit_factor, true) );
 		$devices[$hash]["formatted"]["smart_units_read"] = human_filesize($devices[$hash]["raw"]["smart_units_read"], 1, true);
 		
-		$devices[$hash]["raw"]["smart_units_written"] = ( ($devices[$hash]["raw"]["rotation"] == -2) ? smart_units_to_bytes(($data["smart_units_written"] ? $data["smart_units_written"] : 0), $devices[$hash]["raw"]["logical_block_size"], true) : smart_units_to_bytes(($data["smart_units_written"] ? $data["smart_units_written"] : 0), $devices[$hash]["raw"]["logical_block_size"], true, true) );
+		$devices[$hash]["raw"]["smart_units_written"] = ( ($devices[$hash]["raw"]["rotation"] < 0) ? smart_units_to_bytes(($data["smart_units_written"] ? $data["smart_units_written"] : 0), $dev_calc_unit_size, $dev_calc_unit_factor) : smart_units_to_bytes(($data["smart_units_written"] ? $data["smart_units_written"] : 0), $dev_calc_unit_size, $dev_calc_unit_factor, true) );
 		$devices[$hash]["formatted"]["smart_units_written"] = human_filesize($devices[$hash]["raw"]["smart_units_written"], 1, true);
 		
 		// SMART data to be parsed on deeper level:

@@ -135,8 +135,8 @@
 	
 	$select_db_drives_default = $select_db_drives;
 	$sort_db_drives_default = $sort_db_drives;
-	$allowed_db_select_drives =    "0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,0,0,0";
-	$allowed_db_sort_drives =      "0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,0,0,0";
+	$allowed_db_select_drives =    "0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,0,0,1";
+	$allowed_db_sort_drives =      "0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,0,0,1";
 	
 	$select_db_devices_default = $select_db_devices;
 	
