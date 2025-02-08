@@ -397,6 +397,7 @@
 		$print_list_backup .= "
 					<tr>
 						<td></td>
+						<td></td>
 						<td style=\"text-align: right;\">Total size: </td>
 						<td style=\"text-align: right; padding: 0 0 0 20px; white-space: nowrap;\">
 							" . ( function_exists('human_filesize') ? human_filesize($total_bak_size, 1, true) : $total_bak_size . " bytes" ) . "
