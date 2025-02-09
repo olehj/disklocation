@@ -20,14 +20,14 @@
 	 */
 	$vi_width = 180;
 	
-	if(!empty($disklocation_error)) {
+	if(!empty($disklocation_error) && isset($_POST["save_groupsettings"])) {
 		$i=0;
-		print("<h2 style=\"color: #FF0000; font-weight: bold;\">");
+		print("<h2 style=\"margin: 0; color: #FF0000; font-weight: bold;\">ERROR Could not save the configuration (previous form restored):</h2><br /><span style=\"font-size: medium;\">");
 		while($i < count($disklocation_error)) {
-			print("&middot; ERROR: " . $disklocation_error[$i] . "<br />");
+			print("&middot; " . $disklocation_error[$i] . "<br />");
 			$i++;
 		}
-		print("</h2><hr style=\"border: 1px solid #FF0000;\" /><br /><br />");
+		print("</span><hr style=\"clear: both; border-bottom: 1px solid #FF0000;\" /><br /><br /><br />");
 	}
 	
 	$last_group_id = 0;

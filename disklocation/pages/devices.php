@@ -32,7 +32,10 @@
 	
 	$select_db_devices = ( !empty($select_db_devices) ? $select_db_devices : $select_db_devices_default );
 	
+	$page_time_load_array = ( $debug || isset($_GET["benchmark"]) ? hrtime(true) : null );
 	require_once("array_devices.php");
+	$page_time_load["array"] = round((hrtime(true)-$page_time_load_array)/1e+6, 1);
+	print(isset($_GET["benchmark"]) ? "<h3 style=\"position: fixed; left: 900px; bottom: 60px; white-space: no-wrap; color: #0099FF; background-color: #111111;\">array: " . round((hrtime(true)-$page_time_load_array)/1e+6, 1) . " ms</h3>\n" : null);
 	
 	foreach($array_groups as $id => $value) {
 		$group_color = "";
@@ -329,7 +332,7 @@
 							$zfs_disk_status = zfs_disk("" . $data["smart_serialnumber"] . "", $zfs_parser, $lsblk_array);
 						}
 						
-						$unraid_disk_status_color = get_powermode($device);
+						$unraid_disk_status_color = get_powermode($device, $get_powermode);
 						
 						if(!empty($unraid_array[$devicenode]["color"]) && !empty($unraid_array[$devicenode]["status"])) {
 							$unraid_array_icon = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"], '', $force_orb_led);

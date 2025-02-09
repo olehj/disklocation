@@ -36,7 +36,6 @@
 		$installed_date = "";
 		$smart_status = 0;
 		$smart_status_icon = "";
-		$smart_powermode = "";
 		$smart_loadcycle = "";
 		$smart_temperature = 0;
 		$smart_endurance_used = null;

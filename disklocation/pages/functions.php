@@ -250,6 +250,7 @@
 		$return_forms = array();
 		$return_allow_colm = array();
 		$return_allow_sort = array();
+		$return_errors = array();
 		
 		if($return != 4) {
 			if($return != 3) {
@@ -264,10 +265,8 @@
 							$return_allow_colm[$select[$i]] = $table_allowed[$select[$i]];
 						}
 					}
-					
-					if($return_table[$i] === false) { 
-						return "Table column \"" . $select[$i] . "\" does not exist.\n";
-						break;
+					if(!$return_table[$i]) {
+						$return_errors[] = $select[$i];
 					}
 				}
 			}
@@ -276,16 +275,15 @@
 				$return_sort = array();
 				$arr_length = count($sort_col);
 				for($i=0;$i<$arr_length;$i++) {
-					$check_sort = array_search($sort_col[$i], $input);
+					$check_sort[$i] = array_search($sort_col[$i], $table_sql);
 					$return_sort[] = $table_user[$sort_col[$i]];
 					if($return == 3 && !empty($test)) {
 						if($table_allowed[$sort_col[$i]] == 0) {
 							$return_allow_sort[$sort_col[$i]] = $table_allowed[$sort_col[$i]];
 						}
 					}
-					if($check_sort === false) { 
-						return "Sort value \"" . $sort_col[$i] . "\" does not exist.\n";
-						break;
+					if(!$check_sort[$i]) {
+						$return_errors[] = $sort_col[$i];
 					}
 				}
 				for($i=0;$i<count($return_sort);$i++) {
@@ -325,18 +323,9 @@
 				
 				break;
 			case 2:
-				if($return_allow_colm) {
-					$return_allow_colm = array_keys($return_allow_colm, '0');
-					return "Table column [" . implode(",", $return_allow_colm) . "] not allowed to use for this table.\n";
-				}
-				else {
-					return false;
-				}
-				break;
 			case 3:
-				if($return_allow_sort) {
-					$return_allow_sort = array_keys($return_allow_sort, '0');
-					return "Table sort [" . implode(",", $return_allow_sort) . "] not allowed to use for this table.\n";
+				if($return_errors) {
+					return $return_errors;
 				}
 				else {
 					return false;
@@ -577,8 +566,8 @@
 		}
 	}
 	
-	function get_powermode($device) {
-		switch(config(POWERMODE_FILE, 'r', $device)) {
+	function get_powermode($device, $array) {
+		switch($array[$device]) {
 			case "ACTIVE":
 				return "green-on";
 				break;
@@ -596,20 +585,15 @@
 		}
 	}
 	
-	function zfs_check() {
-		if(is_file("/usr/sbin/zpool")) {
-			$status = shell_exec("/usr/sbin/zpool status");
-			if(preg_match("/\bstate\b/i", $status)) {
-				return $status;
-			}
-			else {
-				return 0;
-			}
+	function zfs_check($status) {
+		if(preg_match("/\bstate\b/i", $status)) {
+			return $status;
 		}
 		else {
 			return 0;
 		}
 	}
+	
 	function zfs_parser($str) {
 		$result = array();
 		
@@ -1131,6 +1115,18 @@
 			return false;
 		}
 		else return true;
+	}
+	
+	function dirsize($path) {
+		$bytestotal = 0;
+		$path = realpath($path);
+		
+		if($path !== false && $path != '' && file_exists($path)) {
+			foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS)) as $object) {
+				$bytestotal += $object->getSize();
+			}
+		}
+		return $bytestotal;
 	}
 	
 	function check_smart_files() { // return true if files found

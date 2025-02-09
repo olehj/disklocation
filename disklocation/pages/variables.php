@@ -36,6 +36,8 @@
 	define("DISKLOCATION_LOCATIONS", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/locations.json");
 	define("DISKLOCATION_GROUPS", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/groups.json");
 	define("DISKLOCATION_LOCK_FILE", DISKLOCATION_TMP_PATH . "/db.lock");
+	define("DISKLOCATION_LSBLK", DISKLOCATION_TMP_PATH . "/lsblk.json");
+	define("DISKLOCATION_ZPOOL", DISKLOCATION_TMP_PATH . "/zpool_status.dat");
 	define("CRONJOB_URL", DISKLOCATION_PATH . "/pages/cronjob.php");
 	define("CRONJOB_FILE", EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/cronjob.php");
 	define("POWERMODE_FILE", DISKLOCATION_TMP_PATH . "/powermode.json");
@@ -59,6 +61,19 @@
 	$get_page_info = parse_ini_file("" . EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/disklocation.page");
 	define("DISKLOCATION_VERSION", $get_page_info["Version"]);
 	$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: get_page_info", $get_page_info);
+	
+	if(file_exists(POWERMODE_FILE)) {
+		$get_powermode = json_decode(file_get_contents(POWERMODE_FILE), true);
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: get_powermode", $get_powermode);
+	}
+	if(file_exists(DISKLOCATION_LSBLK)) {
+		$lsblk_array = json_decode(file_get_contents(DISKLOCATION_LSBLK), true);
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: lsblk", $lsblk_array);
+	}
+	if(file_exists(DISKLOCATION_ZPOOL)) {
+		$zpool_status = file_get_contents(DISKLOCATION_ZPOOL);
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "FILE: zpool_status", $zpool_status);
+	}
 	
 	if(file_exists(DISKLOCATION_CONF)) {
 		$get_disklocation_config = json_decode(file_get_contents(DISKLOCATION_CONF), true);

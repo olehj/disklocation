@@ -80,6 +80,16 @@
 				if(!in_array("silent", $argv)) { print("SMART SKIPPED: " . $value[4] . " (exceeded time limit)\n"); }
 			}
 		}
+		
+		// grab changes just in case, this will decrease Disk Location plugin loading time drastically.
+		$lsblk_json = shell_exec("lsblk -p -o NAME,MOUNTPOINT,SERIAL,PATH --json");
+		file_put_contents(DISKLOCATION_LSBLK, $lsblk_json);
+		
+		if(is_file("/usr/sbin/zpool")) {
+			$zpool_status = shell_exec("/usr/sbin/zpool status");
+			file_put_contents(DISKLOCATION_ZPOOL, $zpool_status);
+		}
+		
 		exit();
 	}
 	
@@ -149,6 +159,14 @@
 	if($force_scan || $force_scan_db || in_array("start", $argv) || $_GET["active_smart_scan"] || $_POST["active_smart_scan"]) {
 		if(!file_exists("/tmp/disklocation/smart")) {
 			mkdir("/tmp/disklocation/smart", 0777, true);
+		}
+		
+		// grab changes just in case, this will decrease Disk Location plugin loading time drastically.
+		$lsblk_json = shell_exec("lsblk -p -o NAME,MOUNTPOINT,SERIAL,PATH --json");
+		file_put_contents(DISKLOCATION_LSBLK, $lsblk_json);
+		if(is_file("/usr/sbin/zpool")) {
+			$zpool_status = shell_exec("/usr/sbin/zpool status");
+			file_put_contents(DISKLOCATION_ZPOOL, $zpool_status);
 		}
 		
 		if($force_scan_db && !in_array("status", $argv)) {

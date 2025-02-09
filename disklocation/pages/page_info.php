@@ -153,7 +153,11 @@
 		</td>
 	</tr>
 </table>
-<div><br /><br /><br /></div>
+<div><br />
+<?php
+	if(!empty($check_select_info) || !empty($check_sort_info)) { print("<span style=\"display: block;\" class=\"red\"><b>Table column and/or sort is faulty, please correct it under Configuration. Default column and order is used.</b></span>"); }
+?>
+<br /><br /></div>
 <table style="width: 0;">
 	<tr style="border: solid 1px #000000;">
 		<?php print($table_info_order_name_html); ?>

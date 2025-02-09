@@ -22,14 +22,14 @@
 	
 	// Tray Allocations & Unassigned Devices
 	
-	if(!empty($disklocation_error)) {
+	if(!empty($disklocation_error) && isset($_POST["save_allocations"])) {
 		$i=0;
-		print("<h2 style=\"color: #FF0000; font-weight: bold;\">");
+		print("<h2 style=\"margin: 0; color: #FF0000; font-weight: bold;\">ERROR Could not save the configuration (previous form restored):</h2><br /><span style=\"font-size: medium;\">");
 		while($i < count($disklocation_error)) {
-			print("&middot; ERROR: " . $disklocation_error[$i] . "<br />");
+			print("&middot; " . $disklocation_error[$i] . "<br />");
 			$i++;
 		}
-		print("</h2><hr style=\"border: 1px solid #FF0000;\" />");
+		print("</span><hr style=\"clear: both; border-bottom: 1px solid #FF0000;\" /><br /><br /><br />");
 	}
 	
 	$i=0;
@@ -342,6 +342,9 @@
 						<td style="padding: 10px 10px 0 10px;" colspan="<?php print($table_colspan + 4); ?>">
 							<h2>Allocations</h2>
 							<p style="margin-top: -10px;">
+								<?php
+									if(!empty($check_select_trayalloc) || !empty($check_sort_trayalloc)) { print("<span style=\"display: block;\" class=\"red\"><b>Table column and/or sort is faulty, please correct it under Configuration. Default column and order is used.</b></span>"); }
+								?>
 								<b>Warning! Please use "Force scan all" button under "System" tab before manually deleting and/or re-adding devices manually.</b><br />
 								The <i class="fa fa-minus-circle fa-lg"></i> button will force the drive to be moved to the "History" section below. Use this if you have false drive(s) in your list.
 								If you accidentally click the button on the wrong drive you have to do a "Force scan all" and reassign the drive.
@@ -411,6 +414,7 @@
 									<td style=\"padding: 10px 10px 0 10px;\" colspan=\"" . ($table_colspan + 4) . "\">
 										<h2>History</h2>
 										<p style=\"padding: 0 0 0 0;\">
+											" . ( (!empty($check_select_drives) || !empty($check_sort_drives)) ? "<span style=\"display: block;\" class=\"red\"><b>Table column and/or sort is faulty, please correct it under Configuration. Default column and order is used.</b></span>" : null ) . "
 											Warning! The <i class=\"fa fa-minus-circle fa-lg\"></i> button will hide the device permanently from this plugin and can only be reverted by manually changing the flag in the database file (\"Force scan all\" button will not touch hidden devices).<br />
 											While the <i class=\"fa fa-plus-circle fa-lg\"></i> button will re-add the drive to the main list for tray allocation, it will revert back to the not found list if the drive does actually not exists after using \"Force scan all\".
 										</p>

@@ -155,12 +155,16 @@
 		$array = array();
 		if($type == "backup") {
 			if($operation == "list") {
-				$file = explode("\n", (shell_exec("ls -1 " . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/*/*.gz")));
-				
-				for($i=0; $i < count($file); ++$i) {
-					if(!empty($file[$i])) {
-						$array[$i]["file"] = $file[$i];
-						$array[$i]["size"] = filesize($file[$i]);
+				$i=0;
+				$backup_dir = array_diff(scandir(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/"), array('..', '.'));
+				foreach($backup_dir as $contents) {
+					$backup_dir_time = array_diff(scandir(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/" . $contents), array('..', '.'));
+					foreach($backup_dir_time as $dir => $file) {
+						if(strstr($file, ".gz")) {
+							$array[$i]["file"] = UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/" . $contents . "/" . $file;
+							$array[$i]["size"] = filesize(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/" . $contents . "/" . $file);
+							$i++;
+						}
 					}
 				}
 				if($array[0]["file"]) {
@@ -169,6 +173,7 @@
 				else {
 					return false;
 				}
+				
 			}
 			if($operation == "restore" && file_exists($file)) {
 				database_restore($file, UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/");
@@ -352,7 +357,8 @@
 				<h3 style=\"padding: 0; margin: 0;\">Database backups</h3>
 				<p>
 					Backup your configuration and benchmarks. When restoring, you must likely run a Force SMART+DB afterwards.<br />
-					This will NOT backup Unraid files (data containing manufacturer and purchase date and warranty period including SMART acknowledgements.). ONLY plugin related files.
+					This will NOT backup Unraid files (data containing manufacturer and purchase date and warranty period including SMART acknowledgements.). ONLY plugin related files.<br />
+					<span class=\"red\">Backup and restore can take a few seconds after clicking the button, please wait until page is reloaded.</span>
 				</p>
 				<br />
 				<table style=\"width: 0;\">
@@ -528,10 +534,11 @@
 ?>
 <link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/help.css")?>">
 <table><tr><td style="padding: 10px 10px 10px 10px;">
-<h2 style="margin-top: -10px; padding: 0 0 25px 0;">System<?php print($system_limited_text); ?></h2>
-<p style="margin-top: -20px; color: red;">
+<h2 style="margin-top: -10px; padding: 0 0 0 0; margin-bottom: 0;">System<?php print($system_limited_text); ?></h2>
+<div><?php print ( function_exists('human_filesize') && function_exists('dirsize') ? "Memory used by Disk Location: " . human_filesize(dirsize(DISKLOCATION_TMP_PATH), 1, true) : null ); ?></div>
+<h3 class="red">
 	<b>NB! Operations done on this page will execute without warning or confirmation and cannot be undone after execution!</b>
-</p>
+</h3>
 <?php echo $print_force_scan ?>
 <?php echo $print_list_backup ?>
 <?php echo $print_list_debug ?>

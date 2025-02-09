@@ -20,14 +20,14 @@
 	 */
 	$vi_width = 180;
 	
-	if(!empty($disklocation_error)) {
+	if(!empty($disklocation_error) && isset($_POST["save_settings"])) {
 		$i=0;
-		print("<h2 style=\"color: #FF0000; font-weight: bold;\">");
+		print("<h2 style=\"margin: 0; color: #FF0000; font-weight: bold;\">ERROR Could not save the configuration (previous form restored):</h2><br /><span style=\"font-size: medium;\">");
 		while($i < count($disklocation_error)) {
-			print("&middot; ERROR: " . $disklocation_error[$i] . "<br />");
+			print("&middot; " . $disklocation_error[$i] . "<br />");
 			$i++;
 		}
-		print("</h2><hr style=\"border: 1px solid #FF0000;\" /><br /><br />");
+		print("</span><hr style=\"clear: both; border-bottom: 1px solid #FF0000;\" /><br /><br /><br />");
 	}
 	
 	$custom_colors_array = array();
@@ -58,6 +58,9 @@
 			$bgcolor_group_custom_array .= ( isset($custom_colors_array_dedup[$i]) ? "<option>#" . strtoupper($custom_colors_array_dedup[$i]) . "</option>\n" : null );
 		}
 	}
+	
+	// get sort config directly from the file to use for forms:
+	$refresh_disklocation_file_config = json_decode(file_get_contents(DISKLOCATION_CONF), true);
 ?>
 <?php if($db_update == 2) { print("<h3>Page unavailable due to database error.</h3><!--"); } ?>
 <datalist id="disklocationColorsDef">
@@ -192,7 +195,7 @@ $(document).ready(function(){
 				</p>
 				<blockquote class="inline_help" style="white-space: wrap;">
 					This will allow or disallow editing of Unraid config files via this plugin. E.g. acknowledgement of all drives at once, or editing warranty dates etc.
-					When setting this to "NO", the options are neither visible nor editable.
+					When setting this to "NO", the options are not editable via the plugin.
 					<br />
 				</blockquote>
 			</td>
@@ -273,13 +276,16 @@ $(document).ready(function(){
 					</tr>
 					<tr>
 						<td>
-							Information
+							Information &amp;<br />
+							Benchmark
+							<?php print( !empty($check_sort_info) ? "<br /><span style=\"padding: 0 0 0 0;\" class=\"red\">Sort error,<br /> wrong tags:<br />" . implode(", ", $check_sort_info) . "</span>" : null ); ?>
+							<?php print( !empty($check_select_info) ? "<br /><span style=\"padding: 0 0 0 0;\" class=\"red\">Column error,<br /> wrong tags:<br />" . implode(", ", $check_select_info) . "</span>" : null ); ?> 
 						</td>
 						<td>
-							<input type="text" name="sort_db_info" value="<?php print($sort_db_info); ?>" style="width: 95%;" />
+							<input type="text" name="sort_db_info" value="<?php print($refresh_disklocation_file_config["sort_db_info"]); ?>" style="<?php print( !empty($check_sort_info) ? "border-bottom: 1px solid red;" : null ); ?> width: 95%;" />
 						</td>
 						<td style="width: 75%">
-							<input type="text" name="select_db_info" value="<?php print($select_db_info); ?>" style="width: 95%;" />
+							<input type="text" name="select_db_info" value="<?php print($refresh_disklocation_file_config["select_db_info"]); ?>" style="<?php print( !empty($check_select_info) ? "border-bottom: 1px solid red;" : null ); ?> width: 95%;" />
 						</td>
 					</tr>
 					<tr>
@@ -295,12 +301,14 @@ $(document).ready(function(){
 					<tr>
 						<td>
 							SMART
+							<?php print( !empty($check_sort_smart) ? "<br /><span style=\"padding: 0 0 0 0;\" class=\"red\">Sort error,<br /> wrong tags: <br />" . implode(", ", $check_sort_smart) . "</span>" : null ); ?>
+							<?php print( !empty($check_select_smart) ? "<br /><span style=\"padding: 0 0 0 0;\" class=\"red\">Column error,<br /> wrong tags: <br />" . implode(", ", $check_select_smart) . "</span>" : null ); ?> 
 						</td>
 						<td>
-							<input type="text" name="sort_db_smart" value="<?php print($sort_db_smart); ?>" style="width: 95%;" />
+							<input type="text" name="sort_db_smart" value="<?php print($refresh_disklocation_file_config["sort_db_smart"]); ?>" style="<?php print( !empty($check_sort_smart) ? "border-bottom: 1px solid red;" : null ); ?> width: 95%;" />
 						</td>
 						<td style="width: 75%">
-							<input type="text" name="select_db_smart" value="<?php print($select_db_smart); ?>" style="width: 95%;" />
+							<input type="text" name="select_db_smart" value="<?php print($refresh_disklocation_file_config["select_db_smart"]); ?>" style="<?php print( !empty($check_select_smart) ? "border-bottom: 1px solid red;" : null ); ?> width: 95%;" />
 						</td>
 					</tr>
 					<tr>
@@ -317,12 +325,14 @@ $(document).ready(function(){
 						<td>
 							Tray Allocations &amp;<br/>
 							Unassigned Devices
+							<?php print( !empty($check_sort_trayalloc) ? "<br /><span style=\"padding: 0 0 0 0;\" class=\"red\">Sort error,<br /> wrong tags: <br />" . implode(", ", $check_sort_trayalloc) . "</span>" : null ); ?>
+							<?php print( !empty($check_select_trayalloc) ? "<br /><span style=\"padding: 0 0 0 0;\" class=\"red\">Column error,<br /> wrong tags: <br />" . implode(", ", $check_select_trayalloc) . "</span>" : null ); ?> 
 						</td>
 						<td>
-							<input type="text" name="sort_db_trayalloc" value="<?php print($sort_db_trayalloc); ?>" style="width: 95%;" />
+							<input type="text" name="sort_db_trayalloc" value="<?php print($refresh_disklocation_file_config["sort_db_trayalloc"]); ?>" style="<?php print( !empty($check_sort_trayalloc) ? "border-bottom: 1px solid red;" : null ); ?> width: 95%;" />
 						</td>
 						<td style="width: 75%">
-							<input type="text" name="select_db_trayalloc" value="<?php print($select_db_trayalloc); ?>" style="width: 95%;" />
+							<input type="text" name="select_db_trayalloc" value="<?php print($refresh_disklocation_file_config["select_db_trayalloc"]); ?>" style="<?php print( !empty($check_sort_trayalloc) ? "border-bottom: 1px solid red;" : null ); ?> width: 95%;" />
 						</td>
 					</tr>
 					<tr>
@@ -340,12 +350,14 @@ $(document).ready(function(){
 					<tr>
 						<td>
 							History
+							<?php print( !empty($check_sort_drives) ? "<br /><span style=\"padding: 0 0 0 0;\" class=\"red\">Sort error,<br /> wrong tags: <br />" . implode(", ", $check_sort_drives) . "</span>" : null ); ?>
+							<?php print( !empty($check_select_drives) ? "<br /><span style=\"padding: 0 0 0 0;\" class=\"red\">Column error,<br /> wrong tags: <br />" . implode(", ", $check_select_drives) . "</span>" : null ); ?> 
 						</td>
 						<td>
-							<input type="text" name="sort_db_drives" value="<?php print($sort_db_drives); ?>" style="width: 95%;" />
+							<input type="text" name="sort_db_drives" value="<?php print($refresh_disklocation_file_config["sort_db_drives"]); ?>" style="<?php print( !empty($check_sort_drives) ? "border-bottom: 1px solid red;" : null ); ?> width: 95%;" />
 						</td>
 						<td style="width: 75%">
-							<input type="text" name="select_db_drives" value="<?php print($select_db_drives); ?>" style="width: 95%;" />
+							<input type="text" name="select_db_drives" value="<?php print($refresh_disklocation_file_config["select_db_drives"]); ?>" style="<?php print( !empty($check_sort_drives) ? "border-bottom: 1px solid red;" : null ); ?> width: 95%;" />
 						</td>
 					</tr>
 					<tr>
