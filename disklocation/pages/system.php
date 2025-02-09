@@ -19,7 +19,7 @@
 	 *
 	 */
 	
-	$page_time_load_function = ( $debug || isset($_GET["benchmark"]) ? hrtime(true) : null );
+	$page_time_load_function = ( isset($debug) || isset($_GET["benchmark"]) ? hrtime(true) : null );
 	require_once("functions.php");
 	$page_time_load["functions"] = round((hrtime(true)-$page_time_load_function)/1e+6, 1);
 	print(isset($_GET["benchmark"]) ? "<h3 style=\"position: fixed; left: 600px; bottom: 60px; white-space: no-wrap; color: #0099FF; background-color: #111111;\">functions: " . round((hrtime(true)-$page_time_load_function)/1e+6, 1) . " ms</h3>\n" : null);
