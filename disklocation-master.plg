@@ -46,6 +46,7 @@
 
 <CHANGES>
 ###2025.02.XX
+ - Commit #372 - FEATURE: Seagate SMART vs FARM LOG check in System tab added for checking fraudulent drives.
  - Commit #369 - IMPROVEMENT: Use syslog to detect SMART read events.
  - Commit #365 - FEATURE: Added selected dashboard info to LED "hover" info on Unraid dashboard.
  - Commit #362 - FEATURE: Created a possibility to hide/bypass trays in a group.
