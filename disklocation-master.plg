@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.02.00">
+<!ENTITY version          "2025.02.14">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,7 +45,7 @@
 -->
 
 <CHANGES>
-###2025.02.XX
+###2025.02.14
  - Commit #372 - FEATURE: Seagate SMART vs FARM LOG check in System tab added for checking fraudulent drives.
  - Commit #369 - IMPROVEMENT: Use syslog to detect SMART read events.
  - Commit #365 - FEATURE: Added selected dashboard info to LED "hover" info on Unraid dashboard.
