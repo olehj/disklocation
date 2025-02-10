@@ -47,6 +47,16 @@
 			fpassthru($fp);
 			exit;
 		}
+		if(isset($_GET["logfile_hddcheck"])) {
+			// open raw memory as file so no temp files needed, you might run out of memory though
+			$logfile = DISKLOCATION_TMP_PATH . "/hddcheck.log";
+			$fp = fopen($logfile, 'r');
+			header('Content-Type: text/plain');
+			header("Content-Length: " . filesize($logfile));
+			header('Content-Disposition: attachment; filename=disklocation_hddcheck-'.date("Y-m-d").'.log;');
+			fpassthru($fp);
+			exit;
+		}
 		
 		if(file_exists(DISKLOCATION_CONF)) {
 			$get_disklocation_config = json_decode(file_get_contents(DISKLOCATION_CONF), true);
@@ -503,6 +513,9 @@
 				<input type='button' " . ( (!$check_smart_files || $check_devicepath_conflict || !file_exists(DISKLOCATION_DEVICES)) ? "disabled=\"disabled\"" : null ) . " value='SMART' onclick='openBox(\"" . CRONJOB_URL . "?active_smart_scan=1\",\"Updating SMART data on active devices\",600,800,true,\"loadlist\",\":return\")'>
 				<input type='button' " . ( ($check_devicepath_conflict || !file_exists(DISKLOCATION_DEVICES)) ? "disabled=\"disabled\"" : null ) . " value='Force SMART' onclick='openBox(\"" . CRONJOB_URL . "?force_smart_scan=1\",\"Wake up all devices and update SMART data\",600,800,true,\"loadlist\",\":return\")'>
 				<input type='button' value='Force SMART+DB' onclick='openBox(\"" . CRONJOB_URL . "?force_smartdb_scan=1\",\"Wake up all devices and update SMART data and the database\",600,800,true,\"loadlist\",\":return\")'>
+				<span style=\"padding-left: 50px;\"></span>
+				<input type='button' value='Check Seagate HDDs' onclick='openBox(\"" . DISKLOCATION_PATH . "/pages/hddcheck.php?check_hdd=1\",\"Wake up all devices and check Seagate drives\",600,800,true,\"loadlist\",\":return\")'>
+				<a href=\"/plugins/disklocation/pages/page_system.php?logfile_hddcheck=1\">Download Seagate HDD Logfile</a>
 				<blockquote class='inline_help'>
 					<ul>
 						<li>\"SMART\" button will update only active (spinning) drives for SMART data, It might take a while to complete depending on your configuration.</li>
@@ -518,6 +531,11 @@
 						<li>\"Force SMART+DB\" button will force update all drives for SMART data and move removed disks into the \"lost\" table under the \"Information\" tab. This button will and must wake up all drives into a spinning state and does so one by one. It might take a while to complete depending on your configuration.</li>
 						<li>You can also run \"Force SMART+DB\" from the shell and get direct output which might be useful for debugging:<br />
 						<code style=\"white-space: nowrap;\">php -f " . CRONJOB_FILE . " forceall [silent]</code></li>
+					</ul>
+					<ul>
+						<li>\"Check Seagate HDDs\" button will wake up all drives and compare \"Power On Hours\" between SMART and FARM.</li>
+						<li>You can also run \"Check Seagate HDDs\" from the shell:<br />
+						<code style=\"white-space: nowrap;\">php -f " . DISKLOCATION_PATH . "/pages/hddcheck.php</code></li>
 					</ul>
 				</blockquote>
 			</form>
