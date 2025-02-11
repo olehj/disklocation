@@ -1,0 +1,18 @@
+Menu="disklocation:8"
+Icon="file"
+Tag="file"
+Title="System"
+---
+<?php
+	$time_start = (($debug || isset($_GET["benchmark"])) ? hrtime(true) : null);
+	
+	require_once("/usr/local/emhttp/plugins/disklocation/pages/system.php");
+	require_once("/usr/local/emhttp/plugins/disklocation/pages/page_system.php");
+	
+	$page_time_load["system"] = ( $debug ? round((hrtime(true)-$time_start)/1e+6, 1) : null );
+	$page_time_load["ALL"] = ( $debug ? round((hrtime(true)-$total_time_start)/1e+6, 1) : null );
+	print(isset($_GET["benchmark"]) ? "<h1 style=\"position: fixed; left: 5px; bottom: 20px; white-space: no-wrap; color: #0099FF; background-color: #111111;\">System: " . (round((hrtime(true)-$time_start)/1e+6, 1) . " ms</h1>\n") : null);
+	print(isset($_GET["benchmark"]) ? "<h1 style=\"position: fixed; right: 5px; bottom: 20px; white-space: no-wrap; color: #0099FF; background-color: #111111;\">Disk Location: " . (round((hrtime(true)-$total_time_start)/1e+6, 1) . " ms</h1>\n") : null);
+	
+	$debug_log = debug($debug, "disklocation_system.page", __LINE__, "PAGE LOAD TIME", $page_time_load);
+?>

@@ -1,8 +1,0 @@
-Menu="disklocation:4"
-Icon="server"
-Tag="server"
-Title="Tray Allocations"
----
-<?php 
-	require_once("/usr/local/emhttp/plugins/disklocation/pages/config_trayalloc.php");
-?>

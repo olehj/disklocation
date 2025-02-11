@@ -18,99 +18,14 @@
 	 *  along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
 	 *
 	 */
-
+	
 //	Database Version:
-	$current_db_ver = 12;
+	$current_db_ver = 13;
 
 	if(in_array("version", $argv)) {
 		print($current_db_ver);
 		exit();
 	}
-	
-//	Common settings
-//	Variable name		Default value			Description
-//	--------------------------------------------------------------------------------
-	$smart_exec_delay =		'200';			// set milliseconds for next execution for SMART shell_exec - needed to actually grab all the information for unassigned devices. Default: 200
-	$smart_updates =		'disabled';		// set how often to update the cronjob [hourly|daily|weekly|monthly|disabled]
-	$bgcolor_parity =		'ca3f33';		// background color for Unraid parity disks / critical temp
-	$bgcolor_unraid =		'ca7233';		// background color for Unraid data disks / warning temp // old default: ef6441
-	$bgcolor_cache =		'cabd33';		// background color for Unraid cache disks / normal temp // old default: ff884c
-	$bgcolor_others =		'3398ca';		// background color for unassigned/other disks / unknown temp // old default: 41b5ef
-	$bgcolor_empty =		'7c7c7c';		// background color for empty trays // old default: aaaaaa
-	$tray_reduction_factor =	'10';			// set the scale divider for the mini tray layout
-	$force_orb_led =		'0';			// set the LED to 0: show Unraid icons (triangle warning / hot critical) - 1: show circle LEDs (color coded circles).
-	$warranty_field =		'u';			// choose [u]nraid's way of entering warranty date (12/24/36... months) or enter [m]anual ISO dates.
-	$dashboard_widget =		'1';			// choose background for the drives, Drive Type (0) or Heat Map (1)
-	$dashboard_widget_pos = 	'0';			// make serial number friendlier, substr() value -99 - 99.
-	$reallocated_sector_w =		'1';			// SMART warnings (RAW)
-	$reported_uncorr_w =		'1';			// -
-	$command_timeout_w =		'0';			// '-> disabled by default as Seagate devices reports this different from other manufacturers.
-	$pending_sector_w =		'1';			// -
-	$offline_uncorr_w =		'1';			// -
-	$css_serial_number_highlight =	'font-weight: bold;';	// user styles for serial number
-	$displayinfo =	json_encode(array(			// this will store an json_encoded array of display settings for the "Device" page.
-		'tray' => 1,
-		'leddiskop' => 1,
-		'ledsmart' => 1,
-		'ledtemp' => 1,
-		'unraidinfo' => 1,
-		'path' => 0,
-		'devicenode' => 0,
-		'luname' => 0,
-		'manufacturer' => 1,
-		'devicemodel' => 1,
-		'serialnumber' => 1,
-		'temperature' => 1,
-		'powerontime' => 1,
-		'loadcyclecount' => 1,
-		'capacity' => 1,
-		'cache' => 1,
-		'rotation' => 1,
-		'formfactor' => 1,
-		'reallocated_sector_count' => 0,
-		'reported_uncorrectable_errors' => 0,
-		'command_timeout' => 0,
-		'current_pending_sector_count' => 0,
-		'offline_uncorrectable' => 0,
-		'available_spare' => 1,
-		'percentage_used' => 1,
-		'units_read' => 1,
-		'units_written' => 1,
-		'manufactured' => 0,
-		'purchased' => 0,
-		'installed' => 0,
-		'warranty' => 0,
-		'comment' => 0,
-		'hideemptycontents' => 0,
-		'flashwarning' => 0,
-		'flashcritical' => 1
-	));
-	
-	$select_db_info = "group,tray,manufacturer,model,serial,capacity,cache,rotation,formfactor,read,written,manufactured,purchased,installed,warranty,comment";
-	$sort_db_info = "asc:group,tray";
-	
-	// mandatory: group,tray,locate,color
-	$select_db_trayalloc = "device,node,lun,manufacturer,model,serial,capacity,rotation,formfactor,manufactured,purchased,installed,warranty,comment";
-	$sort_db_trayalloc = "asc:group,tray";
-	
-	$select_db_drives = "device,manufacturer,model,serial,capacity,cache,rotation,formfactor,manufactured,purchased,installed,removed,warranty,comment";
-	$sort_db_drives = "asc:serial";
-	
-	//not used, but prepared just in case it will be added in the future:
-	$select_db_devices = "";
-	$sort_db_devices = "";
-	
-//	Group settings
-	
-	$grid_count =		'column';	// how to count the trays: [column]: trays ordered from top to bottom from left to right | [row]: ..from left to right from top to bottom
-	$grid_columns =		'4';		// number of horizontal trays
-	$grid_rows =		'6';		// number of verical trays
-	$grid_trays = 		'';		// total number of trays. default this is (grid_columns * grid_rows), but we choose to add some flexibility for drives outside normal trays
-	$disk_tray_direction =	'h';		// direction of the hard drive trays [h]horizontal | [v]ertical
-	$tray_direction =	'1';		// tray count direction
-	$tray_start_num = 	'1';		// tray count start number, 0 or 1
-	$tray_width =		'400';		// the pixel width of the hard drive tray: in the horizontal direction ===
-	$tray_height =		'70';		// the pixel height of the hard drive tray: in the horizontal direction ===
 	
 //	Create database
 	
@@ -210,25 +125,25 @@
 	";
 	$sql_create_settings = "
 		id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-		smart_exec_delay INT NOT NULL DEFAULT '$smart_exec_delay',
-		smart_updates VARCHAR(8) NOT NULL DEFAULT '$smart_updates',
+		smart_exec_delay INT NOT NULL DEFAULT '200',
+		smart_updates VARCHAR(8) NOT NULL DEFAULT 'disabled',
 		bgcolor_parity CHAR(6) NOT NULL DEFAULT '$bgcolor_parity',
 		bgcolor_unraid CHAR(6) NOT NULL DEFAULT '$bgcolor_unraid',
 		bgcolor_cache CHAR(6) NOT NULL DEFAULT '$bgcolor_cache',
 		bgcolor_others CHAR(6) NOT NULL DEFAULT '$bgcolor_others',
 		bgcolor_empty CHAR(6) NOT NULL DEFAULT '$bgcolor_empty',
 		tray_reduction_factor FLOAT NOT NULL DEFAULT '$tray_reduction_factor',
-		force_orb_led INT NULL,
-		warranty_field CHAR(1) NOT NULL DEFAULT '$warranty_field',
-		dashboard_widget CHAR(3) NOT NULL DEFAULT '$dashboard_widget',
-		dashboard_widget_pos INT NULL,
-		reallocated_sector_w INT NOT NULL DEFAULT '$reallocated_sector_w',
-		reported_uncorr_w INT NOT NULL DEFAULT '$reported_uncorr_w',
-		command_timeout_w INT NOT NULL DEFAULT '$command_timeout_w',
-		pending_sector_w INT NOT NULL DEFAULT '$pending_sector_w',
-		offline_uncorr_w INT NOT NULL DEFAULT '$offline_uncorr_w',
-		css_serial_number_highlight VARCHAR(1023) NOT NULL DEFAULT '$css_serial_number_highlight',
-		displayinfo VARCHAR(1023),
+		force_orb_led INT NULL DEFAULT '0',
+		warranty_field CHAR(1) NOT NULL DEFAULT 'u',
+		dashboard_widget CHAR(3) NOT NULL DEFAULT '1',
+		dashboard_widget_pos INT NULL DEFAULT '0',
+		reallocated_sector_w INT NOT NULL DEFAULT '1',
+		reported_uncorr_w INT NOT NULL DEFAULT '1',
+		command_timeout_w INT NOT NULL DEFAULT '0',
+		pending_sector_w INT NOT NULL DEFAULT '1',
+		offline_uncorr_w INT NOT NULL DEFAULT '1',
+		css_serial_number_highlight VARCHAR(1023) NOT NULL DEFAULT 'font-weight: bold;',
+		displayinfo VARCHAR(1023) NOT NULL DEFAULY '$displayinfo',
 		select_db_info VARCHAR(1023) NOT NULL DEFAULT '$select_db_info',
 		sort_db_info VARCHAR(1023) NOT NULL DEFAULT '$sort_db_info',
 		select_db_trayalloc VARCHAR(1023) NOT NULL DEFAULT '$select_db_trayalloc',
@@ -301,36 +216,6 @@
 		Database Version: 11
 	*/
 	
-	$sql_create_settings_v11 = "
-		id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-		smart_exec_delay INT NOT NULL DEFAULT '$smart_exec_delay',
-		smart_updates VARCHAR(8) NOT NULL DEFAULT '$smart_updates',
-		bgcolor_parity CHAR(6) NOT NULL DEFAULT '$bgcolor_parity',
-		bgcolor_unraid CHAR(6) NOT NULL DEFAULT '$bgcolor_unraid',
-		bgcolor_cache CHAR(6) NOT NULL DEFAULT '$bgcolor_cache',
-		bgcolor_others CHAR(6) NOT NULL DEFAULT '$bgcolor_others',
-		bgcolor_empty CHAR(6) NOT NULL DEFAULT '$bgcolor_empty',
-		tray_reduction_factor FLOAT NOT NULL DEFAULT '$tray_reduction_factor',
-		force_orb_led FLOAT NOT NULL DEFAULT '$force_orb_led',
-		warranty_field CHAR(1) NOT NULL DEFAULT '$warranty_field',
-		dashboard_widget CHAR(3) NOT NULL DEFAULT '$dashboard_widget',
-		dashboard_widget_pos INT NULL,
-		reallocated_sector_w INT NOT NULL DEFAULT '$reallocated_sector_w',
-		reported_uncorr_w INT NOT NULL DEFAULT '$reported_uncorr_w',
-		command_timeout_w INT NOT NULL DEFAULT '$command_timeout_w',
-		pending_sector_w INT NOT NULL DEFAULT '$pending_sector_w',
-		offline_uncorr_w INT NOT NULL DEFAULT '$offline_uncorr_w',
-		css_serial_number_highlight VARCHAR(1023) NOT NULL DEFAULT '$css_serial_number_highlight',
-		displayinfo VARCHAR(1023),
-		select_db_info VARCHAR(1023) NOT NULL DEFAULT '$select_db_info',
-		sort_db_info VARCHAR(1023) NOT NULL DEFAULT '$sort_db_info',
-		select_db_trayalloc VARCHAR(1023) NOT NULL DEFAULT '$select_db_trayalloc',
-		sort_db_trayalloc VARCHAR(1023) NOT NULL DEFAULT '$sort_db_trayalloc',
-		select_db_drives VARCHAR(1023) NOT NULL DEFAULT '$select_db_drives',
-		sort_db_drives VARCHAR(1023) NOT NULL DEFAULT '$sort_db_drives',
-		select_db_devices VARCHAR(1023) NOT NULL DEFAULT '$select_db_devices',
-		sort_db_devices VARCHAR(1023) NOT NULL DEFAULT '$sort_db_devices'
-	";
 	$sql_tables_settings_v11 = "
 		id,
 		smart_exec_delay,
@@ -366,35 +251,6 @@
 		Database Version: 10
 	*/
 	
-	$sql_create_settings_v10 = "
-		id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-		smart_exec_delay INT NOT NULL DEFAULT '$smart_exec_delay',
-		smart_updates VARCHAR(8) NOT NULL DEFAULT '$smart_updates',
-		bgcolor_parity CHAR(6) NOT NULL DEFAULT '$bgcolor_parity',
-		bgcolor_unraid CHAR(6) NOT NULL DEFAULT '$bgcolor_unraid',
-		bgcolor_cache CHAR(6) NOT NULL DEFAULT '$bgcolor_cache',
-		bgcolor_others CHAR(6) NOT NULL DEFAULT '$bgcolor_others',
-		bgcolor_empty CHAR(6) NOT NULL DEFAULT '$bgcolor_empty',
-		tray_reduction_factor FLOAT NOT NULL DEFAULT '$tray_reduction_factor',
-		warranty_field CHAR(1) NOT NULL DEFAULT '$warranty_field',
-		dashboard_widget CHAR(3) NOT NULL DEFAULT '$dashboard_widget',
-		dashboard_widget_pos INT NULL,
-		reallocated_sector_w INT NOT NULL DEFAULT '$reallocated_sector_w',
-		reported_uncorr_w INT NOT NULL DEFAULT '$reported_uncorr_w',
-		command_timeout_w INT NOT NULL DEFAULT '$command_timeout_w',
-		pending_sector_w INT NOT NULL DEFAULT '$pending_sector_w',
-		offline_uncorr_w INT NOT NULL DEFAULT '$offline_uncorr_w',
-		css_serial_number_highlight VARCHAR(1023) NOT NULL DEFAULT '$css_serial_number_highlight',
-		displayinfo VARCHAR(1023),
-		select_db_info VARCHAR(1023) NOT NULL DEFAULT '$select_db_info',
-		sort_db_info VARCHAR(1023) NOT NULL DEFAULT '$sort_db_info',
-		select_db_trayalloc VARCHAR(1023) NOT NULL DEFAULT '$select_db_trayalloc',
-		sort_db_trayalloc VARCHAR(1023) NOT NULL DEFAULT '$sort_db_trayalloc',
-		select_db_drives VARCHAR(1023) NOT NULL DEFAULT '$select_db_drives',
-		sort_db_drives VARCHAR(1023) NOT NULL DEFAULT '$sort_db_drives',
-		select_db_devices VARCHAR(1023) NOT NULL DEFAULT '$select_db_devices',
-		sort_db_devices VARCHAR(1023) NOT NULL DEFAULT '$sort_db_devices'
-	";
 	$sql_tables_settings_v10 = "
 		id,
 		smart_exec_delay,
@@ -687,11 +543,39 @@
 		comment,
 		hash
 	";
-
+	
+	define("DISKLOCATION_DB_DEFAULT", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.sqlite");
+	define("DISKLOCATION_CONF_OLD", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.conf");
+	
+	if(file_exists(DISKLOCATION_CONF_OLD)) {
+		$get_disklocation_config = json_decode(file_get_contents(DISKLOCATION_CONF_OLD), true);
+		if(isset($get_disklocation_config["database_location"])) {
+			define("DISKLOCATION_DB", $get_disklocation_config["database_location"]);
+		}
+		else {
+			define("DISKLOCATION_DB", DISKLOCATION_DB_DEFAULT);
+		}
+	}
+	else {
+		define("DISKLOCATION_DB", DISKLOCATION_DB_DEFAULT);
+	}
+	
+	// open and/or create database
+	class DLDB extends SQLite3 {
+		function __construct() {
+			$this->open(DISKLOCATION_DB);
+		}
+	}
+	
+	
+	$db = new DLDB();
+	if(!$db) {
+		echo $db->lastErrorMsg();
+	}
+	
 // Create and update database
-	if(!in_array("cronjob", $argv) && !$_POST["download_csv"]) { print("<h3 style=\"color: #FF0000;\">"); }
 	if(filesize(DISKLOCATION_DB) === 0) {
-		$sql = "
+		/*$sql = "
 			CREATE TABLE disks(
 				$sql_create_disks
 			);
@@ -710,6 +594,9 @@
 		if(!$ret) {
 			echo $db->lastErrorMsg();
 		}
+		*/
+		$db->close();
+		unlink(DISKLOCATION_DB);
 	}
 	else {
 		$sql = "PRAGMA user_version";
@@ -1100,9 +987,153 @@
 			}
 		}
 		
-		if(!in_array("cronjob", $argv) && !$_POST["download_csv"]) { print("</h3>"); }
+		if($database_version < 13) {
+			$db_update = 1;
+			
+		// Settings
+			if(file_exists(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.conf")) {
+				$settings = $get_disklocation_config; // = json_decode(file_get_contents(DISKLOCATION_CONF), true);
+			}
+			( file_exists(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.noscan") ? unlink(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.noscan") : null );
+			
+			$removed_selectors = array("reallocated", "reported", "timeout", "pending", "offline", "bench_r", "bench_w");
+			
+			$sql = "SELECT * FROM settings";
+			$ret = $db->exec($sql);
+			if(!$ret) {
+				$db_update = 2;
+				echo $db->lastErrorMsg();
+			}
+			else {
+				$results = $db->query($sql);
+				$sql_hash = array();
+				while($res = $results->fetchArray(1)) {
+					$settings["bgcolor_parity"] = strtoupper($res["bgcolor_parity"]);
+					$settings["bgcolor_unraid"] = strtoupper($res["bgcolor_unraid"]);
+					$settings["bgcolor_cache"] = strtoupper($res["bgcolor_cache"]);
+					$settings["bgcolor_others"] = strtoupper($res["bgcolor_others"]);
+					$settings["bgcolor_empty"] = strtoupper($res["bgcolor_empty"]);
+					$settings["tray_reduction_factor"] = $res["tray_reduction_factor"];
+					$settings["force_orb_led"] = $res["force_orb_led"];
+					$settings["device_bg_color"] = $res["dashboard_widget"];
+					$settings["serial_trim"] = $res["dashboard_widget_pos"];
+					$settings["displayinfo"] = json_decode($res["displayinfo"], true);
+					
+					$res["select_db_info"] = str_replace("nvme_used", "endurance", $res["select_db_info"]);
+					$res["sort_db_info"] = str_replace("nvme_used", "endurance", $res["sort_db_info"]);
+					$res["select_db_trayalloc"] = str_replace("nvme_used", "endurance", $res["select_db_trayalloc"]);
+					$res["sort_db_trayalloc"] = str_replace("nvme_used", "endurance", $res["sort_db_trayalloc"]);
+					$res["select_db_drives"] = str_replace("nvme_used", "endurance", $res["select_db_drives"]);
+					$res["sort_db_drives"] = str_replace("nvme_used", "endurance", $res["sort_db_drives"]);
+					
+					$settings["select_db_info"] = implode(",", array_filter(explode(",", preg_replace("/\b(" . implode("|", $removed_selectors) . ")\b/", "", $res["select_db_info"]))));
+					$settings["sort_db_info"] = implode(",", array_filter(explode(",", preg_replace("/\b(" . implode("|", $removed_selectors) . ")\b/", "", $res["sort_db_info"]))));
+					$settings["select_db_trayalloc"] = implode(",", array_filter(explode(",", preg_replace("/\b(" . implode("|", $removed_selectors) . ")\b/", "", $res["select_db_trayalloc"]))));
+					$settings["sort_db_trayalloc"] = implode(",", array_filter(explode(",", preg_replace("/\b(" . implode("|", $removed_selectors) . ")\b/", "", $res["sort_db_trayalloc"]))));
+					$settings["select_db_drives"] = implode(",", array_filter(explode(",", preg_replace("/\b(" . implode("|", $removed_selectors) . ")\b/", "", $res["select_db_drives"]))));
+					$settings["sort_db_drives"] = implode(",", array_filter(explode(",", preg_replace("/\b(" . implode("|", $removed_selectors) . ")\b/", "", $res["sort_db_drives"]))));
+					$settings["select_db_devices"] = $select_db_devices_default;
+				}
+			}
+			if(!file_put_contents(DISKLOCATION_CONF, json_encode($settings, JSON_PRETTY_PRINT))) {
+				print("ERROR: could not save file " . DISKLOCATION_CONF . "");
+			}
+			
+		// Locations
+			$sql = "SELECT * FROM location";
+			$ret = $db->exec($sql);
+			if(!$ret) {
+				$db_update = 2;
+				echo $db->lastErrorMsg();
+			}
+			else {
+				$results = $db->query($sql);
+				$sql_hash = array();
+				while($res = $results->fetchArray(1)) {
+					$locations[$res["hash"]]["groupid"] = $res["groupid"];
+					$locations[$res["hash"]]["tray"] = $res["tray"];
+				}
+			}
+			if(!file_put_contents(DISKLOCATION_LOCATIONS, json_encode($locations, JSON_PRETTY_PRINT))) {
+				print("ERROR: could not save file " . DISKLOCATION_LOCATIONS . "");
+			}
+			
+		// Groups
+			$sql = "SELECT * FROM settings_group";
+			$ret = $db->exec($sql);
+			if(!$ret) {
+				$db_update = 2;
+				echo $db->lastErrorMsg();
+			}
+			else {
+				$results = $db->query($sql);
+				$sql_hash = array();
+				while($res = $results->fetchArray(1)) {
+					$groups[$res["id"]]["group_name"] = $res["group_name"];
+					$groups[$res["id"]]["group_color"] = strtoupper($res["group_color"]);
+					$groups[$res["id"]]["grid_count"] = $res["grid_count"];
+					$groups[$res["id"]]["grid_columns"] = $res["grid_columns"];
+					$groups[$res["id"]]["grid_rows"] = $res["grid_rows"];
+					$groups[$res["id"]]["grid_trays"] = $res["grid_trays"];
+					$groups[$res["id"]]["disk_tray_direction"] = $res["disk_tray_direction"];
+					$groups[$res["id"]]["tray_direction"] = $res["tray_direction"];
+					$groups[$res["id"]]["tray_start_num"] = $res["tray_start_num"];
+					$groups[$res["id"]]["tray_width"] = $res["tray_width"];
+					$groups[$res["id"]]["tray_height"] = $res["tray_height"];
+				}
+			}
+			if(!file_put_contents(DISKLOCATION_GROUPS, json_encode($groups, JSON_PRETTY_PRINT))) {
+				print("ERROR: could not save file " . DISKLOCATION_GROUPS . "");
+			}
+		}
+		
+		// Devices
+			$sql = "SELECT * FROM disks";
+			$ret = $db->exec($sql);
+			if(!$ret) {
+				$db_update = 2;
+				echo $db->lastErrorMsg();
+			}
+			else {
+				$results = $db->query($sql);
+				$sql_hash = array();
+				while($res = $results->fetchArray(1)) {
+					$devices[$res["hash"]]["device"] = $res["device"];
+					$devices[$res["hash"]]["devicenode"] = $res["devicenode"];
+					$devices[$res["hash"]]["model_name"] = $res["model_name"];
+					$devices[$res["hash"]]["smart_serialnumber"] = $res["smart_serialnumber"];
+					$devices[$res["hash"]]["smart_cache"] = $res["smart_cache"];
+					$devices[$res["hash"]]["status"] = $res["status"];
+					$devices[$res["hash"]]["color"] = strtoupper($res["color"]);
+					$devices[$res["hash"]]["installed"] = $res["installed"];
+					$devices[$res["hash"]]["removed"] = $res["removed"];
+					$devices[$res["hash"]]["comment"] = $res["comment"];
+					// store these values too, for "History", but otherwise not required. Will still be updated as long as they are in the system.
+					$devices[$res["hash"]]["lun"] = $res["luname"];
+					$devices[$res["hash"]]["manufacturer"] = $res["model_family"];
+					$devices[$res["hash"]]["smart_status"] = $res["smart_status"];
+					$devices[$res["hash"]]["powerontime"] = $res["smart_powerontime"];
+					$devices[$res["hash"]]["loadcycle"] = $res["smart_loadcycle"];
+					$devices[$res["hash"]]["capacity"] = $res["smart_capacity"];
+					$devices[$res["hash"]]["rotation"] = $res["smart_rotation"];
+					$devices[$res["hash"]]["formfactor"] = $res["smart_formfactor"];
+					$devices[$res["hash"]]["logical_block_size"] = $res["smart_logical_block_size"];
+					$devices[$res["hash"]]["smart_units_read"] = $res["smart_units_read"];
+					$devices[$res["hash"]]["smart_units_written"] = $res["smart_units_written"];
+					$devices[$res["hash"]]["endurance"] = $res["smart_nvme_percentage_used"];
+					$devices[$res["hash"]]["manufactured"] = $res["manufactured"];
+					$devices[$res["hash"]]["purchased"] = $res["purchased"];
+					$devices[$res["hash"]]["installed"] = $res["installed"];
+					$devices[$res["hash"]]["removed"] = $res["removed"];
+					$devices[$res["hash"]]["warranty"] = $res["warranty"];
+				}
+			}
+			if(!file_put_contents(DISKLOCATION_DEVICES, json_encode($devices, JSON_PRETTY_PRINT))) {
+				print("ERROR: could not save file " . DISKLOCATION_DEVICES . "");
+			}
+		
 		if($db_update == 1) {
-			print("<h3>Database successfully updated</h3>");
+			print("<h3>Database successfully converted.</h3>"); // updated.
 			if(!in_array("cronjob", $argv)) {
 				$db->close();
 					print("<meta http-equiv=\"refresh\" content=\"3;url=" . DISKLOCATION_URL . "\" /><br />refreshing...");

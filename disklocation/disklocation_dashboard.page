@@ -22,19 +22,19 @@ Icon="server"
 	 *  along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
 	 *
 	 */
-	
+	 
 	$pluginname = "Disk Location";
 	
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/system.php");
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/devices.php");
 	
-	$sql = "SELECT * FROM settings_group ORDER BY id ASC";
-	$results = $db->query($sql);
-	
 	$disklocation_dash_out = "";
 	
-	while($data = $results->fetchArray(1)) {
-		extract($data);
+	$array_groups = $get_groups;
+	( is_array($array_groups) ?? ksort($array_groups, SORT_NUMERIC) );
+	
+	foreach($array_groups as $id => $value) {
+		extract($value);
 		$gid = $id;
 		
 		$css_grid_group = "
@@ -64,6 +64,16 @@ Icon="server"
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/styles/disk.css.php");
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/styles/signals.css");
 	print("</style>");
+	
+	$check_smart_files = check_smart_files();
+	$check_devicepath_conflict = check_devicepath_conflict($devices);
+	
+	if(!$check_smart_files || $check_devicepath_conflict) {
+		$disklocation_dash_out = "<span class=\"red\"><i class=\"icon-u-triangle failed\"></i>Go to Disk Location -&gt; System and initialize a \"Force SMART" . ( !empty($check_devicepath_conflict) ? "+DB" : null ) . "\"</span>";
+	}
+	if(empty($array_groups)) {
+		$disklocation_dash_out = "<span class=\"red\"><i class=\"icon-u-triangle failed\"></i>Disk Location is not configured.</span>";
+	}
 
 $mytiles[$pluginname]['column1'] =
 <<<EOT
