@@ -412,10 +412,6 @@
 		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: killall_smartlocate", "true");
 	}
 	
-	if(isset($_POST["killall_smartlocate"])) {
-		shell_exec("pkill -f smartlocate");
-	}
-	
 	// RELOAD: get settings from DB as $var
 	include("load_settings.php");
 	
