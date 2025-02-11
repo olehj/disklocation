@@ -515,7 +515,7 @@
 				<input type='button' value='Force SMART+DB' onclick='openBox(\"" . CRONJOB_URL . "?force_smartdb_scan=1\",\"Wake up all devices and update SMART data and the database\",600,800,true,\"loadlist\",\":return\")'>
 				<span style=\"padding-left: 50px;\"></span>
 				<input type='button' value='Check Seagate HDDs' onclick='openBox(\"" . DISKLOCATION_PATH . "/pages/hddcheck.php?check_hdd=1\",\"Wake up all devices and check Seagate drives\",600,800,true,\"loadlist\",\":return\")'>
-				<a href=\"/plugins/disklocation/pages/page_system.php?logfile_hddcheck=1\">Download Seagate HDD Logfile</a>
+				" . ( file_exists(DISKLOCATION_TMP_PATH . "/hddcheck.log") ? "<a href=\"/plugins/disklocation/pages/page_system.php?logfile_hddcheck=1\">Download Seagate HDD Logfile</a>" : "" ) . "
 				<blockquote class='inline_help'>
 					<ul>
 						<li>\"SMART\" button will update only active (spinning) drives for SMART data, It might take a while to complete depending on your configuration.</li>
