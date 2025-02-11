@@ -192,8 +192,6 @@
 			
 			$devices_current = (empty($get_devices) ? array() : $get_devices);
 			$locations_current = (empty($get_locations) ? array() : $get_locations);
-			
-			unlink(POWERMODE_FILE); // remove powermode file when force scanning.
 		}
 		
 		$i=0;
@@ -239,7 +237,7 @@
 						$smart_powermode_status = "UNKNOWN";
 				}
 				
-				config(POWERMODE_FILE, 'w', $lsscsi_device[$i], $smart_powermode_status);
+				$powermode[$lsscsi_device[$i]] = $smart_powermode_status;
 				
 				if(in_array("status", $argv)) {
 					$i++;
@@ -410,6 +408,10 @@
 				flush();
 			}
 			$i++;
+		}
+		
+		if(is_array($powermode) && !empty($powermode)) {
+			config_array(POWERMODE_FILE, 'w', $powermode);
 		}
 		
 		if($force_scan_db) {
