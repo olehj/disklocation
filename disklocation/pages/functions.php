@@ -24,6 +24,7 @@
 		include("load_settings.php");
 	}
 	
+<<<<<<< HEAD
 	function debug($output, $file, $line, $program, $input = '') { // $output = 0: off | 1: write logfile | 2: return log | 3: write logfile & return log
 		if($output) {
 			if($output && $line && $program && $input) {
@@ -40,6 +41,169 @@
 			if($output == 2 || $output == 3) {
 				return $log;
 			}
+=======
+	$unraid_disks = array();
+	$unraid_devs = array();
+	
+	if(is_file(EMHTTP_VAR . "/" . UNRAID_DISKS_FILE)) {
+		$unraid_disks = parse_ini_file(EMHTTP_VAR . "/" . UNRAID_DISKS_FILE, true);
+	}
+	if(is_file(EMHTTP_VAR . "/" . UNRAID_DEVS_FILE)) {
+		$unraid_devs = parse_ini_file(EMHTTP_VAR . "/" . UNRAID_DEVS_FILE, true);
+	}
+	if(is_file(UNRAID_CONFIG_PATH . "/" . SMART_ALL_FILE)) {
+		$unraid_smart_all = parse_ini_file(UNRAID_CONFIG_PATH . "/" . SMART_ALL_FILE, true);
+	}
+	if(is_file(UNRAID_CONFIG_PATH . "/" . SMART_ONE_FILE)) {
+		$unraid_smart_one = parse_ini_file(UNRAID_CONFIG_PATH . "/" . SMART_ONE_FILE, true);
+	}
+	
+	$disklocation_error = array();
+	$disklocation_new_install = 0;
+	$group = array();
+	$unraid_disklog = array();
+	$installed_drives = array();
+	
+	global $unraid, $GLOBALS;
+	
+	if(!isset($argv)) {
+		$argv = array();
+	}
+	
+	if(!is_file(DISKLOCATION_DB)) {
+		$disklocation_new_install = 1;
+	}
+	
+	// open and/or create database
+	class DLDB extends SQLite3 {
+		function __construct() {
+			$this->open(DISKLOCATION_DB);
+		}
+	}
+	
+	$db = new DLDB();
+	
+	if(!$db) {
+		echo $db->lastErrorMsg();
+	}
+	
+	require_once("sqlite_tables.php");
+	
+	$select_db_info_default = $select_db_info;
+	$sort_db_info_default = $sort_db_info;
+
+	$select_db_trayalloc_default = $select_db_trayalloc;
+	$sort_db_trayalloc_default = $sort_db_trayalloc;
+	
+	$select_db_drives_default = $select_db_drives;
+	$sort_db_drives_default = $sort_db_drives;
+	
+	$css_serial_number_highlight_default = $css_serial_number_highlight;
+	
+	$bgcolor_parity_default = $bgcolor_parity;
+	$bgcolor_unraid_default = $bgcolor_unraid;
+	$bgcolor_cache_default = $bgcolor_cache;
+	$bgcolor_others_default = $bgcolor_others;
+	$bgcolor_empty_default = $bgcolor_empty;
+	
+	$displayinfo_default = $displayinfo;
+	
+	$sql_status = "";
+
+	// get Unraid disks
+	$get_global_smType = ( isset($unraid_smart_all["smType"]) ? $unraid_smart_all["smType"] : null );
+	/* Not in use yet
+	$get_global_smSelect = ( isset($unraid_smart_all["smSelect"]) ? $unraid_smart_all["smSelect"] : null );
+	$get_global_smEvents = ( isset($unraid_smart_all["smEvents"]) ? $unraid_smart_all["smEvents"] : null );
+	$get_global_smCustom = ( isset($unraid_smart_all["smCustom"]) ? $unraid_smart_all["smCustom"] : null );
+	*/
+	
+	if(is_array($unraid_disks) && is_array($unraid_devs)) {
+		$unraid_devs = array_values(array_merge($unraid_disks, $unraid_devs));
+	}
+	else {
+		if(is_array($unraid_disks)) {
+			$unraid_devs = array_values($unraid_disks);
+		}
+		else if(is_array($unraid_devs)) {
+			$unraid_devs = array_values($unraid_devs);
+		}
+	}
+	
+	// modify the array to suit our needs
+	
+	$unraid_array = array();
+	//$unraid_unassigned = array();
+	$smart_controller_devs = array();
+	
+	$i=0;
+	while($i < count($unraid_devs)) {
+		$getdevicenode = $unraid_devs[$i]["device"];
+		$getdeviceid = $unraid_devs[$i]["id"];
+		
+		if(!isset($unraid_smart_one[$getdeviceid]["hotTemp"])) { 
+			$unraid_smart_one[$getdeviceid]["hotTemp"] = 0;
+		}
+		if(!isset($unraid_smart_one[$getdeviceid]["maxTemp"])) { 
+			$unraid_smart_one[$getdeviceid]["maxTemp"] = 0;
+		}
+		
+		$smart_controller_devs[$i] = "" . ( isset($unraid_smart_one[$getdeviceid]["smType"]) ? $unraid_smart_one[$getdeviceid]["smType"] : $get_global_smType ) . "" . ( isset($unraid_smart_one[$getdeviceid]["smPort1"]) ? "," . $unraid_smart_one[$getdeviceid]["smPort1"] : null ) . "" . ( isset($unraid_smart_one[$getdeviceid]["smPort2"]) ? $unraid_smart_one[$getdeviceid]["smGlue"] . "" . $unraid_smart_one[$getdeviceid]["smPort2"] : null ) . "" . ( isset($unraid_smart_one[$getdeviceid]["smPort3"]) ? $unraid_smart_one[$getdeviceid]["smGlue"] . "" . $unraid_smart_one[$getdeviceid]["smPort3"] : null ) . "" . ( isset($unraid_smart_one[$getdeviceid]["smDevice"]) ? " /dev/" . $unraid_smart_one[$getdeviceid]["smDevice"] : null ) . "";
+		
+		if($getdevicenode) {
+			$unraid_array[$getdevicenode] = array(
+				"name" => ($unraid_devs[$i]["name"] ?? null),
+				"device" => ($unraid_devs[$i]["device"] ?? null),
+				"status" => ($unraid_devs[$i]["status"] ?? null),
+				"type" => ($unraid_devs[$i]["type"] ?? null),
+				"temp" => ($unraid_devs[$i]["temp"] ?? null),
+				"hotTemp" => ($unraid_smart_one[$getdeviceid]["hotTemp"] ?? null),
+				"maxTemp" => ($unraid_smart_one[$getdeviceid]["maxTemp"] ?? null),
+				"color" => ($unraid_devs[$i]["color"] ?? null),
+				"fscolor" => ($unraid_devs[$i]["fsColor"] ?? null),
+				"smart_controller_cmd" => ($smart_controller_devs[$i] ?? null),
+				"smart_select" => ($unraid_devs[$i]["smSelect"] ?? null),
+				"smart_events" => ($unraid_devs[$i]["smEvents"] ?? null),
+				"smart_custom" => ($unraid_devs[$i]["smCustom"] ?? null),
+			);
+		}
+		$i++;
+	}
+	
+	// get all attached SCSI drives - usually should grab all local drives available
+	//$lsscsi_cmd = shell_exec("lsscsi -u -g");
+	$lsscsi_cmd = shell_exec("lsscsi -b -g");
+	$lsscsi_arr = explode(PHP_EOL, $lsscsi_cmd);
+	
+	// get disk logs
+	if(is_file(DISKLOGFILE)) {
+		$unraid_disklog = parse_ini_file(DISKLOGFILE, true);
+	}
+	
+	if(in_array("cronjob", $argv) || in_array("force", $argv)) {
+		if(!isset($argv[2])) { 
+			$debugging_active = 0;
+		}
+		set_time_limit(600); // set to 10 minutes.
+	}
+	
+	function debug_print($act, $line, $section, $message) {
+		if($act == 1 && $section && $message) {
+			// write out directly and flush out the results asap
+			$out = "<span style=\"color: red;\">[" . date("His") . "] <b>" . basename(__FILE__) . ":<i>" . $line . "</i></b> @ " . $section . ": " . $message . "</span><br />\n";
+			print($out);
+			file_put_contents("" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/debugging.html", $out, FILE_APPEND);
+			flush();
+			return true;
+		}
+		if($act == 2 && $section != "SQL") {
+			print("[" . date("His") . "] " . basename(__FILE__) . ":" . $line . " @ " . $section . ": " . $message . "\n");
+			flush();
+		}
+		if($act == 3 && $section == "loop") {
+			print("[" . date("H:i:s") . "] " . $message . "<br />\n");
+			flush();
+>>>>>>> master
 		}
 		else {
 			return false;
@@ -563,6 +727,28 @@
 		}
 		else {
 			return ("<a class='info'><i class='fa fa-$orb orb-disklocation $color-orb-disklocation " . ( !empty($blink) ? $blink."-blink-disklocation" : null ) . "'></i><span>$help</span></a>");
+<<<<<<< HEAD
+=======
+		}
+	}
+	
+	function get_powermode($device) {
+		switch(config("/tmp/disklocation/powermode.ini", 'r', $device)) {
+			case "ACTIVE":
+				return "green-on";
+				break;
+			case "IDLE":
+				return "green-on";
+				break;
+			case "STANDBY":
+				return "green-blink";
+				break;
+			case "UNKNOWN":
+				return "grey-off";
+				break;
+			default:
+				return "grey-off";
+>>>>>>> master
 		}
 	}
 	

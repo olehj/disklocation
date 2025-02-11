@@ -4,6 +4,7 @@ Tag="database"
 Title="Dashboard"
 ---
 <?php
+<<<<<<< HEAD
 	define("DISKLOCATION_TMP_PATH", "/tmp/disklocation");
 	
 	// $output = 0: off | 1: write logfile | 2: return log | 3: write logfile & return log
@@ -13,6 +14,29 @@ Title="Dashboard"
 	$total_time_start = $time_start;
 	
 	$page_time_load_system = ( $debug || isset($_GET["benchmark"]) ? hrtime(true) : null );
+=======
+	/*
+	 *  Copyright 2019-2025, Ole-Henrik Jakobsen
+	 *
+	 *  This file is part of Disk Location for Unraid.
+	 *
+	 *  Disk Location for Unraid is free software: you can redistribute it and/or modify
+	 *  it under the terms of the GNU General Public License as published by
+	 *  the Free Software Foundation, either version 3 of the License, or
+	 *  (at your option) any later version.
+	 *
+	 *  Disk Location for Unraid is distributed in the hope that it will be useful,
+	 *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+	 *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	 *  GNU General Public License for more details.
+	 *
+	 *  You should have received a copy of the GNU General Public License
+	 *  along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
+	 *
+	 */
+	$total_time_start = (isset($_GET["benchmark"]) ? hrtime(true) : null);
+	
+>>>>>>> master
 	require_once("/usr/local/emhttp/plugins/disklocation/pages/system.php");
 	$page_time_load["system"] = round((hrtime(true)-$page_time_load_system)/1e+6, 1);
 	print(isset($_GET["benchmark"]) ? "<h2 style=\"position: fixed; left: 600px; bottom: 20px; white-space: no-wrap; color: #0099FF; background-color: #111111;\">system: " . round((hrtime(true)-$page_time_load_system)/1e+6, 1) . " ms</h2>\n" : null);

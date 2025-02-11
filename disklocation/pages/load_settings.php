@@ -29,6 +29,7 @@
 		");
 	}
 	
+<<<<<<< HEAD
 	if(file_exists(DISKLOCATION_CONF)) {
 		$get_disklocation_config = json_decode(file_get_contents(DISKLOCATION_CONF), true);
 	}
@@ -41,6 +42,9 @@
 	if(file_exists(DISKLOCATION_GROUPS)) {
 		$get_groups = json_decode(file_get_contents(DISKLOCATION_GROUPS), true);
 	}
+=======
+	$displayinfo = ( !empty($displayinfo) ? json_decode($displayinfo, true) : json_decode($displayinfo_default, true) ) ;
+>>>>>>> master
 	
 	// reset variable, otherwise it will be reloaded as an array and fault.
 	if(is_array($get_disklocation_config)) {
