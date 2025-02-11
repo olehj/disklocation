@@ -371,7 +371,7 @@
 					
 					$color_array[$hash] = "";
 					
-					if(!$dashboard_widget) { // $dashboard_widget is really for Disk Type / Heatmap setting.
+					if(!$device_bg_color) { // Disk Type / Heatmap setting.
 						switch(strtolower($unraid_array[$devicenode]["type"] ?? '')) {
 							case "parity":
 								$color_array[$hash] = $bgcolor_parity;
@@ -399,7 +399,7 @@
 						if($unraid_array[$devicenode]["temp"] >= $unraid_array[$devicenode]["maxTemp"]) {
 							$color_array[$hash] = $bgcolor_parity;
 						}
-						if(!$unraid_array[$devicenode]["temp"] && (!$unraid_array[$devicenode]["temp"] && $unraid_array[$devicenode]["hotTemp"] == 0 && $unraid_array[$devicenode]["maxTemp"] == 0)) {
+						if(!$unraid_array[$devicenode]["temp"] || (!$unraid_array[$devicenode]["temp"] && $unraid_array[$devicenode]["hotTemp"] == 0 && $unraid_array[$devicenode]["maxTemp"] == 0)) {
 							$color_array[$hash] = $bgcolor_others;
 						}
 					}
