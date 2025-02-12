@@ -190,9 +190,9 @@
 	}
 	
 	function keys_to_content($input, $array) {
-		$input_array = explode(" ", $input);
-		if(is_array($array) && is_array($input_array)) {
-			$data = str_replace(array_keys($array), array_values($array), $input);
+		if(is_array($array) && !empty($input)) {
+			$keys = array_map(function($value) { return '/\b'.$value.'\b/u'; }, array_keys($array));
+			$data = preg_replace($keys, array_values($array), $input);
 			return $data;
 		}
 		else {
@@ -204,7 +204,7 @@
 		$select = preg_replace('/\s+/', '', $select);
 		$sort = preg_replace('/\s+/', '', $sort);
 		$table = array( // Table names:
-			"groupid", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial", "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "expires", "comment", "smart_units_read", "smart_units_written", "smart_status", "temperature", "powerontime_hours", "powerontime", "loadcycle", "nvme_available_spare", "nvme_available_spare_threshold", "endurance"
+			"groupid", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial", "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "expires", "comment", "smart_units_read", "smart_units_written", "smart_status", "temp", "powerontime_hours", "powerontime", "loadcycle", "nvme_available_spare", "nvme_available_spare_threshold", "endurance"
 		);
 		$input = array( // User input names - must also match $sort:
 			"group", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial", "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "expires", "comment", "read", "written", "status", "temp", "powerontime_hours", "powerontime", "loadcycle", "nvme_spare", "nvme_spare_thres", "endurance"
@@ -366,7 +366,7 @@
 				"smart_units_read" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["smart_units_read"] . "</td>",
 				"smart_units_written" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["smart_units_written"] . "</td>",
 				"nvme_available_spare" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["nvme_available_spare"] . "</td>",
-				"nvme_available_spare_threshold" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["nvme_available_spare_threshold"] . "</td>",
+				"nvme_available_threshold" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["nvme_available_threshold"] . "</td>",
 				"installed" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["installed"] . "</td>",
 				"removed" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["removed"] . "</td>",
 				"manufactured" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["manufactured"] . "</td>",
@@ -401,7 +401,7 @@
 				"smart_units_read" => "" . $array["smart_units_read"] . "",
 				"smart_units_written" => "" . $array["smart_units_written"] . "",
 				"nvme_available_spare" => "" . $array["nvme_available_spare"] . "",
-				"nvme_available_spare_threshold" => "" . $array["nvme_available_spare_threshold"] . "",
+				"nvme_available_threshold" => "" . $array["nvme_available_threshold"] . "",
 				"installed" => "" . $array["installed"] . "",
 				"removed" => "" . $array["removed"] . "",
 				"manufactured" => "" . $array["manufactured"] . "",

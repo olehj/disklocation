@@ -37,6 +37,16 @@
 	$page_time_load["array"] = round((hrtime(true)-$page_time_load_array)/1e+6, 1);
 	print(isset($_GET["benchmark"]) ? "<h3 style=\"position: fixed; left: 900px; bottom: 60px; white-space: no-wrap; color: #0099FF; background-color: #111111;\">array: " . round((hrtime(true)-$page_time_load_array)/1e+6, 1) . " ms</h3>\n" : null);
 	
+	list($table_order_user, $table_order_system, $table_order_name, $table_order_full, $table_order_forms) = get_table_order("all", false);
+	
+	if(!empty($select_db_devices)) {
+		$table_order_user_map = array_map(function($value) { return '/\b'.$value.'\b/u'; }, $table_order_user);
+		$select_db_devices_str = preg_replace($table_order_user_map, $table_order_system, $select_db_devices);
+	}
+	else {
+		$select_db_devices_str   = $select_db_devices;
+	}
+	
 	foreach($array_groups as $id => $value) {
 		$group_color = "";
 		$grid_trays = 0;
@@ -426,7 +436,7 @@
 										$temp_status_icon
 									</div>
 									<div class=\"flex-container-middle_" . $disk_tray_direction . "\">
-										" . keys_to_content(bscode2html(nl2br(stripslashes(htmlspecialchars($select_db_devices)))), $devices[$hash]["formatted"]) . "
+										" . bscode2html(nl2br(stripslashes(htmlspecialchars(keys_to_content($select_db_devices_str, $devices[$hash]["formatted"]))))) . "
 									</div>
 								</div>
 							</div>
@@ -494,7 +504,7 @@
 						
 					}
 					$dashboard_text = "" . $temp_status_info["text"] . " | SMART: " . $smart_status_info["text"] . " | " . $unraid_array_info["text"] . "";
-					$dashboard_text .= "<br />" . keys_to_content(bscode2html(nl2br(stripslashes(htmlspecialchars($select_db_devices))), true), $devices[$hash]["formatted"]) . "";
+					$dashboard_text .= "<br />" . bscode2html(nl2br(stripslashes(htmlspecialchars(keys_to_content($select_db_devices, $devices[$hash]["formatted"])))), true) . "";
 					
 					$disklocation_dash[$gid] .= "
 						<div style=\"order: " . $drive_tray_order[$hash] . "\">

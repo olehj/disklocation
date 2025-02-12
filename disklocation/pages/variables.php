@@ -133,6 +133,10 @@
 	}
 	//( (file_exists("sqlite_tables.php") && file_exists(DISKLOCATION_DEVICES) && file_exists(DISKLOCATION_LOCATIONS) && file_exists(DISKLOCATION_GROUPS)) ?? unlink("sqlite_table.php") );
 	
+	// 1-10:  "group", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial"
+	// 11-20: "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "expires"
+	// 21-30: "comment", "read", "written", "status", "temp", "powerontime_hours", "powerontime", "loadcycle", "nvme_spare", "nvme_spare_thres"
+	// 31-31: "endurance"
 	$select_db_info_default = $select_db_info;
 	$sort_db_info_default = $sort_db_info;
 	$allowed_db_select_info =      "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1";
@@ -154,6 +158,7 @@
 	$allowed_db_sort_drives =      "0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,1,1,1,0,0,1";
 	
 	$select_db_devices_default = $select_db_devices;
+	$allowed_db_select_devices =   "1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1";
 	
 	$css_serial_number_highlight_default = $css_serial_number_highlight;
 	

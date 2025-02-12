@@ -453,7 +453,7 @@
 						<br />
 						E.g. [large]text[/large]<br />
 						<br />
-						Force break: [br]<br />
+						Force break/new line: [br]
 						<br />
 						Color: [color:HEX]text[/color]<br />
 						E.g. [color:0000FF][b]text[/b][/color] = <span style="color: #0000FF;"><b>text</b></span>

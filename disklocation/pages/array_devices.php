@@ -114,7 +114,7 @@
 		$devices[$hash]["raw"]["nvme_available_spare"]  = $smart_array["nvme_smart_health_information_log"]["available_spare"];
 		$devices[$hash]["formatted"]["nvme_available_spare"]  = ( isset($devices[$hash]["raw"]["nvme_available_spare"]) ? $devices[$hash]["raw"]["nvme_available_spare"] . "%" : null );
 		$devices[$hash]["raw"]["nvme_available_spare_threshold"] = $smart_array["nvme_smart_health_information_log"]["available_spare_threshold"];
-		$devices[$hash]["formatted"]["nvme_available_spare_threshold"] = $devices[$hash]["raw"]["nvme_available_spare_threshold"];
+		$devices[$hash]["formatted"]["nvme_available_spare_threshold"] = ( isset($devices[$hash]["raw"]["nvme_available_spare_threshold"]) ? $devices[$hash]["raw"]["nvme_available_spare_threshold"] . "%" : null );
 		
 		if(isset($smart_array["ata_device_statistics"]["pages"])) {
 			$smart_i = 0;

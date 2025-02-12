@@ -221,7 +221,7 @@ $(document).ready(function(){
 							<textarea type="text" name="select_db_devices" style="height: 80px; width: 95%;" /><?php print(!$select_db_devices ? $select_db_devices_default : $select_db_devices) ?></textarea>
 							<blockquote class="inline_help" style="white-space: wrap;">
 								<ul>
-									<li><b>Possible selectors:</b> pool, name, device, node, lun, manufacturer, model, serial, temp, capacity, cache, rotation, formfactor, comment</li>
+									<li><b>Possible selectors:</b> <?php print(implode(", ", get_table_order("allowed", 0, 4, $allowed_db_select_devices))); ?></li>
 									<li><b>Formatting tools:</b></li>
 									<dd>
 										Bold: [b]<b>text</b>[/b] or *<b>text</b>*<br />
@@ -235,7 +235,7 @@ $(document).ready(function(){
 										<span style="font-size: x-large">huge</span>
 										<span style="font-size: xx-large">massive</span>
 										<br />
-										E.g. [large]text[/large]<br />
+										E.g. [large]text[/large]
 										<br />
 										Color: [color:HEX]text[/color]<br />
 										E.g. [color:0000FF][b]text[/b][/color] = <span style="color: #0000FF;"><b>text</b></span>
