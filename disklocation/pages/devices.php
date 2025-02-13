@@ -504,7 +504,7 @@
 						
 					}
 					$dashboard_text = "" . $temp_status_info["text"] . " | SMART: " . $smart_status_info["text"] . " | " . $unraid_array_info["text"] . "";
-					$dashboard_text .= "<br />" . bscode2html(nl2br(stripslashes(htmlspecialchars(keys_to_content($select_db_devices, $devices[$hash]["formatted"])))), true) . "";
+					$dashboard_text .= "<br />" . bscode2html(nl2br(stripslashes(htmlspecialchars(keys_to_content($select_db_devices_str, $devices[$hash]["formatted"])))), true) . "";
 					
 					$disklocation_dash[$gid] .= "
 						<div style=\"order: " . $drive_tray_order[$hash] . "\">

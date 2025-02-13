@@ -318,7 +318,9 @@
 				foreach($benchmark_files as $file => $foo) {
 					$benchmark_backup[] = UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/benchmark/" . $benchmark_files[$file];
 				}
-				$get_benchmark_files = implode(",", $benchmark_backup);
+				if(!empty($benchmark_backup) && is_array($benchmark_backup)) {
+					$get_benchmark_files = implode(",", $benchmark_backup);
+				}
 			}
 			
 			if(in_array("auto", $argv)) {
