@@ -46,6 +46,7 @@
 
 <CHANGES>
 ###2025.02.14
+ - Commit #378 - FEATURE: Added a cleanup function in System. If obsolete files are found, it will show a list of files and a button to delete the files shown. These are only files that are not in use.
  - Commit #372 - FEATURE: Seagate SMART vs FARM LOG check in System tab added for checking fraudulent drives.
  - Commit #369 - IMPROVEMENT: Use syslog to detect SMART read events.
  - Commit #365 - FEATURE: Added selected dashboard info to LED "hover" info on Unraid dashboard.
