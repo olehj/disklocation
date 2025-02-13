@@ -302,7 +302,7 @@
 							$temp_status = 1;
 						}
 						if($unraid_array[$devicenode]["temp"] >= $unraid_array[$devicenode]["hotTemp"]) {
-							$temp_status_icon = "<a class='info' style=\"margin: 0; text-align:left;\"><i class='fa fa-" . ( !$force_orb_led ? 'fire' : 'circle' ) . " orb-disklocation yellow-orb-disklocation yellow-blink-disklocation'></i><span>" . $smart_temperature . " (Warning: &gt;" . $devices[$hash]["formatted"]["hotTemp"] . ")</span></a>";
+							$temp_status_icon = "<a class='info' style=\"margin: 0; text-align:left;\"><i class='fa fa-" . ( !$force_orb_led ? 'fire' : 'circle' ) . " orb-disklocation yellow-orb-disklocation yellow-blink-disklocation'></i><span>" . $devices[$hash]["formatted"]["temp"] . " (Warning: &gt;" . $devices[$hash]["formatted"]["hotTemp"] . ")</span></a>";
 							$temp_status_info = array('orb' => "fa fa-" . ( !$force_orb_led ? 'fire' : 'circle' ) . " orb-disklocation yellow-orb-disklocation yellow-blink-disklocation", 'color' => 'yellow', 'text' => $devices[$hash]["formatted"]["temp"]);
 							$temp_status = 2;
 						}
