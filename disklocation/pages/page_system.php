@@ -94,6 +94,44 @@
 	$print_loc_db_err = "";
 	$argv = ( !isset($argv) ? array() : $argv );
 	
+	$array_obsolete = array(
+		UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/boot" => "dir",
+		UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.noscan" => "file",
+		UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.conf" => "file",
+		UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.sqlite" => "file",
+	);
+	
+	function obsolete_files($array, $check = true) {
+		foreach($array as $file => $type) {
+			if(file_exists($file) && $check === false) {
+				if($type == "dir") {
+					$iterator = new RecursiveIteratorIterator(
+						new RecursiveDirectoryIterator($file, 
+						RecursiveDirectoryIterator::SKIP_DOTS),
+						RecursiveIteratorIterator::CHILD_FIRST
+					);
+					foreach ($iterator as $foundfile) {
+						if ($foundfile->isDir()) {
+							rmdir($foundfile->getPathname());
+						} else {
+							unlink($foundfile->getPathname());
+						}
+					}
+					rmdir($file);
+				}
+				else {
+					unlink($file);
+				}
+			}
+			else if(file_exists($file) && $check === true) {
+				$results[] = $file;
+			}
+		}
+		if(!empty($results) && is_array($results)) {
+			return $results;
+		}
+	}
+	
 	function compress_file($src_array, $dst) {
 		$data = array();
 		
@@ -310,6 +348,11 @@
 		header("Location: " . DISKLOCATION_URL . "");
 		exit;
 	}
+	if(isset($_POST["del_obsolete"])) {
+		obsolete_files($array_obsolete, false);
+		header("Location: " . DISKLOCATION_URL . "");
+		exit;
+	}
 		
 	if(isset($_POST["backup_db"]) || in_array("backup", $argv)) {
 		if(file_exists(DISKLOCATION_DEVICES) && file_exists(DISKLOCATION_GROUPS) && file_exists(DISKLOCATION_LOCATIONS)) {
@@ -492,6 +535,16 @@
 		<form>
 	";
 	
+	if(obsolete_files($array_obsolete, true)) {
+		$print_obsolete = "
+			<h3>Obsolete files and/or folders found:</h3>
+			<ul><li>" . implode("</li><li>", obsolete_files($array_obsolete, true)) . "</li></ul>
+			<form action=\"" . DISKLOCATION_PATH . "/pages/page_system.php\" method=\"post\">
+				<input type=\"submit\" name=\"del_obsolete\" value=\"Delete All\" />
+			<form>
+		";
+	}
+	
 	if(!strstr($_SERVER["SCRIPT_NAME"], "page_system.php") && $db_update != 2) {
 		$list_undelete = force_undelete_devices($get_devices, 'r');
 		
@@ -573,5 +626,6 @@
 <?php echo $print_list_database ?>
 <?php echo $print_list_database_lock ?>
 <?php echo $print_list_undelete ?>
+<?php echo $print_obsolete ?>
 <?php echo $print_reset ?>
 </td></tr></table>
