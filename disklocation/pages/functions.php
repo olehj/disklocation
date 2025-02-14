@@ -18,232 +18,167 @@
 	 *  along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
 	 *
 	 */
-	// Set to 1|2|3 to enable debugging:
-	$debugging_active = 0;
 	
-	// Set warning level
-	//error_reporting(E_ERROR | E_WARNING | E_PARSE);
-	error_reporting(E_ERROR);
-	
-	// define constants
-	define("UNRAID_CONFIG_PATH", "/boot/config");
-	define("DISKLOGFILE", "/boot/config/disk.log");
-	define("DISKLOCATION_URL", "/Tools/disklocation");
-	define("DISKLOCATIONCONF_URL", "/Tools/disklocation");
-	define("DISKLOCATION_PATH", "/plugins/disklocation");
-	define("DISKLOCATION_CONF", "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.conf");
-	define("DISKLOCATION_DB_DEFAULT", "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.sqlite");
-	define("DISKLOCATION_LOCK_FILE", "/tmp/disklocation/db.lock");
-	define("DISKINFORMATION", "/var/local/emhttp/disks.ini");
-	define("EMHTTP_ROOT", "/usr/local/emhttp");
-	define("CRONJOB_URL", DISKLOCATION_PATH . "/pages/cron_disklocation.php");
-	define("CRONJOB_FILE", EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/cron_disklocation.php");
-	define("EMHTTP_VAR", "/var/local/emhttp");
-	define("UNRAID_DISKS_FILE", "disks.ini");
-	define("UNRAID_DEVS_FILE", "devs.ini");
-	define("UNRAID_MONITOR_FILE", "monitor.ini");
-	define("SMART_ALL_FILE", "smart-all.cfg");
-	define("SMART_ONE_FILE", "smart-one.cfg");
-	
-	$get_page_info = array();
-	$get_page_info["Version"] = "";
-	$get_page_info = parse_ini_file("" . EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/disklocation.page");
-	define("DISKLOCATION_VERSION", $get_page_info["Version"]);
-	
-	if(file_exists(DISKLOCATION_CONF)) {
-		$get_disklocation_config = json_decode(file_get_contents(DISKLOCATION_CONF), true);
-		if(isset($get_disklocation_config["database_location"])) {
-			define("DISKLOCATION_DB", $get_disklocation_config["database_location"]);
-		}
-		else {
-			define("DISKLOCATION_DB", DISKLOCATION_DB_DEFAULT);
-		}
-	}
-	else {
-		define("DISKLOCATION_DB", DISKLOCATION_DB_DEFAULT);
+	if(!strstr($_SERVER["SCRIPT_NAME"], "page_system.php")) {
+		require_once("variables.php");
+		include("load_settings.php");
 	}
 	
-	$unraid_disks = array();
-	$unraid_devs = array();
-	
-	if(is_file(EMHTTP_VAR . "/" . UNRAID_DISKS_FILE)) {
-		$unraid_disks = parse_ini_file(EMHTTP_VAR . "/" . UNRAID_DISKS_FILE, true);
-	}
-	if(is_file(EMHTTP_VAR . "/" . UNRAID_DEVS_FILE)) {
-		$unraid_devs = parse_ini_file(EMHTTP_VAR . "/" . UNRAID_DEVS_FILE, true);
-	}
-	if(is_file(UNRAID_CONFIG_PATH . "/" . SMART_ALL_FILE)) {
-		$unraid_smart_all = parse_ini_file(UNRAID_CONFIG_PATH . "/" . SMART_ALL_FILE, true);
-	}
-	if(is_file(UNRAID_CONFIG_PATH . "/" . SMART_ONE_FILE)) {
-		$unraid_smart_one = parse_ini_file(UNRAID_CONFIG_PATH . "/" . SMART_ONE_FILE, true);
-	}
-	
-	$disklocation_error = array();
-	$disklocation_new_install = 0;
-	$group = array();
-	$unraid_disklog = array();
-	$installed_drives = array();
-	
-	global $unraid, $GLOBALS;
-	
-	if(!isset($argv)) {
-		$argv = array();
-	}
-	
-	if(!is_file(DISKLOCATION_DB)) {
-		$disklocation_new_install = 1;
-	}
-	
-	// open and/or create database
-	class DLDB extends SQLite3 {
-		function __construct() {
-			$this->open(DISKLOCATION_DB);
-		}
-	}
-	
-	$db = new DLDB();
-	
-	if(!$db) {
-		echo $db->lastErrorMsg();
-	}
-	
-	require_once("sqlite_tables.php");
-	
-	$select_db_info_default = $select_db_info;
-	$sort_db_info_default = $sort_db_info;
-
-	$select_db_trayalloc_default = $select_db_trayalloc;
-	$sort_db_trayalloc_default = $sort_db_trayalloc;
-	
-	$select_db_drives_default = $select_db_drives;
-	$sort_db_drives_default = $sort_db_drives;
-	
-	$css_serial_number_highlight_default = $css_serial_number_highlight;
-	
-	$bgcolor_parity_default = $bgcolor_parity;
-	$bgcolor_unraid_default = $bgcolor_unraid;
-	$bgcolor_cache_default = $bgcolor_cache;
-	$bgcolor_others_default = $bgcolor_others;
-	$bgcolor_empty_default = $bgcolor_empty;
-	
-	$displayinfo_default = $displayinfo;
-	
-	$sql_status = "";
-
-	// get Unraid disks
-	$get_global_smType = ( isset($unraid_smart_all["smType"]) ? $unraid_smart_all["smType"] : null );
-	/* Not in use yet
-	$get_global_smSelect = ( isset($unraid_smart_all["smSelect"]) ? $unraid_smart_all["smSelect"] : null );
-	$get_global_smEvents = ( isset($unraid_smart_all["smEvents"]) ? $unraid_smart_all["smEvents"] : null );
-	$get_global_smCustom = ( isset($unraid_smart_all["smCustom"]) ? $unraid_smart_all["smCustom"] : null );
-	*/
-	
-	if(is_array($unraid_disks) && is_array($unraid_devs)) {
-		$unraid_devs = array_values(array_merge($unraid_disks, $unraid_devs));
-	}
-	else {
-		if(is_array($unraid_disks)) {
-			$unraid_devs = array_values($unraid_disks);
-		}
-		else if(is_array($unraid_devs)) {
-			$unraid_devs = array_values($unraid_devs);
-		}
-	}
-	
-	// modify the array to suit our needs
-	
-	$unraid_array = array();
-	//$unraid_unassigned = array();
-	$smart_controller_devs = array();
-	
-	$i=0;
-	while($i < count($unraid_devs)) {
-		$getdevicenode = $unraid_devs[$i]["device"];
-		$getdeviceid = $unraid_devs[$i]["id"];
-		
-		if(!isset($unraid_smart_one[$getdeviceid]["hotTemp"])) { 
-			$unraid_smart_one[$getdeviceid]["hotTemp"] = 0;
-		}
-		if(!isset($unraid_smart_one[$getdeviceid]["maxTemp"])) { 
-			$unraid_smart_one[$getdeviceid]["maxTemp"] = 0;
-		}
-		
-		$smart_controller_devs[$i] = "" . ( isset($unraid_smart_one[$getdeviceid]["smType"]) ? $unraid_smart_one[$getdeviceid]["smType"] : $get_global_smType ) . "" . ( isset($unraid_smart_one[$getdeviceid]["smPort1"]) ? "," . $unraid_smart_one[$getdeviceid]["smPort1"] : null ) . "" . ( isset($unraid_smart_one[$getdeviceid]["smPort2"]) ? $unraid_smart_one[$getdeviceid]["smGlue"] . "" . $unraid_smart_one[$getdeviceid]["smPort2"] : null ) . "" . ( isset($unraid_smart_one[$getdeviceid]["smPort3"]) ? $unraid_smart_one[$getdeviceid]["smGlue"] . "" . $unraid_smart_one[$getdeviceid]["smPort3"] : null ) . "" . ( isset($unraid_smart_one[$getdeviceid]["smDevice"]) ? " /dev/" . $unraid_smart_one[$getdeviceid]["smDevice"] : null ) . "";
-		
-		if($getdevicenode) {
-			$unraid_array[$getdevicenode] = array(
-				"name" => ($unraid_devs[$i]["name"] ?? null),
-				"device" => ($unraid_devs[$i]["device"] ?? null),
-				"status" => ($unraid_devs[$i]["status"] ?? null),
-				"type" => ($unraid_devs[$i]["type"] ?? null),
-				"temp" => ($unraid_devs[$i]["temp"] ?? null),
-				"hotTemp" => ($unraid_smart_one[$getdeviceid]["hotTemp"] ?? null),
-				"maxTemp" => ($unraid_smart_one[$getdeviceid]["maxTemp"] ?? null),
-				"color" => ($unraid_devs[$i]["color"] ?? null),
-				"fscolor" => ($unraid_devs[$i]["fsColor"] ?? null),
-				"smart_controller_cmd" => ($smart_controller_devs[$i] ?? null),
-				"smart_select" => ($unraid_devs[$i]["smSelect"] ?? null),
-				"smart_events" => ($unraid_devs[$i]["smEvents"] ?? null),
-				"smart_custom" => ($unraid_devs[$i]["smCustom"] ?? null),
-			);
-		}
-		$i++;
-	}
-	
-	// get all attached SCSI drives - usually should grab all local drives available
-	//$lsscsi_cmd = shell_exec("lsscsi -u -g");
-	$lsscsi_cmd = shell_exec("lsscsi -b -g");
-	$lsscsi_arr = explode(PHP_EOL, $lsscsi_cmd);
-	
-	// get disk logs
-	if(is_file(DISKLOGFILE)) {
-		$unraid_disklog = parse_ini_file(DISKLOGFILE, true);
-	}
-	
-	if(in_array("cronjob", $argv) || in_array("force", $argv)) {
-		if(!isset($argv[2])) { 
-			$debugging_active = 0;
-		}
-		set_time_limit(600); // set to 10 minutes.
-	}
-	
-	function debug_print($act, $line, $section, $message) {
-		if($act == 1 && $section && $message) {
-			// write out directly and flush out the results asap
-			$out = "<span style=\"color: red;\">[" . date("His") . "] <b>" . basename(__FILE__) . ":<i>" . $line . "</i></b> @ " . $section . ": " . $message . "</span><br />\n";
-			print($out);
-			file_put_contents("" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/debugging.html", $out, FILE_APPEND);
-			flush();
-			return true;
-		}
-		if($act == 2 && $section != "SQL") {
-			print("[" . date("His") . "] " . basename(__FILE__) . ":" . $line . " @ " . $section . ": " . $message . "\n");
-			flush();
-		}
-		if($act == 3 && $section == "loop") {
-			print("[" . date("H:i:s") . "] " . $message . "<br />\n");
-			flush();
+	function debug($output, $file, $line, $program, $input = '') { // $output = 0: off | 1: write logfile | 2: return log | 3: write logfile & return log
+		if($output) {
+			if($output && $line && $program && $input) {
+				$log = "[" . date("H:i:s") . "] " . $file . ":" . $line . " @ " . $program . ": " . ( is_array($input) ? print_r($input, true) : $input ) . "\n";
+			}
+			
+			if($output == 1 || $output == 3) {
+				file_put_contents(DISKLOCATION_TMP_PATH . "/disklocation.log", $log, FILE_APPEND);
+				if($output == 2) {
+					return true;
+				}
+			}
+			
+			if($output == 2 || $output == 3) {
+				return $log;
+			}
 		}
 		else {
 			return false;
 		}
 	}
 	
-	debug_print($debugging_active, __LINE__, "functions", "Debug function active.");
-
-	function bscode2html($text) {
+	function config($file, $operation, $key = '', $val = '') { // file, [r]ead/[w]rite, key (req. write), value (req. write)
+		if($operation == 'w') {
+			if(!file_exists($file)) {
+				mkdir(dirname($file), 0755, true);
+				touch($file);
+			}
+			$config_json = file_get_contents($file);
+			$config_json = json_decode($config_json, true);
+			$config_json[$key] = $val;
+			$config_json = json_encode($config_json, JSON_PRETTY_PRINT);
+			if(file_put_contents($file, $config_json)) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		if($operation == 'r') {
+			$config_json = file_get_contents($file);
+			$config_json = json_decode($config_json, true);
+			if($key) {
+				return $config_json[$key];
+			}
+			else {
+				return $config_json;
+			}
+		}
+		else return false;
+	}
+	function config_array($file, $operation, $array = '') { // file, [r]ead/[w]rite, array (req. write)
+		if($operation == 'w' && is_array($array)) {
+			if(!file_exists($file)) {
+				mkdir(dirname($file), 0755, true);
+				touch($file);
+			}
+			
+			$func_array = json_encode($array, JSON_PRETTY_PRINT);
+			
+			if(file_put_contents($file, $func_array)) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		if($operation == 'r') {
+			$contents = file_get_contents($file);
+			$func_array = json_decode($contents, true);
+			return $func_array;
+		}
+		else return false;
+	}
+	
+	function write_ini_file($file, $array = []) { // from Lawrence Cherone @ stackoverflow.com
+		// check first argument is string
+		if (!is_string($file)) {
+			throw new \InvalidArgumentException('Function argument 1 must be a string.');
+		}
+		
+		// check second argument is array
+		if (!is_array($array)) {
+			throw new \InvalidArgumentException('Function argument 2 must be an array.');
+		}
+		
+		// process array
+		$data = array();
+		foreach ($array as $key => $val) {
+		if (is_array($val)) {
+			$data[] = "[$key]";
+			foreach ($val as $skey => $sval) {
+			if (is_array($sval)) {
+				foreach ($sval as $_skey => $_sval) {
+				if (is_numeric($_skey)) {
+					$data[] = $skey.'[] = '.(is_numeric($_sval) ? $_sval : (ctype_upper($_sval) ? $_sval : '"'.$_sval.'"'));
+				} else {
+					$data[] = $skey.'['.$_skey.'] = '.(is_numeric($_sval) ? $_sval : (ctype_upper($_sval) ? $_sval : '"'.$_sval.'"'));
+				}
+				}
+			} else {
+				$data[] = $skey.' = '.(is_numeric($sval) ? $sval : (ctype_upper($sval) ? $sval : '"'.$sval.'"'));
+			}
+			}
+		} else {
+			$data[] = $key.' = '.(is_numeric($val) ? $val : (ctype_upper($val) ? $val : '"'.$val.'"'));
+		}
+		// empty line
+		$data[] = null;
+		}
+		
+		// open file pointer, init flock options
+		$fp = fopen($file, 'w');
+		$retries = 0;
+		$max_retries = 100;
+		
+		if (!$fp) {
+		return false;
+		}
+		
+		// loop until get lock, or reach max retries
+		do {
+		if ($retries > 0) {
+			usleep(rand(1, 5000));
+		}
+		$retries += 1;
+		} while (!flock($fp, LOCK_EX) && $retries <= $max_retries);
+		
+		// couldn't get the lock
+		if ($retries == $max_retries) {
+		return false;
+		}
+		
+		// got lock, write data
+		fwrite($fp, implode(PHP_EOL, $data).PHP_EOL);
+		
+		// release lock
+		flock($fp, LOCK_UN);
+		fclose($fp);
+		
+		return true;
+	}
+	
+	function bscode2html($text, $strip = false) {
 		$text = preg_replace("/\*(.*?)\*/", "<b>$1</b>", $text);
 		$text = preg_replace("/_(.*?)_/", "<i>$1</i>", $text);
 		$text = preg_replace("/\[b\](.*)\[\/b\]/", "<b>$1</b>", $text);
 		$text = preg_replace("/\[i\](.*)\[\/i\]/", "<i>$1</i>", $text);
-		$text = preg_replace("/\[tiny\](.*)\[\/tiny\]/", "<span style=\"font-size: xx-small;\">$1</span>", $text);
-		$text = preg_replace("/\[small\](.*)\[\/small\]/", "<span style=\"font-size: x-small;\">$1</span>", $text);
-		$text = preg_replace("/\[medium\](.*)\[\/medium\]/", "<span style=\"font-size: medium;\">$1</span>", $text);
-		$text = preg_replace("/\[large\](.*)\[\/large\]/", "<span style=\"font-size: large;\">$1</span>", $text);
-		$text = preg_replace("/\[huge\](.*)\[\/huge\]/", "<span style=\"font-size: x-large;\">$1</span>", $text);
-		$text = preg_replace("/\[massive\](.*)\[\/massive\]/", "<span style=\"font-size: xx-large;\">$1</span>", $text);
-		$text = preg_replace("/\[color:((?:[0-9a-fA-F]{3}){1,2})\](.*)\[\/color\]/", "<span style=\"color: #$1;\">$2</span>", $text);
+		$text = preg_replace("/\[tiny\](.*)\[\/tiny\]/", "" . ( !$strip ? "<span style=\"font-size: xx-small;\">$1</span>" : "$1" ) . "", $text);
+		$text = preg_replace("/\[small\](.*)\[\/small\]/", "" . ( !$strip ? "<span style=\"font-size: x-small;\">$1</span>" : "$1" ) . "", $text);
+		$text = preg_replace("/\[medium\](.*)\[\/medium\]/", "" . ( !$strip ? "<span style=\"font-size: medium;\">$1</span>" : "$1" ) . "", $text);
+		$text = preg_replace("/\[large\](.*)\[\/large\]/", "" . ( !$strip ? "<span style=\"font-size: large;\">$1</span>" : "$1" ) . "", $text);
+		$text = preg_replace("/\[huge\](.*)\[\/huge\]/", "" . ( !$strip ? "<span style=\"font-size: x-large;\">$1</span>" : "$1" ) . "", $text);
+		$text = preg_replace("/\[massive\](.*)\[\/massive\]/", "" . ( !$strip ? "<span style=\"font-size: xx-large;\">$1</span>" : "$1" ) . "", $text);
+		$text = preg_replace("/\[color:((?:[0-9a-fA-F]{3}){1,2})\](.*)\[\/color\]/", "" . ( !$strip ? "<span style=\"color: #$1;\">$2</span>" : "$2" ) . "", $text);
 		$text = preg_replace("/\[br\]/", "<br />", $text);
 		
 		if($text) {
@@ -254,29 +189,45 @@
 		}
 	}
 	
+	function keys_to_content($input, $array) {
+		if(is_array($array) && !empty($input)) {
+			$keys = array_map(function($value) { return '/\b'.$value.'\b/u'; }, array_keys($array));
+			$data = preg_replace($keys, array_values($array), $input);
+			return $data;
+		}
+		else {
+			return false;
+		}
+	}
+	
 	function get_table_order($select, $sort, $return = '0', $test = '') { // $return = 0: list() = multi-arrays || 1: SQL command variables || 2(column)/3(sort): validation + $test = string of valid inputs (eg. '1,1,0,0,....0')
 		$select = preg_replace('/\s+/', '', $select);
 		$sort = preg_replace('/\s+/', '', $sort);
 		$table = array( // Table names:
-			"groupid", "tray", "device", "devicenode", "luname", "model_family", "model_name", "smart_status", "smart_serialnumber", "smart_temperature", "smart_powerontime", "smart_loadcycle", "smart_reallocated_sector_count", "smart_reported_uncorrectable_errors", "smart_command_timeout", "smart_current_pending_sector_count", "smart_offline_uncorrectable", "smart_capacity", "smart_cache", "smart_rotation", "smart_formfactor", "smart_nvme_available_spare", "smart_nvme_available_spare_threshold", "smart_nvme_percentage_used", "smart_units_read", "smart_units_written", "benchmark_r", "benchmark_w", "manufactured", "purchased", "installed", "removed", "warranty_date", "comment"
+			"groupid", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial", "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "expires", "comment", "smart_units_read", "smart_units_written", "smart_status", "temp", "powerontime_hours", "powerontime", "loadcycle", "nvme_available_spare", "nvme_available_spare_threshold", "endurance"
 		);
 		$input = array( // User input names - must also match $sort:
-			"group", "tray", "device", "node", "lun", "manufacturer", "model", "status", "serial", "temp", "powerontime", "loadcycle", "reallocated", "reported", "timeout", "pending", "offline", "capacity", "cache", "rotation", "formfactor", "nvme_spare", "nvme_spare_thres", "nvme_used", "read", "written", "bench_r", "bench_w", "manufactured", "purchased", "installed", "removed", "warranty", "comment"
+			"group", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial", "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "expires", "comment", "read", "written", "status", "temp", "powerontime_hours", "powerontime", "loadcycle", "nvme_spare", "nvme_spare_thres", "endurance"
 		);
 		$nice_names = array(
-			"Group", "Tray", "Path", "Node", "LUN", "Manufacturer", "Device Model", "SMART", "S/N", "Temperature", "Powered", "Cycles", "Reallocated", "Reported", "Timeout", "Pending", "Offline", "Capacity", "Cache", "Rotation", "FF", "Spare", "Spare Threshold", "Used", "Read", "Written", "Read Speed", "Write Speed", "Manufactured", "Purchased", "Installed", "Removed", "Warranty", "Comment"
+			"Group", "Tray", "Path", "Node", "Pool", "Name", "LUN", "Manufacturer", "Device Model", "S/N", "Capacity", "Cache", "Rotation", "FF", "Manufactured", "Purchased", "Installed", "Removed", "Warranty", "Expires", "Comment", "Read", "Written", "Status", "Temperature", "Powered Hours", "Powered", "Cycles", "Spare", "Spare Threshold", "Endurance"
 		);
 		$full_names = array(
-			"Group", "Tray", "Path", "Node", "Logic Unit Number", "Manufacturer", "Device Model", "SMART", "Serial Number", "Temperature", "Power On Time", "Load Cycle Count", "Reallocated Sector Count", "Reported Uncorrectable Errors", "Command Timeout", "Current Pending Sector Count", "Offline Uncorrectable", "Capacity", "Cache Size", "Rotation", "Form Factor", "Available Spare", "Available Spare Threshold", "Percentage Used", "Data Units Read", "Data Units Written", "Benchmark Read Speed", "Benchmark Write Speed", "Manufactured Date", "Purchased Date", "Installed Date", "Removed Date", "Warranty Date", "Comment"
+			"Group", "Tray", "Path", "Node", "Pool Name", "Disk Name", "Logic Unit Number", "Manufacturer", "Device Model", "Serial Number", "Capacity", "Cache Size", "Rotation", "Form Factor", "Manufactured Date", "Purchased Date", "Installed Date", "Removed Date", "Warranty Period", "Warranty Expires", "Comment", "Smart Units Read", "Smart Units Written", "Status", "Temperature", "Power On Time Hours", "Power On Time", "Load Cycle Count", "Available Spare", "Available Spare Threshold", "Endurance"
 		);
 		$input_form = array(
 			//                10                  20                  30
-			1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,1
+			1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0
 		);
 		
 		if($select == "all") {
 			$select = implode(",", $input);
 			$sort = "asc:group";
+		}
+		
+		if($select == "allowed") {
+			$select = implode(",", $input);
+			$sort = "asc:".implode(",", $input);
 		}
 		
 		$table_sql = array_combine($table, $input);
@@ -299,43 +250,55 @@
 		$return_forms = array();
 		$return_allow_colm = array();
 		$return_allow_sort = array();
+		$return_errors = array();
 		
-		if($return != 3) {
-			$arr_length = count($select);
-			for($i=0;$i<$arr_length;$i++) {
-				$return_table[$i] = array_search($select[$i], $table_sql);
-				$return_names[$i] = array_search($select[$i], $table_names);
-				$return_full[$i] = array_search($select[$i], $table_full);
-				$return_forms[$i] = $table_forms[$select[$i]];
-				if($return == 2 && !empty($test)) {
-					if($table_allowed[$select[$i]] == 0) {
-						$return_allow_colm[$select[$i]] = $table_allowed[$select[$i]];
+		if($return != 4) {
+			if($return != 3) {
+				$arr_length = count($select);
+				for($i=0;$i<$arr_length;$i++) {
+					$return_table[$i] = array_search($select[$i], $table_sql);
+					$return_names[$i] = array_search($select[$i], $table_names);
+					$return_full[$i] = array_search($select[$i], $table_full);
+					$return_forms[$i] = $table_forms[$select[$i]];
+					if($return == 2 && !empty($test)) {
+						if($table_allowed[$select[$i]] == 0) {
+							$return_allow_colm[$select[$i]] = $table_allowed[$select[$i]];
+						}
+					}
+					if(!$return_table[$i]) {
+						$return_errors[] = $select[$i];
 					}
 				}
-				
-				if($return_table[$i] === false) { 
-					return "Table column \"" . $select[$i] . "\" does not exist.\n";
-					break;
+			}
+			
+			if($return != 2) {
+				$return_sort = array();
+				$arr_length = count($sort_col);
+				for($i=0;$i<$arr_length;$i++) {
+					$check_sort[$i] = array_search($sort_col[$i], $table_sql);
+					$return_sort[] = $table_user[$sort_col[$i]];
+					if($return == 3 && !empty($test)) {
+						if($table_allowed[$sort_col[$i]] == 0) {
+							$return_allow_sort[$sort_col[$i]] = $table_allowed[$sort_col[$i]];
+						}
+					}
+					if(!$check_sort[$i]) {
+						$return_errors[] = $sort_col[$i];
+					}
+				}
+				for($i=0;$i<count($return_sort);$i++) {
+					$return_sort_str .= $return_sort[$i] . " SORT_" . strtoupper($sort_dir[0]);
+					if($return_sort[$i+1]) { $return_sort_str .= ","; }
 				}
 			}
 		}
-		
-		if($return != 2) {
-			$return_sort = array();
-			$arr_length = count($sort_col);
-			for($i=0;$i<$arr_length;$i++) {
-				$check_sort = array_search($sort_col[$i], $input);
-				$return_sort[] = $table_user[$sort_col[$i]];
-				if($return == 3 && !empty($test)) {
-					if($table_allowed[$sort_col[$i]] == 0) {
-						$return_allow_sort[$sort_col[$i]] = $table_allowed[$sort_col[$i]];
-					}
-				}
-				if($check_sort === false) { 
-					return "Sort value does not exist.\n";
-					break;
+		else {
+			foreach($table_allowed as $table => $value) {
+				if($value == 1) {
+					$return_table[] = $table;
 				}
 			}
+			sort($return_table);
 		}
 		
 		if($sort_dir[0] != "asc" && $sort_dir[0] != "desc") {
@@ -347,32 +310,106 @@
 				return [$select, $return_table, $return_names, $return_full, $return_forms]; // user, column, gui, fulltext(hover), forms
 				break;
 			case 1:
+				//return array( // the old way with SQL
+				//	"db_select" => $return_table,
+				//	"db_sort" => implode(",", $return_sort),
+				//	"db_dir" => strtoupper($sort_dir[0])
+				//);
 				return array(
-					"sql_select" => $return_table,
-					"sql_sort" => implode(",", $return_sort),
-					"sql_dir" => strtoupper($sort_dir[0])
+					"db_select" => $return_table,
+					"db_sort" => $return_sort_str,
+					"db_dir" => strtoupper($sort_dir[0])
 				);
+				
 				break;
 			case 2:
-				if($return_allow_colm) {
-					$return_allow_colm = array_keys($return_allow_colm, '0');
-					return "Table column [" . implode(",", $return_allow_colm) . "] not allowed to use for this table.\n";
+			case 3:
+				if($return_errors) {
+					return $return_errors;
 				}
 				else {
 					return false;
 				}
 				break;
-			case 3:
-				if($return_allow_sort) {
-					$return_allow_sort = array_keys($return_allow_sort, '0');
-					return "Table sort [" . implode(",", $return_allow_sort) . "] not allowed to use for this table.\n";
-				}
-				else {
-					return false;
-				}
+			case 4:
+				return $return_table;
+				
 				break;
 			default:
 				return false;
+		}
+	}
+	
+	function list_array($array, $type, $tray = '', $valign = 'middle') {
+		if($type == "html") {
+			return array(
+				"groupid" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px;\">" . stripslashes(htmlspecialchars($array["group_name"])) . "</td>",
+				"tray" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $tray . "</td>",
+				"device" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["device"] . "</td>",
+				"pool" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["pool"] . "</td>",
+				"name" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px;\"><a class=\"none\" style=\"text-decoration: underline;\" href=\"/Main/Device?name=" . $array["name"] . "\">" . $array["name"] . "</a></td>",
+				"node" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["node"] . "</td>",
+				"lun" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["lun"] . "</td>",
+				"manufacturer" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["manufacturer"] . "</td>",
+				"model" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["model"] . "</td>",
+				"serial" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["serial"] . "</td>",
+				"capacity" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["capacity"] . "</td>",
+				"cache" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["cache"] . "</td>",
+				"rotation" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["rotation"] . "</td>",
+				"formfactor" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["formfactor"] . "</td>",
+				"smart_status" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: center;\">" . $array["smart_status"] . "</td>",
+				"temperature" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: left;\">" . $array["temp"] . " " . ( !empty($array["temp"]) ? "(" . $array["hotTemp"] . "/" . $array["maxTemp"] . ")" : null ) . "</td>",
+				"powerontime_hours" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["powerontime_hours"] . "</span></td>",
+				"powerontime" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["powerontime"] . "</span></td>",
+				"loadcycle" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["loadcycle"] . "</td>",
+				"endurance" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["endurance"] . "</td>",
+				"smart_units_read" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["smart_units_read"] . "</td>",
+				"smart_units_written" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["smart_units_written"] . "</td>",
+				"nvme_available_spare" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["nvme_available_spare"] . "</td>",
+				"nvme_available_threshold" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["nvme_available_threshold"] . "</td>",
+				"installed" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["installed"] . "</td>",
+				"removed" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["removed"] . "</td>",
+				"manufactured" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["manufactured"] . "</td>",
+				"purchased" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["purchased"] . "</td>",
+				"warranty" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["warranty"] . "</td>",
+				"expires" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["expires"] . "</td>",
+				"comment" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px;\">" . bscode2html(stripslashes(htmlspecialchars($array["comment"]))) . "</td>"
+			);
+		}
+		else {
+			return array(
+				"groupid" => "" . stripslashes($array["group_name"]) . "",
+				"tray" => "" . $tray . "",
+				"device" => "" . $array["device"] . "",
+				"pool" => "" . $array["pool"] . "",
+				"name" => "" . $array["name"] . "",
+				"node" => "" . $array["node"] . "",
+				"lun" => "" . $array["lun"] . "",
+				"manufacturer" => "" . $array["manufacturer"] . "",
+				"model" => "" . $array["model"] . "",
+				"serial" => "" . $array["serial"] . "",
+				"capacity" => "" . $array["capacity"] . "",
+				"cache" => "" . $array["cache"] . "",
+				"rotation" => "" . $array["rotation"] . "",
+				"formfactor" => "" . $array["formfactor"] . "",
+				"smart_status" => "" . $array["smart_status"] . "",
+				"temperature" => "" . $array["temp"] . " " . ( !empty($array["temp"]) ? "(" . $array["hotTemp"] . "/" . $array["maxTemp"] . ")" : null ) . "",
+				"powerontime_hours" => "" . $array["powerontime_hours"] . "",
+				"powerontime" => "" . $array["powerontime"] . "",
+				"loadcycle" => "" . $array["loadcycle"] . "",
+				"endurance" => "" . $array["endurance"] . "",
+				"smart_units_read" => "" . $array["smart_units_read"] . "",
+				"smart_units_written" => "" . $array["smart_units_written"] . "",
+				"nvme_available_spare" => "" . $array["nvme_available_spare"] . "",
+				"nvme_available_threshold" => "" . $array["nvme_available_threshold"] . "",
+				"installed" => "" . $array["installed"] . "",
+				"removed" => "" . $array["removed"] . "",
+				"manufactured" => "" . $array["manufactured"] . "",
+				"purchased" => "" . $array["purchased"] . "",
+				"warranty" => "" . $array["warranty"] . "",
+				"expires" => "" . $array["expires"] . "",
+				"comment" => "" . stripslashes($array["comment"]) . ""
+			);
 		}
 	}
 	
@@ -397,28 +434,20 @@
 	}
 	
 	function is_tray_allocated($db, $tray, $gid) {
-		$sql = "SELECT hash FROM location WHERE tray = '" . $tray . "' AND groupid = '" . $gid . "'";
-		$results = $db->query($sql);
-		while($data = $results->fetchArray(1)) {
-			return ( isset($data["hash"]) ? $data["hash"] : false);
+		$array_locations = $db;
+		foreach($array_locations as $hash => $array) {
+			return ( ($db[$hash]["tray"] == $tray && $db[$hash]["groupid"] == $gid) ? $hash : null );
 		}
 	}
 	
 	function get_tray_location($db, $hash, $gid) {
-		$sql = "SELECT * FROM location WHERE hash = '" . $hash . "' AND groupid = '" . $gid . "'";
-		$results = $db->query($sql);
-		while($data = $results->fetchArray(1)) {
-			if(!$data["empty"]) { 
-				return ( empty($data["tray"]) ? false : $data["tray"] );
-			}
+		if($db[$hash]["groupid"] == $gid) {
+			return ( empty($db[$hash]["tray"]) ? false : $db[$hash]["tray"] );
 		}
 	}
 	
-	function count_table_rows($db, $table) {
-		$sql = "SELECT COUNT(*) FROM " . $table . ";";
-		$results = $db->query($sql);
-		$data = $results->fetchArray(SQLITE3_NUM);
-		return ( isset($data[0]) ? $data[0] : 0 );
+	function count_table_rows($db) {
+		return ( isset($db) ? count($db) : 0 );
 	}
 	
 	function human_filesize($bytes, $decimals = 2, $unit = false) {
@@ -440,17 +469,12 @@
 		}
 	}
 	
-	function smart_units_to_bytes($units, $block, $unit = false, $lba = false) {
+	function smart_units_to_bytes($units, $block, $factor = 1000, $lba = false) {
 		if($lba) {
 			return $units * $block;
 		}
 		else {
-			if(!$unit) {
-				return $units * $block * 1024;
-			}
-			else {
-				return $units * $block * 1000;
-			}
+			return $units * $block * $factor;
 		}
 	}
 	
@@ -542,8 +566,8 @@
 		}
 	}
 	
-	function get_powermode($device) {
-		switch(config("/tmp/disklocation/powermode.ini", 'r', $device)) {
+	function get_powermode($device, $array) {
+		switch($array[$device]) {
 			case "ACTIVE":
 				return "green-on";
 				break;
@@ -561,45 +585,25 @@
 		}
 	}
 	
-	function zfs_check() {
-		if(is_file("/usr/sbin/zpool")) {
-			$status = shell_exec("/usr/sbin/zpool status");
-			if(preg_match("/\bstate\b/i", $status)) {
-				return 1;
-			}
-			else {
-				return 0;
-			}
+	function zfs_check($status) {
+		if(preg_match("/\bstate\b/i", $status)) {
+			return $status;
 		}
 		else {
 			return 0;
 		}
 	}
 	
-	function zfs_pools() {
-		$str = shell_exec("/usr/sbin/zpool list");
-		$matches = preg_split("/\r\n|\n|\r/", $str);
+	function zfs_parser($str) {
 		$result = array();
 		
-		$i = 1; // skip first row
-		while($i < count($matches)) {
-			list($NAME,$SIZE,$ALLOC,$FREE,$CKPOINT,$EXPANDSZ,$FRAG,$CAP,$DEDUP,$HEALTH,$ALTROOT) = explode(" ", $matches[$i]);
-			$result[] = $NAME;
-			$i++;
-		}
+		$pools_pattern = "/pool:.*errors:.*(\n\n|$)/Uis";
+		preg_match_all($pools_pattern, $str, $pools, PREG_SET_ORDER);
 		
-		return array_filter($result);
-	}
-	
-	function zfs_parser() {
-		$pools = zfs_pools();
-		
-		$result = array();
 		$i = 0;
 		while($i < count($pools)) {
-			$str = shell_exec("/usr/sbin/zpool status " . $pools[$i] . "");
 			$pattern = "/((pool|state|scan|errors): (.*)?\n|(config):[\s]+(.*)?\s\n)/Uis";
-			preg_match_all($pattern, $str, $matches, PREG_SET_ORDER);
+			preg_match_all($pattern, $pools[$i][0], $matches, PREG_SET_ORDER);
 			
 			foreach($matches as $match) {
 				$length = count($match);
@@ -641,30 +645,35 @@
 		}
 	}
 	
-	function seconds_to_time($seconds, $array = '') {
+	function seconds_to_time($seconds, $array = '', $format = '') {
 		$seconds = (int)$seconds;
 		$dateTime = new DateTime();
 		$dateTime->sub(new DateInterval("PT{$seconds}S"));
 		$interval = (new DateTime())->diff($dateTime);
 		$pieces = explode(' ', $interval->format('%y %m %d'));
-		$intervals = ['year', 'month', 'day'];
+		$intervals = ( ($format == "short") ? ['Y', 'M', 'D'] : [' year', ' month', ' day'] );
 		$result = [];
 		foreach ($pieces as $i => $value) {
 			if (!$value) {
 				continue;
 			}
 			$periodName = $intervals[$i];
-			if ($value > 1) {
+			if ($value > 1 && $format != "short") {
 				$periodName .= 's';
 			}
 			$result_arr[$intervals[$i]] = $value;
-			$result[] = "{$value} {$periodName}";
+			$result[] = "{$value}{$periodName}";
 		}
 		if($array) {
 			return $result_arr;
 		}
 		else {
-			return implode(', ', $result);
+			if($format == "short") {
+				return implode(' ', $result);
+			}
+			else {
+				return implode(', ', $result);
+			}
 		}
 	}
 	
@@ -685,160 +694,101 @@
 		}
 	}
 	
-	function find_and_set_removed_devices_status($db, $arr_hash) {
-		$sql = "SELECT hash FROM disks WHERE status IS NOT 'd';";
-		$results = $db->query($sql);
-		$sql_hash = array();
-		while($res = $results->fetchArray(1)) {
-			$sql_hash[] = $res["hash"];
+	function find_and_set_removed_devices_status($db, $locations, $arr_hash) {
+		foreach($db as $hash => $array) {
+			( ($db[$hash]["status"] != 'd') ? $db_hash[] = $hash : null );
 		}
 		
 		$arr_hash = array_filter($arr_hash);
-		$sql_hash = array_filter($sql_hash);
+		$db_hash = array_filter($db_hash);
 		
 		sort($arr_hash);
-		sort($sql_hash);
+		sort($db_hash);
 		
-		$results = array_diff($sql_hash, $arr_hash);
+		$results = array_diff($db_hash, $arr_hash);
 		$old_hash = array_values($results);
 		
-		$sql_status = "";
+		$status = "";
 		
 		for($i=0; $i < count($old_hash); ++$i) {
-			$sql_status .= "
-				UPDATE disks SET
-					status = 'r',
-					removed = '" . date("Y-m-d") . "'
-				WHERE status IS NOT 'r' AND hash = '" . $old_hash[$i] . "'
-				;
-				DELETE FROM location WHERE hash = '" . $old_hash[$i] . "';
-			";
-		}
-		
-		$ret = $db->exec($sql_status);
-		if(!$ret) {
-			return $db->lastErrorMsg();
-		}
-		else {
-			return $old_hash;
-		}
-	}
-	
-	function find_and_unset_reinserted_devices_status($db, $hash) {
-		$sql = "SELECT hash FROM location WHERE hash = '" . $hash . "';";
-		$results = $db->query($sql);
-		
-		while($res = $results->fetchArray(1)) {
-			$location = $res["hash"];
-		}
-		
-		$sql_status = "";
-		
-		if(empty($location)) {
-			$sql_status .= "
-				UPDATE disks SET
-					status = 'h',
-					removed = ''
-				WHERE hash = '" . $hash . "'
-				;
-			";
-			
-			$ret = $db->exec($sql_status);
-			if(!$ret) {
-				return $db->lastErrorMsg();
-			}
-			else {
-				return $hash;
+			if($db[$old_hash[$i]]["status"] != 'r') {
+				$db[$old_hash[$i]]["status"] = 'r';
+				$db[$old_hash[$i]]["removed"] = date("Y-m-d");
+				
+				unset($locations[$old_hash[$i]]);
 			}
 		}
-		else {
-			return false;
-		}
+		
+		config_array(DISKLOCATION_DEVICES, 'w', $db);
+		config_array(DISKLOCATION_LOCATIONS, 'w', $locations);
 	}
 	
-	function force_set_removed_device_status($db, $hash) {
-		$sql_status .= "
-			UPDATE disks SET
-				status = 'r',
-				removed = '" . date("Y-m-d") . "'
-			WHERE hash = '" . SQLite3::escapeString($hash) . "'
-			;
-			DELETE FROM location WHERE hash = '" . SQLite3::escapeString($hash) . "';
-		";
+	function force_set_removed_device_status($db, $locations, $hash) {
+		foreach($db as $key => $data) {
+			if($hash == $key) {
+				$db[$hash]["status"] = 'r';
+				$db[$hash]["removed"] = date("Y-m-d");
+				
+				unset($locations[$hash]);
+			}
+		}
 		
-		$ret = $db->exec($sql_status);
-		if(!$ret) {
-			return $db->lastErrorMsg();
-		}
-		else {
-			return $hash;
-		}
+		return ( config_array(DISKLOCATION_DEVICES, 'w', $db) && config_array(DISKLOCATION_LOCATIONS, 'w', $locations) ? true : false );
 	}
 	
 	function force_undelete_devices($db, $action) {
 		// r = read
 		// m = modify
 		
-		if($action == 'r') {
-			$sql_status = "SELECT COUNT(status) FROM disks where status='d';";
-			$ret = $db->querySingle($sql_status);
-		}
-		if($action == 'm') {
-			$sql_status = "
-				UPDATE disks SET
-					status='r'
-				WHERE status='d'
-				;
-			";
-			$ret = $db->exec($sql_status);
-		}
-		
-		if(!$ret && $action == 'm') {
-			return $db->lastErrorMsg();
-		}
-		else {
-			return $ret;
+		switch($action) {
+			case 'r': // read
+				$i=0;
+				foreach($db as $key => $data) {
+					$ret += ( $db[$key]["status"] == 'd' ?? ++$i );
+				}
+				return $ret;
+				
+				break;
+			case 'm': // modify
+				foreach($db as $key => $data) {
+					if($db[$key]["status"] == 'd') {
+						$db[$key]["status"] = 'r';
+					}
+				}
+				
+				return ( config_array(DISKLOCATION_DEVICES, 'w', $db) ? true : false );
+				
+				break;
+			default:
+				return false;
 		}
 	}
 	
-	function force_reset_color($db, $hash = 0) {
+	function force_reset_color($config, $devices, $groups, $hash = 0) {
 		global $bgcolor_parity_default, $bgcolor_unraid_default, $bgcolor_cache_default, $bgcolor_others_default, $bgcolor_empty_default;
 		
 		if($hash == '*' || $hash == 'all') {
-			$sql_status = "
-				UPDATE disks SET
-					color = ''
-				;
-			";
+			foreach($devices as $id => $data) { // id=hash not $hash
+				$devices[$id]["color"] = '';
+			}
+			foreach($groups as $id => $data) {
+				$groups[$id]["group_color"] = '';
+			}
+			return ((config_array(DISKLOCATION_DEVICES, 'w', $devices) && config_array(DISKLOCATION_GROUPS, 'w', $groups)) ? true : false );
 		}
 		else if($hash) {
-			$sql_status .= "
-				UPDATE disks SET
-					color = ''
-				;
-				WHERE hash = '" . $hash . "';
-			";
+			$devices[$hash]["color"] = '';
+			return config_array(DISKLOCATION_DEVICES, 'w', $devices);
 		}
 		else {
-			$sql_status = "
-				UPDATE settings SET
-					bgcolor_parity = '" . $bgcolor_parity_default . "',
-					bgcolor_unraid = '" . $bgcolor_unraid_default . "',
-					bgcolor_cache = '" . $bgcolor_cache_default . "',
-					bgcolor_others = '" . $bgcolor_others_default . "',
-					bgcolor_empty = '" . $bgcolor_empty_default . "'
-				;
-				WHERE id = '1';
-			";
-			$hash = 1;
-		}
-		
-		$ret = $db->exec($sql_status);
-		if(!$ret) {
-			return $db->lastErrorMsg();
-		}
-		else {
-			return $hash;
+			foreach($config as $key => $data) {
+				$config["bgcolor_parity"] = $bgcolor_parity_default;
+				$config["bgcolor_unraid"] = $bgcolor_unraid_default;
+				$config["bgcolor_cache"] = $bgcolor_cache_default;
+				$config["bgcolor_others"] = $bgcolor_others_default;
+				$config["bgcolor_empty"] = $bgcolor_empty_default;
+			}
+			return !config_array(DISKLOCATION_CONF, 'w', $config);
 		}
 	}
 	
@@ -846,9 +796,8 @@
 		return count(array_filter($array)) !== count(array_unique(array_filter($array)));
 	}
 	
-	function recursive_array_search($needle,$haystack) {
+	function recursive_array_search($needle,$haystack) { // from php.net: buddel
 		if(is_array($haystack)) {
-			/* from php.net: buddel */
 			foreach($haystack as $key=>$value) {
 				$current_key=$key;
 				if($needle===$value OR (is_array($value) && recursive_array_search($needle,$value) !== false)) {
@@ -859,7 +808,24 @@
 		return false;
 	}
 	
-	function tray_number_assign($col, $row, $dir, $grid) {
+	function sort_array() { // from php.net: jimpoz
+		$args = func_get_args();
+		$data = array_shift($args);
+		foreach ($args as $n => $field) {
+			if (is_string($field)) {
+				$tmp = array();
+				foreach ($data as $key => $row) {
+					$tmp[$key] = $row[$field];
+					$args[$n] = $tmp;
+				}
+			}
+		}
+		$args[] = &$data;
+		call_user_func_array('array_multisort', $args);
+		return array_pop($args);
+	}
+	
+	function tray_number_assign($col, $row, $dir, $grid, $skip = array()) {
 		$total = $col * $row; // 6 = 3 * 2
 		
 		$start = 1;
@@ -878,8 +844,16 @@
 						1-3-5
 						2-4-6
 					*/
+					
+					$i_skip = 1;
 					for($i=1; $i <= $total; ++$i) {
-						$data[] = $i;
+						if(empty($skip)) {
+							$data[$i] = $i;
+						}
+						else if(!$skip[$i]) {
+							$data[$i] = $i_skip;
+							$i_skip++;
+						}
 					}
 					array_unshift($data, $grid);
 					
@@ -897,8 +871,16 @@
 						1-2-3
 					*/
 					$i_col = 1;
+					$i_skip = 1;
 					for($i=1; $i <= $total; ++$i) {
-						$data[$i_col][$i] = $i;
+						if(empty($skip)) {
+							$data[$i_col][$i] = $i;
+						}
+						else if(!$skip[$i]) {
+							$data[$i_col][$i] = $i_skip;
+							$i_skip++;
+							
+						}
 						if($i % $col == 0) {
 							$i_col++;
 						}
@@ -918,8 +900,16 @@
 					*/
 					
 					$i_row = 1;
+					$i_skip = 1;
 					for($i=1; $i <= $total; $i++) {
-						$data[$i_row][$i] = $i;
+						if(empty($skip)) {
+							$data[$i_row][$i] = $i;
+						}
+						else if(!$skip[$i]) {
+							$data[$i_row][$i] = $i_skip;
+							$i_skip++;
+							
+						}
 						if($i % $row == 0) {
 							$i_row++;
 						}
@@ -946,8 +936,15 @@
 						6-5-4
 					*/
 					$i_col = 1;
+					$i_skip = 1;
 					for($i=1; $i <= $total; $i++) {
-						$data[$i_col][$i] = $i;
+						if(empty($skip)) {
+							$data[$i_col][$i] = $i;
+						}
+						else if(!$skip[$i]) {
+							$data[$i_col][$i] = $i_skip;
+							$i_skip++;
+						}
 						if($i % $col == 0) {
 							$i_col++;
 						}
@@ -967,8 +964,15 @@
 					*/
 					
 					$i_row = 1;
+					$i_skip = 1;
 					for($i=1; $i <= $total; ++$i) {
-						$data[$i_row][$i] = $i;
+						if(empty($skip)) {
+							$data[$i_row][$i] = $i;
+						}
+						else if(!$skip[$i]) {
+							$data[$i_row][$i] = $i_skip;
+							$i_skip++;
+						}
 						if($i % $row == 0) {
 							$i_row++;
 						}
@@ -996,10 +1000,17 @@
 						6-4-2
 						5-3-1
 					*/
-
+					$i_skip = 1;
 					for($i=1; $i <= $total; ++$i) {
-						$data[] = $i;
+						if(empty($skip)) {
+							$data[$i] = $i;
+						}
+						else if(!$skip[$i]) {
+							$data[$i] = $i_skip;
+							$i_skip++;
+						}
 					}
+					
 					rsort($data);
 					array_unshift($data, $grid);
 					
@@ -1012,78 +1023,6 @@
 
 			default:
 				return false;
-		}
-	}
-	
-	function config($file, $operation, $key = '', $val = '') { // file, [r]ead/[w]rite, key (req. write), value (req. write)
-		if($operation == 'w') {
-			if(!file_exists($file)) {
-				mkdir(dirname($file), 0755, true);
-				touch($file);
-			}
-			$config_json = file_get_contents($file);
-			$config_json = json_decode($config_json, true);
-			$config_json[$key] = $val;
-			$config_json = json_encode($config_json);
-			if(file_put_contents($file, $config_json)) {
-				return true;
-			}
-			else {
-				return "Failed updating the configuration file.";
-			}
-		}
-		if($operation == 'r') {
-			$config_json = file_get_contents($file);
-			$config_json = json_decode($config_json, true);
-			if($key) {
-				return $config_json[$key];
-			}
-			else {
-				return $config_json;
-			}
-		}
-		else return false;
-	}
-	
-	function cronjob_timer($time) {
-		$path = "/etc/cron.";
-		$filename = "disklocation.sh";
-		
-		if(file_exists($path . "hourly/" . $filename)) unlink($path . "hourly/" . $filename);
-		if(file_exists($path . "daily/" . $filename)) unlink($path . "daily/" . $filename);
-		if(file_exists($path . "weekly/" . $filename)) unlink($path . "weekly/" . $filename);
-		if(file_exists($path . "monthly/" . $filename)) unlink($path . "monthly/" . $filename);
-		
-		$cron_cmd = "php " . CRONJOB_FILE . " cronjob silent";
-		if($time != "disabled") {
-			file_put_contents($path . "" . $time . "/" . $filename, $cron_cmd);
-			chmod($path . "" . $time . "/" . $filename, 0777);
-		}
-	}
-	
-	function cronjob_current() {
-		$path = "/etc/cron.";
-		$filename = "disklocation.sh";
-		
-		if(file_exists($path . "hourly/" . $filename)) return "hourly";
-		if(file_exists($path . "daily/" . $filename)) return "daily";
-		if(file_exists($path . "weekly/" . $filename)) return "weekly";
-		if(file_exists($path . "monthly/" . $filename)) return "monthly";
-		else return "disabled";
-	}
-	
-	function cronjob_runfile_updater() {
-		$path = "/etc/cron.";
-		$filename = "disklocation.sh";
-		$current = cronjob_current();
-		
-		if($current != "disabled") {
-			if(file_exists($path . "" . $current . "/" . $filename)) {
-				$contents = file_get_contents($path . "" . $current . "/" . $filename);
-				if(preg_match("/disklocation\?crontab/", $contents)) {
-					cronjob_timer($current);
-				}
-			}
 		}
 	}
 	
@@ -1163,5 +1102,61 @@
 	function get_disk_ack($device, $file = EMHTTP_VAR . "/" . UNRAID_MONITOR_FILE) {
 		$unraid_monitor = parse_ini_file($file, true);
 		return (isset($unraid_monitor["smart"][$device.".ack"]) ? true : false);
+	}
+	
+	function set_disk_ack($devices, $file = EMHTTP_VAR . "/" . UNRAID_MONITOR_FILE) {
+		$unraid_monitor = parse_ini_file($file, true);
+		$devices = explode(",", $devices);
+		
+		foreach($devices as $disk) {
+			$unraid_monitor["smart"][$disk.".ack"] = "true";
+		}
+		if(!write_ini_file($file, $unraid_monitor)) {
+			return false;
+		}
+		else return true;
+	}
+	
+	function dirsize($path) {
+		$bytestotal = 0;
+		$path = realpath($path);
+		
+		if($path !== false && $path != '' && file_exists($path)) {
+			foreach(new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path, FilesystemIterator::SKIP_DOTS)) as $object) {
+				$bytestotal += $object->getSize();
+			}
+		}
+		return $bytestotal;
+	}
+	
+	function check_smart_files() { // return true if files found
+		if(file_exists(DISKLOCATION_TMP_PATH . "/smart")) {
+			$dir = array_diff(scandir(DISKLOCATION_TMP_PATH . "/smart"), array('..', '.'));
+			return ( empty($dir) ? false : true );
+		}
+		else return false;
+	}
+	
+	function check_devicepath_conflict($array) { // return difference or 1 if conflict, empty if no conflict
+		if(is_array($array) && !empty($array)) {
+			if(file_exists(DISKLOCATION_TMP_PATH . "/powermode.json")) {
+				$json_array = json_decode(file_get_contents(DISKLOCATION_TMP_PATH . "/powermode.json"), true);
+				if(is_array($json_array) && !empty($json_array)) {
+					foreach($array as $key => $value) {
+						$devicepath[] = ( $array[$key]["raw"]["status"] != 'r' ? $array[$key]["raw"]["device"] : null );
+					}
+					sort($devicepath);
+					
+					$json_powermode = array_diff($json_array, ['UNKNOWN']);
+					$powermode = array_keys($json_powermode);
+					sort($powermode);
+					
+					return (array_diff($powermode, array_filter($devicepath)));
+				}
+				else return 1; // 1 = found conflict
+			}
+			else return 1;
+		}
+		else return 1;
 	}
 ?>

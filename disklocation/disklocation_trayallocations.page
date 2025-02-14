@@ -1,0 +1,13 @@
+Menu="disklocation:7"
+Icon="server"
+Tag="server"
+Title="Tray Allocations"
+---
+<?php
+	$time_start = (($debug || isset($_GET["benchmark"])) ? hrtime(true) : null);
+	
+	require_once("/usr/local/emhttp/plugins/disklocation/pages/page_trayallocations.php");
+	
+	$page_time_load["trayallocations"] = ( $debug ? round((hrtime(true)-$time_start)/1e+6, 1) : null );
+	print(isset($_GET["benchmark"]) ? "<h1 style=\"position: fixed; left: 5px; bottom: 20px; white-space: no-wrap; color: #0099FF; background-color: #111111;\">Tray Allocations: " . (round((hrtime(true)-$time_start)/1e+6, 1) . " ms</h1>\n") : null);
+?>

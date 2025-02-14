@@ -3,9 +3,9 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.02.14">
+<!ENTITY version          "2025.02.14-1006">
 <!ENTITY launch           "Tools/&name;">
-<!ENTITY branch           "master">
+<!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
 <!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/&branch;/&name;-&branch;.plg">
 <!ENTITY packagefile      "&name;.&version;.zip">
@@ -15,13 +15,12 @@
 <!ENTITY pluginsupportURL "https://forums.unraid.net/topic/77302-plugin-disk-location/">
 ]>
 
-<PLUGIN  name="&name;"
+<PLUGIN  name="&name;-devel"
          author="&author;"
          version="&version;"
          launch="&launch;"
          pluginURL="&pluginURL;"
          icon="server"
-         min="6.12.0"
          support="&pluginsupportURL;"
 >
 
@@ -43,33 +42,15 @@
     You should have received a copy of the GNU General Public License
     along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
 -->
-
+  
 <CHANGES>
-###2025.02.14
- - Commit #378 - FEATURE: Added a cleanup function in System. If obsolete files are found, it will show a list of files and a button to delete the files shown. These are only files that are not in use.
- - Commit #372 - FEATURE: Seagate SMART vs FARM LOG check in System tab added for checking fraudulent drives.
- - Commit #369 - IMPROVEMENT: Use syslog to detect SMART read events.
- - Commit #365 - FEATURE: Added selected dashboard info to LED "hover" info on Unraid dashboard.
- - Commit #362 - FEATURE: Created a possibility to hide/bypass trays in a group.
- - Commit #361 - IMPROVEMENT: Performance tweak, cleaned up functions and system to improve loading speed.
- - Commit #360 - IMPROVEMENT: Debug function overhauled and made a bit more useful in some cases.
- - Commit #352 - FEATURE: Disk Location plugin time benchmark added, but must be executed manually by entering ?benchmark=1 in the address field. Value is visible in the "System" tab.
- - Commit #351 - FEATURE: Collect SMART errors in an own separate list. Also added possibility to acknowledge all drives at once, but only if plugin is set to allow Unraid config.
- - Commit #349 - MINOR: A few CSS fixes regarding the LEDs. Mostly changes with the dynamic LEDs.
- - Commit #348 - MINOR: Fixed color codes, make sure "empty" color will reset or delete the color of devices. Added a group color for default color for specific groups. Also changed default colors, must be reset manually after the plugin update for current users.
- - Commit #347 - IMPROVEMENT: SAVE button on all Disk Tray Layouts. Deleted the individual Save button on the Disk Tray Layouts, one button to rule them all.. finally.
- - Commit #346 - IMPROVEMENT: SQLite is removed! It will be automatically converted to multiple json files. This will also prevent sudden database corruptions, obviously. But maybe other type of corruptions? :P However, the backup/restore will still work on older SQLite database backups, they will be automagically converted.
- - Commit #345 - MINOR: Installation script cleaned up and fixed some bugs.
- - Commit #344 - IMPROVEMENT: Configuration cleanup. All supported dates can be stored in bulk, if Unraid config edit is enabled.
- - Commit #343 - IMPROVEMENT: Removed most SMART from the DB, running it in memory instead. Some data will be stored for History purposes.
- - Commit #342 - FEATURE: Added a customizable plugin dashboard (not to be confused with Unraid dashboard). Formatting of text and positioning possible.
- - Commit #277 - FEATURE: Added a small simple benchmark for read test (hdparm) with SVG graphs. Can be exported as CSV too.
-
-###2024-2019
- - The complete changelog will be found here: https://github.com/olehj/disklocation/blob/2024-edition/disklocation-2024-edition.plg#L48
-
-###2019.01.22
-- Initial Release
+###Development releases
+ - This package includes unstable development branch and should only be used for testing or instructed to do so.
+ - New versioning for devel branch will include hour and minute (YYYY.MM.DD-HHmm) from now on.
+ 
+###Change Log
+ - The change log will be found in the "master" branch file:
+ --- https://github.com/olehj/disklocation/blob/devel/disklocation-master.plg
 </CHANGES>
 
 <!--

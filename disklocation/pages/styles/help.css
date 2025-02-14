@@ -3,6 +3,7 @@
 		width: auto;
 		font-weight: bold;
 		white-space: normal;
+		text-align: left;
 	}
 	dl {
 		line-height: 2.2rem;

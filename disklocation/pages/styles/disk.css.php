@@ -59,7 +59,7 @@ input.diskLocation {
 	width: 100%;
 	padding: 10px 0 20px 0;
 	writing-mode: vertical-rl;
-	text-orientation: mixed;
+	text-orientation: sideways;
 	text-align: left;
 	margin-bottom: auto;
 }
