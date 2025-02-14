@@ -993,6 +993,7 @@
 		// Settings
 			if(file_exists(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.conf")) {
 				$settings = $get_disklocation_config; // = json_decode(file_get_contents(DISKLOCATION_CONF), true);
+				!empty($settings["signal_css"]) ? use_stylesheet($settings["signal_css"]) : use_stylesheet("signals.dynamic.css");
 			}
 			( file_exists(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.noscan") ? unlink(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.noscan") : null );
 			
@@ -1136,7 +1137,10 @@
 			print("<h3>Database successfully converted.</h3>"); // updated.
 			if(!in_array("cronjob", $argv)) {
 				$db->close();
-					print("<meta http-equiv=\"refresh\" content=\"3;url=" . DISKLOCATION_URL . "\" /><br />refreshing...");
+				sleep(1);
+				file_exists(DISKLOCATION_DB) ? unlink(DISKLOCATION_DB) : null;
+				file_exists(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.conf") ? config(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.conf", 'w', 'database_location', DISKLOCATION_DB_DEFAULT) : null;
+				print("<meta http-equiv=\"refresh\" content=\"3;url=" . DISKLOCATION_URL . "\" /><br />refreshing...");
 				exit;
 			}
 		}

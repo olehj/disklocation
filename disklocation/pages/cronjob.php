@@ -152,6 +152,7 @@
 	}
 	
 	if(isset($_POST["force_smartdb_scan"]) || isset($_GET["force_smartdb_scan"]) || in_array("install", $argv) || in_array("forceall", $argv)) {
+		$force_scan = 1;
 		$force_scan_db = 1; // trigger force_smart_scan post if it is a new install or if it is forced at CLI
 		include("system.php");
 	}
