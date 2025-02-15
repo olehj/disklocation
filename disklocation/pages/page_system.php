@@ -94,12 +94,16 @@
 	$print_loc_db_err = "";
 	$argv = ( !isset($argv) ? array() : $argv );
 	
+	$find_unknown_files = disklocation_system("backup", "list", "", true);
+	
 	$array_obsolete = array(
 		UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/boot" => "dir",
 		UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.noscan" => "file",
 		UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.conf" => "file",
 		DISKLOCATION_DB => "file"
 	);
+	
+	$array_obsolete = array_merge($array_obsolete, $find_unknown_files);
 	
 	function obsolete_files($array, $check = true) {
 		foreach($array as $file => $type) {
@@ -200,23 +204,41 @@
 			return "Database does not exist.";
 		}
 	}
-	function disklocation_system($type, $operation, $file = "") {
+	function disklocation_system($type, $operation, $file = "", $unknown = false) {
 		$array = array();
+		$found_unknown = array();
+		
 		if($type == "backup") {
 			if($operation == "list") {
 				$i=0;
 				if(file_exists(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup")) {
 					$backup_dir = array_diff(scandir(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/"), array('..', '.'));
 					foreach($backup_dir as $contents) {
-						$backup_dir_time = array_diff(scandir(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/" . $contents), array('..', '.'));
-						foreach($backup_dir_time as $dir => $file) {
-							if(strstr($file, ".gz")) {
-								$array[$i]["file"] = UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/" . $contents . "/" . $file;
-								$array[$i]["size"] = filesize(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/" . $contents . "/" . $file);
-								$i++;
+						if(is_dir(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/" . $contents)) {
+							$backup_dir_time = array_diff(scandir(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/" . $contents), array('..', '.'));
+							foreach($backup_dir_time as $dir => $file) {
+								if(strstr($file, ".gz")) {
+									$array[$i]["file"] = UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/" . $contents . "/" . $file;
+									$array[$i]["size"] = filesize(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/" . $contents . "/" . $file);
+									$i++;
+								}
+								else {
+									$found_unknown[UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/" . $contents . "/" . $file] = (is_dir(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/" . $contents . "/" . $file) ? "dir" : "file" );
+									$found_unknown[UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/" . $contents] = (is_dir(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/" . $contents) ? "dir" : "file" );
+								}
+							}
+							if(empty($backup_dir_time)) {
+								$found_unknown[UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/" . $contents] = (is_dir(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/" . $contents) ? "dir" : "file" );
 							}
 						}
+						else {
+							$found_unknown[UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/" . $contents] = (is_dir(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/" . $contents) ? "dir" : "file" );
+						}
 					}
+				}
+				
+				if($unknown === true && is_array($found_unknown) && !empty($found_unknown)) {
+					return $found_unknown;
 				}
 				
 				if($array[0]["file"]) {
@@ -554,7 +576,7 @@
 	
 	if(obsolete_files($array_obsolete, true)) {
 		$print_obsolete = "
-			<h3>Obsolete files and/or folders found:</h3>
+			<h3>Obsolete and unexpected files and/or folders found:</h3>
 			<ul><li>" . implode("</li><li>", obsolete_files($array_obsolete, true)) . "</li></ul>
 			<form action=\"" . DISKLOCATION_PATH . "/pages/page_system.php\" method=\"post\">
 				<input type=\"submit\" name=\"del_obsolete\" value=\"Delete All\" />

@@ -317,10 +317,11 @@
 					}
 					
 					// Set $smart_status = 2 if $smart_errors was found AND $smart_status has NOT failed AND disk has NOT been acknowledged, else set initial value:
-					$smart_status = ((!empty($smart_errors) && !empty($smart_status) && !get_disk_ack($unraid_array[$data["devicenode"]]["name"])) ? 2 : $smart_status);
+					$smart_status = ((!empty($devices[$hash]["raw"]["smart_errors"]) && !empty($devices[$hash]["raw"]["smart_status"]) && !get_disk_ack($unraid_array[$data["devicenode"]]["name"])) ? 2 : (!empty($devices[$hash]["raw"]["smart_status"]) ? 1 : 0));
+					
 					switch($smart_status) {
 						case 0:
-							$smart_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation red-orb-disklocation red-blink-disklocation'></i><span>S.M.A.R.T: Failed! " . $devices[$hash]["formatted"]["smart_errors"] . "</span></a>";
+							$smart_status_icon = "<a class='info' style=\"text-align: left;\"><i class='fa fa-circle orb-disklocation red-orb-disklocation red-blink-disklocation'></i><span>S.M.A.R.T: Failed!<br />" . $devices[$hash]["formatted"]["smart_errors"] . "</span></a>";
 							$smart_status_info = array('orb' => 'fa fa-circle orb-disklocation red-orb-disklocation red-blink-disklocation', 'color' => 'red', 'text' => 'Failed');
 							break;
 						case 1:

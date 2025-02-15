@@ -107,8 +107,8 @@
 		$devices[$hash]["formatted"]["lun"] =  $devices[$hash]["raw"]["lun"];
 		$devices[$hash]["raw"]["pool"] = $pool;
 		$devices[$hash]["formatted"]["pool"] = ucfirst($devices[$hash]["raw"]["pool"]);
-		$devices[$hash]["raw"]["smart_status"] = $smart_array["smart_status"]["passed"];
-		$devices[$hash]["formatted"]["smart_status"] = ( ($devices[$hash]["raw"]["smart_status"] == true) ? "OK" : "FAIL");
+		$devices[$hash]["raw"]["smart_status"] = (!empty($smart_array["smart_status"]["passed"]) ? 1 : 0);
+		$devices[$hash]["formatted"]["smart_status"] = ( ($devices[$hash]["raw"]["smart_status"] === 1) ? "PASSED" : "FAILED");
 		$devices[$hash]["raw"]["logical_block_size"] = $smart_array["logical_block_size"];
 		$devices[$hash]["formatted"]["logical_block_size"] = $devices[$hash]["raw"]["logical_block_size"];
 		$devices[$hash]["raw"]["nvme_available_spare"]  = $smart_array["nvme_smart_health_information_log"]["available_spare"];

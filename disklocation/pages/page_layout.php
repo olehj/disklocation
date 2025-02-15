@@ -138,11 +138,11 @@
 				</blockquote>
 			</td>
 		";
-		
+
 		if($count_groups >= 0) {
 			$disk_layouts_config .= "
 				<td style=\"max-width: 80px; vertical-align: top; position: relative; top: 20px;\">
-					<button type=\"submit\" name=\"group_del\" onclick=\"return confirm('Are you sure you want to delete " . ( !empty($array_groups[$gid]["group_name"]) ? stripslashes(htmlspecialchars($array_groups[$gid]["group_name"])) : $gid ) . "?');\" title=\"Remove " . ( !empty($array_groups[$gid]["group_name"]) ? stripslashes(htmlspecialchars($array_groups[$gid]["group_name"])) : $gid ) . "\" value=\"" . $gid . "\" style=\"background-size: 0;\"><i style=\"font-size: 600%;\" class=\"fa fa-trash fa-lg\"></i></button><br />
+					" . ( ($total_groups > 0) ? "<button type=\"submit\" name=\"group_del\" onclick=\"return confirm('Are you sure you want to delete " . ( !empty($array_groups[$gid]["group_name"]) ? stripslashes(htmlspecialchars($array_groups[$gid]["group_name"])) : $gid ) . "?');\" title=\"Remove " . ( !empty($array_groups[$gid]["group_name"]) ? stripslashes(htmlspecialchars($array_groups[$gid]["group_name"])) : $gid ) . "\" value=\"" . $gid . "\" style=\"background-size: 0;\"><i style=\"font-size: 600%;\" class=\"fa fa-trash fa-lg\"></i></button><br />" : null ) . "
 					" . ( !empty($group_ids[($count_groups+1)]) ? "<button type=\"submit\" name=\"group_swap\" title=\"Swap groups\" value=\"" . $gid . ":" . $group_ids[($count_groups+1)] . "\" style=\"background-size: 0;\"><i style=\"font-size: 500%;\" class=\"fa fa-exchange fa-lg\"></i></button>" : null ) . "
 					" . ( empty($group_ids[($count_groups+1)]) ? "<button type=\"submit\" name=\"group_add\" title=\"Add a new group\" value=\"" . $gid . "\" style=\"background-size: 0;\"><i style=\"font-size: 600%;\" class=\"fa fa-plus-circle fa-lg\"></i></button><br />" : null ) . "
 					" . ( (empty($group_ids[($count_groups+1)]) && $total_groups > 0 ) ? "<button type=\"submit\" name=\"save_groupsettings\" title=\"Save all groups\" style=\"background-size: 0;\"><i style=\"font-size: 600%;\" class=\"fa fa-save fa-lg\"></i></button><br />" : null ) . "
@@ -152,6 +152,12 @@
 		
 		$last_group_id = $gid;
 		$count_groups++;
+	}
+	
+	if(empty($count_groups)) {
+		$disk_layouts_config = "
+			" . ( empty($group_ids[($count_groups+1)]) ? "<button type=\"submit\" name=\"group_add\" title=\"Add a new group\" value=\"" . $gid . "\" style=\"background-size: 0;\"><i style=\"font-size: 600%;\" class=\"fa fa-plus-circle fa-lg\"></i></button><br />" : null ) . "
+		";
 	}
 	
 	list($table_order_user, $table_order_system, $table_order_name, $table_order_full) = get_table_order("all", 0);
