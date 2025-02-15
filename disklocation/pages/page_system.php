@@ -91,6 +91,8 @@
 		define("DISKLOCATION_DB", DISKLOCATION_DB_DEFAULT);
 	}
 	
+	$db_update = (!empty($db_update) ? $db_update : 0);
+	
 	$print_loc_db_err = "";
 	$argv = ( !isset($argv) ? array() : $argv );
 	
@@ -103,7 +105,7 @@
 		DISKLOCATION_DB => "file"
 	);
 	
-	$array_obsolete = array_merge($array_obsolete, $find_unknown_files);
+	$array_obsolete = (is_array($find_unknown_files) && !empty($find_unknown_files) ? array_merge($array_obsolete, $find_unknown_files) : $array_obsolete);
 	
 	function obsolete_files($array, $check = true) {
 		foreach($array as $file => $type) {
@@ -441,6 +443,9 @@
 	$print_list_database = "";
 	$print_list_database_lock = "";
 	$print_list_undelete = "";
+	$print_reset = "";
+	$print_obsolete = "";
+	$total_bak_size = 0;
 	
 	$list_backup = disklocation_system("backup", "list");
 	if($list_backup) {
@@ -640,7 +645,7 @@
 			return $foo;
 		}
 	}
-	if($db_update == 2) { $system_limited_text = " - limited page during database error."; }
+	if($db_update == 2 || strstr($_SERVER["SCRIPT_NAME"], "page_system.php")) { $system_limited_text = " - limited version."; }
 	
 	if(in_array("backup", $argv)) { exit; }
 ?>
@@ -659,6 +664,13 @@
 <h3 class="red">
 	<b>NB! Operations done on this page will execute without warning or confirmation and cannot be undone after execution!</b>
 </h3>
+<?php 
+	if($db_update == 2 || strstr($_SERVER["SCRIPT_NAME"], "page_system.php")) { 
+		print("
+			<form action=\"" . DISKLOCATION_PATH . "/pages/cronjob.php?force_smartdb_scan=1\" method=\"get\"><input type=\"submit\" name=\"force_smartdb_scan\" value=\"SMART+DB\" /></form>
+		");
+	}
+?>
 <?php echo $print_force_scan ?>
 <?php echo $print_list_backup ?>
 <?php echo $print_list_debug ?>
