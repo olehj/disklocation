@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.02.14">
+<!ENTITY version          "2025.02.15">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,11 @@
 -->
 
 <CHANGES>
+###2025.02.15
+ - Commit #381 - BUG: SMART detected as failed when the drives are OK
+ - Commit #380 - BUG: Unexpected files causes System tab to fail. Added a check for unexpected files and also possibility to delete them via System.
+ - Commit #379 - BUG: Disk Tray Layout missing add button has been fixed when a Disk Location is in a clean state.
+
 ###2025.02.14
  - Commit #378 - FEATURE: Added a cleanup function in System. If obsolete files are found, it will show a list of files and a button to delete the files shown. These are only files that are not in use.
  - Commit #372 - FEATURE: Seagate SMART vs FARM LOG check in System tab added for checking fraudulent drives.
