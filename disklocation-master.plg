@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.02.17b">
+<!ENTITY version          "2025.02.17c">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2025.02.17c
+ - Commit #389 - FEATURE: Added tray layout orientation. Made it possible to modify the dashboard float. Choices: left, right and "stack" (none).
+
 ###2025.02.17b
  - Commit #387 - BUG: LEDs not always in standby. Altered how they are displayed without losing the ZFS state display priority. Also added separate Disk Location Recovery page under Tools -> Disk Utilities.
 
