@@ -33,6 +33,7 @@
 	$serial_trim =		 	0;			// make serial number friendlier, substr() value -99 - 99.
 	$allow_unraid_edit =		0;			// (dis)allow editing of UNRAID config.
 	$auto_backup_days = 		30;			// automatically make a backup during installation if the latest one is more than [$auto_backup_days] days old
+	$dashboard_float = 		'left';			// sets the alignment of the Disk Tray Layout on the Dashboard. left is default, right and none can be chosen.
 	$displayinfo =	array(					// this will store an array of display settings for the "Device" page.
 		'tray' => 1,
 		'leddiskop' => 1,
