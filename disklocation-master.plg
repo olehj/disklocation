@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.02.16">
+<!ENTITY version          "2025.02.17">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2025.02.17
+ - Commit #385 - BUG: Fixed a bug that could cause page to not load. Added System tab to be able to be used as standalone, using this address: http://[serveraddr]/plugins/disklocation/pages/page_system.php
+
 ###2025.02.16
  - Commit #383 - BUG: System tab not loading because of array tried to merge with nothing.
 
