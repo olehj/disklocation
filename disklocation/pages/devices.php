@@ -562,7 +562,7 @@
 		";
 		
 		$disklocation_page_out .= "
-			<div style=\"float: left; top; padding: 0 10px 10px 10px;\">
+			<div style=\"float: " . (!empty($dashboard_float) ? $dashboard_float : 'left') . "; top; padding: 0 10px 10px 10px;\">
 				<h2 style=\"text-align: center;\">" . stripslashes(htmlspecialchars($gid_name)) . "</h2>
 				<div class=\"grid-container\" style=\"$css_grid_group\">
 					$disklocation_page[$gid]
