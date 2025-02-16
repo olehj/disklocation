@@ -646,7 +646,7 @@
 			return $foo;
 		}
 	}
-	if($db_update == 2 || strstr($_SERVER["SCRIPT_NAME"], "page_system.php")) { $system_limited_text = " - limited version."; } else { $system_limited_text = ""; }
+	if($db_update == 2 || strstr($_SERVER["SCRIPT_NAME"], "page_system.php")) { $system_limited_text = "Disk Location: System - limited version."; } else { $system_limited_text = "System"; }
 	
 	if(in_array("backup", $argv)) { exit; }
 ?>
@@ -668,7 +668,7 @@
 		print("<table><tr><td style=\"padding: 10px 10px 10px 10px;\">");
 	} 
 ?>
-<h2 style="margin-top: -10px; padding: 0 0 0 0; margin-bottom: 0;">System<?php print($system_limited_text); ?></h2>
+<h2 style="margin-top: -10px; padding: 0 0 0 0; margin-bottom: 0;"><?php print($system_limited_text); ?></h2>
 <div>
 	<?php
 		$size_master = file_exists(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH."-master") ? dirsize(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH."-master") : 0;
@@ -678,11 +678,6 @@
 		print( function_exists('human_filesize') && function_exists('dirsize') ? "<br />Storage: " . human_filesize(dirsize(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH)+$size_total, 1, true) : null );
 	?>
 </div>
-<?php
-	if(!strstr($_SERVER["SCRIPT_NAME"], "page_system.php")) {
-		print("<p>Direct System page for emergency: <a href=\"" . $_SERVER['REQUEST_SCHEME'] . "://" . $_SERVER['HTTP_HOST'] . "" . DISKLOCATION_DIRECT_URL . "\">" . $_SERVER['REQUEST_SCHEME'] . "://" . $_SERVER['HTTP_HOST'] . "" . DISKLOCATION_DIRECT_URL . "</a></p>");
-	} 
-?>
 <h3 class="red">
 	<b>NB! Operations done on this page will execute without warning or confirmation and cannot be undone after execution!</b>
 </h3>

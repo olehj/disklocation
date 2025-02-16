@@ -340,30 +340,32 @@
 					if(isset($displayinfo["leddiskop"])) {
 						$zfs_disk_status = "";
 						if($zfs_check) {
-							$zfs_disk_status = zfs_disk("" . $data["smart_serialnumber"] . "", $zfs_parser, $lsblk_array);
+							$zfs_disk_status = zfs_disk($data["smart_serialnumber"], $zfs_parser, $lsblk_array);
 						}
 						
 						$unraid_disk_status_color = get_powermode($device, $get_powermode);
 						
-						if(!empty($unraid_array[$devicenode]["color"]) && !empty($unraid_array[$devicenode]["status"])) {
-							$unraid_array_icon = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"], '', $force_orb_led);
-							$unraid_array_info = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"],'array');
-							$color_status = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"],'color');
-						}
 						if(!empty($zfs_disk_status)) {
 							$unraid_array_icon = get_unraid_disk_status($zfs_disk_status[1], '', '', $force_orb_led);
 							$unraid_array_info = get_unraid_disk_status($zfs_disk_status[1],'','array');
 							$color_status = get_unraid_disk_status($zfs_disk_status[1],'','color');
-							if($color_status == "green" && $unraid_disk_status_color == "green-blink") {
+							if($color_status == "green" && ((empty($unraid_array[$devicenode]["color"]) && $unraid_disk_status_color == "green-blink") || $unraid_array[$devicenode]["color"] == "green-blink")) {
 								$unraid_array_icon = get_unraid_disk_status('STANDBY', '', '', $force_orb_led);
 								$unraid_array_info = get_unraid_disk_status('STANDBY','','array');
 								$color_status = get_unraid_disk_status('STANDBY','','color');
 							}
 						}
 						else {
-							$unraid_array_icon = get_unraid_disk_status($unraid_disk_status_color, '', '', $force_orb_led);
-							$unraid_array_info = get_unraid_disk_status($unraid_disk_status_color,'','array');
-							$color_status = get_unraid_disk_status($unraid_disk_status_color,'','color');
+							if(!empty($unraid_array[$devicenode]["color"]) && !empty($unraid_array[$devicenode]["status"])) {
+								$unraid_array_icon = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"], '', $force_orb_led);
+								$unraid_array_info = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"],'array');
+								$color_status = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"],'color');
+							}
+							else {
+								$unraid_array_icon = get_unraid_disk_status($unraid_disk_status_color, '', '', $force_orb_led);
+								$unraid_array_info = get_unraid_disk_status($unraid_disk_status_color,'','array');
+								$color_status = get_unraid_disk_status($unraid_disk_status_color,'','color');
+							}
 						}
 					}
 					
