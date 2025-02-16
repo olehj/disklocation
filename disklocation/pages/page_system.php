@@ -76,6 +76,7 @@
 		$debug = 0;
 		require_once("functions.php");
 	}
+	define("DISKLOCATION_DIRECT_URL", "/plugins/disklocation/pages/page_system.php");
 	
 	define("DISKLOCATION_DB_DEFAULT", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/disklocation.sqlite");
 	if(file_exists(DISKLOCATION_CONF)) {
@@ -243,7 +244,7 @@
 					return $found_unknown;
 				}
 				
-				if($array[0]["file"]) {
+				if(is_array($array) && !empty($array)) {
 					return $array;
 				}
 				else {
@@ -330,11 +331,12 @@
 		}
 
 	}
-	if(isset($_POST["res_backup"])) {
-		disklocation_system("backup", "restore", $_POST["backup_file_list"]);
+	if(isset($_POST["res_backup"]) || isset($_GET["res_backup"])) {
+		$backup_file_list = (isset($_POST["backup_file_list"]) ? $_POST["backup_file_list"] : (isset($_GET["backup_file_list"]) ? ($_GET["backup_file_list"]) : null));
+		disklocation_system("backup", "restore", $backup_file_list);
 		$settings = file_exists(DISKLOCATION_CONF) ? json_decode(file_get_contents(DISKLOCATION_CONF), true) : null ;
 		!empty($settings["signal_css"]) ? use_stylesheet($settings["signal_css"]) : use_stylesheet("signals.dynamic.css");
-		header("Location: " . DISKLOCATION_URL . "");
+		header("Location: " . (!empty($_POST) ? DISKLOCATION_URL : DISKLOCATION_DIRECT_URL ) . "");
 		//print("<meta http-equiv=\"refresh\" content=\"5;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
@@ -352,9 +354,9 @@
 		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
-	if(isset($_POST["del_debug"])) {
+	if(isset($_POST["del_debug"]) || isset($_GET["del_debug"])) {
 		disklocation_system("debug", "delete");
-		header("Location: " . DISKLOCATION_URL . "");
+		header("Location: " . (!empty($_POST) ? DISKLOCATION_URL : DISKLOCATION_DIRECT_URL ) . "");
 		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
@@ -370,21 +372,22 @@
 		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
-	if(isset($_POST["debug_enable"])) {
+	if(isset($_POST["debug_enable"]) || isset($_GET["debug_enable"])) {
 		disklocation_system('debug', 'enable');
-		header("Location: " . DISKLOCATION_URL . "");
+		header("Location: " . (!empty($_POST) ? DISKLOCATION_URL : DISKLOCATION_DIRECT_URL ) . "");
 		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
-	if(isset($_POST["debug_disable"])) {
+	if(isset($_POST["debug_disable"]) || isset($_GET["debug_disable"])) {
 		disklocation_system('debug', 'disable');
-		header("Location: " . DISKLOCATION_URL . "");
+		header("Location: " . (!empty($_POST) ? DISKLOCATION_URL : DISKLOCATION_DIRECT_URL ) . "");
 		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
-	if(isset($_POST["reset"]) && isset($_POST["reset_op"])) {
-		disklocation_system('reset', $_POST["reset_op"]);
-		header("Location: " . DISKLOCATION_URL . "");
+	if(isset($_POST["reset"]) && isset($_POST["reset_op"]) || isset($_GET["reset"]) && isset($_GET["reset_op"])) {
+		$reset_op = (isset($_POST["reset_op"]) ? $_POST["reset_op"] : (isset($_GET["reset_op"]) ? $_GET["reset_op"] : null));
+		disklocation_system('reset', $reset_op);
+		header("Location: " . (!empty($_POST) ? DISKLOCATION_URL : DISKLOCATION_DIRECT_URL ) . "");
 		exit;
 	}
 	if(isset($_POST["del_obsolete"])) {
@@ -393,7 +396,7 @@
 		exit;
 	}
 		
-	if(isset($_POST["backup_db"]) || in_array("backup", $argv)) {
+	if(isset($_POST["backup_db"]) || in_array("backup", $argv) || isset($_GET["backup_db"])) {
 		if(file_exists(DISKLOCATION_DEVICES) && file_exists(DISKLOCATION_GROUPS) && file_exists(DISKLOCATION_LOCATIONS)) {
 			if(file_exists(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/benchmark/")) {
 				$benchmark_files = array_diff(scandir(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/benchmark/"), array('..', '.'));
@@ -431,7 +434,7 @@
 			database_backup(DISKLOCATION_DB, "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/");
 		}
 		if(!in_array("backup", $argv)) {
-			header("Location: " . DISKLOCATION_URL . "");
+			header("Location: " . (!empty($_POST) ? DISKLOCATION_URL : DISKLOCATION_DIRECT_URL ) . "");
 		}
 		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
 		exit;
@@ -450,7 +453,7 @@
 	$list_backup = disklocation_system("backup", "list");
 	if($list_backup) {
 		$print_list_backup .= "
-			<form action=\"" . DISKLOCATION_PATH . "/pages/page_system.php\" method=\"post\">
+			<form action=\"" . DISKLOCATION_PATH . "/pages/page_system.php\" method=\"" . (!strstr($_SERVER["SCRIPT_NAME"], "page_system.php") ? "post" : "get" ) . "\">
 				<h3 style=\"padding: 0; margin: 0;\">Database backups</h3>
 				<p>
 					Backup your configuration and benchmarks. When restoring, you must likely run a Force SMART+DB afterwards.<br />
@@ -509,19 +512,15 @@
 				</table>
 				<input type=\"submit\" name=\"backup_db\" value=\"Backup\" />
 				<input type=\"submit\" name=\"res_backup\" value=\"Restore\" />
-				<input type=\"submit\" name=\"del_backup\" value=\"Delete\" />
-				<input type=\"submit\" name=\"del_backup_all\" value=\"Delete all\" />
-				<input type=\"checkbox\" name=\"del_backup_all_check\" value=\"1\" title=\"Check this to delete all backups\" /> &lt;-- Check this box to delete all backups
+				" . (!strstr($_SERVER["SCRIPT_NAME"], "page_system.php") ? "<input type=\"submit\" name=\"del_backup\" value=\"Delete\" /><input type=\"submit\" name=\"del_backup_all\" value=\"Delete all\" /><input type=\"checkbox\" name=\"del_backup_all_check\" value=\"1\" title=\"Check this to delete all backups\" /> &lt;-- Check this box to delete all backups<blockquote class='inline_help'>This will delete all databases which were backed up.</blockquote>" : "") . "
 			</form>
-			<blockquote class='inline_help'>
-				This will delete all databases which were backed up.
-			</blockquote>
+			
 		";
 	}
 	else {
 		if(file_exists(DISKLOCATION_CONF) || file_exists(DISKLOCATION_DEVICES) || file_exists(DISKLOCATION_GROUPS) || file_exists(DISKLOCATION_LOCATIONS)) {
 			$print_list_backup = "
-				<form action=\"" . DISKLOCATION_PATH . "/pages/page_system.php\" method=\"post\">
+				<form action=\"" . DISKLOCATION_PATH . "/pages/page_system.php\" method=\"" . (!strstr($_SERVER["SCRIPT_NAME"], "page_system.php") ? "post" : "get" ) . "\">
 					<h3>Database backups</h3><br />
 					<table style=\"width: 0;\">
 						<tr>
@@ -549,7 +548,7 @@
 	$list_debug = disklocation_system("debug", "list");
 	$print_list_debug = "
 		<h3>Debugging</h3>
-		<form action=\"" . DISKLOCATION_PATH . "/pages/page_system.php\" method=\"post\">
+		<form action=\"" . DISKLOCATION_PATH . "/pages/page_system.php\" method=\"" . (!strstr($_SERVER["SCRIPT_NAME"], "page_system.php") ? "post" : "get" ) . "\">
 			" . ( !file_exists(DISKLOCATION_TMP_PATH . "/.debug") ? "<input type=\"submit\" name=\"debug_enable\" value=\"Enable\" />" : "<input type=\"submit\" name=\"debug_disable\" value=\"Disable\" />" ) . "
 	";
 	if($list_debug) {
@@ -566,7 +565,7 @@
 	
 	$print_reset = "
 		<h3>Plugin reset</h3>
-		<form action=\"" . DISKLOCATION_PATH . "/pages/page_system.php\" method=\"post\">
+		<form action=\"" . DISKLOCATION_PATH . "/pages/page_system.php\" method=\"" . (!strstr($_SERVER["SCRIPT_NAME"], "page_system.php") ? "post" : "get" ) . "\">
 			<input type=\"radio\" name=\"reset_op\" value=\"\" checked=\"checked\" /> none
 			" . ( file_exists(DISKLOCATION_CONF) ? "<input type=\"radio\" name=\"reset_op\" value=\"settings\" /> configuration" : null ) . "
 			" . ( file_exists(DISKLOCATION_GROUPS) ? "<input type=\"radio\" name=\"reset_op\" value=\"groups\" /> layout (includes tray allocations)" : null ) . "
@@ -576,7 +575,7 @@
 			" . ( (file_exists(DISKLOCATION_CONF) || file_exists(DISKLOCATION_GROUPS) || file_exists(DISKLOCATION_LOCATIONS) || file_exists(DISKLOCATION_DEVICES) || file_exists(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/benchmark") || file_exists(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup") || file_exists(DISKLOCATION_TMP_PATH . "/smart")) ? "<input type=\"radio\" name=\"reset_op\" value=\"wipe\" /> wipe (including backups, benchmarks and smart data)" : null ) . "
 			<br />
 			<input type=\"submit\" name=\"reset\" value=\"Reset\" />
-		<form>
+		</form>
 	";
 	
 	if(obsolete_files($array_obsolete, true)) {
@@ -585,12 +584,14 @@
 			<ul><li>" . implode("</li><li>", obsolete_files($array_obsolete, true)) . "</li></ul>
 			<form action=\"" . DISKLOCATION_PATH . "/pages/page_system.php\" method=\"post\">
 				<input type=\"submit\" name=\"del_obsolete\" value=\"Delete All\" />
-			<form>
+			</form>
 		";
 	}
 	
 	if(!strstr($_SERVER["SCRIPT_NAME"], "page_system.php") && $db_update != 2) {
 		$list_undelete = force_undelete_devices($get_devices, 'r');
+		$check_smart_files = (isset($check_smart_files) ? $check_smart_files : null);
+		$check_devicepath_conflict = (isset($check_devicepath_conflict) ? $check_devicepath_conflict : null);
 		
 		if($list_undelete) {
 			$print_list_undelete = "
@@ -645,12 +646,28 @@
 			return $foo;
 		}
 	}
-	if($db_update == 2 || strstr($_SERVER["SCRIPT_NAME"], "page_system.php")) { $system_limited_text = " - limited version."; }
+	if($db_update == 2 || strstr($_SERVER["SCRIPT_NAME"], "page_system.php")) { $system_limited_text = " - limited version."; } else { $system_limited_text = ""; }
 	
 	if(in_array("backup", $argv)) { exit; }
 ?>
+<?php 
+	if($db_update == 2 || strstr($_SERVER["SCRIPT_NAME"], "page_system.php")) { 
+		print("<!DOCTYPE html><html lang=\"en\">
+			<head>
+				<title>Disk Location - System</title>
+		");
+	}
+?>
 <link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/help.css")?>">
-<table><tr><td style="padding: 10px 10px 10px 10px;">
+<?php
+	if($db_update == 2 || strstr($_SERVER["SCRIPT_NAME"], "page_system.php")) {
+		print("</head><body>"); 
+		
+	}
+	else { 
+		print("<table><tr><td style=\"padding: 10px 10px 10px 10px;\">");
+	} 
+?>
 <h2 style="margin-top: -10px; padding: 0 0 0 0; margin-bottom: 0;">System<?php print($system_limited_text); ?></h2>
 <div>
 	<?php
@@ -661,13 +678,18 @@
 		print( function_exists('human_filesize') && function_exists('dirsize') ? "<br />Storage: " . human_filesize(dirsize(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH)+$size_total, 1, true) : null );
 	?>
 </div>
+<?php
+	if(!strstr($_SERVER["SCRIPT_NAME"], "page_system.php")) {
+		print("<p>Direct System page for emergency: <a href=\"" . $_SERVER['REQUEST_SCHEME'] . "://" . $_SERVER['HTTP_HOST'] . "" . DISKLOCATION_DIRECT_URL . "\">" . $_SERVER['REQUEST_SCHEME'] . "://" . $_SERVER['HTTP_HOST'] . "" . DISKLOCATION_DIRECT_URL . "</a></p>");
+	} 
+?>
 <h3 class="red">
 	<b>NB! Operations done on this page will execute without warning or confirmation and cannot be undone after execution!</b>
 </h3>
 <?php 
 	if($db_update == 2 || strstr($_SERVER["SCRIPT_NAME"], "page_system.php")) { 
 		print("
-			<form action=\"" . DISKLOCATION_PATH . "/pages/cronjob.php?force_smartdb_scan=1\" method=\"get\"><input type=\"submit\" name=\"force_smartdb_scan\" value=\"SMART+DB\" /></form>
+			<form action=\"" . DISKLOCATION_PATH . "/pages/cronjob.php?force_smartdb_scan=1\" method=\"get\"><p><input type=\"submit\" name=\"force_smartdb_scan\" value=\"Force SMART+DB\" /></p></form>
 		");
 	}
 ?>
@@ -679,4 +701,4 @@
 <?php echo $print_list_undelete ?>
 <?php echo $print_obsolete ?>
 <?php echo $print_reset ?>
-</td></tr></table>
+<?php if($db_update == 2 || strstr($_SERVER["SCRIPT_NAME"], "page_system.php")) { print("</body>\n</html>"); } else { print("</td></tr></table>"); } ?>
