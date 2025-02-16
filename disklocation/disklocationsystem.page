@@ -1,0 +1,7 @@
+Menu="DiskUtilities"
+Icon="window-restore"
+Tag="window-restore"
+Author="Ole-Henrik Jakobsen"
+Type="xmenu"
+Tabs="false"
+Title="Disk Location Recovery"

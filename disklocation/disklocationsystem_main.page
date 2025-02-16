@@ -1,0 +1,15 @@
+Menu="disklocationsystem"
+Icon="file"
+Tag="file"
+Title="Disk Location - Recovery"
+---
+<?php
+	print("
+		<p>The link below will take you to an external version of Disk Location System. This is useful for restoring backups or running \"Update SMART+DB\" in case of a plugin failure.</p>
+		<p>You might get an external link warning, this is not really true but it does work \"outside\" Unraid. Press OK to open the page.</p>
+	");
+
+	define("DISKLOCATION_DIRECT_URL", "/plugins/disklocation/pages/page_system.php");
+	
+	print("<p><a href=\"" . $_SERVER['REQUEST_SCHEME'] . "://" . $_SERVER['HTTP_HOST'] . "" . DISKLOCATION_DIRECT_URL . "\">" . $_SERVER['REQUEST_SCHEME'] . "://" . $_SERVER['HTTP_HOST'] . "" . DISKLOCATION_DIRECT_URL . "</a></p>");
+?>
