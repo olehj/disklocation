@@ -65,7 +65,7 @@
 
 <?php
 	$check_smart_files = check_smart_files();
-	$check_devicepath_conflict = check_devicepath_conflict($devices);
+	$check_devicepath_conflict = (!empty($devices) && is_array($devices) ? check_devicepath_conflict($devices) : null);
 	
 	if($db_update == 2) {
 		print("-->");

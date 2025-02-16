@@ -739,6 +739,7 @@
 	function force_undelete_devices($db, $action) {
 		// r = read
 		// m = modify
+		$ret = 0;
 		
 		switch($action) {
 			case 'r': // read
