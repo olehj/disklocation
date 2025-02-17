@@ -345,9 +345,9 @@
 								<?php
 									if(!empty($check_select_trayalloc) || !empty($check_sort_trayalloc)) { print("<span style=\"display: block;\" class=\"red\"><b>Table column and/or sort is faulty, please correct it under Configuration. Default column and order is used.</b></span>"); }
 								?>
-								<b>Warning! Please use "Force scan all" button under "System" tab before manually deleting and/or re-adding devices manually.</b><br />
+								<b>Warning! Please use "Force SMART+DB" button under "System" tab before manually deleting and/or re-adding devices manually.</b><br />
 								The <i class="fa fa-minus-circle fa-lg"></i> button will force the drive to be moved to the "History" section below. Use this if you have false drive(s) in your list.
-								If you accidentally click the button on the wrong drive you have to do a "Force scan all" and reassign the drive.
+								If you accidentally click the button on the wrong drive you have to do a "Force SMART+DB" and reassign the drive.
 							</p>
 							<p style="color: red; padding: 0 0 30px 0;"><b>OBS! When allocating drives you must use the TrayID numbers shown in red bold and not the physical tray assignment shown on the right/bottom (these are only shown if the numbers differ).</b>
 							<?php ( !empty($device_bg_color) ?? print("<br />Custom Color is disabled when \"Heat Map\" is used.") ); ?>
@@ -415,8 +415,8 @@
 										<h2>History</h2>
 										<p style=\"padding: 0 0 0 0;\">
 											" . ( (!empty($check_select_drives) || !empty($check_sort_drives)) ? "<span style=\"display: block;\" class=\"red\"><b>Table column and/or sort is faulty, please correct it under Configuration. Default column and order is used.</b></span>" : null ) . "
-											Warning! The <i class=\"fa fa-minus-circle fa-lg\"></i> button will hide the device permanently from this plugin and can only be reverted by manually changing the flag in the database file (\"Force scan all\" button will not touch hidden devices).<br />
-											While the <i class=\"fa fa-plus-circle fa-lg\"></i> button will re-add the drive to the main list for tray allocation, it will revert back to the not found list if the drive does actually not exists after using \"Force scan all\".
+											Warning! The <i class=\"fa fa-minus-circle fa-lg\"></i> button will hide the device permanently from this plugin and can only be reverted by manually changing the flag in the database file (\"Force SMART+DB\" button will not touch hidden devices).<br />
+											While the <i class=\"fa fa-plus-circle fa-lg\"></i> button will re-add the drive to the main list for tray allocation, it will revert back to the not found list if the drive does actually not exists after using \"Force SMART+DB\".
 										</p>
 									</td>
 								</tr>
