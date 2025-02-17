@@ -313,14 +313,6 @@
 									$smart_units_read = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"];
 								}
 								
-								/* // Not used in Cronjob anymore
-								if(in_array($smart_array["ata_smart_attributes"]["table"][$smart_i]["id"], $smart_array)) {
-									if($smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"] > 0) {
-										$smart_errors[$smart_i]["name"] = "" . str_replace("_", " ", $smart_array["ata_smart_attributes"]["table"][$smart_i]["name"]) . "";
-										$smart_errors[$smart_i]["value"] = "" . $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"] . "";
-									}
-								}
-								*/
 								$smart_i++;
 							}
 						}
