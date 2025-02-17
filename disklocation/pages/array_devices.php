@@ -152,7 +152,7 @@
 		}
 		$smart_errors = array();
 		$unraid_smart_arr = explode("|", empty($unraid_array[$devicenode]["smEvents"]) ? $get_global_smEvents : $unraid_array[$devicenode]["smEvents"] );
-		$smart_status = ( ($smart_array["smart_status"]["passed"] == true) ? 1 : 0);
+		$smart_status = $devices[$hash]["raw"]["smart_status"];
 		
 		if(isset($smart_array["ata_smart_attributes"]["table"])) {
 			$smart_i = 0;
@@ -181,8 +181,8 @@
 		
 		// Various Unraid files $unraid_array (various selected variables in multiple INI files)
 		
-		$unraid_array[$data["devicenode"]]["hotTemp"] = ( !empty($unraid_array[$data["devicenode"]]["hotTemp"]) ? $unraid_array[$data["devicenode"]]["hotTemp"] : $GLOBALS["display"]["hot"] );
-		$unraid_array[$data["devicenode"]]["maxTemp"] = ( !empty($unraid_array[$data["devicenode"]]["maxTemp"]) ? $unraid_array[$data["devicenode"]]["maxTemp"] : $GLOBALS["display"]["max"] );
+		$unraid_array[$data["devicenode"]]["hotTemp"] = ( !empty($unraid_array[$data["devicenode"]]["hotTemp"]) ? $unraid_array[$data["devicenode"]]["hotTemp"] : (($GLOBALS["display"]["hotssd"] && $devices[$hash]["raw"]["rotation"] < 1) ? $GLOBALS["display"]["hotssd"] : $GLOBALS["display"]["hot"] ));
+		$unraid_array[$data["devicenode"]]["maxTemp"] = ( !empty($unraid_array[$data["devicenode"]]["maxTemp"]) ? $unraid_array[$data["devicenode"]]["maxTemp"] : (($GLOBALS["display"]["maxssd"] && $devices[$hash]["raw"]["rotation"] < 1) ? $GLOBALS["display"]["maxssd"] : $GLOBALS["display"]["max"] ));
 		
 		if(!empty($unraid_array[$data["devicenode"]]["temp"]) && is_numeric($unraid_array[$data["devicenode"]]["temp"]) && is_numeric($unraid_array[$devicenode]["temp"])) {
 			switch($display["unit"]) {
