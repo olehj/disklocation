@@ -49,12 +49,12 @@
  - Commit #396 - IMPROVEMENT: Some Help text was outdated and has now been fixed and cleared up, also added some more info for some configurations.
  - Commit #395 - MINOR: Temperature column not shown. If the temperature is listed to display on e.g. Information tab, it was not shown due to faulty variable name request. The hot/max values are now only displayed in formatted html outputs (Information tab) but not in exported TSV as it can't function when it's outside the Unraid $GLOBALS.
 
-###2025.02.17e
- - Commit #393 - e) MINOR: Changed old text "Force scan all" to "Force SMART+DB" in Tray Allocations. Remove an unsused section from cronjob.
- - Commit #391 - d) IMPROVEMENT: Added global SSD temp variables. Also fixed a minor variable bug related to SMART status.
- - Commit #389 - c) FEATURE: Added tray layout orientation. Made it possible to modify the dashboard float. Choices: left, right and "stack" (none).
- - Commit #387 - b) BUG: LEDs not always in standby. Altered how they are displayed without losing the ZFS state display priority. Also added separate Disk Location Recovery page under Tools -> Disk Utilities.
- - Commit #385 - a) BUG: Fixed a bug that could cause page to not load. Added System tab to be able to be used as standalone, using this address: http://[serveraddr]/plugins/disklocation/pages/page_system.php
+###2025.02.17
+ - Commit #393 - MINOR: Changed old text "Force scan all" to "Force SMART+DB" in Tray Allocations. Remove an unsused section from cronjob.
+ - Commit #391 - IMPROVEMENT: Added global SSD temp variables. Also fixed a minor variable bug related to SMART status.
+ - Commit #389 - FEATURE: Added tray layout orientation. Made it possible to modify the dashboard float. Choices: left, right and "stack" (none).
+ - Commit #387 - BUG: LEDs not always in standby. Altered how they are displayed without losing the ZFS state display priority. Also added separate Disk Location Recovery page under Tools -> Disk Utilities.
+ - Commit #385 - BUG: Fixed a bug that could cause page to not load. Added System tab to be able to be used as standalone, using this address: http://[serveraddr]/plugins/disklocation/pages/page_system.php
 
 ###2025.02.16
  - Commit #383 - BUG: System tab not loading because of array tried to merge with nothing.
