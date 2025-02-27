@@ -389,6 +389,47 @@
 					<tr>
 						<td style="padding: 10px 10px 0 10px;" colspan="<?php print($table_colspan + 4); ?>">
 							<?php print( !$allow_unraid_edit ? "<span class=\"red\">Columns containing \"Manufactured\", \"Purchased\" and \"Warranty\" is read-only. To enable editing, go to Configuration and set \"Allow editing of Unraid config\" to \"Yes\"</span>" : "" ); ?>
+							<blockquote class='inline_help'>
+								<dt>Tray allocations</dt>
+								<dd>Select where to assign the drives and the empty trays, be sure to select a unique tray slot number. It will detect failure and none of the new settings will be saved.</dd>
+								
+								<dt>Manufactured, Purchased and Warranty</dt>
+								<dd>For Unraid array drives which already got the date set, this will be detected automatically and used. You can use this plugin to enter all the dates in bulk if the "Allow editing of Unraid config" is set to "Yes" under Configuration.</dd>
+								
+								<dt>Comment</dt>
+								<dd>Enter a comment, like where you bought the drive or anything else you'd like. Formatting tools:</dd>
+								<dd>
+									Bold: [b]<b>text</b>[/b] or *<b>text</b>*<br />
+									Italic: [i]<i>text</i>[/i] or _<i>text</i>_<br />
+									Font sizes:
+									<span style="font-size: xx-small">tiny</span>
+									<span style="font-size: x-small">small</span>
+									<span style="font-size: medium">medium</span>
+									<span style="font-size: large">large</span>
+									<span style="font-size: x-large">huge</span>
+									<span style="font-size: xx-large">massive</span>
+									<br />
+									E.g. [large]text[/large]<br />
+									Force break/new line: [br]
+									Color: [color:HEX]text[/color]<br />
+									E.g. [color:0000FF][b]text[/b][/color] = <span style="color: #0000FF;"><b>text</b></span>
+								</dd>
+								
+								<dt>Custom Color</dt>
+								<dd>
+									Choosing a color here will store it for the specific disk and will override any other color properties.<br />
+									Reset/delete the color by choosing the default color for empty (the first color available in the list).
+								</dd>
+								
+								<dt>"Locate" button</dt>
+								<dd>The "Locate" button will make your harddisk blink on the LED, this is mainly useful for typical hotswap trays with a LED per tray.</dd>
+								
+								<dt>"Locate" button does not work</dt>
+								<dd>This might not work on all devices, like SSD's.</dd>
+								
+								<dt>LED is blinking continously after using "Locate"</dt>
+								<dd>Click the "Force Stop All Locate" button to kill the locating function.</dd>
+							</blockquote>
 							<hr />
 							<input type="submit" name="save_allocations" value="Save" />
 							<span style="padding-left: 50px;"></span>
@@ -398,7 +439,7 @@
 							<blockquote class='inline_help'>
 								<ul>
 									<li>"Save" button will store all information entered.</li>
-									<li>"Force stop locate" button will terminate all "Locate" runs.</li>
+									<li>"Force Stop All Locate" button will terminate all "Locate" runs.</li>
 									<li>"Reset All Custom Colors" will delete all custome stored colors from the database.</li>
 								</ul>
 							</blockquote>
@@ -430,50 +471,6 @@
 						");
 					}
 				?>
-				<blockquote class='inline_help'>
-					<dt>Tray allocations</dt>
-					<dd>Select where to assign the drives and the empty trays, be sure to select a unique tray slot number. It will detect failure and none of the new settings will be saved.</dd>
-					
-					<dt>Purchased and Warranty</dt>
-					<dd>For Unraid array drives which already got the date set, this will be detected (and eventually overwrite) by the main configuration. This plugin will not touch that, unless if those does not exists in the first place. For unassigned devices, you can enter a date of purchase and warranty.</dd>
-					
-					<dt>Comment</dt>
-					<dd>Enter a comment, like where you bought the drive or anything else you'd like. Formatting tools:</dd>
-					<dd>
-						Bold: [b]<b>text</b>[/b] or *<b>text</b>*<br />
-						Italic: [i]<i>text</i>[/i] or _<i>text</i>_<br />
-						<br />
-						Font sizes:
-						<span style="font-size: xx-small">tiny</span>
-						<span style="font-size: x-small">small</span>
-						<span style="font-size: medium">medium</span>
-						<span style="font-size: large">large</span>
-						<span style="font-size: x-large">huge</span>
-						<span style="font-size: xx-large">massive</span>
-						<br />
-						E.g. [large]text[/large]<br />
-						<br />
-						Force break/new line: [br]
-						<br />
-						Color: [color:HEX]text[/color]<br />
-						E.g. [color:0000FF][b]text[/b][/color] = <span style="color: #0000FF;"><b>text</b></span>
-					</dd>
-					
-					<dt>Custom Color</dt>
-					<dd>
-						Choosing a color here will store it for the specific disk and will override any other color properties.<br />
-						Reset/delete the color by choosing the default color for empty (the first color available in the list).
-					</dd>
-					
-					<dt>"Locate" button</dt>
-					<dd>The "Locate" button will make your harddisk blink on the LED, this is mainly useful for typical hotswap trays with a LED per tray.</dd>
-					
-					<dt>"Locate" button does not work</dt>
-					<dd>This might not work on all devices, like SSD's.</dd>
-					
-					<dt>LED is blinking continously after using "Locate"</dt>
-					<dd>Just enter the plugin from the Unraid settings page and it should automatically shut down the locate script. Else it will run continously until stopped or rebooted.</dd>
-				</blockquote>
 				<blockquote class='inline_help'>
 					<dt>"History buttons"</dt>
 					<ul>

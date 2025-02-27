@@ -255,21 +255,26 @@ $(document).ready(function(){
 						</td>
 					</tr>
 					<tr>
-						<td style="vertical-align: top;" colspan="3">
+						<td style="vertical-align: top;" colspan="2">
 							<b>LED signals:</b><br />
 							<input type="radio" name="signal_css" value="signals.dynamic.css" <?php if(!$signal_css || $signal_css == "signals.dynamic.css") { echo "checked"; } ?> />Dynamic
 							<input type="radio" name="signal_css" value="signals.static.css" <?php if($signal_css == "signals.static.css") { echo "checked"; } ?> />Static
-						</td>
-					</tr>
-					<tr>
-						<td colspan="2">
 							<blockquote class="inline_help" style="white-space: wrap;">
 								<p>
-									Hide empty tray contents: Nothing but the background color.<br />
-									Flash warning: the background will flash when the drive has a warning.<br />
-									Flash critical: the background will flash when the drive has a critical issue.
+									<b>LED array</b><br />
+									"Tray number": Show tray number.<br />
+									"Disk Operation LED": This will show if the disk is active or in standby.<br />
+									"SMART Status LED": Will show if there is a SMART failure, warning or if it is OK.<br />
+									"Temperature LED": Display a LED for temperature warning.
 								</p>
 								<p>
+									<b>Other configuration</b><br />
+									"Hide empty tray contents": Nothing but the background color.<br />
+									"Flash warning": the background will flash when the drive has a warning.<br />
+									"Flash critical": the background will flash when the drive has a critical issue.
+								</p>
+								<p>
+									<b>LED signals</b><br />
 									Select if you want LEDs to flash or not. This will not affect flashing backgrounds.
 								</p>
 							</blockquote>
@@ -287,7 +292,7 @@ $(document).ready(function(){
 					<tr>
 						<td>
 							Information &amp;<br />
-							Benchmark
+							Benchmark (sort only)
 							<?php print( !empty($check_sort_info) ? "<br /><span style=\"padding: 0 0 0 0;\" class=\"red\">Sort error,<br /> wrong tags:<br />" . implode(", ", $check_sort_info) . "</span>" : null ); ?>
 							<?php print( !empty($check_select_info) ? "<br /><span style=\"padding: 0 0 0 0;\" class=\"red\">Column error,<br /> wrong tags:<br />" . implode(", ", $check_select_info) . "</span>" : null ); ?> 
 						</td>
@@ -430,7 +435,7 @@ $(document).ready(function(){
 					<input type="submit" name="reset_common_colors" value="Reset Common Colors" />
 				</span>
 				<blockquote class="inline_help" style="white-space: wrap;">
-					<p>Save the Common Configuration and the Visible Frontpage Information. This does not save the Disk Tray Layout.</p>
+					<p>Save the Common Configuration and the Visible Frontpage Information. "Reset Common Colors" will set the default Disk Location colors.</p>
 				</blockquote>
 			</td>
 		</tr>

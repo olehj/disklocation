@@ -512,7 +512,8 @@
 				</table>
 				<input type=\"submit\" name=\"backup_db\" value=\"Backup\" />
 				<input type=\"submit\" name=\"res_backup\" value=\"Restore\" />
-				" . (!strstr($_SERVER["SCRIPT_NAME"], "page_system.php") ? "<input type=\"submit\" name=\"del_backup\" value=\"Delete\" /><input type=\"submit\" name=\"del_backup_all\" value=\"Delete all\" /><input type=\"checkbox\" name=\"del_backup_all_check\" value=\"1\" title=\"Check this to delete all backups\" /> &lt;-- Check this box to delete all backups<blockquote class='inline_help'>This will delete all databases which were backed up.</blockquote>" : "") . "
+				" . (!strstr($_SERVER["SCRIPT_NAME"], "page_system.php") ? "<input type=\"submit\" name=\"del_backup\" value=\"Delete\" /><input type=\"submit\" name=\"del_backup_all\" value=\"Delete all\" /><input type=\"checkbox\" name=\"del_backup_all_check\" value=\"1\" title=\"Check this to delete all backups\" /> &lt;-- Check this box to delete all backups" : "") . "
+				<blockquote class='inline_help'>This will create, restore or delete (all) databases.</blockquote>
 			</form>
 			
 		";
@@ -556,7 +557,7 @@
 			<input type=\"submit\" name=\"del_debug\" value=\"Delete debug file\" />
 			<a href=\"/plugins/disklocation/pages/page_system.php?logfile=1\">Download debug file</a> (" . ( function_exists('human_filesize') ? human_filesize($list_debug, 1, true) : $list_debug . " bytes" ) . ")
 			<blockquote class='inline_help'>
-				Enable and disable debugging, in general you don't want to have this enabled and running. Will automatically turn off after reboot.<br />
+				Enable and disable debugging, in general you don't want to have this enabled and running. The filesize will increase drastically and fast. It will automatically turn off after reboot.<br />
 				<span class=\"red\">WARNING! Logfile contains full serial numbers and all other information about your drive setup and layout.</span>
 			</blockquote>
 		";
@@ -575,6 +576,9 @@
 			" . ( (file_exists(DISKLOCATION_CONF) || file_exists(DISKLOCATION_GROUPS) || file_exists(DISKLOCATION_LOCATIONS) || file_exists(DISKLOCATION_DEVICES) || file_exists(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/benchmark") || file_exists(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup") || file_exists(DISKLOCATION_TMP_PATH . "/smart")) ? "<input type=\"radio\" name=\"reset_op\" value=\"wipe\" /> wipe (including backups, benchmarks and smart data)" : null ) . "
 			<br />
 			<input type=\"submit\" name=\"reset\" value=\"Reset\" />
+			<blockquote class='inline_help'>
+				This will reset part of, or all Disk Location configuration. This will not touch anything Unraid configuration related.<br />
+			</blockquote>
 		</form>
 	";
 	

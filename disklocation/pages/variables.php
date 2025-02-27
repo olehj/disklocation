@@ -192,7 +192,7 @@
 	// modify the array to suit our needs
 	
 	$unraid_array = array();
-	//$unraid_unassigned = array();
+	$device_arr = array();
 	$smart_controller_devs = array();
 	
 	$i=0;
@@ -207,6 +207,11 @@
 			$unraid_smart_one[$getdeviceid]["maxTemp"] = 0;
 		}
 		
+		$device_arr[$i]["temp"] = str_replace("*", "", $unraid_devs[$i]["temp"]);
+		
+		$device_arr[$i]["hot"] = ( !empty($unraid_smart_one[$getdeviceid]["hotTemp"]) ? $unraid_smart_one[$getdeviceid]["hotTemp"] : (($GLOBALS["display"]["hotssd"] && $unraid_devs[$i]["rotational"] == 1) ? $GLOBALS["display"]["hotssd"] : $GLOBALS["display"]["hot"] ));
+		$device_arr[$i]["max"] = ( !empty($unraid_smart_one[$getdeviceid]["maxTemp"]) ? $unraid_smart_one[$getdeviceid]["maxTemp"] : (($GLOBALS["display"]["maxssd"] && $unraid_devs[$i]["rotational"] == 1) ? $GLOBALS["display"]["maxssd"] : $GLOBALS["display"]["max"] ));
+		
 		$smart_controller_devs[$i] = "" . ( isset($unraid_smart_one[$getdeviceid]["smType"]) ? $unraid_smart_one[$getdeviceid]["smType"] : $get_global_smType ) . "" . ( isset($unraid_smart_one[$getdeviceid]["smPort1"]) ? "," . $unraid_smart_one[$getdeviceid]["smPort1"] : null ) . "" . ( isset($unraid_smart_one[$getdeviceid]["smPort2"]) ? $unraid_smart_one[$getdeviceid]["smGlue"] . "" . $unraid_smart_one[$getdeviceid]["smPort2"] : null ) . "" . ( isset($unraid_smart_one[$getdeviceid]["smPort3"]) ? $unraid_smart_one[$getdeviceid]["smGlue"] . "" . $unraid_smart_one[$getdeviceid]["smPort3"] : null ) . "" . ( isset($unraid_smart_one[$getdeviceid]["smDevice"]) ? " /dev/" . $unraid_smart_one[$getdeviceid]["smDevice"] : null ) . "";
 		
 		if($getdevicenode) {
@@ -215,9 +220,9 @@
 				"device" => ($unraid_devs[$i]["device"] ?? null),
 				"status" => ($unraid_devs[$i]["status"] ?? null),
 				"type" => ($unraid_devs[$i]["type"] ?? null),
-				"temp" => ($unraid_devs[$i]["temp"] ?? null),
-				"hotTemp" => ($unraid_smart_one[$getdeviceid]["hotTemp"] ?? null),
-				"maxTemp" => ($unraid_smart_one[$getdeviceid]["maxTemp"] ?? null),
+				"temp" => ($device_arr[$i]["temp"] ?? null),
+				"hotTemp" => ($device_arr[$i]["hot"] ?? null),
+				"maxTemp" => ($device_arr[$i]["max"] ?? null),
 				"color" => ($unraid_devs[$i]["color"] ?? null),
 				"fscolor" => ($unraid_devs[$i]["fsColor"] ?? null),
 				"smart_controller_cmd" => ($smart_controller_devs[$i] ?? null),
