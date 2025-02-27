@@ -45,6 +45,10 @@
 -->
 
 <CHANGES>
+###2025.02.27
+ - Commit #396 - IMPROVEMENT: Some Help text was outdated and has now been fixed and cleared up, also added some more info for some configurations.
+ - Commit #395 - MINOR: Temperature column not shown. If the temperature is listed to display on e.g. Information tab, it was not shown due to faulty variable name request. The hot/max values are now only displayed in formatted html outputs (Information tab) but not in exported TSV as it can't function when it's outside the Unraid $GLOBALS.
+
 ###2025.02.17e
  - Commit #393 - e) MINOR: Changed old text "Force scan all" to "Force SMART+DB" in Tray Allocations. Remove an unsused section from cronjob.
  - Commit #391 - d) IMPROVEMENT: Added global SSD temp variables. Also fixed a minor variable bug related to SMART status.
