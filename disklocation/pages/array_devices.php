@@ -181,9 +181,6 @@
 		
 		// Various Unraid files $unraid_array (various selected variables in multiple INI files)
 		
-		$unraid_array[$data["devicenode"]]["hotTemp"] = ( !empty($unraid_array[$data["devicenode"]]["hotTemp"]) ? $unraid_array[$data["devicenode"]]["hotTemp"] : (($GLOBALS["display"]["hotssd"] && $devices[$hash]["raw"]["rotation"] < 1) ? $GLOBALS["display"]["hotssd"] : $GLOBALS["display"]["hot"] ));
-		$unraid_array[$data["devicenode"]]["maxTemp"] = ( !empty($unraid_array[$data["devicenode"]]["maxTemp"]) ? $unraid_array[$data["devicenode"]]["maxTemp"] : (($GLOBALS["display"]["maxssd"] && $devices[$hash]["raw"]["rotation"] < 1) ? $GLOBALS["display"]["maxssd"] : $GLOBALS["display"]["max"] ));
-		
 		if(!empty($unraid_array[$data["devicenode"]]["temp"]) && is_numeric($unraid_array[$data["devicenode"]]["temp"]) && is_numeric($unraid_array[$devicenode]["temp"])) {
 			switch($display["unit"]) {
 				case 'F':
