@@ -338,6 +338,18 @@
 						$smart_endurance_used = ( isset($smart_array["nvme_smart_health_information_log"]["percentage_used"]) ? 100-$smart_array["nvme_smart_health_information_log"]["percentage_used"] : $smart_endurance_used );
 						$devices[$hash]["formatted"]["endurance"] = ( isset($devices[$hash]["raw"]["endurance"]) ? $devices[$hash]["raw"]["endurance"] . "%" : null );
 						
+						$nvme_temp = array();
+						if(isset($smart_array["device"]["type"]) && $smart_array["device"]["type"] == "nvme") {
+							$nvme_cmd = shell_exec("nvme id-ctrl $lsscsi_devicenodesg[$i] | grep temp");
+							if(!empty($nvme_cmd)) {
+								list($wctemp_line, $cctemp_line) = explode("\n", $nvme_cmd);
+								list($foo, $wctemp) = explode(":", $wctemp_line);
+								list($foo, $cctemp) = explode(":", $cctemp_line);
+								$nvme_temp["wctemp"] = (float)round(temperature_conv(trim($wctemp), 'K', 'C'));
+								$nvme_temp["cctemp"] = (float)round(temperature_conv(trim($cctemp), 'K', 'C'));
+							}
+						}
+						
 						if(isset($smart_array["serial_number"]) && $smart_model_name) {
 							$update[$deviceid[$i]] = array( // overwrite selected values
 								"device" => ($lsscsi_device[$i] ?? null),
@@ -352,6 +364,8 @@
 								"logical_block_size" => $smart_array["logical_block_size"],
 								"smart_units_read" => $smart_units_read,
 								"smart_units_written" => $smart_units_written,
+								"nvme_wctemp" => ($nvme_temp["wctemp"] ?? null),
+								"nvme_cctemp" => ($nvme_temp["cctemp"] ?? null),
 								"endurance" => $smart_endurance_used,
 								"loadcycle" => $smart_loadcycle,
 								"powerontime" => $smart_array["power_on_time"]["hours"],
