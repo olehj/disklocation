@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.02.27-1513">
+<!ENTITY version          "2025.03.03-0014">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "devel">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -214,7 +214,7 @@ logit "Configuring..."
   fi
 
   ln -s &emhttpLOC;/pages/styles/$DISKLOCATION_CSS_SIGNALS &emhttpLOC;/pages/styles/signals.css
-  logit "SIGNALS: $DISKLOCATION_CSS_SIGNALS activated."
+  logit "Stylesheets: $DISKLOCATION_CSS_SIGNALS activated."
 
   logit "Installing cronjob..."
   <!--# Add cronjob for Disk Location -->
