@@ -49,6 +49,9 @@
  - Commit #405 - IMPROVEMENT: Removed a few History tags that would just become empty as it won't contain any data. If they are selected, an error message will popup and a red border around the faulty area.
  - Commit #404 - MINOR: Commit not found. Reported by user SickPup404, not found. Just kidding :p Tray count wrong in some count directions if bypassed trays are enabled. Rewrote the tray numbering function.
 
+###2025.03.04
+ - Commit #402 - MINOR: Fixed that in some instances and configurations, the benchmark save would trigger an error resulting in an incomplete settings.json file.
+
 ###2025.03.03
  - Commit #400 - IMPROVEMENT/MINOR: Added cronjob to use NVME data for warning and critical temperatures (this will be collected during a Force SMART+DB update). This should now follow Unraids default settings.
 
