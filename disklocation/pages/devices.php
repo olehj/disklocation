@@ -153,7 +153,7 @@
 					$debug_log = debug($debug, basename(__FILE__), __LINE__, "tray_assign", $tray_assign);
 					$debug_log = debug($debug, basename(__FILE__), __LINE__, "tray_number", $tray_number);
 					
-					if($displayinfo["tray"] && empty($displayinfo["hideemptycontents"])) {
+					if(isset($displayinfo["tray"]) && empty($displayinfo["hideemptycontents"])) {
 						$empty_tray = (!is_numeric($tray_number_override[$tray_assign]) ? 0 : $tray_number_override[$tray_assign]);
 					}
 					else {
