@@ -96,12 +96,8 @@
 				$biggest_tray_group = $total_trays;
 			}
 			
-			if(!$tray_direction) { $tray_direction = 1; }
-			$tray_number_override = tray_number_assign($grid_columns, $grid_rows, $tray_direction, $grid_count, $hide_tray);
-			$tray_number_override = ( !$count_bypass_tray && is_array($hide_tray) ? tray_number_assign($grid_columns, $grid_rows, $tray_direction, $grid_count, $hide_tray) : tray_number_assign($grid_columns, $grid_rows, $tray_direction, $grid_count) );
-			
-			if(!isset($tray_start_num)) { $tray_start_num = 1; }
-			$tray_number_override_start = $tray_start_num;
+			//$tray_number_override = tray_number_assign($grid_columns, $grid_rows, $tray_direction, $grid_count, $hide_tray);
+			$tray_number_override = ( empty($count_bypass_tray) && is_array($hide_tray) ? tray_number_assign($grid_columns, $grid_rows, $tray_direction, $grid_count, $tray_start_num, $hide_tray) : tray_number_assign($grid_columns, $grid_rows, $tray_direction, $grid_count, $tray_start_num) );
 			
 			$total_main_trays = 0;
 			if($total_trays > ($grid_columns * $grid_rows)) {
@@ -158,12 +154,7 @@
 					$debug_log = debug($debug, basename(__FILE__), __LINE__, "tray_number", $tray_number);
 					
 					if(isset($displayinfo["tray"]) && empty($displayinfo["hideemptycontents"])) {
-						if($tray_number_override[$tray_number]) {
-							$empty_tray = ( !isset($tray_number_override_start) ? --$tray_number_override[$tray_number] : ($tray_number_override_start + (!is_numeric($tray_number_override[$tray_number]) ? 0 : $tray_number_override[$tray_number] - 1)));
-						}
-						else {
-							$empty_tray = ( !isset($tray_number_override_start) ? --$tray_number : $tray_number_override_start + $tray_number - 1);
-						}
+						$empty_tray = (!is_numeric($tray_number_override[$tray_assign]) ? 0 : $tray_number_override[$tray_assign]);
 					}
 					else {
 						$empty_tray = "";
@@ -371,15 +362,12 @@
 					
 					$drive_tray_order[$hash] = get_tray_location($get_locations, $hash, $gid);
 					$drive_tray_order[$hash] = ( !isset($drive_tray_order[$hash]) ? $tray_assign : $drive_tray_order[$hash] );
+					
 					if(isset($displayinfo["tray"])) {
-						if($tray_number_override[$drive_tray_order[$hash]]) {
-							$drive_tray_order_assign = $tray_number_override[$drive_tray_order[$hash]];
-							$physical_traynumber = ( !isset($tray_number_override_start) ? --$tray_number_override[$drive_tray_order[$hash]] : ($tray_number_override_start + $tray_number_override[$drive_tray_order[$hash]] - 1));
-						}
-						else {
-							$drive_tray_order_assign = $drive_tray_order[$hash];
-							$physical_traynumber = ( !isset($tray_number_override_start) ? --$drive_tray_order[$hash] : $drive_tray_order[$hash]);
-						}
+						$physical_traynumber = (!is_numeric($tray_number_override[$drive_tray_order[$hash]]) ? 0 : $tray_number_override[$drive_tray_order[$hash]]);
+					}
+					else {
+						$physical_traynumber = "";
 					}
 					
 					$color_array[$hash] = "";
@@ -461,7 +449,6 @@
 									<div class=\"flex-container-middle_" . $disk_tray_direction . "\">
 									</div>
 									<div class=\"flex-container-end\">
-										<!--<input type=\"checkbox\" name=\"hide_tray[$drive_tray_order[$hash]]\" value=\"1\" style=\"background: transparent; margin: 0; padding: 0;\" />-->
 										<!--" . $add_physical_tray_order . "-->
 									</div>
 								</div>
