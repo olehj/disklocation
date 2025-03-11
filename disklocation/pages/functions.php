@@ -826,10 +826,9 @@
 		return array_pop($args);
 	}
 	
-	function tray_number_assign($col, $row, $dir, $grid, $skip = array()) {
-		$total = $col * $row; // 6 = 3 * 2
-		
-		$start = 1;
+	function tray_number_assign($col, $row, $dir = 1, $grid = 'col', $start = 1, $skip = array()) {
+		$total = ($col * $row);
+		$start = $start-1;
 		$data = array();
 		$tmp = array();
 		$results = array();
@@ -846,19 +845,23 @@
 						2-4-6
 					*/
 					
+					$i_keep = 1;
 					$i_skip = 1;
 					for($i=1; $i <= $total; ++$i) {
 						if(empty($skip)) {
-							$data[$i] = $i;
+							$data[$i] = $i_keep+$start;
+							$i_keep++;
 						}
 						else if(!$skip[$i]) {
-							$data[$i] = $i_skip;
+							$data[$i] = $i_skip+$start;
 							$i_skip++;
 						}
 					}
-					array_unshift($data, $grid);
 					
 					$results = $data;
+					$results = (count($results) > 1) ? $results : [1=>$start+1];
+					$results[0] = $grid;
+					ksort($results);
 				}
 				
 				return $results;
@@ -871,28 +874,30 @@
 						4-5-6
 						1-2-3
 					*/
-					$i_col = 1;
+					$i_col = 0;
+					$i_keep = 1;
 					$i_skip = 1;
-					for($i=1; $i <= $total; ++$i) {
-						if(empty($skip)) {
-							$data[$i_col][$i] = $i;
-						}
-						else if(!$skip[$i]) {
-							$data[$i_col][$i] = $i_skip;
-							$i_skip++;
-							
-						}
+					for($i=$total; $i >= 1; --$i) {
 						if($i % $col == 0) {
 							$i_col++;
 						}
+						if(empty($skip)) {
+							$data[$i_col][$i] = $i_keep+$start;
+							$i_keep++;
+						}
+						else if(!$skip[$i]) {
+							$data[$i_col][$i] = $i_skip+$start;
+							$i_skip++;
+						}
 					}
 					
-					for($i=count($data); $i >= 1; $i=$i-1) {
-						array_push($tmp, $data[$i]);
+					foreach ($data as $index => $key) {
+						$results[$index] = array_combine(array_reverse(array_keys($key)), $key);
 					}
 					
-					$results = array_merge(... $tmp);
-					array_unshift($results, $grid);
+					$results = (count($results) > 1) ? array_replace(...$results) : [1=>$start+1];
+					$results[0] = $grid;
+					ksort($results);
 				}
 				else {
 					/* 2 = bottom->top|left->right:		verified ok	(column: top->bottom)
@@ -901,29 +906,29 @@
 					*/
 					
 					$i_row = 1;
+					$i_keep = 1;
 					$i_skip = 1;
-					for($i=1; $i <= $total; $i++) {
+					for($i=1; $i <= $total; ++$i) {
 						if(empty($skip)) {
-							$data[$i_row][$i] = $i;
+							$data[$i_row][$i] = $i_keep+$start;
+							$i_keep++;
 						}
 						else if(!$skip[$i]) {
-							$data[$i_row][$i] = $i_skip;
+							$data[$i_row][$i] = $i_skip+$start;
 							$i_skip++;
-							
 						}
 						if($i % $row == 0) {
 							$i_row++;
 						}
 					}
 					
-					for($i=1; $i <= count($data); $i++) {
-						array_push($tmp, array_reverse($data[$i]));
+					foreach ($data as $index => $key) {
+						$results[$index] = array_combine(array_reverse(array_keys($key)), $key);
 					}
 					
-					$results = array_merge(... $tmp);
-					array_unshift($results, $grid);
-					
-					return $results;
+					$results = (count($results) > 1) ? array_replace(...$results) : [1=>$start+1];
+					$results[0] = $grid;
+					ksort($results);
 				}
 				
 				return $results;
@@ -937,13 +942,16 @@
 						6-5-4
 					*/
 					$i_col = 1;
+					$i_keep = 1;
 					$i_skip = 1;
-					for($i=1; $i <= $total; $i++) {
+					
+					for($i=1; $i <= $total; ++$i) {
 						if(empty($skip)) {
-							$data[$i_col][$i] = $i;
+							$data[$i_col][$i] = $i_keep+$start;
+							$i_keep++;
 						}
 						else if(!$skip[$i]) {
-							$data[$i_col][$i] = $i_skip;
+							$data[$i_col][$i] = $i_skip+$start;
 							$i_skip++;
 						}
 						if($i % $col == 0) {
@@ -951,12 +959,13 @@
 						}
 					}
 					
-					for($i=1; $i <= count($data); $i++) {
-						array_push($tmp, array_reverse($data[$i]));
+					foreach ($data as $index => $key) {
+						$results[$index] = array_combine(array_reverse(array_keys($key)), $key);
 					}
 					
-					$results = array_merge(... $tmp);
-					array_unshift($results, $grid);
+					$results = (count($results) > 1) ? array_replace(...$results) : [1=>$start+1];
+					$results[0] = $grid;
+					ksort($results);
 				}
 				else {
 					/* 3 = top->bottom|right->left:		verified ok	(column: top->bottom)
@@ -964,27 +973,31 @@
 						6-4-2
 					*/
 					
-					$i_row = 1;
+					$i_row = 0;
+					$i_keep = 1;
 					$i_skip = 1;
-					for($i=1; $i <= $total; ++$i) {
-						if(empty($skip)) {
-							$data[$i_row][$i] = $i;
-						}
-						else if(!$skip[$i]) {
-							$data[$i_row][$i] = $i_skip;
-							$i_skip++;
-						}
+					
+					for($i=$total; $i >= 1; --$i) {
 						if($i % $row == 0) {
 							$i_row++;
 						}
+						if(empty($skip)) {
+							$data[$i_row][$i] = $i_keep+$start;
+							$i_keep++;
+						}
+						else if(!$skip[$i]) {
+							$data[$i_row][$i] = $i_skip+$start;
+							$i_skip++;
+						}
 					}
 					
-					for($i=count($data); $i >= 1; $i=$i-1) {
-						array_push($tmp, $data[$i]);
+					foreach ($data as $index => $key) {
+						$results[$index] = array_combine(array_reverse(array_keys($key)), $key);
 					}
 					
-					$results = array_merge(... $tmp);
-					array_unshift($results, $grid);
+					$results = (count($results) > 1) ? array_replace(...$results) : [1=>$start+1];
+					$results[0] = $grid;
+					ksort($results);
 				}
 				
 				return $results;
@@ -1001,21 +1014,27 @@
 						6-4-2
 						5-3-1
 					*/
+					$i_keep = 1;
 					$i_skip = 1;
-					for($i=1; $i <= $total; ++$i) {
+					for($i=$total; $i >= 1; --$i) {
 						if(empty($skip)) {
-							$data[$i] = $i;
+							$data[$i] = $i_keep+$start;
+							$i_keep++;
 						}
 						else if(!$skip[$i]) {
-							$data[$i] = $i_skip;
+							$data[$i] = $i_skip+$start;
 							$i_skip++;
+						}
+						else {
+							$data[$i] = null;
 						}
 					}
 					
-					rsort($data);
-					array_unshift($data, $grid);
-					
 					$results = $data;
+					
+					$results = (count($results) > 1) ? $results : [1=>$start+1];
+					$results[0] = $grid;
+					ksort($results);
 				}
 				
 				return $results;
