@@ -240,15 +240,16 @@
 					}
 				}
 				
-				if($unknown === true && is_array($found_unknown) && !empty($found_unknown)) {
-					return $found_unknown;
-				}
-				
-				if(is_array($array) && !empty($array)) {
-					return $array;
+				if($unknown === true) {
+					return (is_array($found_unknown) && !empty($found_unknown) ? $found_unknown : null);
 				}
 				else {
-					return false;
+					if(is_array($array) && !empty($array)) {
+						return $array;
+					}
+					else {
+						return false;
+					}
 				}
 				
 			}
