@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.03.12">
+<!ENTITY version          "2025.03.17">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2025.03.17
+ - Commit #409 - MINOR: Some NVMe drives will show 0 Kelvin as warning and critical temperatures, if values are not found, NULL will be set and SSD values should be used.
+
 ###2025.03.12
  - Commit #407 - MINOR: Obsolete files function listing wrong entries. Found a minor flaw where the obsolete files function would include the backup list into the array if no obsolete files were detected. This would just list "0" and do no harm, neither delete the backups as it was an non-parseable array by the function.
 
