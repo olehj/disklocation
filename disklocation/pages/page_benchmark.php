@@ -97,6 +97,11 @@
 			
 			$speed_graph_text["slow"] = floor($speed_values[array_key_first($speed_values)] / 100) * 100;
 			$speed_graph_text["fast"] = ceil($speed_values[array_key_last($speed_values)] / 100) * 100;
+			if($speed_graph_text["slow"] == $speed_graph_text["fast"]) {
+				$speed_graph_text["slow"] = $speed_graph_text["slow"]-50;
+				$speed_graph_text["fast"] = $speed_graph_text["fast"]+50;
+			}
+			
 			//$speed_graph_text["midl"] = ((($speed_graph_text["fast"] + $speed_graph_text["slow"]) / 2) * 2) / 2;
 			$speed_graph_text["3333"] = round((33.33 * ($speed_graph_text["fast"] - $speed_graph_text["slow"]) / 100) + $speed_graph_text["slow"]);
 			$speed_graph_text["6666"] = round((66.66 * ($speed_graph_text["fast"] - $speed_graph_text["slow"]) / 100) + $speed_graph_text["slow"]);
