@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.03.18">
+<!ENTITY version          "2025.05.01">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,10 @@
 -->
 
 <CHANGES>
+###2025.05.01
+ - Commit #414 - MINOR: Empty array error occurs when there's no backup made during auto backup. Creates a new backup if none is found. Should then make auto backups as expected.
+ - Commit #413 - MINOR: Wrong Power On Hours might be picked up. In some instances the power_on_time could crash the Dashboard because the value was too high for DateTime.
+
 ###2025.03.18
  - Commit #411 - MAJOR: Benchmark page would divide by zero if fastest and slowest speed was equal, added -/+ 50 to the fastest and slowest values if they are equal.
 

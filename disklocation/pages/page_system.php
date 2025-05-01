@@ -411,20 +411,26 @@
 			
 			if(in_array("auto", $argv)) {
 				$get_backup_files = disklocation_system("backup", "list");
-				$get_backup_files = end($get_backup_files);
-				
-				$time_backup = trim(str_replace(dirname($get_backup_files["file"], 2) . "/", '', dirname($get_backup_files["file"], 1)));
-				
-				$time_now = new DateTime("now");
-				$time_backup = DateTime::createFromFormat('Ymd-His', $time_backup);
-				$time_diff = $time_now->diff($time_backup);
-				
-				if($auto_backup_days && $time_diff->format("%a") > $auto_backup_days) {
-					database_backup(DISKLOCATION_CONF.",".DISKLOCATION_DEVICES.",".DISKLOCATION_GROUPS.",".DISKLOCATION_LOCATIONS.( !empty($get_benchmark_files) ? "," . $get_benchmark_files : null ), "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/");
-					print(in_array("silent", $argv) ? null : "Previous backup was more than $auto_backup_days days old, new backup created.\n");
+				if(is_array($get_backup_files)) {
+					$get_backup_files = end($get_backup_files);
+					
+					$time_backup = trim(str_replace(dirname($get_backup_files["file"], 2) . "/", '', dirname($get_backup_files["file"], 1)));
+					
+					$time_now = new DateTime("now");
+					$time_backup = DateTime::createFromFormat('Ymd-His', $time_backup);
+					$time_diff = $time_now->diff($time_backup);
+					
+					if($auto_backup_days && $time_diff->format("%a") > $auto_backup_days) {
+						database_backup(DISKLOCATION_CONF.",".DISKLOCATION_DEVICES.",".DISKLOCATION_GROUPS.",".DISKLOCATION_LOCATIONS.( !empty($get_benchmark_files) ? "," . $get_benchmark_files : null ), "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/");
+						print(in_array("silent", $argv) ? null : "Previous backup was more than $auto_backup_days days old, new backup created.\n");
+					}
+					else {
+						print(in_array("silent", $argv) ? null : "Backup was made in the recent $auto_backup_days days or backup is disabled, skipping.\n");
+					}
 				}
 				else {
-					print(in_array("silent", $argv) ? null : "Backup was made in the recent $auto_backup_days days or backup is disabled, skipping.\n");
+					database_backup(DISKLOCATION_CONF.",".DISKLOCATION_DEVICES.",".DISKLOCATION_GROUPS.",".DISKLOCATION_LOCATIONS.( !empty($get_benchmark_files) ? "," . $get_benchmark_files : null ), "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/");
+					print(in_array("silent", $argv) ? null : "Backup created.\n");
 				}
 			}
 			else {

@@ -303,14 +303,17 @@
 						if(isset($smart_array["ata_smart_attributes"]["table"])) {
 							$smart_i = 0;
 							while($smart_i < count($smart_array["ata_smart_attributes"]["table"])) {
-								if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Load_Cycle_Count") {
-									$smart_loadcycle = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"];
+								if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Power_On_Hours") {			// ID 9
+									$smart_poweronhours = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"] ?? 0;
 								}
-								if($smart_array["ata_smart_attributes"]["table"][$smart_i]["id"] == 241) {
-									$smart_units_written = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"];
+								if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Load_Cycle_Count") {			// ID 193
+									$smart_loadcycle = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"] ?? 0;
 								}
-								if($smart_array["ata_smart_attributes"]["table"][$smart_i]["id"] == 242) {
-									$smart_units_read = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"];
+								if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Total_LBAs_Written") {			// ID 241
+									$smart_units_written = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"] ?? null;
+								}
+								if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Total_LBAs_Read") {			// ID 242
+									$smart_units_read = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"] ?? null;
 								}
 								
 								$smart_i++;
@@ -368,7 +371,7 @@
 								"nvme_cctemp" => ($nvme_temp["cctemp"] > 0 ? $nvme_temp["cctemp"] : null),
 								"endurance" => $smart_endurance_used,
 								"loadcycle" => $smart_loadcycle,
-								"powerontime" => $smart_array["power_on_time"]["hours"],
+								"powerontime" => ( (!empty($smart_poweronhours) && $smart_poweronhours < $smart_array["power_on_time"]["hours"]) ? $smart_poweronhours : $smart_array["power_on_time"]["hours"] ),
 								"status" => ( !file_exists(DISKLOCATION_DEVICES) ? 'h' : $devices_current[$deviceid[$i]]["status"] )
 							);
 							$devices_updates = array_replace_recursive($devices_current, $update);
