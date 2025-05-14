@@ -538,7 +538,7 @@
 			case 'grey-off': $orb = 'square'; $color = 'grey'; $blink = ''; $help = 'Device not present'; break;
 			// ZFS values
 			case 'ONLINE': $orb = 'circle'; $color = 'green'; $blink = ''; $help = 'Normal operation, device is online'; break;
-			case 'FAULTED': $orb = 'warning'; $color = 'yellow'; $blink = 'yellow'; $help = 'Device has faulted'; break;
+			case 'FAULTED': $orb = 'times'; $color = 'red'; $blink = 'red'; $help = 'Device has faulted'; break;
 			case 'DEGRADED': $orb = 'warning'; $color = 'yellow'; $blink = 'yellow'; $help = 'Device is degraded'; break;
 			case 'AVAIL': $orb = 'circle'; $color = 'green'; $blink = ''; $help = 'Device is available'; break;
 			case 'UNAVAIL': $orb = 'times'; $color = 'red'; $blink = 'red'; $help = 'Device is unavailable'; break;
