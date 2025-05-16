@@ -267,12 +267,13 @@
 					$skip_force_update = 0;
 					unset($smart_error_msg);
 					if(is_array($smart_array_messages)) {
-						for($ierr=0;$ierr<count($smart_array_messages);$ierr++) {
-							if($smart_array_messages[$ierr]["severity"] == "error") {
-								$smart_error_msg[$ierr] = $smart_array_messages[$ierr]["string"];
-							}
-						}
 						if(empty($smart_array["serial_number"]) && empty($smart_model_name)) {
+							for($ierr=0;$ierr<count($smart_array_messages);$ierr++) {
+								if($smart_array_messages[$ierr]["severity"] == "error") {
+									$smart_error_msg[$ierr] = $smart_array_messages[$ierr]["string"];
+								}
+							}
+							
 							$deviceid[$i] = recursive_array_search($lsscsi_devicenode[$i], $get_devices);
 							$smart_array["serial_number"] = $get_devices[$deviceid[$i]]["smart_serialnumber"];
 							$smart_model_name = $get_devices[$deviceid[$i]]["model_name"];
