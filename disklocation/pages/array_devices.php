@@ -167,6 +167,16 @@
 			}
 		}
 		
+		if(isset($data["errors"])) {
+			$smart_i_err = 0;
+			while($smart_i_err < count($data["errors"])) {
+				$smart_errors[$smart_i_err+$smart_i]["name"] = $data["errors"][$smart_i_err];
+				$smart_errors[$smart_i_err+$smart_i]["value"] = "--";
+				
+				$smart_i_err++;
+			}
+		}
+		
 		$smart_errors_text = "";
 		$smart_i = 0;
 		$get_smart_errors = array_values($smart_errors);

@@ -120,32 +120,41 @@
 			
 			$get_smart_errors = array_values($data["smart_errors"]);
 			if(count($get_smart_errors) > 0) {
+				$smart_i = 0;
+				$disk_ack = null;
+				while($smart_i < count($get_smart_errors)) {
+					if($get_smart_errors[$smart_i]["value"] == "--") {
+						$disk_ack = "N/A";
+						$smart_bg_color = $bgcolor_parity_default;
+					}
+					$print_drives_err[$i_drive] .= "
+						<tr><td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px;\">" . $get_smart_errors[$smart_i]["name"] . "</td><td style=\"text-align: right; vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px;\">" . ( ($get_smart_errors[$smart_i]["value"] == "--") ? "" : $get_smart_errors[$smart_i]["value"] ) . "</td></tr>
+					";
+					
+					$smart_i++;
+				}
+				if(empty($disk_ack)) {
+					if(get_disk_ack($data["name"])) {
+						$disk_ack = "YES";
+						$smart_bg_color = $bgcolor_cache_default;
+					}
+					else {
+						$disk_ack = "NO";
+						$disk_not_ack[] = $data["name"];
+						$smart_bg_color = $bgcolor_unraid_default;
+					}
+				}
+				
+				$print_drives[$i_drive] = "<tr style=\"border: 1px solid #000000; background: #" . $smart_bg_color . ";\">";
+				
 				$listarray = list_array($formatted, 'html', $physical_traynumber, 'top');
-				
-				$print_drives[$i_drive] = "<tr style=\"border: 1px solid #000000; background: #" . $color_array[$hash] . ";\">";
-				
 				$arr_length = count($table_info_order_system);
 				for($i=0;$i<$arr_length;$i++) {
 					$print_drives[$i_drive] .= $listarray[$table_info_order_system[$i]];
 				}
 				
 				$print_drives[$i_drive] .= "<td style=\"padding: 0 0 0 0; vertical-align: top;\"><table style=\"background-color: transparent; margin: 0;\">";
-				$smart_i = 0;
-				while($smart_i < count($get_smart_errors)) {
-					$print_drives[$i_drive] .= "
-						<tr><td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px;\">" . $get_smart_errors[$smart_i]["name"] . "</td><td style=\"text-align: right; vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px;\">" . $get_smart_errors[$smart_i]["value"] . "</td></tr>
-					";
-					
-					$smart_i++;
-				}
-				if(get_disk_ack($data["name"])) {
-					$disk_ack = "YES";
-				}
-				else {
-					$disk_ack = "NO";
-					$disk_not_ack[] = $data["name"];
-				}
-				
+				$print_drives[$i_drive] .= $print_drives_err[$i_drive];
 				$print_drives[$i_drive] .= "</table></td><td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px; text-align: center;\">" . $disk_ack . "</td></tr>";
 				
 				$i_drive++;
@@ -159,20 +168,14 @@
 <form action="" method="post">
 <table style="width: 800px; border-spacing: 3px; border-collapse: separate;">
 	<tr>
-		<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_parity); ?>">
-			<b><?php echo (!$device_bg_color ? "Parity" : "Critical") ?></b>
+		<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_parity_default); ?>">
+			<b>Failed</b>
 		</td>
-		<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_unraid); ?>">
-			<b><?php echo (!$device_bg_color ? "Data" : "Warning") ?></b>
+		<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_unraid_default); ?>">
+			<b>Warning</b>
 		</td>
-		<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_cache); ?>">
-			<b><?php echo (!$device_bg_color ? "Cache/Pool" : "Normal") ?></b>
-		</td>
-		<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_others); ?>">
-			<b><?php echo (!$device_bg_color ? "Unassigned devices" : "Temperature N/A") ?></b>
-		</td>
-		<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_empty); ?>">
-			<b>Empty trays</b>
+		<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_cache_default); ?>">
+			<b>Acknowledged</b>
 		</td>
 	</tr>
 </table>
