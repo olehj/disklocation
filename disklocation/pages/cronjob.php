@@ -246,12 +246,6 @@
 					continue;
 				}
 				
-				if(!isset($argv) || !in_array("silent", $argv)) {
-					$smart_output = "SMART: " . str_pad($lsscsi_devicenodesg[$i], 20) . " " . str_pad($smart_powermode_status, 8) . " ";
-					print($smart_output);
-					$smart_log .= "[" . date("Y-m-d H:i:s") . "] " . $smart_output;
-				}
-				
 				if($smart_powermode_status == "ACTIVE" || $smart_powermode_status == "IDLE" || $force_scan) { // only get SMART data if the disk is spinning, if it is a new install/empty database, or if scan is forced.
 					$smart_standby_cmd = "";
 					if(!$force_scan) {
@@ -283,7 +277,21 @@
 							$smart_array["serial_number"] = $get_devices[$deviceid[$i]]["smart_serialnumber"];
 							$smart_model_name = $get_devices[$deviceid[$i]]["model_name"];
 							$skip_force_update = 1;
+							$get_notifications = json_decode(shell_exec("/usr/local/emhttp/webGui/scripts/notify get"), true);
+							
+							if(recursive_array_search("" . $smart_model_name . " " . $smart_array["serial_number"] . "", $get_notifications) === false) { // only send notification if it doesn't exists:
+								shell_exec("/usr/local/emhttp/webGui/scripts/notify -e \"Disk Location: " . $lsscsi_devicenode[$i] . "\" -s \"Alert - Device failure\" -d \"" . $smart_model_name . " " . $smart_array["serial_number"] . "\" -i \"alert\" -m \"" . implode(", ", $smart_error_msg) . "\"");
+							}
+							$smart_output = "SMART: " . str_pad($lsscsi_devicenodesg[$i], 20) . " FAILED   ";
+							print($smart_output);
+							$smart_log .= $smart_output;
 						}
+					}
+					
+					if((!isset($argv) || !in_array("silent", $argv)) && !$skip_force_update) {
+						$smart_output = "SMART: " . str_pad($lsscsi_devicenodesg[$i], 20) . " " . str_pad($smart_powermode_status, 8) . " ";
+						print($smart_output);
+						$smart_log .= "[" . date("Y-m-d H:i:s") . "] " . $smart_output;
 					}
 					
 					// store files in /tmp
@@ -426,7 +434,7 @@
 					}
 					else {
 						$smart_output = "skipped.\n";
-						print($smart_output);
+						//print($smart_output);
 						$smart_log .= $smart_output;
 					}
 					
