@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.05.16">
+<!ENTITY version          "2025.05.17">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,10 @@
 -->
 
 <CHANGES>
+###2025.05.17
+ - Commit #423 - MINOR: Other irrelevant errors occured in SMART tab. Rearranged the code.
+ - Commit #422 - ENHANCEMENT: Added notification when a major device error occurs. E.g. If the drive loses it's controller, send an alert notification in Unraid about it.
+
 ###2025.05.16
  - Commit #420 - IMPROVEMENT: If a controller on a device is dead, plugin tries to find related drive and showing it as SMART FAILED and will also display error log in SMART tab if it exists. SMART tab changed slightly, background colors is related to the status of the drive.
 
