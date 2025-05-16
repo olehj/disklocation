@@ -257,8 +257,8 @@
 					if(!$force_scan) {
 						$smart_standby_cmd = "-n standby";
 					}
-					
-					$smart_cmd[$i] = shell_exec("smartctl $smart_standby_cmd -x --json --quietmode=silent " . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . ""); // get all SMART data for this device, we grab it ourselves to get all drives also attached to hardware raid cards.
+					// --quietmode=silent
+					$smart_cmd[$i] = shell_exec("smartctl $smart_standby_cmd -x --json " . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . ""); // get all SMART data for this device, we grab it ourselves to get all drives also attached to hardware raid cards.
 					
 					$smart_array = json_decode($smart_cmd[$i], true);
 					
@@ -268,6 +268,24 @@
 					
 					$deviceid[$i] = hash('sha256', $smart_model_name . ( isset($smart_array["serial_number"]) ? $smart_array["serial_number"] : null));
 					
+					// If error messages exists, try to find device in case of a controller failure
+					$smart_array_messages = is_array($smart_array["smartctl"]["messages"]) ? $smart_array["smartctl"]["messages"] : null;
+					$skip_force_update = 0;
+					unset($smart_error_msg);
+					if(is_array($smart_array_messages)) {
+						for($ierr=0;$ierr<count($smart_array_messages);$ierr++) {
+							if($smart_array_messages[$ierr]["severity"] == "error") {
+								$smart_error_msg[$ierr] = $smart_array_messages[$ierr]["string"];
+							}
+						}
+						if(empty($smart_array["serial_number"]) && empty($smart_model_name)) {
+							$deviceid[$i] = recursive_array_search($lsscsi_devicenode[$i], $get_devices);
+							$smart_array["serial_number"] = $get_devices[$deviceid[$i]]["smart_serialnumber"];
+							$smart_model_name = $get_devices[$deviceid[$i]]["model_name"];
+							$skip_force_update = 1;
+						}
+					}
+					
 					// store files in /tmp
 					if(isset($smart_array["serial_number"]) && $smart_model_name) {
 						$filename_smart_data_tmp = DISKLOCATION_TMP_PATH."/smart/".str_replace(" ", "_", $smart_model_name)."_" . $smart_array["serial_number"] . ".json";
@@ -275,7 +293,7 @@
 					}
 					
 					$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "=" . ( is_array($smart_array) ? "array" : "empty" ) . "");
-					$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "CMD: smartctl $smart_standby_cmd -x --json --quietmode=silent " . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" .
+					$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "CMD: smartctl $smart_standby_cmd -x --json " . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" .
 					$unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . "");
 					$smart_lun = "";
 
@@ -353,7 +371,7 @@
 							}
 						}
 						
-						if(isset($smart_array["serial_number"]) && $smart_model_name) {
+						if(isset($smart_array["serial_number"]) && $smart_model_name && !$skip_force_update) {
 							$update[$deviceid[$i]] = array( // overwrite selected values
 								"device" => ($lsscsi_device[$i] ?? null),
 								"devicenode" => ($lsscsi_devicenode[$i] ?? null),
@@ -372,7 +390,8 @@
 								"endurance" => $smart_endurance_used,
 								"loadcycle" => $smart_loadcycle,
 								"powerontime" => ( (!empty($smart_poweronhours) && $smart_poweronhours < $smart_array["power_on_time"]["hours"]) ? $smart_poweronhours : $smart_array["power_on_time"]["hours"] ),
-								"status" => ( !file_exists(DISKLOCATION_DEVICES) ? 'h' : $devices_current[$deviceid[$i]]["status"] )
+								"status" => ( !file_exists(DISKLOCATION_DEVICES) ? 'h' : $devices_current[$deviceid[$i]]["status"] ),
+								"errors" => ($smart_error_msg ?? null)
 							);
 							$devices_updates = array_replace_recursive($devices_current, $update);
 							
