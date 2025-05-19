@@ -266,7 +266,7 @@
 					$smart_array_messages = is_array($smart_array["smartctl"]["messages"]) ? $smart_array["smartctl"]["messages"] : null;
 					$skip_force_update = 0;
 					unset($smart_error_msg);
-					if(is_array($smart_array_messages)) {
+					if(is_array($smart_array_messages) && $smart_powermode_status != "UNKNOWN" && empty($smart_model_name) && empty($smart_array["serial_number"])) {
 						if(empty($smart_array["serial_number"]) && empty($smart_model_name)) {
 							for($ierr=0;$ierr<count($smart_array_messages);$ierr++) {
 								if($smart_array_messages[$ierr]["severity"] == "error") {
