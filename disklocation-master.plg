@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2025.05.XX
+ - Commit #427 - MINOR: Benchmark for removed devices visible. Hide benchmark for removed devices, these can still be retrieved by raw download.
+
 ###2025.05.19
  - Commit #425 - BUG: Flash devices etc. alerted falsely. Added more SMART checks to prevent this from happening.
 
