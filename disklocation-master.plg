@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.05.17">
+<!ENTITY version          "2025.05.19">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2025.05.19
+ - Commit #425 - BUG: Flash devices etc. alerted falsely. Added more SMART checks to prevent this from happening.
+
 ###2025.05.17
  - Commit #423 - MINOR: Other irrelevant errors occured in SMART tab. Rearranged the code.
  - Commit #422 - ENHANCEMENT: Added notification when a major device error occurs. E.g. If the drive loses it's controller, send an alert notification in Unraid about it.
