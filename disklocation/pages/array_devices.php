@@ -83,12 +83,6 @@
 		$devices[$hash]["formatted"]["formfactor"] = str_replace(" inches", "\"", $devices[$hash]["raw"]["formfactor"]);
 		$devices[$hash]["raw"]["cache"] = $data["smart_cache"];
 		$devices[$hash]["formatted"]["cache"] = "" . ( $devices[$hash]["raw"]["cache"] ? $devices[$hash]["raw"]["cache"] . "MB" : null );
-		$devices[$hash]["raw"]["loadcycle"] = $data["loadcycle"];
-		$devices[$hash]["formatted"]["loadcycle"] = ( !is_numeric($devices[$hash]["raw"]["loadcycle"]) ? null : $devices[$hash]["raw"]["loadcycle"] . "" );
-		$devices[$hash]["raw"]["powerontime_hours"] = $data["powerontime"];
-		$devices[$hash]["formatted"]["powerontime_hours"] = ( !is_numeric($devices[$hash]["raw"]["powerontime_hours"]) ? null : "" . $devices[$hash]["raw"]["powerontime_hours"] . "" );
-		$devices[$hash]["raw"]["powerontime"] = $devices[$hash]["raw"]["powerontime_hours"];
-		$devices[$hash]["formatted"]["powerontime"] = ( !is_numeric($devices[$hash]["raw"]["powerontime"]) ? null : seconds_to_time($devices[$hash]["raw"]["powerontime"] * 60 * 60) );
 		$devices[$hash]["raw"]["installed"] = $data["installed"];
 		$devices[$hash]["formatted"]["installed"] = $devices[$hash]["raw"]["installed"];
 		$devices[$hash]["raw"]["removed"] = $data["removed"];
@@ -140,16 +134,50 @@
 		$dev_calc_unit_size = ( $devices[$hash]["raw"]["rotation"] == -1 ? 32 : $devices[$hash]["raw"]["logical_block_size"] );
 		$dev_calc_unit_factor = ( $devices[$hash]["raw"]["rotation"] == -1 ? 1024*1024 : 1000 );
 		
-		$devices[$hash]["raw"]["smart_units_read"] = ( ($devices[$hash]["raw"]["rotation"] < 0) ? smart_units_to_bytes(($data["smart_units_read"] ? $data["smart_units_read"] : 0), $dev_calc_unit_size, $dev_calc_unit_factor) : smart_units_to_bytes(($data["smart_units_read"] ? $data["smart_units_read"] : 0), $dev_calc_unit_size, $dev_calc_unit_factor, true) );
+		if(isset($smart_array["nvme_smart_health_information_log"])) {
+			$smart_units_read = ( $smart_array["nvme_smart_health_information_log"]["data_units_read"] < $data["smart_units_read"] ? $data["smart_units_read"] : $smart_array["nvme_smart_health_information_log"]["data_units_read"] );
+			$smart_units_written = ( $smart_array["nvme_smart_health_information_log"]["data_units_written"] < $data["smart_units_written"] ? $data["smart_units_written"] : $smart_array["nvme_smart_health_information_log"]["data_units_written"] );
+		}
+		if(isset($smart_array["ata_smart_attributes"]["table"])) {
+			$smart_i = 0;
+			while($smart_i < count($smart_array["ata_smart_attributes"]["table"])) {
+				if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Power_On_Hours") {			// ID 9
+					$smart_poweronhours = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"] ?? 0;
+					$smart_poweronhours = ( $smart_poweronhours < $data["powerontime"] ? $data["powerontime"] : $smart_poweronhours );
+				}
+				if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Load_Cycle_Count") {			// ID 193
+					$smart_loadcycle = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"] ?? 0;
+					$smart_loadcycle = ( $smart_loadcycle < $data["smart_loadcycle"] ? $data["smart_loadcycle"] : $smart_loadcycle );
+				}
+				if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Total_LBAs_Written") {			// ID 241
+					$smart_units_written = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"] ?? null;
+					$smart_units_written = ( $smart_units_written < $data["smart_units_written"] ? $data["smart_units_written"] : $smart_units_written );
+				}
+				if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Total_LBAs_Read") {			// ID 242
+					$smart_units_read = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"] ?? null;
+					$smart_units_read = ( $smart_units_read < $data["smart_units_read"] ? $data["smart_units_read"] : $smart_units_read );
+				}
+				
+				$smart_i++;
+			}
+		}
+		
+		$smart_poweronhours = (!empty($smart_poweronhours) && $smart_poweronhours < $smart_array["power_on_time"]["hours"]) ? $smart_poweronhours : $smart_array["power_on_time"]["hours"];
+		
+		$devices[$hash]["raw"]["loadcycle"] = $smart_loadcycle;
+		$devices[$hash]["formatted"]["loadcycle"] = ( !is_numeric($devices[$hash]["raw"]["loadcycle"]) ? null : $devices[$hash]["raw"]["loadcycle"] . "" );
+		$devices[$hash]["raw"]["powerontime_hours"] = $smart_poweronhours;
+		$devices[$hash]["formatted"]["powerontime_hours"] = ( !is_numeric($devices[$hash]["raw"]["powerontime_hours"]) ? null : "" . $devices[$hash]["raw"]["powerontime_hours"] . "" );
+		$devices[$hash]["raw"]["powerontime"] = $devices[$hash]["raw"]["powerontime_hours"];
+		$devices[$hash]["formatted"]["powerontime"] = ( !is_numeric($devices[$hash]["raw"]["powerontime"]) ? null : seconds_to_time($devices[$hash]["raw"]["powerontime"] * 60 * 60) );
+		
+		$devices[$hash]["raw"]["smart_units_read"] = ( ($devices[$hash]["raw"]["rotation"] < 0) ? smart_units_to_bytes(($smart_units_read ? $smart_units_read : 0), $dev_calc_unit_size, $dev_calc_unit_factor) : smart_units_to_bytes(($smart_units_read ? $smart_units_read : 0), $dev_calc_unit_size, $dev_calc_unit_factor, true) );
 		$devices[$hash]["formatted"]["smart_units_read"] = human_filesize($devices[$hash]["raw"]["smart_units_read"], 1, true);
 		
-		$devices[$hash]["raw"]["smart_units_written"] = ( ($devices[$hash]["raw"]["rotation"] < 0) ? smart_units_to_bytes(($data["smart_units_written"] ? $data["smart_units_written"] : 0), $dev_calc_unit_size, $dev_calc_unit_factor) : smart_units_to_bytes(($data["smart_units_written"] ? $data["smart_units_written"] : 0), $dev_calc_unit_size, $dev_calc_unit_factor, true) );
+		$devices[$hash]["raw"]["smart_units_written"] = ( ($devices[$hash]["raw"]["rotation"] < 0) ? smart_units_to_bytes(($smart_units_written ? $smart_units_written : 0), $dev_calc_unit_size, $dev_calc_unit_factor) : smart_units_to_bytes(($smart_units_written ? $smart_units_written : 0), $dev_calc_unit_size, $dev_calc_unit_factor, true) );
 		$devices[$hash]["formatted"]["smart_units_written"] = human_filesize($devices[$hash]["raw"]["smart_units_written"], 1, true);
 		
 		// SMART data to be parsed on deeper level:
-		if(isset($smart_array["device"]["protocol"]) && $smart_array["device"]["protocol"] == "SCSI") {
-			$smart_loadcycle = ( is_array($smart_array["accumulated_load_unload_cycles"]) ?? $smart_array["accumulated_load_unload_cycles"] );
-		}
 		$smart_errors = array();
 		$unraid_smart_arr = explode("|", empty($unraid_array[$devicenode]["smEvents"]) ? $get_global_smEvents : $unraid_array[$devicenode]["smEvents"] );
 		$smart_status = $devices[$hash]["raw"]["smart_status"];
