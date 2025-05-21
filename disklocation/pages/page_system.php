@@ -301,6 +301,15 @@
 		}
 		
 		if($type == "reset") {
+			if($operation == "temp") {
+				if(file_exists(DISKLOCATION_TMP_PATH . "/smart")) {
+					array_map('unlink', glob(DISKLOCATION_TMP_PATH . "/smart/*.json"));
+					rmdir(DISKLOCATION_TMP_PATH . "/smart");
+				}
+				file_exists(DISKLOCATION_TMP_PATH . "/powermode.json") ? unlink(DISKLOCATION_TMP_PATH . "/powermode.json") : null;
+				file_exists(DISKLOCATION_TMP_PATH . "/lsblk.json") ? unlink(DISKLOCATION_TMP_PATH . "/lsblk.json") : null;
+				file_exists(DISKLOCATION_TMP_PATH . "/zpool_status.dat") ? unlink(DISKLOCATION_TMP_PATH . "/zpool_status.dat") : null;
+			}
 			if($operation == "settings" || $operation == "all" || $operation == "wipe") {
 				file_exists(DISKLOCATION_CONF) ? unlink(DISKLOCATION_CONF) : null;
 			}
@@ -575,6 +584,7 @@
 		<h3>Plugin reset</h3>
 		<form action=\"" . DISKLOCATION_PATH . "/pages/page_system.php\" method=\"" . (!strstr($_SERVER["SCRIPT_NAME"], "page_system.php") ? "post" : "get" ) . "\">
 			<input type=\"radio\" name=\"reset_op\" value=\"\" checked=\"checked\" /> none
+			" . ( file_exists(DISKLOCATION_TMP_PATH . "/smart") ? "<input type=\"radio\" name=\"reset_op\" value=\"temp\" /> temporary files" : null ) . "
 			" . ( file_exists(DISKLOCATION_CONF) ? "<input type=\"radio\" name=\"reset_op\" value=\"settings\" /> configuration" : null ) . "
 			" . ( file_exists(DISKLOCATION_GROUPS) ? "<input type=\"radio\" name=\"reset_op\" value=\"groups\" /> layout (includes tray allocations)" : null ) . "
 			" . ( file_exists(DISKLOCATION_LOCATIONS) ? "<input type=\"radio\" name=\"reset_op\" value=\"locations\" /> tray allocations" : null ) . "
