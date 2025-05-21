@@ -29,6 +29,7 @@
 	( is_array($array_groups) ?? ksort($array_groups, SORT_NUMERIC) );
 	$array_devices = $get_devices;
 	$array_locations = $get_locations;
+	$array_trayid = array();
 	
 	$select_db_devices = ( !empty($select_db_devices) ? $select_db_devices : $select_db_devices_default );
 	
@@ -226,18 +227,22 @@
 						$add_empty_physical_tray_order = $empty_tray;
 					}
 					
+					if(!$hide_tray[$tray_assign]) {
+						$array_trayid[$gid][$tray_assign] = ( !empty($add_empty_physical_tray_order) ? $add_empty_physical_tray_order : $empty_tray );
+					}
+					
 					$disklocation_alloc[$gid] .= "
 						<div style=\"order: " . $tray_assign . "\">
 							" . ( $hide_tray[$tray_assign] ? "<!--" : null ) . "
 							<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
 								<div style=\"background-color: #" . $color_array["empty"] . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
 									<div class=\"flex-container-start\" style=\"/*min-height: 15px;*/\">
-										<b><span style=\"color: #FF0000;\">$tray_assign</span></b>
+										<b>" .  ( (!$count_bypass_tray && $hide_tray[$tray_assign]) ? "" : $empty_tray ) . "</b>
 									</div>
 									<div class=\"flex-container-middle_" . $disk_tray_direction . "\">
 									</div>
 									<div class=\"flex-container-end\" style=\"font-size: xx-small;\">
-										" . $add_empty_physical_tray_order . "
+										
 									</div>
 								</div>
 							</div>
@@ -461,17 +466,20 @@
 						$add_physical_tray_order = $physical_traynumber;
 					}
 					
+					$array_trayid[$gid][$drive_tray_order[$hash]] = ( !empty($add_physical_tray_order) ? $add_physical_tray_order : $physical_traynumber );
+					
 					$disklocation_alloc[$gid] .= "
 						<div style=\"order: " . $drive_tray_order[$hash] . "\">
 							<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
 								<div id=\"bg3-" . $device . "\" class=\"\" style=\"background-color: #" . $color_array[$hash] . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
 									<div class=\"flex-container-start\" style=\"/*min-height: 15px;*/\">
-										<b>" . $drive_tray_order[$hash] . "</b>
+										<b>" . $physical_traynumber . "</b>
+										<!--<b>" . $drive_tray_order[$hash] . "</b>-->
 									</div>
 									<div class=\"flex-container-middle_" . $disk_tray_direction . "\">
 									</div>
 									<div class=\"flex-container-end\" style=\"font-size: xx-small;\">
-										" . $add_physical_tray_order . "
+										<!--" . $add_physical_tray_order . "-->
 									</div>
 								</div>
 							</div>
@@ -533,6 +541,8 @@
 			unset($datajson); // delete array
 		}
 	}
+	
+	$debug_log = debug($debug, basename(__FILE__), __LINE__, "array_trayid", $array_trayid);
 	
 	$disklocation_page_out = "";
 	

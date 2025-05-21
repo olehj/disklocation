@@ -347,6 +347,10 @@
 							}
 						}
 						
+						if(isset($smart_array["device"]["protocol"]) && $smart_array["device"]["protocol"] == "SCSI") {
+							$smart_loadcycle = ( is_array($smart_array["accumulated_load_unload_cycles"]) ? $smart_array["accumulated_load_unload_cycles"] : $smart_loadcycle );
+						}
+						
 						$smart_endurance_used = null;
 						if(isset($smart_array["ata_device_statistics"]["pages"])) {
 							$smart_i = 0;

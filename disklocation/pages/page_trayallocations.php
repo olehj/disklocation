@@ -83,6 +83,18 @@
 	}
 	( is_array($raw_devices) ? call_user_func_array('array_multisort', array_merge($sort_dynamic, array(&$raw_devices))) : null );
 	
+	$smallest_tray_group = 99999999;
+	$biggest_tray_group = 0;
+	
+	foreach($array_trayid as $arr_groupid => $arr_trayid) {
+		if($smallest_tray_group > min($arr_trayid) && !is_null($arr_trayid)) {
+			$smallest_tray_group = empty($smallest_tray_group) ? 0 : min($arr_trayid);
+		}
+		if($biggest_tray_group < max($arr_trayid)) {
+			$biggest_tray_group = max($arr_trayid);
+		}
+	}
+	
 	foreach($raw_devices as $key => $data) {
 		if($data["hash"]) {
 			$status = ( !$data["status"] ? 'a' : $data["status"] );
@@ -107,9 +119,10 @@
 			
 			$tray_assign = ( empty($data["tray"]) ? null : $data["tray"] );
 			$tray_options = "";
-			for($tray_i = 1; $tray_i <= $biggest_tray_group; ++$tray_i) {
-				if($tray_assign == $tray_i) { $selected="selected"; } else { $selected=""; }
-				$tray_options .= "<option value=\"$tray_i\" " . $selected . " style=\"text-align: right;\">$tray_i</option>";
+			
+			for($tray_i = $smallest_tray_group; $tray_i <= $biggest_tray_group; ++$tray_i) {
+				if($array_trayid[$gid][$tray_assign] == $tray_i) { $selected="selected"; } else { $selected=""; }
+				$tray_options .= "<option value=\"" . $tray_i . "\" " . $selected . " style=\"text-align: right;\">" . $tray_i . "</option>";
 			}
 			
 			$group_options = "";
@@ -349,8 +362,12 @@
 								The <i class="fa fa-minus-circle fa-lg"></i> button will force the drive to be moved to the "History" section below. Use this if you have false drive(s) in your list.
 								If you accidentally click the button on the wrong drive you have to do a "Force SMART+DB" and reassign the drive.
 							</p>
-							<p style="color: red; padding: 0 0 30px 0;"><b>OBS! When allocating drives you must use the TrayID numbers shown in red bold and not the physical tray assignment shown on the right/bottom (these are only shown if the numbers differ).</b>
-							<?php ( !empty($device_bg_color) ?? print("<br />Custom Color is disabled when \"Heat Map\" is used.") ); ?>
+							
+							<p style="color: red; padding: 0 0 30px 0;">
+								<!--
+								<b>OBS! When allocating drives you must use the TrayID numbers shown in red bold and not the physical tray assignment shown on the right/bottom (these are only shown if the numbers differ).</b>
+								-->
+								<?php ( !empty($device_bg_color) ?? print("<!--<br />-->Custom Color is disabled when \"Heat Map\" is used.") ); ?>
 							</p>
 						</td>
 					</tr>
@@ -431,6 +448,7 @@
 								<dd>Click the "Force Stop All Locate" button to kill the locating function.</dd>
 							</blockquote>
 							<hr />
+							<input type="hidden" name="array_trayid" value="<?php print(serialize($array_trayid)) ?>" />
 							<input type="submit" name="save_allocations" value="Save" />
 							<span style="padding-left: 50px;"></span>
 							<input type="submit" name="killall_smartlocate" value="Force Stop All Locate" />

@@ -75,7 +75,7 @@
 	
 	foreach($raw_devices as $hash => $data) { // array as hash => array(raw/formatted)
 		$hash = $data["hash"];
-		if(!empty($devices[$hash]["benchmark"])) {
+		if(!empty($devices[$hash]["benchmark"]) && empty($devices[$hash]["raw"]["status"])) {
 			$benchmark = array();
 			//$speed_values = array_slice($devices[$hash]["benchmark"], $bench_last_values);
 			$speed_values = $devices[$hash]["benchmark"];

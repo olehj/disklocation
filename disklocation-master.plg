@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.05.19">
+<!ENTITY version          "2025.05.22">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,12 @@
 -->
 
 <CHANGES>
+###2025.05.22
+ - Commit #430 - IMPROVEMENT: Assignments are now done with physical tray layout, and not TrayID (it's still TrayID under the hood, but hidden from GUI).
+ - Commit #429 - IMPROVEMENT: Added possibility to reset temporary files. Reset "temporary files" under System tab will now delete SMART data and others in the tmp. Force SMART required after execution.
+ - Commit #428 - ENHANCEMENT: Fetch more data from SMART files rather than DB. SMART files in temp folders holds more recent data, so this will be prioritized when reading increasing parameters.
+ - Commit #427 - MINOR: Benchmark for removed devices visible. Hide benchmark for removed devices, these can still be retrieved by raw download.
+
 ###2025.05.19
  - Commit #425 - BUG: Flash devices etc. alerted falsely. Added more SMART checks to prevent this from happening.
 

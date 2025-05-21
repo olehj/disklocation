@@ -265,6 +265,7 @@
 		// trays
 		$post_drives = $_POST["drives"];
 		$post_groups = $_POST["groups"];
+		$array_trayid = unserialize($_POST["array_trayid"]);
 		$array_devices = $get_devices;
 		$array_locations = $get_locations;
 		$array_groups = $get_groups;
@@ -275,12 +276,14 @@
 			
 			$keys_drives = array_keys($post_drives);
 			for($i=0; $i < count($keys_drives); ++$i) {
-				$tray_assign = ( empty($post_drives[$keys_drives[$i]]) ? null : $post_drives[$keys_drives[$i]] );
+				//$tray_assign = ( empty($post_drives[$keys_drives[$i]]) ? null : $post_drives[$keys_drives[$i]] );
+				$tray_assign = array_search($post_drives[$keys_drives[$i]], $array_trayid[$post_groups[$keys_drives[$i]]]);
 				$group_assign = ( empty($post_groups[$keys_drives[$i]]) ? null : $post_groups[$keys_drives[$i]] );
 				
 				$array_devices[$keys_drives[$i]]["status"] = 'h'; // force all to be unassigned while allocating
 				
 				if(!$tray_assign || !$group_assign) {
+					$disklocation_error[] = "Tray " . $post_drives[$keys_drives[$i]] . " in group " . $group_assign . " can't be assigned due to invalid configuration.";
 					unset($array_locations[$keys_drives[$i]]);
 				}
 				else {
@@ -288,7 +291,7 @@
 					$array_locations[$keys_drives[$i]]["tray"] = $tray_assign;
 					
 					if(!empty($array_groups[$group_assign]["hide_tray"][$tray_assign])) {
-						$disklocation_error[] = "Tray " . $tray_assign . " in group " . $group_assign . " is marked as bypassed. Drive can't be assigned.";
+						$disklocation_error[] = "Tray " . $post_drives[$keys_drives[$i]] . " in group " . $group_assign . " is marked as bypassed. Drive can't be assigned.";
 						unset($array_locations[$keys_drives[$i]]);
 					}
 				}
