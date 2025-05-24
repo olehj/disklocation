@@ -277,7 +277,7 @@
 			$keys_drives = array_keys($post_drives);
 			for($i=0; $i < count($keys_drives); ++$i) {
 				//$tray_assign = ( empty($post_drives[$keys_drives[$i]]) ? null : $post_drives[$keys_drives[$i]] );
-				$tray_assign = array_search($post_drives[$keys_drives[$i]], $array_trayid[$post_groups[$keys_drives[$i]]]);
+				$tray_assign = ( !empty($post_drives[$keys_drives[$i]]) ? array_search($post_drives[$keys_drives[$i]], $array_trayid[$post_groups[$keys_drives[$i]]]) : null );
 				$group_assign = ( empty($post_groups[$keys_drives[$i]]) ? null : $post_groups[$keys_drives[$i]] );
 				
 				$array_devices[$keys_drives[$i]]["status"] = 'h'; // force all to be unassigned while allocating
