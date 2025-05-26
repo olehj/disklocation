@@ -262,173 +262,177 @@
 					
 					$deviceid[$i] = hash('sha256', $smart_model_name . ( isset($smart_array["serial_number"]) ? $smart_array["serial_number"] : null));
 					
-					// If error messages exists, try to find device in case of a controller failure
-					$smart_array_messages = is_array($smart_array["smartctl"]["messages"]) ? $smart_array["smartctl"]["messages"] : null;
-					$skip_force_update = 0;
-					unset($smart_error_msg);
-					if(is_array($smart_array_messages) && $smart_powermode_status != "UNKNOWN" && empty($smart_model_name) && empty($smart_array["serial_number"])) {
-						if(empty($smart_array["serial_number"]) && empty($smart_model_name)) {
-							for($ierr=0;$ierr<count($smart_array_messages);$ierr++) {
-								if($smart_array_messages[$ierr]["severity"] == "error") {
-									$smart_error_msg[$ierr] = $smart_array_messages[$ierr]["string"];
-								}
-							}
-							
-							$deviceid[$i] = recursive_array_search($lsscsi_devicenode[$i], $get_devices);
-							$smart_array["serial_number"] = $get_devices[$deviceid[$i]]["smart_serialnumber"];
-							$smart_model_name = $get_devices[$deviceid[$i]]["model_name"];
-							$skip_force_update = 1;
-							$get_notifications = json_decode(shell_exec("/usr/local/emhttp/webGui/scripts/notify get"), true);
-							
-							if(!empty($deviceid[$i]) && recursive_array_search("" . $smart_model_name . " " . $smart_array["serial_number"] . "", $get_notifications) === false) { // only send notification if it doesn't exists:
-								shell_exec("/usr/local/emhttp/webGui/scripts/notify -e \"Disk Location: " . $lsscsi_devicenode[$i] . "\" -s \"Alert - Device failure\" -d \"" . $smart_model_name . " " . $smart_array["serial_number"] . "\" -i \"alert\" -m \"" . implode(", ", $smart_error_msg) . "\"");
-							}
-							$smart_output = "SMART: " . str_pad($lsscsi_devicenodesg[$i], 20) . " FAILED   ";
-							print($smart_output);
-							$smart_log .= $smart_output;
-						}
-					}
-					
-					if((!isset($argv) || !in_array("silent", $argv)) && !$skip_force_update) {
-						$smart_output = "SMART: " . str_pad($lsscsi_devicenodesg[$i], 20) . " " . str_pad($smart_powermode_status, 8) . " ";
-						print($smart_output);
-						$smart_log .= "[" . date("Y-m-d H:i:s") . "] " . $smart_output;
-					}
-					
-					// store files in /tmp
-					if(isset($smart_array["serial_number"]) && $smart_model_name) {
-						$filename_smart_data_tmp = DISKLOCATION_TMP_PATH."/smart/".str_replace(" ", "_", $smart_model_name)."_" . $smart_array["serial_number"] . ".json";
-						file_put_contents($filename_smart_data_tmp, $smart_cmd[$i]);
-					}
-					
-					$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "=" . ( is_array($smart_array) ? "array" : "empty" ) . "");
-					$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "CMD: smartctl $smart_standby_cmd -x --json " . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" .
-					$unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . "");
-					$smart_lun = "";
-
-					if(!isset($argv) || !in_array("silent", $argv)) {
-						$smart_output = str_pad("(" . substr($deviceid[$i], -10) . ")", 14);
-						print($smart_output);
-						$smart_log .= $smart_output;
-					}
-					if(!empty($unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"])) {
-						if(!isset($argv) || !in_array("silent", $argv)) {
-							$smart_output = str_pad("CTRL CMD: " . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " ", 30);
-							print($smart_output);
-							$smart_log .= $smart_output;
-						}
-					}
-					
-					if($force_scan_db) {
-						$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "#:" . $i . ":" . $deviceid[$i] . "");
-						
-						$smart_model_family = ( $smart_array["scsi_product"] ? $smart_array["scsi_product"] : ( $smart_array["product"] ?: $smart_array["model_family"] ) );
-						$smart_cache = get_smart_cache("" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . "");
-						
-						$smart_units_read = $smart_array["nvme_smart_health_information_log"]["data_units_read"];
-						$smart_units_written = $smart_array["nvme_smart_health_information_log"]["data_units_written"];
-						if(isset($smart_array["ata_smart_attributes"]["table"])) {
-							$smart_i = 0;
-							while($smart_i < count($smart_array["ata_smart_attributes"]["table"])) {
-								if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Power_On_Hours") {			// ID 9
-									$smart_poweronhours = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"] ?? 0;
-								}
-								if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Load_Cycle_Count") {			// ID 193
-									$smart_loadcycle = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"] ?? 0;
-								}
-								if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Total_LBAs_Written") {			// ID 241
-									$smart_units_written = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"] ?? null;
-								}
-								if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Total_LBAs_Read") {			// ID 242
-									$smart_units_read = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"] ?? null;
+					// skip if no device id exists
+					if(!empty($deviceid[$i])) {
+						// If error messages exists, try to find device in case of a controller failure
+						$smart_array_messages = is_array($smart_array["smartctl"]["messages"]) ? $smart_array["smartctl"]["messages"] : null;
+						$skip_force_update = 0;
+						unset($smart_error_msg);
+						if(is_array($smart_array_messages) && $smart_powermode_status != "UNKNOWN" && empty($smart_model_name) && empty($smart_array["serial_number"])) {
+							if(empty($smart_array["serial_number"]) && empty($smart_model_name)) {
+								for($ierr=0;$ierr<count($smart_array_messages);$ierr++) {
+									if($smart_array_messages[$ierr]["severity"] == "error") {
+										$smart_error_msg[$ierr] = $smart_array_messages[$ierr]["string"];
+									}
 								}
 								
-								$smart_i++;
+								$deviceid[$i] = recursive_array_search($lsscsi_devicenode[$i], $get_devices);
+								$smart_array["serial_number"] = $get_devices[$deviceid[$i]]["smart_serialnumber"];
+								$smart_model_name = $get_devices[$deviceid[$i]]["model_name"];
+								$skip_force_update = 1;
+								$get_notifications = json_decode(shell_exec("/usr/local/emhttp/webGui/scripts/notify get"), true);
+								
+								if(!empty($deviceid[$i]) && recursive_array_search("" . $smart_model_name . " " . $smart_array["serial_number"] . "", $get_notifications) === false) { // only send notification if it doesn't exists:
+									shell_exec("/usr/local/emhttp/webGui/scripts/notify -e \"Disk Location: " . $lsscsi_devicenode[$i] . "\" -s \"Alert - Device failure\" -d \"" . $smart_model_name . " " . $smart_array["serial_number"] . "\" -i \"alert\" -m \"" . implode(", ", $smart_error_msg) . "\"");
+								}
+								$smart_output = "SMART: " . str_pad($lsscsi_devicenodesg[$i], 20) . " FAILED   ";
+								print($smart_output);
+								$smart_log .= $smart_output;
 							}
 						}
 						
-						if(isset($smart_array["device"]["protocol"]) && $smart_array["device"]["protocol"] == "SCSI") {
-							$smart_loadcycle = ( is_array($smart_array["accumulated_load_unload_cycles"]) ? $smart_array["accumulated_load_unload_cycles"] : $smart_loadcycle );
+						if((!isset($argv) || !in_array("silent", $argv)) && !$skip_force_update) {
+							$smart_output = "SMART: " . str_pad($lsscsi_devicenodesg[$i], 20) . " " . str_pad($smart_powermode_status, 8) . " ";
+							print($smart_output);
+							$smart_log .= "[" . date("Y-m-d H:i:s") . "] " . $smart_output;
 						}
 						
-						$smart_endurance_used = null;
-						if(isset($smart_array["ata_device_statistics"]["pages"])) {
-							$smart_i = 0;
-							while($smart_i < count($smart_array["ata_device_statistics"]["pages"])) {
-								if($smart_array["ata_device_statistics"]["pages"][$smart_i]["name"] == "Solid State Device Statistics") {
-									$smart_ssd_stats = ( isset($smart_array["ata_device_statistics"]["pages"][$smart_i]["table"]) ? $smart_array["ata_device_statistics"]["pages"][$smart_i]["table"] : null );
-									if(isset($smart_ssd_stats)) {
-										foreach($smart_ssd_stats as $id => $value) {
-											if($value["name"] == "Percentage Used Endurance Indicator") {
-												$smart_endurance_used = 100-$value["value"];
+						// store files in /tmp
+						if(isset($smart_array["serial_number"]) && $smart_model_name) {
+							$filename_smart_data_tmp = DISKLOCATION_TMP_PATH."/smart/".str_replace(" ", "_", $smart_model_name)."_" . $smart_array["serial_number"] . ".json";
+							file_put_contents($filename_smart_data_tmp, $smart_cmd[$i]);
+						}
+						
+						$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "#:" . $i . "|DEV:" . $lsscsi_device[$i] . "=" . ( is_array($smart_array) ? "array" : "empty" ) . "");
+						$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "CMD: smartctl $smart_standby_cmd -x --json " . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" .
+						$unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . "");
+						$smart_lun = "";
+
+						if(!isset($argv) || !in_array("silent", $argv)) {
+							$smart_output = str_pad("(" . substr($deviceid[$i], -10) . ")", 14);
+							print($smart_output);
+							$smart_log .= $smart_output;
+						}
+						if(!empty($unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"])) {
+							if(!isset($argv) || !in_array("silent", $argv)) {
+								$smart_output = str_pad("CTRL CMD: " . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " ", 30);
+								print($smart_output);
+								$smart_log .= $smart_output;
+							}
+						}
+						
+						if($force_scan_db) {
+							$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "#:" . $i . ":" . $deviceid[$i] . "");
+							
+							$smart_model_family = ( $smart_array["scsi_product"] ? $smart_array["scsi_product"] : ( $smart_array["product"] ?: $smart_array["model_family"] ) );
+							$smart_cache = get_smart_cache("" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . " " . ( !preg_match("/dev/", "foo-" . $unraid_array[$lsscsi_devicenode[$i]]["smart_controller_cmd"] . "") ? $lsscsi_devicenodesg[$i] : "" ) . "");
+							
+							$smart_units_read = $smart_array["nvme_smart_health_information_log"]["data_units_read"];
+							$smart_units_written = $smart_array["nvme_smart_health_information_log"]["data_units_written"];
+							if(isset($smart_array["ata_smart_attributes"]["table"])) {
+								$smart_i = 0;
+								while($smart_i < count($smart_array["ata_smart_attributes"]["table"])) {
+									if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Power_On_Hours") {			// ID 9
+										$smart_poweronhours = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"] ?? 0;
+									}
+									if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Load_Cycle_Count") {			// ID 193
+										$smart_loadcycle = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"] ?? 0;
+									}
+									if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Total_LBAs_Written") {			// ID 241
+										$smart_units_written = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"] ?? null;
+									}
+									if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Total_LBAs_Read") {			// ID 242
+										$smart_units_read = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"] ?? null;
+									}
+									
+									$smart_i++;
+								}
+							}
+							
+							if(isset($smart_array["device"]["protocol"]) && $smart_array["device"]["protocol"] == "SCSI") {
+								$smart_loadcycle = ( is_array($smart_array["accumulated_load_unload_cycles"]) ? $smart_array["accumulated_load_unload_cycles"] : $smart_loadcycle );
+							}
+							
+							$smart_endurance_used = null;
+							if(isset($smart_array["ata_device_statistics"]["pages"])) {
+								$smart_i = 0;
+								while($smart_i < count($smart_array["ata_device_statistics"]["pages"])) {
+									if($smart_array["ata_device_statistics"]["pages"][$smart_i]["name"] == "Solid State Device Statistics") {
+										$smart_ssd_stats = ( isset($smart_array["ata_device_statistics"]["pages"][$smart_i]["table"]) ? $smart_array["ata_device_statistics"]["pages"][$smart_i]["table"] : null );
+										if(isset($smart_ssd_stats)) {
+											foreach($smart_ssd_stats as $id => $value) {
+												if($value["name"] == "Percentage Used Endurance Indicator") {
+													$smart_endurance_used = 100-$value["value"];
+												}
 											}
 										}
 									}
+									$smart_i++;
 								}
-								$smart_i++;
 							}
-						}
-						
-						$smart_endurance_used = ( isset($smart_array["nvme_smart_health_information_log"]["percentage_used"]) ? 100-$smart_array["nvme_smart_health_information_log"]["percentage_used"] : $smart_endurance_used );
-						$devices[$hash]["formatted"]["endurance"] = ( isset($devices[$hash]["raw"]["endurance"]) ? $devices[$hash]["raw"]["endurance"] . "%" : null );
-						
-						$nvme_temp = array();
-						if(isset($smart_array["device"]["type"]) && $smart_array["device"]["type"] == "nvme") {
-							$nvme_cmd = shell_exec("nvme id-ctrl $lsscsi_devicenodesg[$i] | grep temp");
-							if(!empty($nvme_cmd)) {
-								list($wctemp_line, $cctemp_line) = explode("\n", $nvme_cmd);
-								list($foo, $wctemp) = explode(":", $wctemp_line);
-								list($foo, $cctemp) = explode(":", $cctemp_line);
-								$nvme_temp["wctemp"] = (float)round(temperature_conv(trim($wctemp), 'K', 'C'));
-								$nvme_temp["cctemp"] = (float)round(temperature_conv(trim($cctemp), 'K', 'C'));
-							}
-						}
-						
-						if(isset($smart_array["serial_number"]) && $smart_model_name && !$skip_force_update) {
-							$update[$deviceid[$i]] = array( // overwrite selected values
-								"device" => ($lsscsi_device[$i] ?? null),
-								"devicenode" => ($lsscsi_devicenode[$i] ?? null),
-								"manufacturer" => ($smart_array["model_family"] ?? null),
-								"model_name" => ( empty($devices_current[$deviceid[$i]]["model_name"]) ? $smart_model_name : $devices_current[$deviceid[$i]]["model_name"] ),
-								"smart_serialnumber" => ( empty($devices_current[$deviceid[$i]]["smart_serialnumber"]) ? $smart_array["serial_number"] : $devices_current[$deviceid[$i]]["smart_serialnumber"] ),
-								"capacity" => ($smart_array["user_capacity"]["bytes"] ?? null),
-								"rotation" => ( empty($smart_array["rotation_rate"]) && recursive_array_search("Solid State Device Statistics", $smart_array) ? -1 : ( isset($smart_array["device"]["type"]) && $smart_array["device"]["type"] == "nvme" ? -2 : $smart_array["rotation_rate"] )),
-								"formfactor" => ($smart_array["form_factor"]["name"] ?? null),
-								"smart_cache" => ($smart_cache ?? null),
-								"logical_block_size" => $smart_array["logical_block_size"],
-								"smart_units_read" => $smart_units_read,
-								"smart_units_written" => $smart_units_written,
-								"nvme_wctemp" => ($nvme_temp["wctemp"] > 0 ? $nvme_temp["wctemp"] : null),
-								"nvme_cctemp" => ($nvme_temp["cctemp"] > 0 ? $nvme_temp["cctemp"] : null),
-								"endurance" => $smart_endurance_used,
-								"loadcycle" => $smart_loadcycle,
-								"powerontime" => ( (!empty($smart_poweronhours) && $smart_poweronhours < $smart_array["power_on_time"]["hours"]) ? $smart_poweronhours : $smart_array["power_on_time"]["hours"] ),
-								"status" => ( !file_exists(DISKLOCATION_DEVICES) ? 'h' : $devices_current[$deviceid[$i]]["status"] ),
-								"errors" => ($smart_error_msg ?? null)
-							);
-							$devices_updates = array_replace_recursive($devices_current, $update);
 							
-							$location[$deviceid[$i]] = array();
-							if(!array_key_exists($deviceid[$i], $locations_current)) { // if device is new or reappered, erase removed input and reset status
-								$location[$deviceid[$i]] = array(
-									"status" => 'h',
-									"removed" => ''
-								);
-							}
-							$location_update = array_replace_recursive($devices_updates, $location);
+							$smart_endurance_used = ( isset($smart_array["nvme_smart_health_information_log"]["percentage_used"]) ? 100-$smart_array["nvme_smart_health_information_log"]["percentage_used"] : $smart_endurance_used );
+							$devices[$hash]["formatted"]["endurance"] = ( isset($devices[$hash]["raw"]["endurance"]) ? $devices[$hash]["raw"]["endurance"] . "%" : null );
 							
-							$new_device[$deviceid[$i]] = array();
-							if(!array_key_exists($deviceid[$i], $devices_current)) { // if device is new and never seen, add installation date:
-								$new_device[$deviceid[$i]] = array(
-									"installed" => date("Y-m-d")
-								);
+							$nvme_temp = array();
+							if(isset($smart_array["device"]["type"]) && $smart_array["device"]["type"] == "nvme") {
+								$nvme_cmd = shell_exec("nvme id-ctrl $lsscsi_devicenodesg[$i] | grep temp");
+								if(!empty($nvme_cmd)) {
+									list($wctemp_line, $cctemp_line) = explode("\n", $nvme_cmd);
+									list($foo, $wctemp) = explode(":", $wctemp_line);
+									list($foo, $cctemp) = explode(":", $cctemp_line);
+									$nvme_temp["wctemp"] = (float)round(temperature_conv(trim($wctemp), 'K', 'C'));
+									$nvme_temp["cctemp"] = (float)round(temperature_conv(trim($cctemp), 'K', 'C'));
+								}
 							}
-							$devices = array_replace_recursive($location_update, $new_device);
-						}
-						else {
-							$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "#:" . $i . ":Invalid SMART information, skipping.");
+							
+							if(isset($smart_array["serial_number"]) && $smart_model_name && !$skip_force_update) {
+								$update[$deviceid[$i]] = array( // overwrite selected values
+									"device" => ($lsscsi_device[$i] ?? null),
+									"devicenode" => ($lsscsi_devicenode[$i] ?? null),
+									"manufacturer" => ($smart_array["model_family"] ?? null),
+									"model_name" => ( empty($devices_current[$deviceid[$i]]["model_name"]) ? $smart_model_name : $devices_current[$deviceid[$i]]["model_name"] ),
+									"smart_serialnumber" => ( empty($devices_current[$deviceid[$i]]["smart_serialnumber"]) ? $smart_array["serial_number"] : $devices_current[$deviceid[$i]]["smart_serialnumber"] ),
+									"capacity" => ($smart_array["user_capacity"]["bytes"] ?? null),
+									"rotation" => ( empty($smart_array["rotation_rate"]) && recursive_array_search("Solid State Device Statistics", $smart_array) ? -1 : ( isset($smart_array["device"]["type"]) && $smart_array["device"]["type"] == "nvme" ? -2 : $smart_array["rotation_rate"] )),
+									"formfactor" => ($smart_array["form_factor"]["name"] ?? null),
+									"smart_cache" => ($smart_cache ?? null),
+									"logical_block_size" => $smart_array["logical_block_size"],
+									"smart_units_read" => $smart_units_read,
+									"smart_units_written" => $smart_units_written,
+									"nvme_wctemp" => ($nvme_temp["wctemp"] > 0 ? $nvme_temp["wctemp"] : null),
+									"nvme_cctemp" => ($nvme_temp["cctemp"] > 0 ? $nvme_temp["cctemp"] : null),
+									"endurance" => $smart_endurance_used,
+									"loadcycle" => $smart_loadcycle,
+									"powerontime" => ( (!empty($smart_poweronhours) && $smart_poweronhours < $smart_array["power_on_time"]["hours"]) ? $smart_poweronhours : $smart_array["power_on_time"]["hours"] ),
+									"status" => ( !file_exists(DISKLOCATION_DEVICES) ? 'h' : $devices_current[$deviceid[$i]]["status"] ),
+									"errors" => ($smart_error_msg ?? null)
+								);
+								$devices_updates = array_replace_recursive($devices_current, $update);
+								
+								$location[$deviceid[$i]] = array();
+								if(!array_key_exists($deviceid[$i], $locations_current)) { // if device is new or reappered, erase removed input and reset status
+									$location[$deviceid[$i]] = array(
+										"status" => 'h',
+										"removed" => ''
+									);
+								}
+								$location_update = array_replace_recursive($devices_updates, $location);
+								
+								$new_device[$deviceid[$i]] = array();
+								if(!array_key_exists($deviceid[$i], $devices_current)) { // if device is new and never seen, add installation date:
+									$new_device[$deviceid[$i]] = array(
+										"installed" => date("Y-m-d")
+									);
+								}
+								$devices = array_replace_recursive($location_update, $new_device);
+							}
+							else {
+								$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "#:" . $i . ":Invalid SMART information, skipping.");
+							}
 						}
 					}
+					$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "#:" . $i . ":No device ID, skipping.");
 				}
 				
 				if(!isset($argv) || !in_array("silent", $argv)) {
