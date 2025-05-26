@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.05.25">
+<!ENTITY version          "2025.05.26">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,10 @@
 -->
 
 <CHANGES>
+###2025.05.26
+ - Commit #438 - MINOR: htmlspecialchars duplicate where it tries to format itself in the group names. Removed htmlspecialchars from the variable to be stored in json array, it's not needed as it is read by htmlspecialchars.
+ - Commit #437 - BUG: Assigning not working and deletes all assigned devices if tray numbers are hidden. Added bypassed variables to the array instead of variables that were unset.
+
 ###2025.05.25
  - Commit #435 - MINOR: Saving tray allocations with unassigned devices throws error messages. Added a check if the variables are empty or not. If the value is empty, then it will be ignored, otherwise throw error for specific configuration.
 
