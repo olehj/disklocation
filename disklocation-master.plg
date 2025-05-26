@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.05.26">
+<!ENTITY version          "2025.05.26b">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -46,6 +46,7 @@
 
 <CHANGES>
 ###2025.05.26
+ - Commit #440 - BUG: Devices with no serial numbers can create an empty array and cause the plugin to crash. Made adjustments into cronjob, deleting "devices" and running Force SMART+DB required afterwards.
  - Commit #438 - MINOR: htmlspecialchars duplicate where it tries to format itself in the group names. Removed htmlspecialchars from the variable to be stored in json array, it's not needed as it is read by htmlspecialchars.
  - Commit #437 - BUG: Assigning not working and deletes all assigned devices if tray numbers are hidden. Added bypassed variables to the array instead of variables that were unset.
 
