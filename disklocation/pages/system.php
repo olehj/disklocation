@@ -233,7 +233,7 @@
 		foreach($_POST as $settings => $array) {
 			foreach($array as $id => $data) {
 				$new_array[$id][$settings] = $data;
-				$new_array[$id]["group_name"] = stripslashes(htmlspecialchars($new_array[$id]["group_name"]));
+				$new_array[$id]["group_name"] = $new_array[$id]["group_name"];
 			}
 		}
 		

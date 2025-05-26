@@ -228,7 +228,7 @@
 					}
 					
 					if(!$hide_tray[$tray_assign]) {
-						$array_trayid[$gid][$tray_assign] = ( !empty($add_empty_physical_tray_order) ? $add_empty_physical_tray_order : $empty_tray );
+						$array_trayid[$gid][$tray_assign] = ( !empty($add_empty_physical_tray_order) ? $add_empty_physical_tray_order : (!is_numeric($tray_number_override[$tray_assign]) ? 0 : $tray_number_override[$tray_assign]) );
 					}
 					
 					$disklocation_alloc[$gid] .= "
@@ -466,7 +466,7 @@
 						$add_physical_tray_order = $physical_traynumber;
 					}
 					
-					$array_trayid[$gid][$drive_tray_order[$hash]] = ( !empty($add_physical_tray_order) ? $add_physical_tray_order : $physical_traynumber );
+					$array_trayid[$gid][$drive_tray_order[$hash]] = ( !empty($add_physical_tray_order) ? $add_physical_tray_order : (!is_numeric($tray_number_override[$drive_tray_order[$hash]]) ? 0 : $tray_number_override[$drive_tray_order[$hash]]) );
 					
 					$disklocation_alloc[$gid] .= "
 						<div style=\"order: " . $drive_tray_order[$hash] . "\">
