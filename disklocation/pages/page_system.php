@@ -354,7 +354,7 @@
 		//print("<meta http-equiv=\"refresh\" content=\"5;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
-	if(isset($_POST["del_backup"] && isset($_POST["backup_file_list"]))) {
+	if(isset($_POST["del_backup"]) && isset($_POST["backup_file_list"])) {
 		disklocation_system("backup", "delete", $_POST["backup_file_list"]);
 		header("Location: " . DISKLOCATION_URL . "");
 		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");
