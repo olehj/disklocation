@@ -432,7 +432,12 @@
 							}
 						}
 					}
-					$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "#:" . $i . ":No device ID, skipping.");
+					else {
+						$powermode[$lsscsi_device[$i]] = "UNKNOWN"; // force UNKNOWN if there's no SMART data.
+						$powermode_ignore[] = $lsscsi_device[$i]; // make an ignore list
+						
+						$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "#:" . $i . ":No device ID, skipping.");
+					}
 				}
 				
 				if(!isset($argv) || !in_array("silent", $argv)) {
@@ -461,6 +466,9 @@
 		
 		if(is_array($powermode) && !empty($powermode)) {
 			config_array(POWERMODE_FILE, 'w', $powermode);
+			if(isset($powermode_ignore)) {
+				config_array(POWERMODE_IGNORE_FILE, 'w', $powermode_ignore);
+			}
 		}
 		
 		if($force_scan_db) {
