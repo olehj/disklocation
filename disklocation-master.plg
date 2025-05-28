@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.05.27">
+<!ENTITY version          "2025.05.28">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,7 +45,11 @@
 -->
 
 <CHANGES>
+###2025.05.38
+ - Commit #444 - BUG: Virtual drives causes dashboard issues due to missing SMART data. Made an ignore list for these devices to prevent slower SMART collecting.
+
 ###2025.05.27
+ - Commit #443 - MINOR: Undefined array key and Passing null to file_exists in page_system #443
  - Commit #432 - BUG: Further enhancements for checking arrays and variables.
 
 ###2025.05.26
