@@ -47,9 +47,9 @@
 <CHANGES>
 ###2025.05.28
  - Commit #444 - BUG: Virtual drives causes dashboard issues due to missing SMART data. Made an ignore list for these devices to prevent slower SMART collecting.
+ - Commit #443 - MINOR: Undefined array key and Passing null to file_exists in page_system.
 
 ###2025.05.27
- - Commit #443 - MINOR: Undefined array key and Passing null to file_exists in page_system #443
  - Commit #432 - BUG: Further enhancements for checking arrays and variables.
 
 ###2025.05.26
