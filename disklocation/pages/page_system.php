@@ -253,12 +253,16 @@
 				}
 				
 			}
-			if($operation == "restore" && file_exists($file)) {
-				database_restore($file, UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/");
+			if($operation == "restore" && !empty($file)) {
+				if(file_exists($file)) {
+					database_restore($file, UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/");
+				}
 			}
-			if($operation == "delete" && file_exists($file)) {
-				unlink($file);
-				( is_dir(str_replace("disklocation.sqlite.gz", "", $file)) ? rmdir(str_replace("disklocation.sqlite.gz", "", $file)) : rmdir(str_replace("disklocation.json.gz", "", $file)) );
+			if($operation == "delete" && !empty($file)) {
+				if(file_exists($file)) {
+					unlink($file);
+					( is_dir(str_replace("disklocation.sqlite.gz", "", $file)) ? rmdir(str_replace("disklocation.sqlite.gz", "", $file)) : rmdir(str_replace("disklocation.json.gz", "", $file)) );
+				}
 			}
 			if($operation == "delete_all") {
 				array_map('unlink', glob("" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/*/*.gz"));
@@ -350,7 +354,7 @@
 		//print("<meta http-equiv=\"refresh\" content=\"5;url=" . DISKLOCATION_URL . "\" />");
 		exit;
 	}
-	if(isset($_POST["del_backup"])) {
+	if(isset($_POST["del_backup"] && isset($_POST["backup_file_list"]))) {
 		disklocation_system("backup", "delete", $_POST["backup_file_list"]);
 		header("Location: " . DISKLOCATION_URL . "");
 		//print("<meta http-equiv=\"refresh\" content=\"0;url=" . DISKLOCATION_URL . "\" />");

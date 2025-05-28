@@ -1171,7 +1171,15 @@
 					$powermode = array_keys($json_powermode);
 					sort($powermode);
 					
-					return (array_diff($powermode, array_filter($devicepath)));
+					$diff_powermode = array_diff($powermode, array_filter($devicepath));
+					
+					if(file_exists(DISKLOCATION_TMP_PATH . "/powermode_ignore.json")) {
+						$json_ignore_array = json_decode(file_get_contents(DISKLOCATION_TMP_PATH . "/powermode_ignore.json"), true);
+						return array_diff($diff_powermode, $json_ignore_array);
+					}
+					else {
+						return $diff_powermode;
+					}
 				}
 				else return 1; // 1 = found conflict
 			}
