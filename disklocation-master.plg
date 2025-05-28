@@ -45,7 +45,7 @@
 -->
 
 <CHANGES>
-###2025.05.38
+###2025.05.28
  - Commit #444 - BUG: Virtual drives causes dashboard issues due to missing SMART data. Made an ignore list for these devices to prevent slower SMART collecting.
 
 ###2025.05.27
