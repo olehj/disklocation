@@ -195,7 +195,8 @@ $(document).ready(function(){
 					<input type="number" required min="0" max="999999999" step="1" name="auto_backup_days" value="<?php print($auto_backup_days); ?>" style="width: 50px;" /> days
 				</p>
 				<blockquote class="inline_help" style="white-space: wrap;">
-					Run auto backup every set full days, 0 to disable. This will only backup Disk Location files, and not Unraid config edited via this plugin, if enabled.
+					Run auto backup every set full days, 0 to disable. Disable this if you plan to schedule auto backup on your own. See help under &quot;System&quot; tab.<br />
+					This will only backup Disk Location files, and not Unraid config edited via this plugin, if enabled.
 					<br />
 				</blockquote>
 				<p style="color: red;">

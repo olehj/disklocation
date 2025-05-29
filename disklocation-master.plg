@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.05.29">
+<!ENTITY version          "2025.05.30">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2025.05.30
+ - Commit #448 - IMPROVEMENT: Added help text for how to add own backup cycle via scheduler/crontab. Minor "Help" updates in Configuration and System tab. Added a slight difference between "silent" and non-silent output. Also updated the Help on Dashboard tab
+
 ###2025.05.29
  - Commit #446 - BUG: Fatal error in page_system - causing furious rage in the forums :P Syntax error, misplaced parentheses.
 

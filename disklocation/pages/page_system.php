@@ -448,6 +448,7 @@
 			}
 			else {
 				database_backup(DISKLOCATION_CONF.",".DISKLOCATION_DEVICES.",".DISKLOCATION_GROUPS.",".DISKLOCATION_LOCATIONS.( !empty($get_benchmark_files) ? "," . $get_benchmark_files : null ), "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/");
+				print(!in_array("silent", $argv) && in_array("backup", $argv) ? "Backup created.\n" : null);
 			}
 		}
 		else {
@@ -533,7 +534,14 @@
 				<input type=\"submit\" name=\"backup_db\" value=\"Backup\" />
 				<input type=\"submit\" name=\"res_backup\" value=\"Restore\" />
 				" . (!strstr($_SERVER["SCRIPT_NAME"], "page_system.php") ? "<input type=\"submit\" name=\"del_backup\" value=\"Delete\" /><input type=\"submit\" name=\"del_backup_all\" value=\"Delete all\" /><input type=\"checkbox\" name=\"del_backup_all_check\" value=\"1\" title=\"Check this to delete all backups\" /> &lt;-- Check this box to delete all backups" : "") . "
-				<blockquote class='inline_help'>This will create, restore or delete (all) databases.</blockquote>
+				<blockquote class='inline_help'>
+					<ul>
+						<li>This will create, restore or delete (all) databases.</li>
+					
+						<li>If you want to schedule your own backup cycle, disable &quot;Auto backup&quot; under &quot;Configuration&quot; tab. Then add this command into your scheduler (e.g. User Scripts or crontab):<br />
+						<code style=\"white-space: nowrap;\">php -f " . EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/page_system.php backup [silent]</code></li>
+					</ul>
+				</blockquote>
 			</form>
 			
 		";
