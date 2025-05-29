@@ -57,8 +57,8 @@
 		
 		<dt>I want to reset everything to "Factory defaults", how?</dt>
 		<dd>
-			You can delete the database under "System" tab. This will be recreated with blank defaults when you enter the plugin page next. Remember, all settings and tray allocations will be deleted for this plugin.<br />
-			Manual reset can be performed by deleting the config files, run: rm /boot/config/plugins/disklocation/*.json
+			You can reset multiple options under "System" tab.<br />
+			Manual reset can be performed by deleting the config files, but not recommended, run: rm /boot/config/plugins/disklocation/*.json
 		</dd>
 	</dl>
 </blockquote>
