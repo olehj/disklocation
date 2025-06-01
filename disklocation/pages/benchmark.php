@@ -113,8 +113,11 @@
 			}
 			
 			if($smart_powermode_status == "ACTIVE" || $smart_powermode_status == "IDLE" || $force || $_GET["force"] || in_array("force", $argv)) {
+				unset($speed_array);
 				$speed_array = array();
 				$speed_array_value = 0;
+				unset($speed_array_contents);
+				$speed_array_contents = array();
 				
 				if(!isset($argv) || !in_array("silent", $argv)) {
 					$smart_output = "Device: " . str_pad($devicenode, 10) . " " . str_pad($smart_powermode_status, 8) . " ";
