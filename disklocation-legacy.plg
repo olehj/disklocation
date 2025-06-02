@@ -7,7 +7,7 @@
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "2024-edition">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
-<!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/&branch;/&name;-&branch;.plg">
+<!ENTITY pluginURL        "https://raw.githubusercontent.com/olehj/&name;/&branch;/&name;-legacy.plg">
 <!ENTITY packagefile      "&name;.&version;.zip">
 <!ENTITY pluginLOC        "/boot/config/plugins/&name;">
 <!ENTITY emplugLOC        "/usr/local/emhttp/plugins">
