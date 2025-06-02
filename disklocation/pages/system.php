@@ -271,66 +271,64 @@
 		$array_groups = $get_groups;
 		$create_disklog_ini = array();
 		
-		if(empty($disklocation_error)) {
-			// Get new allocations and adjust location array:
+		// Get new allocations and adjust location array:
+		$keys_drives = array_keys($post_drives);
+		for($i=0; $i < count($keys_drives); ++$i) {
+			//$tray_assign = ( empty($post_drives[$keys_drives[$i]]) ? null : $post_drives[$keys_drives[$i]] );
+			$tray_assign = ( !is_null($post_drives[$keys_drives[$i]]) && !is_null($array_trayid[$post_groups[$keys_drives[$i]]]) ? array_search($post_drives[$keys_drives[$i]], $array_trayid[$post_groups[$keys_drives[$i]]]) : null );
+			$group_assign = ( empty($post_groups[$keys_drives[$i]]) ? null : $post_groups[$keys_drives[$i]] );
 			
-			$keys_drives = array_keys($post_drives);
-			for($i=0; $i < count($keys_drives); ++$i) {
-				//$tray_assign = ( empty($post_drives[$keys_drives[$i]]) ? null : $post_drives[$keys_drives[$i]] );
-				$tray_assign = ( !empty($post_drives[$keys_drives[$i]]) && !empty($array_trayid[$post_groups[$keys_drives[$i]]]) ? array_search($post_drives[$keys_drives[$i]], $array_trayid[$post_groups[$keys_drives[$i]]]) : null );
-				$group_assign = ( empty($post_groups[$keys_drives[$i]]) ? null : $post_groups[$keys_drives[$i]] );
-				
-				$array_devices[$keys_drives[$i]]["status"] = 'h'; // force all to be unassigned while allocating
-				
-				if(!$tray_assign || !$group_assign) {
-					if(!empty($post_drives[$keys_drives[$i]] && !empty($group_assign))) {
-						$disklocation_error[] = "Tray " . $post_drives[$keys_drives[$i]] . " in group &quot;" . ( !empty($array_groups[$group_assign]["group_name"]) ? $array_groups[$group_assign]["group_name"] : $group_assign ) . "&quot; can't be assigned due to invalid configuration.";
-					}
+			$array_devices[$keys_drives[$i]]["status"] = 'h'; // force all to be unassigned while allocating
+			
+			if(is_null($tray_assign) && is_null($group_assign)) {
+				// Unassign device, no error
+				unset($array_locations[$keys_drives[$i]]);
+			}
+			else {
+				if(!is_numeric($tray_assign) || !is_numeric($group_assign)) {
+					$disklocation_error[] = "Tray " . (is_numeric($post_drives[$keys_drives[$i]]) ? $post_drives[$keys_drives[$i]] : "--" ) . " in group &quot;" . ( !empty($array_groups[$group_assign]["group_name"]) ? $array_groups[$group_assign]["group_name"] : (!empty($group_assign) ? $group_assign : "--" ) ) . "&quot; can't be assigned due to invalid configuration.";
 					unset($array_locations[$keys_drives[$i]]);
 				}
 				else {
 					$array_locations[$keys_drives[$i]]["groupid"] = $group_assign;
 					$array_locations[$keys_drives[$i]]["tray"] = $tray_assign;
-					
-					if(!empty($array_groups[$group_assign]["hide_tray"][$tray_assign])) {
-						$disklocation_error[] = "Tray " . $post_drives[$keys_drives[$i]] . " in group &quot;" . ( !empty($array_groups[$group_assign]["group_name"]) ? $array_groups[$group_assign]["group_name"] : $group_assign ) . "&quot; is marked as bypassed. Drive can't be assigned.";
-						unset($array_locations[$keys_drives[$i]]);
-					}
 				}
 			}
+		}
+		
+		// Remove existing/duplicated allocations, keep the newest, and enable assigned device:
+		
+		$results = array();
+		foreach($array_locations as $hash => $value) {
+			$results[$value["groupid"] ."|". $value["tray"]] = $value;
+			$results[$value["groupid"] ."|". $value["tray"]]["hash"] = $hash;
+		}
+		
+		// Create new location array and adjust devices array:
+		
+		$array_locations = array(); // clear
+		foreach($results as $id => $array) {
+			$array_locations[$results[$id]["hash"]] = $results[$id];
+			unset($array_locations[$results[$id]["hash"]]["hash"]);
+			$array_devices[$results[$id]["hash"]]["status"] = null;  // enable found and assigned devices
 			
-			// Remove existing/duplicated allocations, keep the newest, and enable assigned device:
+			$array_devices[$results[$id]["hash"]]["manufactured"] = ( !empty($_POST["manufactured"][$results[$id]["hash"]]) ? $_POST["manufactured"][$results[$id]["hash"]] : null );
+			$array_devices[$results[$id]["hash"]]["purchased"] = ( !empty($_POST["purchased"][$results[$id]["hash"]]) ? $_POST["purchased"][$results[$id]["hash"]] : null );
+			$array_devices[$results[$id]["hash"]]["installed"] = ( !empty($_POST["installed"][$results[$id]["hash"]]) ? $_POST["installed"][$results[$id]["hash"]] : null );
+			$array_devices[$results[$id]["hash"]]["warranty"] = ( !empty($_POST["warranty"][$results[$id]["hash"]]) ? $_POST["warranty"][$results[$id]["hash"]] : null );
 			
-			$results = array();
-			foreach($array_locations as $hash => $value) {
-				$results[$value["groupid"] ."|". $value["tray"]] = $value;
-				$results[$value["groupid"] ."|". $value["tray"]]["hash"] = $hash;
+			$array_devices[$results[$id]["hash"]]["comment"] = ( !empty($_POST["comment"][$results[$id]["hash"]]) ? $_POST["comment"][$results[$id]["hash"]] : null );
+			
+			$array_devices[$results[$id]["hash"]]["color"] = ( (!empty($_POST["bgcolor_custom"][$results[$id]["hash"]]) && strtoupper($_POST["bgcolor_custom"][$results[$id]["hash"]]) != "#".strtoupper($bgcolor_empty)) ? str_replace("#", "", strtoupper($_POST["bgcolor_custom"][$results[$id]["hash"]])) : null );
+			
+			if($allow_unraid_edit) {
+				if($array_devices[$results[$id]["hash"]]["manufactured"]) { $create_disklog_ini[str_replace(" ", "_", $array_devices[$results[$id]["hash"]]["model_name"] . "_" . $array_devices[$results[$id]["hash"]]["smart_serialnumber"])]["date"] = $_POST["manufactured"][$results[$id]["hash"]]; }
+				if($array_devices[$results[$id]["hash"]]["purchased"]) { $create_disklog_ini[str_replace(" ", "_", $array_devices[$results[$id]["hash"]]["model_name"] . "_" . $array_devices[$results[$id]["hash"]]["smart_serialnumber"])]["purchase"] = $_POST["purchased"][$results[$id]["hash"]]; }
+				if($array_devices[$results[$id]["hash"]]["warranty"]) { $create_disklog_ini[str_replace(" ", "_", $array_devices[$results[$id]["hash"]]["model_name"] . "_" . $array_devices[$results[$id]["hash"]]["smart_serialnumber"])]["warranty"] = $_POST["warranty"][$results[$id]["hash"]]; }
 			}
-			
-			// Create new location array and adjust devices array:
-			
-			$array_locations = array(); // clear
-			foreach($results as $id => $array) {
-				$array_locations[$results[$id]["hash"]] = $results[$id];
-				unset($array_locations[$results[$id]["hash"]]["hash"]);
-				$array_devices[$results[$id]["hash"]]["status"] = null;  // enable found and assigned devices
-				
-				$array_devices[$results[$id]["hash"]]["manufactured"] = ( !empty($_POST["manufactured"][$results[$id]["hash"]]) ? $_POST["manufactured"][$results[$id]["hash"]] : null );
-				$array_devices[$results[$id]["hash"]]["purchased"] = ( !empty($_POST["purchased"][$results[$id]["hash"]]) ? $_POST["purchased"][$results[$id]["hash"]] : null );
-				$array_devices[$results[$id]["hash"]]["installed"] = ( !empty($_POST["installed"][$results[$id]["hash"]]) ? $_POST["installed"][$results[$id]["hash"]] : null );
-				$array_devices[$results[$id]["hash"]]["warranty"] = ( !empty($_POST["warranty"][$results[$id]["hash"]]) ? $_POST["warranty"][$results[$id]["hash"]] : null );
-				
-				$array_devices[$results[$id]["hash"]]["comment"] = ( !empty($_POST["comment"][$results[$id]["hash"]]) ? $_POST["comment"][$results[$id]["hash"]] : null );
-				
-				$array_devices[$results[$id]["hash"]]["color"] = ( (!empty($_POST["bgcolor_custom"][$results[$id]["hash"]]) && strtoupper($_POST["bgcolor_custom"][$results[$id]["hash"]]) != "#".strtoupper($bgcolor_empty)) ? str_replace("#", "", strtoupper($_POST["bgcolor_custom"][$results[$id]["hash"]])) : null );
-				
-				if($allow_unraid_edit) {
-					if($array_devices[$results[$id]["hash"]]["manufactured"]) { $create_disklog_ini[str_replace(" ", "_", $array_devices[$results[$id]["hash"]]["model_name"] . "_" . $array_devices[$results[$id]["hash"]]["smart_serialnumber"])]["date"] = $_POST["manufactured"][$results[$id]["hash"]]; }
-					if($array_devices[$results[$id]["hash"]]["purchased"]) { $create_disklog_ini[str_replace(" ", "_", $array_devices[$results[$id]["hash"]]["model_name"] . "_" . $array_devices[$results[$id]["hash"]]["smart_serialnumber"])]["purchase"] = $_POST["purchased"][$results[$id]["hash"]]; }
-					if($array_devices[$results[$id]["hash"]]["warranty"]) { $create_disklog_ini[str_replace(" ", "_", $array_devices[$results[$id]["hash"]]["model_name"] . "_" . $array_devices[$results[$id]["hash"]]["smart_serialnumber"])]["warranty"] = $_POST["warranty"][$results[$id]["hash"]]; }
-				}
-			}
-			
+		}
+		
+		if(empty($disklocation_error)) {	
 			config_array(DISKLOCATION_DEVICES, "w", $array_devices);
 			config_array(DISKLOCATION_LOCATIONS, "w", $array_locations);
 			

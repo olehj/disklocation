@@ -117,11 +117,11 @@
 				array_push($custom_colors_array, strtoupper($data["bgcolor"]));
 			}
 			
-			$tray_assign = ( empty($data["tray"]) ? null : $data["tray"] );
+			$tray_assign = ( !is_numeric($data["tray"]) ? null : $data["tray"] );
 			$tray_options = "";
 			
 			for($tray_i = $smallest_tray_group; $tray_i <= $biggest_tray_group; ++$tray_i) {
-				if($array_trayid[$gid][$tray_assign] == $tray_i) { $selected="selected"; } else { $selected=""; }
+				if($array_trayid[$gid][$tray_assign] === $tray_i) { $selected="selected"; } else { $selected=""; }
 				$tray_options .= "<option value=\"" . $tray_i . "\" " . $selected . " style=\"text-align: right;\">" . $tray_i . "</option>";
 			}
 			

@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.06.01">
+<!ENTITY version          "2025.06.03">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2025.06.03
+ - Commit #452 - MINOR: Issues where tray 0 can't be assigned. Check if tray is 0 or null and not just "empty". Minor bug fixed in Tray Allocations where the default selector would select 0 instead of "--" for unassigned devices.
+
 ###2025.06.01
  - Commit #450 - MINOR: Old variables used in benchmarking causing old values to be used if it shouldn't exists. Some benchmark results from "previous" run could be used for new devices with earlier dates not existing. Clear variables before each run to make sure it won't use data from different devices.
 
