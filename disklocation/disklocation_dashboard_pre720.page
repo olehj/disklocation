@@ -1,4 +1,4 @@
-Cond="version_compare(parse_ini_file('/etc/unraid-version')['version'],'7.1.9','>')"
+Cond="version_compare(parse_ini_file('/etc/unraid-version')['version'],'7.1.9','<')"
 Menu="Dashboard:0"
 ---
 <?php
@@ -74,34 +74,23 @@ Menu="Dashboard:0"
 		$disklocation_dash_out = "<span class=\"red\"><i class=\"icon-u-triangle failed\"></i>Disk Location is not configured.</span>";
 	}
 
-$mytiles[$pluginname]["column1"] =
+$mytiles[$pluginname]['column1'] =
 <<<EOT
 <tbody id="tblDiskLocation" title="_(Disk Location)_">
 	<tr>
 		<td>
-			<span class="tile-header">
-				<span class="tile-header-left">
-					<i class="fa fa-server f32"></i>
-					<div class="section">
-						<h3 class="tile-header-main">_(Disk Location)_</h3>
-						<span>$installed_drives of $total_trays_group drives assigned.</span>
-					</div>
-				</span>
-				<span class="tile-header-right">
-					<span class="tile-header-right-controls">
-						<a href="/Tools/disklocation" title="_(Go to Disk Location)_">
-							<i class="fa fa-fw fa-cog control"></i>
-						</a>
-					</span>
-				</span>
-			</span>
+			<i class="fa fa-server f32"></i>
+			<div class="section">
+				_(Disk Location)_<br />
+				<span>$installed_drives of $total_trays_group drives assigned.</span>
+			</div>
+			<a href="/Dashboard/Tools/disklocation" title="_(Go to Disk Location)_"><i class="fa fa-fw fa-cog control"></i></a>
 		</td>
 	</tr>
-	<tr>
-		<td>
-			$disklocation_dash_out
-		</td>
-	</tr>
+	
+	<tr><td></td></tr>
+	
+	<tr><td>$disklocation_dash_out</td></tr>
 </tbody>
 EOT;
 ?>
