@@ -87,15 +87,19 @@ $(document).ready(function(){
     });
 });
 </script>
-<table><tr><td style="padding: 10px 10px 10px 10px;">
-<form action="" method="post">
+<table><tr><td style="padding: 0 10px 0 10px;">
+<form action="" method="post" style="padding: 0;">
 	<table>
 		<tr>
 			<td style="width: 250px; vertical-align: top;">
-				<h2>Common Configuration</h2>
-				<p>
-					<b>Change background colors:</b>
-				</p>
+				<h2 style="margin: 0; padding-bottom: 25px;">Common Configuration</h2>
+				<table style="width: auto;">
+					<tr>
+						<td style="vertical-align: top;">
+							<b>Change background colors:</b>
+						</td>
+					</tr>
+				</table>
 				<p>
 					<input type="radio" name="device_bg_color" id="bgcolor_display_0" value="0" <?php if($device_bg_color == "0") echo "checked"; // reusing the deprecated dashboard variable instead of messing with the database ?> />Disk Type
 					<input type="radio" name="device_bg_color" id="bgcolor_display_1" value="1" <?php if($device_bg_color == "1") echo "checked"; // reusing the deprecated dashboard variable instead of messing with the database ?> />Heat Map
@@ -211,7 +215,7 @@ $(document).ready(function(){
 				</blockquote>
 			</td>
 			<td style="padding-left: 25px; vertical-align: top;">
-				<h2 style="padding-bottom: 25px;">Visible Frontpage Information</h2>
+				<h2 style="margin: 0; padding-bottom: 25px;">Visible Frontpage Information</h2>
 				<table style="width: auto;">
 					<tr>
 						<td style="vertical-align: top; width: <?php echo $vi_width ?>px;">

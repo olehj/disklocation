@@ -702,7 +702,7 @@
 	} 
 ?>
 <h2 style="margin-top: -10px; padding: 0 0 0 0; margin-bottom: 0;"><?php print($system_limited_text); ?></h2>
-<div>
+<p>
 	<?php
 		$size_master = file_exists(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH."-master") ? dirsize(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH."-master") : 0;
 		$size_devel = file_exists(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH."-devel") ? dirsize(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH."-devel") : 0;
@@ -710,7 +710,7 @@
 		print( function_exists('human_filesize') && function_exists('dirsize') ? "Memory: " . human_filesize(dirsize(DISKLOCATION_TMP_PATH)+dirsize(EMHTTP_ROOT . "" . DISKLOCATION_PATH)+filesize("/usr/local/bin/smartlocate"), 1, true) . " (Interface: " . human_filesize(dirsize(EMHTTP_ROOT . "" . DISKLOCATION_PATH)+filesize("/usr/local/bin/smartlocate")) . " / Cache: " . human_filesize(dirsize(DISKLOCATION_TMP_PATH)) . ")" : null );
 		print( function_exists('human_filesize') && function_exists('dirsize') ? "<br />Storage: " . human_filesize(dirsize(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH)+$size_total, 1, true) : null );
 	?>
-</div>
+</p>
 <h3 class="red">
 	<b>NB! Operations done on this page will execute without warning or confirmation and cannot be undone after execution!</b>
 </h3>

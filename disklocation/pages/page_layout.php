@@ -53,7 +53,7 @@
 		$tray_direction = ( empty($array_groups[$gid]["tray_direction"]) ? 1 : $array_groups[$gid]["tray_direction"]);
 		
 		$disk_layouts_config .= "
-			<td style=\"min-width: 240px; vertical-align: top;\">
+			<td style=\"min-width: 240px; vertical-align: top; padding: 0; margin: 0px;\">
 				<p>
 					<b>Name:</b><br />
 					<input type=\"text\" name=\"group_name[$gid]\" value=\"" . stripslashes(htmlspecialchars($array_groups[$gid]["group_name"])) . "\" style=\"width: " . $vi_width . "px;\" />
@@ -141,7 +141,7 @@
 
 		if($count_groups >= 0) {
 			$disk_layouts_config .= "
-				<td style=\"max-width: 80px; vertical-align: top; position: relative; top: 20px;\">
+				<td style=\"max-width: 80px; vertical-align: top; position: relative; padding-top: 20px;\">
 					" . ( ($total_groups > 0) ? "<button type=\"submit\" name=\"group_del\" onclick=\"return confirm('Are you sure you want to delete " . ( !empty($array_groups[$gid]["group_name"]) ? stripslashes(htmlspecialchars($array_groups[$gid]["group_name"])) : $gid ) . "?');\" title=\"Remove " . ( !empty($array_groups[$gid]["group_name"]) ? stripslashes(htmlspecialchars($array_groups[$gid]["group_name"])) : $gid ) . "\" value=\"" . $gid . "\" style=\"background-size: 0;\"><i style=\"font-size: 600%;\" class=\"fa fa-trash fa-lg\"></i></button><br />" : null ) . "
 					" . ( !empty($group_ids[($count_groups+1)]) ? "<button type=\"submit\" name=\"group_swap\" title=\"Swap groups\" value=\"" . $gid . ":" . $group_ids[($count_groups+1)] . "\" style=\"background-size: 0;\"><i style=\"font-size: 500%;\" class=\"fa fa-exchange fa-lg\"></i></button>" : null ) . "
 					" . ( empty($group_ids[($count_groups+1)]) ? "<button type=\"submit\" name=\"group_add\" title=\"Add a new group\" value=\"" . $gid . "\" style=\"background-size: 0;\"><i style=\"font-size: 600%;\" class=\"fa fa-plus-circle fa-lg\"></i></button><br />" : null ) . "
@@ -180,8 +180,8 @@
 	<?php echo $bgcolor_group_custom_array ?>
 </datalist>
 <table><tr><td style="padding: 10px 10px 10px 10px;">
-<h2 style="margin-top: -10px; padding: 0 0 25px 0;">Disk Tray Layout</h2>
-<form action="" method="post">
+<h2 style="margin-top: -10px; padding: 0 0 0 0;">Disk Tray Layout</h2>
+<form action="" method="post" style="margin: 0; padding: 0;">
 	<table style="width: 0;">
 		<tr>
 			<td>
