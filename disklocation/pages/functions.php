@@ -204,20 +204,20 @@
 		$select = preg_replace('/\s+/', '', $select);
 		$sort = preg_replace('/\s+/', '', $sort);
 		$table = array( // Table names:
-			"groupid", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial", "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "expires", "comment", "smart_units_read", "smart_units_written", "smart_status", "temp", "powerontime_hours", "powerontime", "loadcycle", "nvme_available_spare", "nvme_available_spare_threshold", "endurance"
+			"groupid", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial", "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "expires", "comment", "smart_units_read", "smart_units_written", "smart_status", "temp", "powerontime_hours", "powerontime", "loadcycle", "nvme_available_spare", "nvme_available_spare_threshold", "endurance", "firmware"
 		);
 		$input = array( // User input names - must also match $sort:
-			"group", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial", "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "expires", "comment", "read", "written", "status", "temp", "powerontime_hours", "powerontime", "loadcycle", "nvme_spare", "nvme_spare_thres", "endurance"
+			"group", "tray", "device", "node", "pool", "name", "lun", "manufacturer", "model", "serial", "capacity", "cache", "rotation", "formfactor", "manufactured", "purchased", "installed", "removed", "warranty", "expires", "comment", "read", "written", "status", "temp", "powerontime_hours", "powerontime", "loadcycle", "nvme_spare", "nvme_spare_thres", "endurance", "firmware"
 		);
 		$nice_names = array(
-			"Group", "Tray", "Path", "Node", "Pool", "Name", "LUN", "Manufacturer", "Device Model", "S/N", "Capacity", "Cache", "Rotation", "FF", "Manufactured", "Purchased", "Installed", "Removed", "Warranty", "Expires", "Comment", "Read", "Written", "Status", "Temperature", "Powered Hours", "Powered", "Cycles", "Spare", "Spare Threshold", "Endurance"
+			"Group", "Tray", "Path", "Node", "Pool", "Name", "LUN", "Manufacturer", "Device Model", "S/N", "Capacity", "Cache", "Rotation", "FF", "Manufactured", "Purchased", "Installed", "Removed", "Warranty", "Expires", "Comment", "Read", "Written", "Status", "Temperature", "Powered Hours", "Powered", "Cycles", "Spare", "Spare Threshold", "Endurance", "Firmware"
 		);
 		$full_names = array(
-			"Group", "Tray", "Path", "Node", "Pool Name", "Disk Name", "Logic Unit Number", "Manufacturer", "Device Model", "Serial Number", "Capacity", "Cache Size", "Rotation", "Form Factor", "Manufactured Date", "Purchased Date", "Installed Date", "Removed Date", "Warranty Period", "Warranty Expires", "Comment", "Smart Units Read", "Smart Units Written", "Status", "Temperature", "Power On Time Hours", "Power On Time", "Load Cycle Count", "Available Spare", "Available Spare Threshold", "Endurance"
+			"Group", "Tray", "Path", "Node", "Pool Name", "Disk Name", "Logic Unit Number", "Manufacturer", "Device Model", "Serial Number", "Capacity", "Cache Size", "Rotation", "Form Factor", "Manufactured Date", "Purchased Date", "Installed Date", "Removed Date", "Warranty Period", "Warranty Expires", "Comment", "Smart Units Read", "Smart Units Written", "Status", "Temperature", "Power On Time Hours", "Power On Time", "Load Cycle Count", "Available Spare", "Available Spare Threshold", "Endurance", "Firmware Version"
 		);
 		$input_form = array(
 			//                10                  20                  30
-			1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0
+			1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0
 		);
 		
 		if($select == "all") {
@@ -363,6 +363,7 @@
 				"powerontime" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px;\">" . $array["powerontime"] . "</span></td>",
 				"loadcycle" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["loadcycle"] . "</td>",
 				"endurance" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["endurance"] . "</td>",
+				"firmware" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["firmware"] . "</td>",
 				"smart_units_read" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["smart_units_read"] . "</td>",
 				"smart_units_written" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["smart_units_written"] . "</td>",
 				"nvme_available_spare" => "<td style=\"vertical-align: " . $valign . "; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\">" . $array["nvme_available_spare"] . "</td>",
@@ -398,6 +399,7 @@
 				"powerontime" => "" . $array["powerontime"] . "",
 				"loadcycle" => "" . $array["loadcycle"] . "",
 				"endurance" => "" . $array["endurance"] . "",
+				"firmware" => "" . $array["firmware"] . "",
 				"smart_units_read" => "" . $array["smart_units_read"] . "",
 				"smart_units_written" => "" . $array["smart_units_written"] . "",
 				"nvme_available_spare" => "" . $array["nvme_available_spare"] . "",

@@ -45,7 +45,7 @@
 		'flashcritical' => 1
 	);
 	
-	$select_db_info = "group,tray,pool,name,node,manufacturer,model,serial,capacity,cache,rotation,formfactor,read,written,endurance,manufactured,purchased,expires,comment";
+	$select_db_info = "group,tray,pool,name,node,manufacturer,model,serial,capacity,cache,rotation,formfactor,read,written,endurance,manufactured,purchased,expires,firmware,comment";
 	$sort_db_info = "asc:group,tray";
 	
 	$select_db_smart = "status,model,serial,endurance,manufactured,expires,name";
