@@ -178,8 +178,8 @@
 					
 					$disklocation_page[$gid] .= "
 						<div style=\"order: " . $tray_assign . "\">
-							" . ( $hide_tray[$tray_assign] ? "<!--" : null ) . "
 							<div class=\"flex-container_" . $disk_tray_direction . "\">
+								" . ( $hide_tray[$tray_assign] ? "<div style=\"border: none; width: " . $tray_width . "px; height: " . $tray_height . "px;\"><!--" : null ) . "
 								<div style=\"background-color: #" . $color_array["empty"] . "; width: " . $tray_width . "px; height: " . $tray_height . "px;\">
 									<div class=\"flex-container-start\" style=\"white-space: nowrap;\">
 										<b>$empty_tray</b>$insert_break
@@ -194,8 +194,8 @@
 										&nbsp;
 									</div>
 								</div>
+								" . ( $hide_tray[$tray_assign] ? "--></div>" : null ) . "
 							</div>
-							" . ( $hide_tray[$tray_assign] ? "-->" : null ) . "
 						</div>
 					";
 					
@@ -233,11 +233,10 @@
 					
 					$disklocation_alloc[$gid] .= "
 						<div style=\"order: " . $tray_assign . "\">
-							" . ( $hide_tray[$tray_assign] ? "<!--" : null ) . "
 							<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
 								<div style=\"background-color: #" . $color_array["empty"] . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
 									<div class=\"flex-container-start\" style=\"/*min-height: 15px;*/\">
-										<b>" .  ( (!$count_bypass_tray && $hide_tray[$tray_assign]) ? "" : $empty_tray ) . "</b>
+										<b>" .  ( !$hide_tray[$tray_assign] ? $array_trayid[$gid][$tray_assign] : "-" ) . "</b>
 									</div>
 									<div class=\"flex-container-middle_" . $disk_tray_direction . "\">
 									</div>
@@ -246,14 +245,13 @@
 									</div>
 								</div>
 							</div>
-							" . ( $hide_tray[$tray_assign] ? "-->" : null ) . "
 						</div>
 					";
 					
 					$disklocation_dash[$gid] .= "
 						<div style=\"order: " . $tray_assign . "\">
-							" . ( $hide_tray[$tray_assign] ? "<!--" : null ) . "
 							<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
+								" . ( $hide_tray[$tray_assign] ? "<div style=\"border: none; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\"><!--" : null ) . "
 								<div style=\"background-color: #" . $color_array["empty"] . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
 									<div class=\"flex-container-start\" style=\"/*min-height: 15px;*/\">
 										" . get_unraid_disk_status("grey-off", '', '', $force_orb_led) . "
@@ -264,8 +262,8 @@
 										<b>" . $empty_tray . "</b>
 									</div>
 								</div>
+								" . ( $hide_tray[$tray_assign] ? "--></div>" : null ) . "
 							</div>
-							" . ( $hide_tray[$tray_assign] ? "-->" : null ) . "
 						</div>
 					";
 					
@@ -372,6 +370,7 @@
 						$physical_traynumber = (!is_numeric($tray_number_override[$drive_tray_order[$hash]]) ? 0 : $tray_number_override[$drive_tray_order[$hash]]);
 					}
 					else {
+						$physical_traynumber_alloc = (!is_numeric($tray_number_override[$drive_tray_order[$hash]]) ? 0 : $tray_number_override[$drive_tray_order[$hash]]);
 						$physical_traynumber = "";
 					}
 					
