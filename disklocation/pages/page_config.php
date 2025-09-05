@@ -185,16 +185,6 @@ $(document).ready(function(){
 					<br />
 				</blockquote>
 				<p>
-					<b>Set Dashboard float position:</b><br />
-					<input type="radio" name="dashboard_float" value="left" <?php if($dashboard_float == 'left') echo "checked"; ?> />Left
-					<input type="radio" name="dashboard_float" value="right" <?php if($dashboard_float == 'right') echo "checked"; ?>/>Right
-					<input type="radio" name="dashboard_float" value="none" <?php if($dashboard_float == 'none') echo "checked"; ?>/>Stack
-				</p>
-				<blockquote class="inline_help" style="white-space: wrap;">
-					Sets the overall placement of the Dashboard, float Tray Layouts to the left, right or stack them.
-					<br />
-				</blockquote>
-				<p>
 					<b>Auto backup every:</b><br />
 					<input type="number" required min="0" max="999999999" step="1" name="auto_backup_days" value="<?php print($auto_backup_days); ?>" style="width: 50px;" /> days
 				</p>

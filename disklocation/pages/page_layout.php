@@ -124,6 +124,40 @@
 					<p>Start counting tray from the entered number.</p>
 				</blockquote>
 				<p>
+					<b>Set next group position:</b><br />
+					<input type=\"radio\" name=\"tray_pos[$gid]\" value=\"left\" " . ( $array_groups[$gid]["tray_pos"] == 'left' ? "checked" : (!empty($dashboard_float) && $dashboard_float == 'left' ? "checked" : "checked" ) ) . " />Left
+					<input type=\"radio\" name=\"tray_pos[$gid]\" value=\"right\" " . ( $array_groups[$gid]["tray_pos"] == 'right' ? "checked" : (!empty($dashboard_float) && $dashboard_float == 'right' ? "checked" : null ) ) . " />Right
+					<input type=\"radio\" name=\"tray_pos[$gid]\" value=\"none\" " . ( $array_groups[$gid]["tray_pos"] == 'none' ? "checked" : (!empty($dashboard_float) && $dashboard_float == 'none' ? "checked" : null ) ) . "/>Break
+				</p>
+				<blockquote class=\"inline_help\" style=\"white-space: wrap;\">
+					Sets the next group placement, float Tray Layout to the left, right or break them into new position underneath. This might give unexpected results depending on your configuration.
+					<br />When these are adjusted, the Dashboard will show the changes, and not on the Layout page itself.
+					<br />
+				</blockquote>
+				<p>
+					<b>Set group alignment:</b><br />
+					<input type=\"radio\" name=\"tray_align[$gid]\" value=\"left\" " . ( $array_groups[$gid]["tray_align"] == 'left' ? "checked" : null ) . " />Left
+					<input type=\"radio\" name=\"tray_align[$gid]\" value=\"center\" " . ( $array_groups[$gid]["tray_align"] == 'center' ? "checked" : (!empty($array_groups[$gid]["tray_align"]) ? $array_groups[$gid]["tray_align"] : "checked" ) ) . "/>Center
+					<input type=\"radio\" name=\"tray_align[$gid]\" value=\"right\" " . ( $array_groups[$gid]["tray_align"] == 'right' ? "checked" : null ) . " />Right
+				</p>
+				<blockquote class=\"inline_help\" style=\"white-space: wrap;\">
+					Sets the alignment of the group.
+					<br />When these are adjusted, the Dashboard will show the changes, and not on the Layout page itself.
+					<br />
+				</blockquote>
+				<p>
+					<b>Set group name alignment:</b><br />
+					<input type=\"radio\" name=\"tray_align_txt[$gid]\" value=\"left\" " . ( $array_groups[$gid]["tray_align_txt"] == 'left' ? "checked" : null ) . " />Left
+					<input type=\"radio\" name=\"tray_align_txt[$gid]\" value=\"center\" " . ( $array_groups[$gid]["tray_align_txt"] == 'center' ? "checked" : (!empty($array_groups[$gid]["tray_align_txt"]) ? $array_groups[$gid]["tray_align_txt"] : "checked" ) ) . "/>Center
+					<input type=\"radio\" name=\"tray_align_txt[$gid]\" value=\"right\" " . ( $array_groups[$gid]["tray_align_txt"] == 'right' ? "checked" : null ) . " />Right
+					<input type=\"radio\" name=\"tray_align_txt[$gid]\" value=\"vertical\" " . ( $array_groups[$gid]["tray_align_txt"] == 'vertical' ? "checked" : null ) . " />Vertical
+				</p>
+				<blockquote class=\"inline_help\" style=\"white-space: wrap;\">
+					Sets the text alignment of the group name. Vertical mode is only from top to bottom on the left side of the trays.
+					<br />When these are adjusted, the Dashboard will show the changes, and not on the Layout page itself.
+					<br />
+				</blockquote>
+				<p>
 					<b>Select trays to bypass/hide:</b><br />
 				</p>
 				<p>

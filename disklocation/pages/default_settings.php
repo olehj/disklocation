@@ -33,7 +33,6 @@
 	$serial_trim =		 	0;			// make serial number friendlier, substr() value -99 - 99.
 	$allow_unraid_edit =		0;			// (dis)allow editing of UNRAID config.
 	$auto_backup_days = 		30;			// automatically make a backup during installation if the latest one is more than [$auto_backup_days] days old
-	$dashboard_float = 		'left';			// sets the alignment of the Disk Tray Layout on the Dashboard. left is default, right and none can be chosen.
 	$displayinfo =	array(					// this will store an array of display settings for the "Device" page.
 		'tray' => 1,
 		'leddiskop' => 1,
@@ -73,6 +72,10 @@
 	$tray_start_num = 	1;		// tray count start number, 0 or 1
 	$tray_width =		400;		// the pixel width of the hard drive tray: in the horizontal direction ===
 	$tray_height =		70;		// the pixel height of the hard drive tray: in the horizontal direction ===
+	$tray_pos = 		'left';		// sets the float (next groups positioning) of the Disk Tray Group Layout on the Dashboard. left is default , right and none can be chosen.
+	$tray_align =		'center';	// sets the alignment of the Disk Tray Group Layout on the Dashboard. center is default, left and right can be chosen.
+	$tray_align_txt =	'center';	// sets the alignment of the Disk Tray Group Name on the Dashboard. center is default, left, right and vertical can be chosen.
+	
 	
 //	Benchmark settings
 	
