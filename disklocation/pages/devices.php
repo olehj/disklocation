@@ -146,6 +146,7 @@
 						else if(!$hide_tray[$tray_assign]) {
 							$tray_number++;
 						}
+						$total_trays_group = $total_trays_group-1;
 					}
 					else {
 						$tray_number = $tray_assign;
