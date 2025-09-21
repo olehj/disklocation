@@ -193,6 +193,15 @@ $(document).ready(function(){
 					This will only backup Disk Location files, and not Unraid config edited via this plugin, if enabled.
 					<br />
 				</blockquote>
+				<p>
+					<b>Ignore multiple LUNs:</b><br />
+					<input type="radio" name="ignore_multi_lun" value="0" <?php if($ignore_multi_lun == 0) echo "checked"; ?> />No
+					<input type="radio" name="ignore_multi_lun" value="1" <?php if($ignore_multi_lun == 1) echo "checked"; ?>/>Yes
+				</p>
+				<blockquote class="inline_help" style="white-space: wrap;">
+					This is a workaround on devices and systems that generates multiple addresses to the drives. Enable this if you are stuck with an error message on the Dashboard when you can assign devices.
+					<br />
+				</blockquote>
 				<p style="color: red;">
 					<b>Allow editing of Unraid config:</b><br />
 					<input type="radio" name="allow_unraid_edit" value="0" <?php if($allow_unraid_edit == 0) echo "checked"; ?> />No

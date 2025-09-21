@@ -31,6 +31,7 @@
 	$force_orb_led =		0;			// set the LED to 0: show Unraid icons (triangle warning / hot critical) - 1: show circle LEDs (color coded circles).
 	$device_bg_color =		1;			// choose background for the drives, Drive Type (0) or Heat Map (1)
 	$serial_trim =		 	0;			// make serial number friendlier, substr() value -99 - 99.
+	$ignore_multi_lun = 		0;			// workaround to enable drives and devices with multiple addresses.
 	$allow_unraid_edit =		0;			// (dis)allow editing of UNRAID config.
 	$auto_backup_days = 		30;			// automatically make a backup during installation if the latest one is more than [$auto_backup_days] days old
 	$displayinfo =	array(					// this will store an array of display settings for the "Device" page.

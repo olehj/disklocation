@@ -164,7 +164,8 @@
 		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_empty"])) { $disklocation_error[] = "Background color for \"Empty trays\" invalid."; } else { $_POST["bgcolor_empty"] = str_replace("#", "", strtoupper($_POST["bgcolor_empty"])); }
 		if(!is_numeric($_POST["tray_reduction_factor"])) { $disklocation_error[] = "The size divider is not numeric."; }
 		if(!preg_match("/(0|1)/", $_POST["force_orb_led"])) { $disklocation_error[] = "LED display field is invalid."; }
-		if(!preg_match("/(0|1)/", $_POST["allow_unraid_edit"])) { $disklocation_error[] = "Unraid condig edit field is invalid."; }
+		if(!preg_match("/(0|1)/", $_POST["ignore_multi_lun"])) { $disklocation_error[] = "Ignore multiple LUN edit field is invalid."; }
+		if(!preg_match("/(0|1)/", $_POST["allow_unraid_edit"])) { $disklocation_error[] = "Unraid config edit field is invalid."; }
 		if(!preg_match("/[0-9]{1,4}/", $_POST["serial_trim"])) { $disklocation_error[] = "Serial number trim number invalid."; }
 		if(!preg_match("/[0-9]{1,9}/", $_POST["auto_backup_days"])) { $disklocation_error[] = "Invalid number of days."; }
 		

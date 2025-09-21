@@ -1159,29 +1159,32 @@
 		else return false;
 	}
 	
-	function check_devicepath_conflict($array) { // return difference or 1 if conflict, empty if no conflict
+	function check_devicepath_conflict($array, $ignore = 0) { // return difference or 1 if conflict, empty if no conflict
 		if(is_array($array) && !empty($array)) {
 			if(file_exists(DISKLOCATION_TMP_PATH . "/powermode.json")) {
 				$json_array = json_decode(file_get_contents(DISKLOCATION_TMP_PATH . "/powermode.json"), true);
 				if(is_array($json_array) && !empty($json_array)) {
-					foreach($array as $key => $value) {
-						$devicepath[] = ( $array[$key]["raw"]["status"] != 'r' ? $array[$key]["raw"]["device"] : null );
+					if(!empty($ignore)) {
+						foreach($array as $key => $value) {
+							$devicepath[] = ( $array[$key]["raw"]["status"] != 'r' ? $array[$key]["raw"]["device"] : null );
+						}
+						sort($devicepath);
+						
+						$json_powermode = array_diff($json_array, ['UNKNOWN']);
+						$powermode = array_keys($json_powermode);
+						sort($powermode);
+						
+						$diff_powermode = array_diff($powermode, array_filter($devicepath));
+						
+						if(file_exists(DISKLOCATION_TMP_PATH . "/powermode_ignore.json")) {
+							$json_ignore_array = json_decode(file_get_contents(DISKLOCATION_TMP_PATH . "/powermode_ignore.json"), true);
+							return array_diff($diff_powermode, $json_ignore_array);
+						}
+						else {
+							return $diff_powermode;
+						}
 					}
-					sort($devicepath);
-					
-					$json_powermode = array_diff($json_array, ['UNKNOWN']);
-					$powermode = array_keys($json_powermode);
-					sort($powermode);
-					
-					$diff_powermode = array_diff($powermode, array_filter($devicepath));
-					
-					if(file_exists(DISKLOCATION_TMP_PATH . "/powermode_ignore.json")) {
-						$json_ignore_array = json_decode(file_get_contents(DISKLOCATION_TMP_PATH . "/powermode_ignore.json"), true);
-						return array_diff($diff_powermode, $json_ignore_array);
-					}
-					else {
-						return $diff_powermode;
-					}
+					else return null; // null = ignore conflict, might be useful for multiple SAS cable connected backplanes and dual actuator drives.
 				}
 				else return 1; // 1 = found conflict
 			}
