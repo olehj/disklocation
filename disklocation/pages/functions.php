@@ -1164,7 +1164,7 @@
 			if(file_exists(DISKLOCATION_TMP_PATH . "/powermode.json")) {
 				$json_array = json_decode(file_get_contents(DISKLOCATION_TMP_PATH . "/powermode.json"), true);
 				if(is_array($json_array) && !empty($json_array)) {
-					if(!empty($ignore)) {
+					if(empty($ignore)) {
 						foreach($array as $key => $value) {
 							$devicepath[] = ( $array[$key]["raw"]["status"] != 'r' ? $array[$key]["raw"]["device"] : null );
 						}
