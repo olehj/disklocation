@@ -82,7 +82,7 @@ $mytiles[$pluginname]["column1"] =
 		<td>
 			<span class="tile-header">
 				<span class="tile-header-left">
-					<i class="fa fa-server f32"></i>
+					<i class="icon-disks f32"></i>
 					<div class="section">
 						<h3 class="tile-header-main">_(Disk Location)_</h3>
 						<span>$installed_drives of $total_trays_group drives assigned.</span>
