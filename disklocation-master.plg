@@ -46,6 +46,7 @@
 
 <CHANGES>
 ###2025.XX.XX
+ - Commit #460 - MINOR: Made a workaround for devices with multiple addresses is stuck with Dashboard error message. "Ignore multiple LUNs" available under "Configuration" for user with this issue.
  - Commit #459 - MINOR: Temperature warnings -1 degree offset from Unraid defaults. Changed the code to show the same warning thresholds for disk temperatures as Unraid.
  - Commit #458 - MINOR: Hidden trays counted as assignable tray. When trays are hidden from the layout, it will not calculate those trays into the total assignable trays on the Dashboard.
  - Commit #457 - FEATURE: The common adjustment for all groups are gone and migrated to the new configuration and moved per group under "Layout". Possible to choose where the next group will float: left (default), right or break, and to adjust align of the group name and group trays separate from each other: left, center (default), right, text can also be positioned vertical from top-left only. When these are adjusted, the Dashboard will show the changes, and not on the Layout page itself.
