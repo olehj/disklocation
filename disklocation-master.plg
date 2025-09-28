@@ -46,6 +46,7 @@
 
 <CHANGES>
 ###2025.XX.XX
+ - Commit #463 - IMPROVEMENT: Change from radio to checkboxes in backup section under System. Radio buttons are gone and checkboxes are implemented instead. Cleaned up backup section of the System tab.
  - Commit #460 - MINOR: Made a workaround for devices with multiple addresses is stuck with Dashboard error message. "Ignore multiple LUNs" available under "Configuration" for user with this issue.
  - Commit #459 - MINOR: Temperature warnings -1 degree offset from Unraid defaults. Changed the code to show the same warning thresholds for disk temperatures as Unraid.
  - Commit #458 - MINOR: Hidden trays counted as assignable tray. When trays are hidden from the layout, it will not calculate those trays into the total assignable trays on the Dashboard.
