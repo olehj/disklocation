@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.06.03">
+<!ENTITY version          "2025.09.28">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2025.09.28
+ - Commit #461 - MINOR: Adjusted SMART cronjob to ignore devices with multiple LUNs to be re-added, this should prevent the error message about running SMART+DB at the Dashboard.
+
 ###2025.06.03
  - Commit #452 - MINOR: Issues where tray 0 can't be assigned. Check if tray is 0 or null and not just "empty". Minor bug fixed in Tray Allocations where the default selector would select 0 instead of "--" for unassigned devices.
 
