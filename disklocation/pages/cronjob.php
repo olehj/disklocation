@@ -146,6 +146,7 @@
 	
 	$force_scan = 0;
 	$force_scan_db = 0;
+	$devices = array();
 	
 	// add and update disk info
 	if(isset($_POST["force_smartdb_scan"]) || isset($_GET["force_smartdb_scan"]) || isset($_POST["force_smart_scan"]) || isset($_GET["force_smart_scan"]) || in_array("install", $argv) || in_array("force", $argv) || in_array("forceall", $argv)) {
@@ -262,8 +263,10 @@
 					
 					$deviceid[$i] = hash('sha256', $smart_model_name . ( isset($smart_array["serial_number"]) ? $smart_array["serial_number"] : null));
 					
+					$search_existing = array_search($deviceid[$i], $devices, TRUE);
+					
 					// skip if no device id exists
-					if(!empty($deviceid[$i])) {
+					if(!empty($deviceid[$i]) && !$search_existing) {
 						// If error messages exists, try to find device in case of a controller failure
 						$smart_array_messages = is_array($smart_array["smartctl"]["messages"]) ? $smart_array["smartctl"]["messages"] : null;
 						$skip_force_update = 0;
@@ -433,10 +436,12 @@
 						}
 					}
 					else {
-						$powermode[$lsscsi_device[$i]] = "UNKNOWN"; // force UNKNOWN if there's no SMART data.
-						$powermode_ignore[] = $lsscsi_device[$i]; // make an ignore list
-						
-						$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "#:" . $i . ":No device ID, skipping.");
+						if(!empty($deviceid[$i])) {
+							$powermode[$lsscsi_device[$i]] = "UNKNOWN"; // force UNKNOWN if there's no SMART data.
+							$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "#:" . $i . ":No device ID, skipping.");
+						}
+						$powermode_ignore[] = $lsscsi_device[$i]; // make an ignore list: will ignore multiple LUNs devices, accepting only the first found per serial number.
+						$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "#:" . $i . ":Added device ID to ignore list: $lsscsi_device[$i]");
 					}
 				}
 				
