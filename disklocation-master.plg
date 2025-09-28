@@ -54,6 +54,9 @@
  - Commit #455 - FEATURE: SMART Firmware Version can now be selected to be viewed in the tables.
  - Commit #454 - IMPROVEMENT: Adjust design elements for Unraid 7.2. Various changes in the HTML and CSS code in Unraid 7.2 requires Disk Location to make some adjustments in the code. This change will make Unraid versions earlier than 7.2 not be supported anymore.
 
+###2025.09.28
+ - Commit #461 - MINOR: Adjusted SMART cronjob to ignore devices with multiple LUNs to be re-added, this should prevent the error message about running SMART+DB at the Dashboard.
+
 ###2025.06.03
  - Commit #452 - MINOR: Issues where tray 0 can't be assigned. Check if tray is 0 or null and not just "empty". Minor bug fixed in Tray Allocations where the default selector would select 0 instead of "--" for unassigned devices.
 
