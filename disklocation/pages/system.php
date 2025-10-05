@@ -164,7 +164,8 @@
 		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_empty"])) { $disklocation_error[] = "Background color for \"Empty trays\" invalid."; } else { $_POST["bgcolor_empty"] = str_replace("#", "", strtoupper($_POST["bgcolor_empty"])); }
 		if(!is_numeric($_POST["tray_reduction_factor"])) { $disklocation_error[] = "The size divider is not numeric."; }
 		if(!preg_match("/(0|1)/", $_POST["force_orb_led"])) { $disklocation_error[] = "LED display field is invalid."; }
-		if(!preg_match("/(0|1)/", $_POST["allow_unraid_edit"])) { $disklocation_error[] = "Unraid condig edit field is invalid."; }
+		if(!preg_match("/(0|1)/", $_POST["ignore_multi_lun"])) { $disklocation_error[] = "Ignore multiple LUN edit field is invalid."; }
+		if(!preg_match("/(0|1)/", $_POST["allow_unraid_edit"])) { $disklocation_error[] = "Unraid config edit field is invalid."; }
 		if(!preg_match("/[0-9]{1,4}/", $_POST["serial_trim"])) { $disklocation_error[] = "Serial number trim number invalid."; }
 		if(!preg_match("/[0-9]{1,9}/", $_POST["auto_backup_days"])) { $disklocation_error[] = "Invalid number of days."; }
 		
@@ -247,6 +248,9 @@
 			if($new_array[$id]["tray_start_num"] && !preg_match("/[0-9]{1,7}/", $new_array[$id]["tray_start_num"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Tray start number invalid."; }
 			if($new_array[$id]["tray_width"] && !preg_match("/[0-9]{1,4}/", $new_array[$id]["tray_width"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Tray's longest side outside limits or invalid number entered."; }
 			if($new_array[$id]["tray_height"] && !preg_match("/[0-9]{1,3}/", $new_array[$id]["tray_height"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Tray's smallest side outside limits or invalid number entered."; }
+			if($new_array[$id]["tray_pos"] && !preg_match("/\b(left|right|none)\b/", $new_array[$id]["tray_pos"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Wrong position value."; }
+			if($new_array[$id]["tray_align"] && !preg_match("/\b(left|right|center)\b/", $new_array[$id]["tray_align"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Wrong alignment value."; }
+			if($new_array[$id]["tray_align_txt"] && !preg_match("/\b(left|right|center|vertical)\b/", $new_array[$id]["tray_align_txt"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Wrong alignment value."; }
 			if($id && !preg_match("/[0-9]{1,}/", $id)) { $disklocation_error[] = "" . $id . ": Expected group ID to be an integer."; }
 		}
 		

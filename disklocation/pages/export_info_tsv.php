@@ -78,7 +78,6 @@
 				$tray_assign = ( empty($data["tray"]) ? $i : $data["tray"] );
 				
 				$total_trays = ( empty($grid_trays) ? $grid_columns * $grid_rows : $grid_trays );
-				$total_trays_group += $total_trays;
 				
 				if($biggest_tray_group < $total_trays) {
 					$biggest_tray_group = $total_trays;

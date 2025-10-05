@@ -164,7 +164,7 @@
 	}
 ?>
 <table><tr><td style="padding: 10px 10px 10px 10px;">
-<h2 style="margin-top: -10px; padding: 0 0 25px 0;">Benchmark</h2>
+<h2 style="margin-top: -10px; padding: 0 0 <?php print($unraid_version_720 ? "0" : "25px") ?> 0;">Benchmark</h2>
 <style type="text/css">      
 	.bench-graph {
 		padding: 10px; 
@@ -190,11 +190,10 @@
 		stroke: #<?php print($bgcolor_parity); ?>;
 	}
 </style>
-<form action="" method="post">
+<form action="" method="post" <?php print($unraid_version_720 ? "style=\"margin: 0;\"" : null) ?>>
 	<table>
 		<tr>
 			<td style="vertical-align: top;">
-				<p>
 					<b>Settings:</b><br />
 					<input type="number" required min="1" max="10" step="1" name="bench_iterations" value="<?php print($bench_iterations); ?>" style="margin: 0; width: 20px;" />
 					Iterations to run
@@ -212,7 +211,6 @@
 					Last benchmarks shown
 					&nbsp;&nbsp;&nbsp;
 					<input type="submit" name="save_benchmark_settings" value="Save" />
-				</p>
 				<blockquote class='inline_help'>
 					<ol>
 						<li>Set the number of cycles that hdparm should execute per drive.</li>

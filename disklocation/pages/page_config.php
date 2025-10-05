@@ -87,15 +87,19 @@ $(document).ready(function(){
     });
 });
 </script>
-<table><tr><td style="padding: 10px 10px 10px 10px;">
-<form action="" method="post">
+<table><tr><td style="padding: <?php print($unraid_version_720 ? "0" : "10px") ?> 10px <?php print($unraid_version_720 ? "0" : "10px") ?> 10px;">
+<form action="" method="post" <?php print($unraid_version_720 ? "style=\"padding: 0;\"" : null) ?>>
 	<table>
 		<tr>
 			<td style="width: 250px; vertical-align: top;">
-				<h2>Common Configuration</h2>
-				<p>
-					<b>Change background colors:</b>
-				</p>
+				<h2 style="<?php print($unraid_version_720 ? "margin: 0;" : null) ?> padding-bottom: 25px;">Common Configuration</h2>
+				<table style="width: auto;">
+					<tr>
+						<td style="vertical-align: top;">
+							<b>Change background colors:</b>
+						</td>
+					</tr>
+				</table>
 				<p>
 					<input type="radio" name="device_bg_color" id="bgcolor_display_0" value="0" <?php if($device_bg_color == "0") echo "checked"; // reusing the deprecated dashboard variable instead of messing with the database ?> />Disk Type
 					<input type="radio" name="device_bg_color" id="bgcolor_display_1" value="1" <?php if($device_bg_color == "1") echo "checked"; // reusing the deprecated dashboard variable instead of messing with the database ?> />Heat Map
@@ -181,22 +185,21 @@ $(document).ready(function(){
 					<br />
 				</blockquote>
 				<p>
-					<b>Set Dashboard float position:</b><br />
-					<input type="radio" name="dashboard_float" value="left" <?php if($dashboard_float == 'left') echo "checked"; ?> />Left
-					<input type="radio" name="dashboard_float" value="right" <?php if($dashboard_float == 'right') echo "checked"; ?>/>Right
-					<input type="radio" name="dashboard_float" value="none" <?php if($dashboard_float == 'none') echo "checked"; ?>/>Stack
-				</p>
-				<blockquote class="inline_help" style="white-space: wrap;">
-					Sets the overall placement of the Dashboard, float Tray Layouts to the left, right or stack them.
-					<br />
-				</blockquote>
-				<p>
 					<b>Auto backup every:</b><br />
 					<input type="number" required min="0" max="999999999" step="1" name="auto_backup_days" value="<?php print($auto_backup_days); ?>" style="width: 50px;" /> days
 				</p>
 				<blockquote class="inline_help" style="white-space: wrap;">
 					Run auto backup every set full days, 0 to disable. Disable this if you plan to schedule auto backup on your own. See help under &quot;System&quot; tab.<br />
 					This will only backup Disk Location files, and not Unraid config edited via this plugin, if enabled.
+					<br />
+				</blockquote>
+				<p>
+					<b>Ignore multiple LUNs:</b><br />
+					<input type="radio" name="ignore_multi_lun" value="0" <?php if($ignore_multi_lun == 0) echo "checked"; ?> />No
+					<input type="radio" name="ignore_multi_lun" value="1" <?php if($ignore_multi_lun == 1) echo "checked"; ?>/>Yes
+				</p>
+				<blockquote class="inline_help" style="white-space: wrap;">
+					This is a workaround on devices and systems that generates multiple addresses to the drives. Enable this if you are stuck with an error message on the Dashboard when you can assign devices.
 					<br />
 				</blockquote>
 				<p style="color: red;">
@@ -211,7 +214,7 @@ $(document).ready(function(){
 				</blockquote>
 			</td>
 			<td style="padding-left: 25px; vertical-align: top;">
-				<h2 style="padding-bottom: 25px;">Visible Frontpage Information</h2>
+				<h2 style="<?php print($unraid_version_720 ? "margin: 0;" : null) ?> padding-bottom: 25px;">Visible Frontpage Information</h2>
 				<table style="width: auto;">
 					<tr>
 						<td style="vertical-align: top; width: <?php echo $vi_width ?>px;">

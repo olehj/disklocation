@@ -53,7 +53,7 @@
 		$tray_direction = ( empty($array_groups[$gid]["tray_direction"]) ? 1 : $array_groups[$gid]["tray_direction"]);
 		
 		$disk_layouts_config .= "
-			<td style=\"min-width: 240px; vertical-align: top;\">
+			<td style=\"min-width: 240px; vertical-align: top; padding: 0; margin: 0px;\">
 				<p>
 					<b>Name:</b><br />
 					<input type=\"text\" name=\"group_name[$gid]\" value=\"" . stripslashes(htmlspecialchars($array_groups[$gid]["group_name"])) . "\" style=\"width: " . $vi_width . "px;\" />
@@ -124,6 +124,40 @@
 					<p>Start counting tray from the entered number.</p>
 				</blockquote>
 				<p>
+					<b>Set next group position:</b><br />
+					<input type=\"radio\" name=\"tray_pos[$gid]\" value=\"left\" " . ( $array_groups[$gid]["tray_pos"] == 'left' ? "checked" : (!empty($dashboard_float) && $dashboard_float == 'left' ? "checked" : "checked" ) ) . " />Left
+					<input type=\"radio\" name=\"tray_pos[$gid]\" value=\"right\" " . ( $array_groups[$gid]["tray_pos"] == 'right' ? "checked" : (!empty($dashboard_float) && $dashboard_float == 'right' ? "checked" : null ) ) . " />Right
+					<input type=\"radio\" name=\"tray_pos[$gid]\" value=\"none\" " . ( $array_groups[$gid]["tray_pos"] == 'none' ? "checked" : (!empty($dashboard_float) && $dashboard_float == 'none' ? "checked" : null ) ) . "/>Break
+				</p>
+				<blockquote class=\"inline_help\" style=\"white-space: wrap;\">
+					Sets the next group placement, float Tray Layout to the left, right or break them into new position underneath. This might give unexpected results depending on your configuration.
+					<br />When these are adjusted, the Dashboard will show the changes, and not on the Layout page itself.
+					<br />
+				</blockquote>
+				<p>
+					<b>Set group alignment:</b><br />
+					<input type=\"radio\" name=\"tray_align[$gid]\" value=\"left\" " . ( $array_groups[$gid]["tray_align"] == 'left' ? "checked" : null ) . " />Left
+					<input type=\"radio\" name=\"tray_align[$gid]\" value=\"center\" " . ( $array_groups[$gid]["tray_align"] == 'center' ? "checked" : (!empty($array_groups[$gid]["tray_align"]) ? $array_groups[$gid]["tray_align"] : "checked" ) ) . "/>Center
+					<input type=\"radio\" name=\"tray_align[$gid]\" value=\"right\" " . ( $array_groups[$gid]["tray_align"] == 'right' ? "checked" : null ) . " />Right
+				</p>
+				<blockquote class=\"inline_help\" style=\"white-space: wrap;\">
+					Sets the alignment of the group.
+					<br />When these are adjusted, the Dashboard will show the changes, and not on the Layout page itself.
+					<br />
+				</blockquote>
+				<p>
+					<b>Set group name alignment:</b><br />
+					<input type=\"radio\" name=\"tray_align_txt[$gid]\" value=\"left\" " . ( $array_groups[$gid]["tray_align_txt"] == 'left' ? "checked" : null ) . " />Left
+					<input type=\"radio\" name=\"tray_align_txt[$gid]\" value=\"center\" " . ( $array_groups[$gid]["tray_align_txt"] == 'center' ? "checked" : (!empty($array_groups[$gid]["tray_align_txt"]) ? $array_groups[$gid]["tray_align_txt"] : "checked" ) ) . "/>Center
+					<input type=\"radio\" name=\"tray_align_txt[$gid]\" value=\"right\" " . ( $array_groups[$gid]["tray_align_txt"] == 'right' ? "checked" : null ) . " />Right
+					<input type=\"radio\" name=\"tray_align_txt[$gid]\" value=\"vertical\" " . ( $array_groups[$gid]["tray_align_txt"] == 'vertical' ? "checked" : null ) . " />Vertical
+				</p>
+				<blockquote class=\"inline_help\" style=\"white-space: wrap;\">
+					Sets the text alignment of the group name. Vertical mode is only from top to bottom on the left side of the trays.
+					<br />When these are adjusted, the Dashboard will show the changes, and not on the Layout page itself.
+					<br />
+				</blockquote>
+				<p>
 					<b>Select trays to bypass/hide:</b><br />
 				</p>
 				<p>
@@ -141,7 +175,7 @@
 
 		if($count_groups >= 0) {
 			$disk_layouts_config .= "
-				<td style=\"max-width: 80px; vertical-align: top; position: relative; top: 20px;\">
+				<td style=\"max-width: 80px; vertical-align: top; position: relative; padding-top: 20px;\">
 					" . ( ($total_groups > 0) ? "<button type=\"submit\" name=\"group_del\" onclick=\"return confirm('Are you sure you want to delete " . ( !empty($array_groups[$gid]["group_name"]) ? stripslashes(htmlspecialchars($array_groups[$gid]["group_name"])) : $gid ) . "?');\" title=\"Remove " . ( !empty($array_groups[$gid]["group_name"]) ? stripslashes(htmlspecialchars($array_groups[$gid]["group_name"])) : $gid ) . "\" value=\"" . $gid . "\" style=\"background-size: 0;\"><i style=\"font-size: 600%;\" class=\"fa fa-trash fa-lg\"></i></button><br />" : null ) . "
 					" . ( !empty($group_ids[($count_groups+1)]) ? "<button type=\"submit\" name=\"group_swap\" title=\"Swap groups\" value=\"" . $gid . ":" . $group_ids[($count_groups+1)] . "\" style=\"background-size: 0;\"><i style=\"font-size: 500%;\" class=\"fa fa-exchange fa-lg\"></i></button>" : null ) . "
 					" . ( empty($group_ids[($count_groups+1)]) ? "<button type=\"submit\" name=\"group_add\" title=\"Add a new group\" value=\"" . $gid . "\" style=\"background-size: 0;\"><i style=\"font-size: 600%;\" class=\"fa fa-plus-circle fa-lg\"></i></button><br />" : null ) . "
@@ -180,8 +214,8 @@
 	<?php echo $bgcolor_group_custom_array ?>
 </datalist>
 <table><tr><td style="padding: 10px 10px 10px 10px;">
-<h2 style="margin-top: -10px; padding: 0 0 25px 0;">Disk Tray Layout</h2>
-<form action="" method="post">
+<h2 style="margin-top: -10px; padding: 0 0 <?php print($unraid_version_720 ? "0" : "25px") ?> 0;">Disk Tray Layout</h2>
+<form action="" method="post" style="<?php print($unraid_version_720 ? "margin: 0; padding: 0;" : null) ?>">
 	<table style="width: 0;">
 		<tr>
 			<td>

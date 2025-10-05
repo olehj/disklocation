@@ -291,8 +291,8 @@
 		";
 		
 		$disk_layouts_alloc .= "
-			<div style=\"float: left; padding: 10px 20px 10px 20px;\">
-				<h2 style=\"text-align: center;\">
+			<div style=\"float: left; padding: " . ($unraid_version_720 ? "0" : "10px") . " 20px " . ($unraid_version_720 ? "0" : "10px") . " 20px;\">
+				<h2 style=\"text-align: center; " . ($unraid_version_720 ? "margin-top: 0;" : null) . "\">
 					" . stripslashes(htmlspecialchars($gid_name)) . "
 				</h2>
 				<blockquote class='inline_help'>
@@ -323,7 +323,7 @@
 	<?php echo $bgcolor_custom_array ?>
 </datalist>
 <table><tr><td style="padding: 10px 10px 10px 10px;">
-<form action="" method="post">
+<form action="" method="post" style="<?php print($unraid_version_720 ? "margin: 0;" : null) ?>">
 	<?php print($disk_layouts_alloc); ?>
 	<div style="clear: both;"></div>
 	<div style="padding: 0 0 40px 0;"></div>
@@ -346,7 +346,7 @@
 			</td>
 		</tr>
 	</table>
-	<div><br /><br /></div>
+	<?php print($unraid_version_720 ? null : "<div><br /><br /></div>") ?>
 	<table style="table-layout: auto; width: 0;">
 		<tr>
 			<td style="vertical-align: top; padding-left: 20px;">

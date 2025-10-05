@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.09.28">
+<!ENTITY version          "2025.10.05">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,16 @@
 -->
 
 <CHANGES>
+###2025.10.05
+ - Commit #463 - IMPROVEMENT: Change from radio to checkboxes in backup section under System. Radio buttons are gone and checkboxes are implemented instead. Cleaned up backup section of the System tab.
+ - Commit #460 - MINOR: Made a workaround for devices with multiple addresses is stuck with Dashboard error message. "Ignore multiple LUNs" available under "Configuration" for user with this issue.
+ - Commit #459 - MINOR: Temperature warnings -1 degree offset from Unraid defaults. Changed the code to show the same warning thresholds for disk temperatures as Unraid.
+ - Commit #458 - MINOR: Hidden trays counted as assignable tray. When trays are hidden from the layout, it will not calculate those trays into the total assignable trays on the Dashboard.
+ - Commit #457 - FEATURE: The common adjustment for all groups are gone and migrated to the new configuration and moved per group under "Layout". Possible to choose where the next group will float: left (default), right or break, and to adjust align of the group name and group trays separate from each other: left, center (default), right, text can also be positioned vertical from top-left only. When these are adjusted, the Dashboard will show the changes, and not on the Layout page itself.
+ - Commit #456 - MINOR: Fixed devices to show hidden/bypassed trays more correctly in some circumstances. Made the tray allocating to be more logic and will now display numbers on empty trays if these are hidden from the Dashboard layout.
+ - Commit #455 - FEATURE: SMART Firmware Version can now be selected to be viewed in the tables.
+ - Commit #454 - IMPROVEMENT: Adjust design elements for Unraid 7.2. Various changes in the HTML and CSS code in Unraid 7.2 requires Disk Location to make some adjustments in the code.
+
 ###2025.09.28
  - Commit #461 - MINOR: Adjusted SMART cronjob to ignore devices with multiple LUNs to be re-added, this should prevent the error message about running SMART+DB at the Dashboard.
 

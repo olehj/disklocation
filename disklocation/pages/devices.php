@@ -146,6 +146,7 @@
 						else if(!$hide_tray[$tray_assign]) {
 							$tray_number++;
 						}
+						$total_trays_group = $total_trays_group-1;
 					}
 					else {
 						$tray_number = $tray_assign;
@@ -178,8 +179,8 @@
 					
 					$disklocation_page[$gid] .= "
 						<div style=\"order: " . $tray_assign . "\">
-							" . ( $hide_tray[$tray_assign] ? "<!--" : null ) . "
 							<div class=\"flex-container_" . $disk_tray_direction . "\">
+								" . ( $hide_tray[$tray_assign] ? "<div style=\"border: none; width: " . $tray_width . "px; height: " . $tray_height . "px;\"><!--" : null ) . "
 								<div style=\"background-color: #" . $color_array["empty"] . "; width: " . $tray_width . "px; height: " . $tray_height . "px;\">
 									<div class=\"flex-container-start\" style=\"white-space: nowrap;\">
 										<b>$empty_tray</b>$insert_break
@@ -194,8 +195,8 @@
 										&nbsp;
 									</div>
 								</div>
+								" . ( $hide_tray[$tray_assign] ? "--></div>" : null ) . "
 							</div>
-							" . ( $hide_tray[$tray_assign] ? "-->" : null ) . "
 						</div>
 					";
 					
@@ -233,11 +234,10 @@
 					
 					$disklocation_alloc[$gid] .= "
 						<div style=\"order: " . $tray_assign . "\">
-							" . ( $hide_tray[$tray_assign] ? "<!--" : null ) . "
 							<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
 								<div style=\"background-color: #" . $color_array["empty"] . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
 									<div class=\"flex-container-start\" style=\"/*min-height: 15px;*/\">
-										<b>" .  ( (!$count_bypass_tray && $hide_tray[$tray_assign]) ? "" : $empty_tray ) . "</b>
+										<b>" .  ( !$hide_tray[$tray_assign] ? $array_trayid[$gid][$tray_assign] : "-" ) . "</b>
 									</div>
 									<div class=\"flex-container-middle_" . $disk_tray_direction . "\">
 									</div>
@@ -246,14 +246,13 @@
 									</div>
 								</div>
 							</div>
-							" . ( $hide_tray[$tray_assign] ? "-->" : null ) . "
 						</div>
 					";
 					
 					$disklocation_dash[$gid] .= "
 						<div style=\"order: " . $tray_assign . "\">
-							" . ( $hide_tray[$tray_assign] ? "<!--" : null ) . "
 							<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
+								" . ( $hide_tray[$tray_assign] ? "<div style=\"border: none; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\"><!--" : null ) . "
 								<div style=\"background-color: #" . $color_array["empty"] . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
 									<div class=\"flex-container-start\" style=\"/*min-height: 15px;*/\">
 										" . get_unraid_disk_status("grey-off", '', '', $force_orb_led) . "
@@ -264,8 +263,8 @@
 										<b>" . $empty_tray . "</b>
 									</div>
 								</div>
+								" . ( $hide_tray[$tray_assign] ? "--></div>" : null ) . "
 							</div>
-							" . ( $hide_tray[$tray_assign] ? "-->" : null ) . "
 						</div>
 					";
 					
@@ -292,18 +291,18 @@
 						$temp_status = 0;
 					}
 					else {
-						if($unraid_array[$devicenode]["temp"] < $unraid_array[$devicenode]["hotTemp"]) {
+						if($unraid_array[$devicenode]["temp"] <= $unraid_array[$devicenode]["hotTemp"]) {
 							$temp_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation green-orb-disklocation'></i><span>" . $devices[$hash]["formatted"]["temp"] . "</span></a>";
 							$temp_status_info = array('orb' => 'fa fa-circle orb-disklocation green-orb-disklocation', 'color' => 'green', 'text' => $devices[$hash]["formatted"]["temp"]);
 							$temp_status = 1;
 						}
-						if($unraid_array[$devicenode]["temp"] >= $unraid_array[$devicenode]["hotTemp"]) {
-							$temp_status_icon = "<a class='info' style=\"margin: 0; text-align:left;\"><i class='fa fa-" . ( !$force_orb_led ? 'fire' : 'circle' ) . " orb-disklocation yellow-orb-disklocation yellow-blink-disklocation'></i><span>" . $devices[$hash]["formatted"]["temp"] . " (Warning: &gt;" . $devices[$hash]["formatted"]["hotTemp"] . ")</span></a>";
+						if($unraid_array[$devicenode]["temp"] > $unraid_array[$devicenode]["hotTemp"]) {
+							$temp_status_icon = "<a class='info' style=\"margin: 0; text-align:left;\"><i class='fa fa-" . ( !$force_orb_led ? 'fire' : 'circle' ) . " orb-disklocation yellow-orb-disklocation yellow-blink-disklocation'></i><span>" . $devices[$hash]["formatted"]["temp"] . " (Warning: &#8805;" . $devices[$hash]["formatted"]["hotTemp"] . ")</span></a>";
 							$temp_status_info = array('orb' => "fa fa-" . ( !$force_orb_led ? 'fire' : 'circle' ) . " orb-disklocation yellow-orb-disklocation yellow-blink-disklocation", 'color' => 'yellow', 'text' => $devices[$hash]["formatted"]["temp"]);
 							$temp_status = 2;
 						}
-						if($unraid_array[$devicenode]["temp"] >= $unraid_array[$devicenode]["maxTemp"]) {
-							$temp_status_icon = "<a class='info'><i class='fa fa-" . ( !$force_orb_led ? 'fire' : 'circle' ) . " orb-disklocation red-blink-disklocation'></i><span>" . $devices[$hash]["formatted"]["temp"] . " (Critical: &gt;" . $devices[$hash]["formatted"]["maxTemp"] . ")</span></a>";
+						if($unraid_array[$devicenode]["temp"] > $unraid_array[$devicenode]["maxTemp"]) {
+							$temp_status_icon = "<a class='info'><i class='fa fa-" . ( !$force_orb_led ? 'fire' : 'circle' ) . " orb-disklocation red-blink-disklocation'></i><span>" . $devices[$hash]["formatted"]["temp"] . " (Critical: &#8805;" . $devices[$hash]["formatted"]["maxTemp"] . ")</span></a>";
 							$temp_status_info = array('orb' => "fa fa-" . ( !$force_orb_led ? 'fire' : 'circle' ) . " orb-disklocation red-blink-disklocation", 'color' => 'red', 'text' => $devices[$hash]["formatted"]["temp"]);
 							$temp_status = 3;
 						}
@@ -372,6 +371,7 @@
 						$physical_traynumber = (!is_numeric($tray_number_override[$drive_tray_order[$hash]]) ? 0 : $tray_number_override[$drive_tray_order[$hash]]);
 					}
 					else {
+						$physical_traynumber_alloc = (!is_numeric($tray_number_override[$drive_tray_order[$hash]]) ? 0 : $tray_number_override[$drive_tray_order[$hash]]);
 						$physical_traynumber = "";
 					}
 					
@@ -556,11 +556,12 @@
 			grid-template-columns: " . $grid_columns_styles[$gid] . ";
 			grid-template-rows: " . $grid_rows_styles[$gid] . ";
 			grid-auto-flow: " . $array_groups[$gid]["grid_count"] . ";
+			justify-content: " . (!empty($array_groups[$gid]["tray_align"]) ? $array_groups[$gid]["tray_align"] : "center" ) . ";
 		";
 		
 		$disklocation_page_out .= "
-			<div style=\"float: " . (!empty($dashboard_float) ? $dashboard_float : 'left') . "; top; padding: 0 10px 10px 10px;\">
-				<h2 style=\"text-align: center;\">" . stripslashes(htmlspecialchars($gid_name)) . "</h2>
+			<div style=\"float: " . (!empty($array_groups[$gid]["tray_pos"]) ? $array_groups[$gid]["tray_pos"] : (!empty($dashboard_float) ? $dashboard_float : $tray_pos ) ) . "; vertical-align: top; padding: 0 10px 10px 10px;\">
+				<h2 style=\"text-align: " . (!empty($array_groups[$gid]["tray_align_txt"]) ? $array_groups[$gid]["tray_align_txt"] : "center" ) . "; " . ( $array_groups[$gid]["tray_align_txt"] == "vertical" ? "float: left; writing-mode: vertical-rl;" : null ) . "\">" . stripslashes(htmlspecialchars($gid_name)) . "</h2>
 				<div class=\"grid-container\" style=\"$css_grid_group\">
 					$disklocation_page[$gid]
 				</div>

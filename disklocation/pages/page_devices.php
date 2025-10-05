@@ -65,7 +65,7 @@
 
 <?php
 	$check_smart_files = check_smart_files();
-	$check_devicepath_conflict = (!empty($devices) && is_array($devices) ? check_devicepath_conflict($devices) : null);
+	$check_devicepath_conflict = (!empty($devices) && is_array($devices) ? check_devicepath_conflict($devices, $ignore_multi_lun) : null);
 	
 	if($db_update == 2) {
 		print("-->");
@@ -91,6 +91,7 @@
 			$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "FUNCTION: check_smart_files", (check_smart_files() ? 1 : 0 ));
 			$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "FUNCTION: check_devicepath_conflict", check_devicepath_conflict($devices));
 			print("<h1 class=\"red\" style=\"text-align: center;\">Go to System and initialize a \"Force SMART" . ( !empty($check_devicepath_conflict) ? "+DB" : null ) . "\"</h1>");
+			print("<h3 style=\"text-align: center;\">" . ( !empty($check_devicepath_conflict) ? "If this error message persists and you can assign devices to trays, try to enable \"Ignore multiple LUNs\" under \"Configuration\"" : null ) . "</h3>");
 		}
 		else {
 			print($disklocation_page_out);

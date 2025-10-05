@@ -259,9 +259,11 @@
 				}
 			}
 			if($operation == "delete" && !empty($file)) {
-				if(file_exists($file)) {
-					unlink($file);
-					( is_dir(str_replace("disklocation.sqlite.gz", "", $file)) ? rmdir(str_replace("disklocation.sqlite.gz", "", $file)) : rmdir(str_replace("disklocation.json.gz", "", $file)) );
+				foreach($file as $filename) {
+					if(file_exists($filename)) {
+						unlink($filename);
+						( is_dir(str_replace("disklocation.sqlite.gz", "", $filename)) ? rmdir(str_replace("disklocation.sqlite.gz", "", $filename)) : rmdir(str_replace("disklocation.json.gz", "", $filename)) );
+					}
 				}
 			}
 			if($operation == "delete_all") {
@@ -351,7 +353,7 @@
 		$settings = file_exists(DISKLOCATION_CONF) ? json_decode(file_get_contents(DISKLOCATION_CONF), true) : null ;
 		!empty($settings["signal_css"]) ? use_stylesheet($settings["signal_css"]) : use_stylesheet("signals.dynamic.css");
 		header("Location: " . (!empty($_POST) ? DISKLOCATION_URL : DISKLOCATION_DIRECT_URL ) . "");
-		//print("<meta http-equiv=\"refresh\" content=\"5;url=" . DISKLOCATION_URL . "\" />");
+		print("<meta http-equiv=\"refresh\" content=\"0;url=" . $_GET["res_backup"] . "\" />");
 		exit;
 	}
 	if(isset($_POST["del_backup"]) && isset($_POST["backup_file_list"])) {
@@ -481,6 +483,7 @@
 					This will NOT backup Unraid files (data containing manufacturer and purchase date and warranty period including SMART acknowledgements.). ONLY plugin related files.<br />
 					<span class=\"red\">Backup and restore can take a few seconds after clicking the button, please wait until page is reloaded.</span>
 				</p>
+				<div><input type=\"submit\" name=\"backup_db\" value=\"Run Backup\" /></div>
 				<br />
 				<table style=\"width: 0;\">
 					<tr>
@@ -506,7 +509,7 @@
 			$print_list_backup .= "
 					<tr>
 						<td>
-							<input type=\"radio\" name=\"backup_file_list\" value=\"" . $list_backup[$i]["file"] . "\" />
+							" . (!strstr($_SERVER["SCRIPT_NAME"], "page_system.php") ? "<input type=\"checkbox\" name=\"backup_file_list[]\" value=\"" . $list_backup[$i]["file"] . "\" />" : "" ) . "
 						</td>
 						<td style=\"white-space: nowrap;\">
 							" . $date_file . "
@@ -516,6 +519,10 @@
 						</td>
 						<td style=\"text-align: right; padding: 0 0 0 20px; white-space: nowrap;\">
 							" . ( function_exists('human_filesize') ? human_filesize($list_backup[$i]["size"], 1, true) : $list_backup[$i]["size"] . " bytes" ) . "
+						</td>
+						<td style=\"padding: 0 0 0 20px; white-space: nowrap;\">
+							<a onclick=\"return confirm('Are you sure you want to restore " . $date_file . "?');\" href=\"" . ( !strstr($_SERVER["SCRIPT_NAME"], "page_system.php") ? "" . DISKLOCATION_URL . "?res_backup=" . DISKLOCATION_URL . "&amp;backup_file_list=" . $list_backup[$i]["file"] . "\">" : "" . DISKLOCATION_PATH . "/pages/page_system.php?res_backup=" . DISKLOCATION_DIRECT_URL . "&amp;backup_file_list=" . $list_backup[$i]["file"] . "\">" ) . " restore</a>
+							
 						</td>
 					</tr>
 			";
@@ -529,19 +536,20 @@
 						<td style=\"text-align: right; padding: 0 0 0 20px; white-space: nowrap;\">
 							" . ( function_exists('human_filesize') ? human_filesize($total_bak_size, 1, true) : $total_bak_size . " bytes" ) . "
 						</td>
+						<td></td>
 					</tr>
 				</table>
-				<input type=\"submit\" name=\"backup_db\" value=\"Backup\" />
-				<input type=\"submit\" name=\"res_backup\" value=\"Restore\" />
-				" . (!strstr($_SERVER["SCRIPT_NAME"], "page_system.php") ? "<input type=\"submit\" name=\"del_backup\" value=\"Delete\" /><input type=\"submit\" name=\"del_backup_all\" value=\"Delete all\" /><input type=\"checkbox\" name=\"del_backup_all_check\" value=\"1\" title=\"Check this to delete all backups\" /> &lt;-- Check this box to delete all backups" : "") . "
-				<blockquote class='inline_help'>
-					<ul>
-						<li>This will create, restore or delete (all) databases.</li>
-					
-						<li>If you want to schedule your own backup cycle, disable &quot;Auto backup&quot; under &quot;Configuration&quot; tab. Then add this command into your scheduler (e.g. User Scripts or crontab):<br />
-						<code style=\"white-space: nowrap;\">php -f " . EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/page_system.php backup [silent]</code></li>
-					</ul>
-				</blockquote>
+				
+				<!--<input type=\"submit\" name=\"res_backup\" value=\"Restore\" />-->
+				" . (!strstr($_SERVER["SCRIPT_NAME"], "page_system.php") ? "<input type=\"submit\" name=\"del_backup\" value=\"Delete selected backups\" /><!--<input type=\"submit\" name=\"del_backup_all\" value=\"Delete all\" /><input type=\"checkbox\" name=\"del_backup_all_check\" value=\"1\" title=\"Check this to delete all backups\" /> &lt;-- Check this box to delete all backups-->" : "") . "
+				" . (!strstr($_SERVER["SCRIPT_NAME"], "page_system.php") ? "
+					<blockquote class='inline_help'>
+						<ul>
+							<li>If you want to schedule your own backup cycle, disable &quot;Auto backup&quot; under &quot;Configuration&quot; tab. Then add this command into your scheduler (e.g. User Scripts or crontab):<br />
+							<code style=\"white-space: nowrap;\">php -f " . EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/page_system.php backup [silent]</code></li>
+						</ul>
+					</blockquote>
+				" : "" ) . "
 			</form>
 			
 		";
@@ -702,7 +710,7 @@
 	} 
 ?>
 <h2 style="margin-top: -10px; padding: 0 0 0 0; margin-bottom: 0;"><?php print($system_limited_text); ?></h2>
-<div>
+<p>
 	<?php
 		$size_master = file_exists(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH."-master") ? dirsize(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH."-master") : 0;
 		$size_devel = file_exists(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH."-devel") ? dirsize(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH."-devel") : 0;
@@ -710,7 +718,7 @@
 		print( function_exists('human_filesize') && function_exists('dirsize') ? "Memory: " . human_filesize(dirsize(DISKLOCATION_TMP_PATH)+dirsize(EMHTTP_ROOT . "" . DISKLOCATION_PATH)+filesize("/usr/local/bin/smartlocate"), 1, true) . " (Interface: " . human_filesize(dirsize(EMHTTP_ROOT . "" . DISKLOCATION_PATH)+filesize("/usr/local/bin/smartlocate")) . " / Cache: " . human_filesize(dirsize(DISKLOCATION_TMP_PATH)) . ")" : null );
 		print( function_exists('human_filesize') && function_exists('dirsize') ? "<br />Storage: " . human_filesize(dirsize(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH)+$size_total, 1, true) : null );
 	?>
-</div>
+</p>
 <h3 class="red">
 	<b>NB! Operations done on this page will execute without warning or confirmation and cannot be undone after execution!</b>
 </h3>

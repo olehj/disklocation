@@ -177,6 +177,9 @@
 		$devices[$hash]["raw"]["smart_units_written"] = ( ($devices[$hash]["raw"]["rotation"] < 0) ? smart_units_to_bytes(($smart_units_written ? $smart_units_written : 0), $dev_calc_unit_size, $dev_calc_unit_factor) : smart_units_to_bytes(($smart_units_written ? $smart_units_written : 0), $dev_calc_unit_size, $dev_calc_unit_factor, true) );
 		$devices[$hash]["formatted"]["smart_units_written"] = human_filesize($devices[$hash]["raw"]["smart_units_written"], 1, true);
 		
+		$devices[$hash]["raw"]["firmware"] = $smart_array["firmware_version"] ?? null;
+		$devices[$hash]["formatted"]["firmware"] = $devices[$hash]["raw"]["firmware"] ?? "N/A";
+		
 		// SMART data to be parsed on deeper level:
 		$smart_errors = array();
 		$unraid_smart_arr = explode("|", empty($unraid_array[$devicenode]["smEvents"]) ? $get_global_smEvents : $unraid_array[$devicenode]["smEvents"] );
