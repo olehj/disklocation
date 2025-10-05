@@ -87,12 +87,12 @@ $(document).ready(function(){
     });
 });
 </script>
-<table><tr><td style="padding: 0 10px 0 10px;">
-<form action="" method="post" style="padding: 0;">
+<table><tr><td style="padding: <?php print($unraid_version_720 ? "0" : "10px") ?> 10px <?php print($unraid_version_720 ? "0" : "10px") ?> 10px;">
+<form action="" method="post" <?php print($unraid_version_720 ? "style=\"padding: 0;\"" : null) ?>>
 	<table>
 		<tr>
 			<td style="width: 250px; vertical-align: top;">
-				<h2 style="margin: 0; padding-bottom: 25px;">Common Configuration</h2>
+				<h2 style="<?php print($unraid_version_720 ? "margin: 0;" : null) ?> padding-bottom: 25px;">Common Configuration</h2>
 				<table style="width: auto;">
 					<tr>
 						<td style="vertical-align: top;">
@@ -214,7 +214,7 @@ $(document).ready(function(){
 				</blockquote>
 			</td>
 			<td style="padding-left: 25px; vertical-align: top;">
-				<h2 style="margin: 0; padding-bottom: 25px;">Visible Frontpage Information</h2>
+				<h2 style="<?php print($unraid_version_720 ? "margin: 0;" : null) ?> padding-bottom: 25px;">Visible Frontpage Information</h2>
 				<table style="width: auto;">
 					<tr>
 						<td style="vertical-align: top; width: <?php echo $vi_width ?>px;">

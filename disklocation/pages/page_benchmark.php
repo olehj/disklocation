@@ -164,7 +164,7 @@
 	}
 ?>
 <table><tr><td style="padding: 10px 10px 10px 10px;">
-<h2 style="margin-top: -10px; padding: 0 0 0 0;">Benchmark</h2>
+<h2 style="margin-top: -10px; padding: 0 0 <?php print($unraid_version_720 ? "0" : "25px") ?> 0;">Benchmark</h2>
 <style type="text/css">      
 	.bench-graph {
 		padding: 10px; 
@@ -190,7 +190,7 @@
 		stroke: #<?php print($bgcolor_parity); ?>;
 	}
 </style>
-<form action="" method="post" style="margin: 0;">
+<form action="" method="post" <?php print($unraid_version_720 ? "style=\"margin: 0;\"" : null) ?>>
 	<table>
 		<tr>
 			<td style="vertical-align: top;">

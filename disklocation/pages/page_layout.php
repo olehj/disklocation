@@ -214,8 +214,8 @@
 	<?php echo $bgcolor_group_custom_array ?>
 </datalist>
 <table><tr><td style="padding: 10px 10px 10px 10px;">
-<h2 style="margin-top: -10px; padding: 0 0 0 0;">Disk Tray Layout</h2>
-<form action="" method="post" style="margin: 0; padding: 0;">
+<h2 style="margin-top: -10px; padding: 0 0 <?php print($unraid_version_720 ? "0" : "25px") ?> 0;">Disk Tray Layout</h2>
+<form action="" method="post" style="<?php print($unraid_version_720 ? "margin: 0; padding: 0;" : null) ?>">
 	<table style="width: 0;">
 		<tr>
 			<td>

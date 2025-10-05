@@ -163,7 +163,7 @@
 ?>
 <?php if($db_update == 2) { print("<h3>Page unavailable due to database error.</h3><!--"); } ?>
 <table><tr><td style="padding: 10px 10px 10px 10px;">
-<h2 style="margin-top: -10px; padding: 0 0 0 0;">SMART Errors</h2>
+<h2 style="margin-top: -10px; padding: 0 0 <?php print($unraid_version_720 ? "0" : "25px") ?> 0;">SMART Errors</h2>
 <form action="" method="post">
 <table style="width: 800px; border-spacing: 3px; border-collapse: separate;">
 	<tr>
@@ -187,7 +187,7 @@
 <?php
 	if(!empty($check_select_smart) || !empty($check_sort_smart)) { print("<span style=\"display: block;\" class=\"red\"><b>Table column and/or sort is faulty, please correct it under Configuration. Default column and order is used.</b></span>"); }
 ?>
-<br /></div>
+<br /><?php print($unraid_version_720 ? null : "<br />") ?></div>
 <table style="width: 0;">
 	<tr style="border: solid 1px #000000;">
 		<?php print($table_info_order_name_html); ?>

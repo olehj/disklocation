@@ -51,6 +51,8 @@
 	define("SMART_ALL_FILE", "smart-all.cfg");
 	define("SMART_ONE_FILE", "smart-one.cfg");
 	
+	$unraid_version_720 = version_compare(parse_ini_file('/etc/unraid-version')['version'],'7.2.0-beta','>=');
+	
 	$page_time_load =  array();
 	
 	// $debug is defined in disklocation_devices.page as it has to be defined early.
