@@ -532,11 +532,11 @@
 			case 'green-blink': $orb = 'circle'; $color = 'grey'; $blink = 'green'; $help = 'Device is in standby mode (spun-down)'; break;
 			case 'blue-on': $orb = 'square'; $color = 'blue'; $blink = ''; $help = 'New device'; break;
 			case 'blue-blink': $orb = 'square'; $color = 'grey'; $blink = 'blue'; $help = 'New device, in standby mode (spun-down)'; break;
-			case 'yellow-on': $orb = 'warning'; $color = 'yellow'; $blink = ''; $help = $type =='Parity' ? 'Parity is invalid' : 'Device contents emulated'; break;
+			case 'yellow-on': $orb = 'warning'; $color = 'yellow'; $blink = 'yellow'; $help = $type =='Parity' ? 'Parity is invalid' : 'Device contents emulated'; break;
 			case 'yellow-blink': $orb = 'warning'; $color = 'grey'; $blink = 'yellow'; $help = $type =='Parity' ? 'Parity is invalid, in standby mode (spun-down)' : 'Device contents emulated, in standby mode (spun-down)'; break;
-			case 'red-on': $orb = 'times'; $color = 'red'; $blink=''; $help = $type=='Parity' ? 'Parity device is disabled' : 'Device is disabled, contents emulated'; break;
+			case 'red-on': $orb = 'times'; $color = 'red'; $blink='red'; $help = $type=='Parity' ? 'Parity device is disabled' : 'Device is disabled, contents emulated'; break;
 			case 'red-blink': $orb = 'times'; $color = 'red'; $blink = 'red'; $help = $type=='Parity' ? 'Parity device is disabled' : 'Device is disabled, contents emulated'; break;
-			case 'red-off': $orb = 'times'; $color = 'red'; $blink = ''; $help = $type =='Parity' ? 'Parity device is missing' : 'Device is missing (disabled), contents emulated'; break;
+			case 'red-off': $orb = 'times'; $color = 'red'; $blink = 'red'; $help = $type =='Parity' ? 'Parity device is missing' : 'Device is missing (disabled), contents emulated'; break;
 			case 'grey-off': $orb = 'square'; $color = 'grey'; $blink = ''; $help = 'Device not present'; break;
 			// ZFS values
 			case 'ONLINE': $orb = 'circle'; $color = 'green'; $blink = ''; $help = 'Normal operation, device is online'; break;

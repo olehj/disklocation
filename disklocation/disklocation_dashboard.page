@@ -43,8 +43,10 @@ Menu="Dashboard:0"
 			justify-content: " . (!empty($array_groups[$gid]["tray_align"]) ? $array_groups[$gid]["tray_align"] : "center" ) . ";
 		";
 		
+		$disklocation_dash_out_get_float = (!empty($array_groups[$gid]["tray_pos"]) ? $array_groups[$gid]["tray_pos"] : (!empty($dashboard_float) ? $dashboard_float : $tray_pos ) );
+		
 		$disklocation_dash_out .= "
-			<div style=\"float: " . (!empty($array_groups[$gid]["tray_pos"]) ? $array_groups[$gid]["tray_pos"] : (!empty($dashboard_float) ? $dashboard_float : $tray_pos ) ) . "; vertical-align: top; padding: 5px 2px 5px 2px;\">
+			<div style=\"float: " . $disklocation_dash_out_get_float . "; vertical-align: top; padding" . ($disklocation_dash_out_get_float == "none" ? "-bottom: 10px" : "0") . ";\">
 				<div style=\"text-align: " . (!empty($array_groups[$gid]["tray_align_txt"]) ? $array_groups[$gid]["tray_align_txt"] : "center" ) . "; " . ( $array_groups[$gid]["tray_align_txt"] == "vertical" ? "float: left; writing-mode: vertical-rl;" : null ) . "\"><b>" . stripslashes(htmlspecialchars($group_name)) . "</b></div>
 				<div class=\"grid-container\" style=\"$css_grid_group\">
 					$disklocation_dash[$gid]

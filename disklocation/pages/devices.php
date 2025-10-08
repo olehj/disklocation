@@ -559,8 +559,10 @@
 			justify-content: " . (!empty($array_groups[$gid]["tray_align"]) ? $array_groups[$gid]["tray_align"] : "center" ) . ";
 		";
 		
+		$disklocation_page_out_get_float = (!empty($array_groups[$gid]["tray_pos"]) ? $array_groups[$gid]["tray_pos"] : (!empty($dashboard_float) ? $dashboard_float : $tray_pos ) );
+		
 		$disklocation_page_out .= "
-			<div style=\"float: " . (!empty($array_groups[$gid]["tray_pos"]) ? $array_groups[$gid]["tray_pos"] : (!empty($dashboard_float) ? $dashboard_float : $tray_pos ) ) . "; vertical-align: top; padding: 0 10px 10px 10px;\">
+			<div style=\"float: " . $disklocation_page_out_get_float . "; vertical-align: top; padding" . ($disklocation_page_out_get_float == "none" ? "-bottom: 40px" : "0") . ";\">
 				<h2 style=\"text-align: " . (!empty($array_groups[$gid]["tray_align_txt"]) ? $array_groups[$gid]["tray_align_txt"] : "center" ) . "; " . ( $array_groups[$gid]["tray_align_txt"] == "vertical" ? "float: left; writing-mode: vertical-rl;" : null ) . "\">" . stripslashes(htmlspecialchars($gid_name)) . "</h2>
 				<div class=\"grid-container\" style=\"$css_grid_group\">
 					$disklocation_page[$gid]

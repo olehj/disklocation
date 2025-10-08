@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.10.05">
+<!ENTITY version          "2025.10.08">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2025.10.08
+ - Commit #465 - IMPROVEMENT: Minor glitches in the positions when using "break", made yellow and red LED blink. When "break" is selected, the next floating element is shifted. Removed padding from floats and added only padding-bottom when break (float: none) is selected. Made more yellow and red light blink as well, not because they are in standby.
+
 ###2025.10.05
  - Commit #463 - IMPROVEMENT: Change from radio to checkboxes in backup section under System. Radio buttons are gone and checkboxes are implemented instead. Cleaned up backup section of the System tab.
  - Commit #460 - MINOR: Made a workaround for devices with multiple addresses is stuck with Dashboard error message. "Ignore multiple LUNs" available under "Configuration" for user with this issue.
