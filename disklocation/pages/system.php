@@ -239,6 +239,7 @@
 		}
 		
 		foreach($new_array as $id => $setting) {
+			if($new_array[$id]["group_name"] && !preg_match("/[a-zA-Z0-9]{1,}/", $new_array[$id]["group_name"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Group name is invalid."; }
 			if($new_array[$id]["group_color"] && !preg_match("/#([a-f0-9]{3}){1,2}\b/i", $new_array[$id]["group_color"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Background color invalid."; } else { $new_array[$id]["group_color"] = ( strtoupper($new_array[$id]["group_color"]) != "#".strtoupper($bgcolor_empty) ? str_replace("#", "", strtoupper($new_array[$id]["group_color"])) : null ); }
 			if($new_array[$id]["grid_count"] && !preg_match("/\b(column|row)\b/", $new_array[$id]["grid_count"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Physical tray assignment invalid."; }
 			if($new_array[$id]["grid_columns"] && !preg_match("/[0-9]{1,3}/", $new_array[$id]["grid_columns"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Grid columns missing or number invalid."; }
