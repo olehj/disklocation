@@ -298,4 +298,5 @@
 		}
 	}
 	$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: devices", $devices);
+	//print_r($devices);
 ?>

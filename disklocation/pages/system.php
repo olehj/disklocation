@@ -358,6 +358,7 @@
 		if(!preg_match("/(^$|1)/", $_POST["bench_auto_cron"])) { $disklocation_error[] = "Auto crontab value invalid."; }
 		if(!preg_match("/[0-9]{1,4}/", $_POST["bench_last_values"])) { $disklocation_error[] = "Last benchmarks value is not a number."; }
 		if($_POST["bench_last_values"] < 1 && $_POST["bench_last_values"] > 1000) { $disklocation_error[] = "Last benchmarks value is out of range."; };
+		if(!preg_match("/[0-2]{1,1}/", $_POST["bench_mode"])) { $disklocation_error[] = "Timing value invalid."; }
 		
 		$_POST["bench_median"] = $_POST["bench_median"] ? 1 : 0;
 		$_POST["bench_force"] = $_POST["bench_force"] ? 1 : 0;

@@ -28,6 +28,7 @@
 	$iterations = $bench_iterations;
 	$median = $bench_median;
 	$force = $bench_force;
+	$timing = (!isset($bench_mode) ? 0 : $bench_mode);
 	
 	if(in_array("auto", $argv) && !$bench_auto_cron) {
 		exit;
@@ -112,12 +113,14 @@
 					$smart_powermode_status = "UNKNOWN";
 			}
 			
-			if($smart_powermode_status == "ACTIVE" || $smart_powermode_status == "IDLE" || $force || $_GET["force"] || in_array("force", $argv)) {
+			if($smart_powermode_status != "UNKNOWN" && ($smart_powermode_status == "ACTIVE" || $smart_powermode_status == "IDLE" || $force || $_GET["force"] || in_array("force", $argv))) {
 				unset($speed_array);
 				$speed_array = array();
 				$speed_array_value = 0;
 				unset($speed_array_contents);
 				$speed_array_contents = array();
+				$speed = 0;
+				$speed_direct = 0;
 				
 				if(!isset($argv) || !in_array("silent", $argv)) {
 					$smart_output = "Device: " . str_pad($devicenode, 10) . " " . str_pad($smart_powermode_status, 8) . " ";
@@ -129,29 +132,44 @@
 				$deviceid[$i] = $hash;
 				
 				for($dev=0;$dev<$iterations;$dev++) {
-					$hdparm_device_cmd = shell_exec("hdparm -t " . "/dev/" . $devicenode . "");
-					unset($this_device, $this_results);
-					list($nothing, $this_device, $this_results) = preg_split('/\r\n|\r|\n/', $hdparm_device_cmd);
-					list($garbage, $speed) = explode("=", $this_results);
-					list($number, $unit) = explode(" ", trim($speed));
-					$smart_output = str_pad("[" . $dev+1 . "] " . $number . " ", 13);
+					if(!$timing || $timing == 2) {
+						$hdparm_device_cmd = shell_exec("hdparm -t " . "/dev/" . $devicenode . "");
+						$speed = parse_hdparm_speed($hdparm_device_cmd);
+					}
+					if($timing) {
+						$hdparm_device_cmd = shell_exec("hdparm --direct -t " . "/dev/" . $devicenode . "");
+						$speed_direct = parse_hdparm_speed($hdparm_device_cmd);
+					}
+					
+					$smart_output = str_pad("[" . $dev+1 . "] " . ($timing == 1 ? $speed_direct : $speed) . "" . ($timing == 2 ? "/" . $speed_direct : null) . " ", ($timing == 2 ? 21 : 13));
 					print($smart_output);
 					$smart_log .= $smart_output;
 					flush();
-					$speed_array[] = $number;
+					
+					$speed_array["cache"][] = $speed;
+					if($speed_direct) {
+						$speed_array["direct"][] = $speed_direct;
+					}
 				}
 				
-				sort($speed_array, SORT_NUMERIC);
-				if($median && $iterations > 2) {
-					$speed_array = array_slice($speed_array, 1, -1);
-				}
-				if(count($speed_array) > 1) {
-					$speed_array[0] = array_sum($speed_array)/count($speed_array);
-					$speed_array = array_slice($speed_array, 0, 1);
-				}
-				$speed_array_value = (!empty($speed_array[0]) ? round($speed_array[0], 2) : 0);
+				is_array($speed_array["cache"]) ? sort($speed_array["cache"]) : null;
+				is_array($speed_array["direct"]) ? sort($speed_array["direct"]) : null;
 				
-				$smart_output = str_pad("[AVG] " . $speed_array_value . " " . $unit . " ", 22);
+				$speed_array_value = array();
+				
+				foreach(array_keys($speed_array) as $key) {
+					$speed_array_avg = $speed_array[$key];
+					if($median && $iterations > 2) {
+						$speed_array_avg = array_slice($speed_array_avg, 1, -1);
+					}
+					if(count($speed_array_avg) > 1) {
+						$speed_array_avg[0] = array_sum($speed_array_avg)/count($speed_array_avg);
+						$speed_array_avg = array_slice($speed_array_avg, 0, 1);
+					}
+					$speed_array_value[$key] = (!empty($speed_array_avg[0]) ? round($speed_array_avg[0], 2) : 0);
+				}
+				
+				$smart_output = str_pad("\n", ($timing == 2 ? 29 : 0)) . str_pad("[AVG] " . ($timing == 1 ? $speed_array_value["direct"] : $speed_array_value["cache"]) . "" . ($timing == 2 ? "/" . $speed_array_value["direct"] : null) . " ", ($timing == 2 ? 25 : 22));
 				print($smart_output);
 				$smart_log .= $smart_output;
 				flush();
@@ -161,7 +179,8 @@
 					if(file_exists($filename_benchmark)) {
 						$speed_array_contents = config_array($filename_benchmark, 'r');
 					}
-					$speed_array_contents[date("Y-m-d")] = $speed_array_value;
+					!empty($speed_array_value["cache"]) ? $speed_array_contents["cache"][date("Y-m-d")] = $speed_array_value["cache"] : null;
+					!empty($speed_array_value["direct"]) ? $speed_array_contents["direct"][date("Y-m-d")] = $speed_array_value["direct"] : null;
 					
 					config_array($filename_benchmark, 'w', $speed_array_contents);
 				}
