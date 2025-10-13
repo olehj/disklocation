@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2025.10.XX
+ - Commit #469 - IMPROVEMENT: Added direct IO mode for Benchmark. It's now possible to select to use buffered (default), direct (probably the best for this purpose) or both for benchmarking drives. The benchmark data will be split. The graph will only show what's selected for the run, but the benchmark json file will contain all saved data.
+
 ###2025.10.10
  - Commit #467 - MINOR: Saving "space" as group name might delete wrong group upon execution. If a space or other wrong characters are written in the group names, this can cause issues where it fails to identify correct group to be deleted, deleting the group before the current. Group names now are required to have a minimum of one letter or number, empty is still supported and will use the Group ID as the name.
 
