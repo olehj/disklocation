@@ -1192,4 +1192,15 @@
 		}
 		else return 1;
 	}
+	
+	function parse_hdparm_speed($input) {
+		if(isset($input)) {
+			list($nothing, $this_device, $this_results) = preg_split('/\r\n|\r|\n/', $input);
+			list($garbage, $speed) = explode("=", $this_results);
+			list($number, $unit) = explode(" ", trim($speed));
+			
+			return (is_numeric($number) ? $number : null);
+		}
+		else return null;
+	}
 ?>

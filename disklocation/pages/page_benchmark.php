@@ -34,7 +34,7 @@
 			<b>Clicking the button will start the benchmark directly.</b>
 			Only one record is stored per day, the latest run will be stored.<br />
 			This might take a long time to complete, typically 5-15 seconds per drive, per iteration.<br />
-			<b>Estimated time of completion with " .$count_installed_devices . " drives is " . round(($count_installed_devices * 7.5 * $bench_iterations) / 60) . " minutes.</b>
+			<b>Estimated time of completion with " .$count_installed_devices . " drives is " . round(($count_installed_devices * 7.5 * $bench_iterations) / 60 * ($bench_mode == 2 ? 2 : 1)) . " minutes.</b>
 			<br />
 			<input type='button' " . ( (!file_exists(DISKLOCATION_DEVICES)) ? "disabled=\"disabled\"" : null ) . " value='Start benchmark' onclick='openBox(\"" . BENCHMARK_URL . "?start=1\",\"Benchmark running\",600,800,true,\"loadlist\",\":return\")'>
 			
@@ -77,13 +77,6 @@
 		$hash = $data["hash"];
 		if(!empty($devices[$hash]["benchmark"]) && empty($devices[$hash]["raw"]["status"])) {
 			$benchmark = array();
-			//$speed_values = array_slice($devices[$hash]["benchmark"], $bench_last_values);
-			$speed_values = $devices[$hash]["benchmark"];
-			$speed_graph_text = array();
-			$graph_height = 150; // also used for calculating the graph position y
-			
-			sort($speed_values);
-			ksort($devices[$hash]["benchmark"]);
 			
 			$benchmark_array[$hash]["manufacturer"] = $devices[$hash]["raw"]["manufacturer"];
 			$benchmark_array[$hash]["model"] = $devices[$hash]["raw"]["model"];
@@ -91,10 +84,21 @@
 			$benchmark_array[$hash]["node"] = $devices[$hash]["raw"]["node"];
 			$benchmark_array[$hash]["name"] = $devices[$hash]["raw"]["name"];
 			$benchmark_array[$hash]["rotation"] = $devices[$hash]["formatted"]["rotation"];
-			$benchmark_array[$hash]["benchmark"] = $devices[$hash]["benchmark"];
-			//$benchmark = array_slice($benchmark_array[$hash]["benchmark"], $bench_last_values);
-			$benchmark = $benchmark_array[$hash]["benchmark"];
 			
+			$speed_values = array();
+			switch($bench_mode) {
+				case 1:
+					$speed_values = is_array($devices[$hash]["benchmark"]["direct"]) ? $devices[$hash]["benchmark"]["direct"] : array();
+					break;
+				case 2:
+					$speed_values = is_array($devices[$hash]["benchmark"]["direct"]) ? array_merge($devices[$hash]["benchmark"]["cache"], $devices[$hash]["benchmark"]["direct"]) : $devices[$hash]["benchmark"]["cache"];
+					break;
+				default:
+					$speed_values = $devices[$hash]["benchmark"]["cache"];
+			}
+			sort($speed_values);
+			
+			$speed_graph_text = array();
 			$speed_graph_text["slow"] = floor($speed_values[array_key_first($speed_values)] / 100) * 100;
 			$speed_graph_text["fast"] = ceil($speed_values[array_key_last($speed_values)] / 100) * 100;
 			if($speed_graph_text["slow"] == $speed_graph_text["fast"]) {
@@ -106,21 +110,56 @@
 			$speed_graph_text["3333"] = round((33.33 * ($speed_graph_text["fast"] - $speed_graph_text["slow"]) / 100) + $speed_graph_text["slow"]);
 			$speed_graph_text["6666"] = round((66.66 * ($speed_graph_text["fast"] - $speed_graph_text["slow"]) / 100) + $speed_graph_text["slow"]);
 			
-			$graph_pos = "";
-			$graph_pos_dots = "";
-			
+			foreach(array_keys($devices[$hash]["benchmark"]) as $benchmark_mode) {
+				if(is_array($devices[$hash]["benchmark"][$benchmark_mode])) {
+					ksort($devices[$hash]["benchmark"][$benchmark_mode]);
+					
+					foreach($devices[$hash]["benchmark"][$benchmark_mode] as $date => $speed) {
+						$benchmark[$date][$benchmark_mode] = $speed;
+					}
+				}
+			}
+			$graph_height = 150; // also used for calculating the graph position y
 			$graph_dates_x = 100;
-			foreach($benchmark as $date => $speed) {
+			$graph_pos = array();
+			$graph_pos_dots = array();
+			$graph_array = array();
+			
+			ksort($benchmark);
+			foreach($benchmark as $date => $benchmark_graph_array) {
 				$graph_dates .= "<text x=\"$graph_dates_x\" y=\"170\">" . $date . "</text>\n";
-				
-				$percent = round(((($speed - $speed_graph_text["slow"]) * 100) / ($speed_graph_text["fast"] - $speed_graph_text["slow"])), 1);
-				$graph_pos_y = $graph_height - round(($percent * $graph_height) / 100);
-				$graph_pos .= "" . $graph_dates_x . "," . $graph_pos_y . "\n";
-				
-				$graph_pos_dots .= "<circle class=\"bench-graph-dot\" cx=\"" . $graph_dates_x . "\" cy=\"" . $graph_pos_y . "\" data-value=\"" . round($speed) . "\" r=\"5\" title=\"" . $date . "\"><title>" . round($speed) . " MB/s</title></circle>\n";
-				
+				foreach($benchmark_graph_array as $benchmark_mode => $speed) {
+					$percent = round(((($speed - $speed_graph_text["slow"]) * 100) / ($speed_graph_text["fast"] - $speed_graph_text["slow"])), 1);
+					$graph_pos_y = $graph_height - round(($percent * $graph_height) / 100);
+					$graph_pos[$benchmark_mode][] = $graph_dates_x . "," . $graph_pos_y;
+					
+					$graph_pos_dots[$benchmark_mode][] = "<circle class=\"bench-graph-dot-" . $benchmark_mode . "\" cx=\"" . $graph_dates_x . "\" cy=\"" . $graph_pos_y . "\" data-value=\"" . round($speed) . "\" r=\"5\" title=\"" . $date . "\"><title>" . round($speed) . " MB/s</title></circle>";
+				}
 				$graph_dates_x+=100;
 			}
+			
+			$g_pos_line = "";
+			$g_pos_xy = "";
+			$graph_pos_out_cache = "";
+			$graph_pos_out_direct = "";
+			foreach($graph_pos as $benchmark_mode => $g_pos_line) {
+				foreach($g_pos_line as $g_pos_xy) {
+					${'graph_pos_out_' . $benchmark_mode} .= $g_pos_xy . "\n";
+					//$graph_array[$benchmark_mode]["line"][] = (!empty($g_pos_xy) ? $g_pos_xy : null);
+				}
+			}
+			
+			$g_pos_dots = "";
+			$g_pos_dots_xy = "";
+			$graph_pos_dots_out_cache = "";
+			$graph_pos_dots_out_direct = "";
+			foreach($graph_pos_dots as $benchmark_mode => $g_pos_dots) {
+				foreach($g_pos_dots as $g_pos_dots_xy) {
+					${'graph_pos_dots_out_' . $benchmark_mode} .= $g_pos_dots_xy . "\n";
+					//$graph_array[$benchmark_mode]["dots"][] = (!empty($g_pos_dots_xy) ? $g_pos_dots_xy : null);
+				}
+			}
+			// $graph_array: too muck work and clutter, can't be bothered.
 			
 			sort($speed_graph_text);
 			
@@ -150,11 +189,17 @@
 					" . $graph_speed . "
 				</g>
 				
+				<polyline fill=\"none\" stroke=\"#" . $bgcolor_cache . "\" stroke-width=\"2\" points=\"
+					" . $graph_pos_out_cache . "
+				\"></polyline>
 				<polyline fill=\"none\" stroke=\"#" . $bgcolor_unraid . "\" stroke-width=\"2\" points=\"
-					" . $graph_pos . "
+					" . $graph_pos_out_direct . "
 				\"></polyline>
 				<g>
-					" . $graph_pos_dots . "
+					" . $graph_pos_dots_out_cache . "
+				</g>
+				<g>
+					" . $graph_pos_dots_out_direct . "
 				</g>
 				</svg>
 			";
@@ -184,7 +229,12 @@
 		font-size: 12px;
 		fill: #F2F2F2;
 	}
-	.bench-graph-dot {
+	.bench-graph-dot,.bench-graph-dot-cache {
+		fill: #<?php print($bgcolor_unraid); ?>;
+		stroke-width: 0;
+		stroke: #<?php print($bgcolor_unraid); ?>;
+	}
+	.bench-graph-dot-direct {
 		fill: #<?php print($bgcolor_parity); ?>;
 		stroke-width: 0;
 		stroke: #<?php print($bgcolor_parity); ?>;
@@ -195,6 +245,14 @@
 		<tr>
 			<td style="vertical-align: top;">
 					<b>Settings:</b><br />
+					Timing
+					<select name="bench_mode" style="max-width: 150px; min-width: 40px;">
+						<option value="0" <?php if(empty($bench_mode)) echo "selected"; ?> style="text-align: left;">buffered</option>
+						<option value="1" <?php if(!empty($bench_mode) && $bench_mode == 1) echo "selected"; ?> style="text-align: left;">direct</option>
+						<option value="2" <?php if(!empty($bench_mode) && $bench_mode == 2) echo "selected"; ?> style="text-align: left;">buffered and direct</option>
+					</select>
+					disk reads
+					&nbsp;&nbsp;&nbsp;
 					<input type="number" required min="1" max="10" step="1" name="bench_iterations" value="<?php print($bench_iterations); ?>" style="margin: 0; width: 20px;" />
 					Iterations to run
 					&nbsp;&nbsp;&nbsp;
@@ -211,16 +269,24 @@
 					Last benchmarks shown
 					&nbsp;&nbsp;&nbsp;
 					<input type="submit" name="save_benchmark_settings" value="Save" />
-				<blockquote class='inline_help'>
-					<ol>
-						<li>Set the number of cycles that hdparm should execute per drive.</li>
-						<li>Choose if you want to use the slowest and the fastest results, or skip them</li>
-						<li>Choose to ignore if a drive is in standby or not, enabling this will spin up sleeping drives.</li>
-						<li>Run this benchmark monthly via crontab, default is set at 1st day of the month at 05:00. You can disable this and set up your own crontab using this command:<br />
-						<code style="white-space: nowrap;">php -f <?php print(BENCHMARK_FILE); ?> auto silent</code></li>
-						<li>Enter how many benchmarks to include in the graph.</li>
-					</ol>
-				</blockquote>
+					<blockquote class='inline_help'>
+						<ol>
+							<li>Choose timings to run:
+								<ol>
+									<li>buffered (default): uses page cache.</li>
+									<li>direct (recommended): this bypasses the page cache, causing the reads to go directly from the drive into hdparm's buffers, using so-called "raw" I/O.<br />
+										In many cases, this can produce results that appear much faster than the usual page cache method, giving a better indication of raw device and driver performance.</li>
+									<li>buffered and direct: this will use both methods and will use about twice amount of time to complete.</li>
+								</ol>
+							</li>
+							<li>Set the number of cycles that hdparm should execute per drive.</li>
+							<li>Choose if you want to use the slowest and the fastest results, or skip them</li>
+							<li>Choose to ignore if a drive is in standby or not, enabling this will spin up sleeping drives.</li>
+							<li>Run this benchmark monthly via crontab, default is set at 1st day of the month at 05:00. You can disable this and set up your own crontab using this command:<br />
+							<code style="white-space: nowrap;">php -f <?php print(BENCHMARK_FILE); ?> auto silent</code></li>
+							<li>Enter how many benchmarks to include in the graph.</li>
+						</ol>
+					</blockquote>
 			</td>
 			<td style="vertical-align: top;">
 			
@@ -238,7 +304,18 @@
 		<li>The sorting order follows the "Information" list.</li>
 	</ul>
 </blockquote>
-<?php if(!empty($graph_out)) { print("<h2>Export: <a href=\"" . DISKLOCATION_PATH . "/pages/export_bench_tsv.php?download_csv=1\">all benchmarks</a></h2><hr />"); } ?>
+<?php 
+	if(!empty($graph_out)) {
+		print("
+			<h2>Export benchmark:
+				" . ((!$bench_mode || $bench_mode == 2) ? "<a href=\"" . DISKLOCATION_PATH . "/pages/export_bench_tsv.php?download_csv=1&amp;mode=cache\">buffered</a>" : null) . "
+				" . (($bench_mode == 2 && is_array($devices[$hash]["benchmark"]["direct"])) ? "|" : null) . "
+				" . (($bench_mode >= 1 && is_array($devices[$hash]["benchmark"]["direct"])) ? "<a href=\"" . DISKLOCATION_PATH . "/pages/export_bench_tsv.php?download_csv=1&amp;mode=direct\">direct I/O</a>" : null) . "
+			</h2>
+			<hr />
+		");
+	}
+?>
 <div>
 <?php 
 	if(!empty($graph_out)) { print($graph_out); }

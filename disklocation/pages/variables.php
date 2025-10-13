@@ -127,6 +127,20 @@
 		$argv = array();
 	}
 	
+	// migrate from old benchmark system to new (must be executed before default_settings):
+	if(!isset($get_disklocation_config["bench_mode"]) && is_dir(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/benchmark")) {
+		$bench_files = array_diff(scandir(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/benchmark/"), array('..', '.'));
+		foreach($bench_files as $file) {
+			$convert["cache"] = json_decode(file_get_contents(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/benchmark/" . $file), true);
+			if(!array_key_exists("cache", $convert["cache"])) { // double check to prevent benchmark array duplication
+				config_array(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/benchmark/" . $file, 'w', $convert);
+			}
+		}
+		$save_bench_mode = config_array(DISKLOCATION_CONF, 'r');
+		$save_bench_mode["bench_mode"] = 0;
+		config_array(DISKLOCATION_CONF, 'w', $save_bench_mode);
+	}
+	
 	require_once("default_settings.php");
 	
 	if(!file_exists(DISKLOCATION_DEVICES)) { // do not load SQLite anymore if the devices.json exists.

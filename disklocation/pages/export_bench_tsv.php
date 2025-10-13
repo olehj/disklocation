@@ -20,6 +20,10 @@
 	 */
 	
 	if(isset($_GET["download_csv"])) {
+		$mode = (isset($_GET["mode"]) ? $_GET["mode"] : "cache");
+		$mode_file = ($_GET["mode"] == "cache" ? "buffered" : "direct");
+		$mode_txt = ($_GET["mode"] == "cache" ? "Buffered" : "Direct I/O");
+		
 		require_once("system.php");
 		require_once("array_devices.php");
 		
@@ -33,16 +37,17 @@
 		}
 		
 		foreach($benchmark as $drive => $data) {
-			if(!empty($data)) {
-				$arr_length = count($data);
-				foreach($data as $date => $speed) {
-					$date_array[] = $date;
+			if(!empty($data[$mode])) {
+				foreach($data[$mode] as $date => $speed) {
+					if(!empty($date)) {
+						$date_array[] = $date;
+					}
 				}
 				$drive_array[] = $drive;
 			}
 		}
 		
-		$date_array = array_unique($date_array);
+		$date_array = array_values(array_unique($date_array));
 		sort($date_array);
 		
 		$print_csv[0][0] = " ";
@@ -55,14 +60,14 @@
 		}
 		for($i=1; $i < count($print_csv[0])+1; ++$i) {
 			for($i2=0; $i2 < count($drive_array); ++$i2) {
-				$print_csv[$i2+1][$i] = ( !empty($benchmark[$drive_array[$i2]][$print_csv[0][$i]]) ? round($benchmark[$drive_array[$i2]][$print_csv[0][$i]]) : '' );
+				$print_csv[$i2+1][$i] = ( !empty($benchmark[$drive_array[$i2]][$mode][$print_csv[0][$i]]) ? round($benchmark[$drive_array[$i2]][$mode][$print_csv[0][$i]]) : '' );
 			}
 		}
 		
 		$rows = count($drive_array)+2;
-		$print_csv[$rows][0] = "Disk Location (" . DISKLOCATION_VERSION . ") Benchmark";
+		$print_csv[$rows][0] = "Disk Location (" . DISKLOCATION_VERSION . ") Benchmark (" . $mode_txt . ")";
 		$print_csv[0][0] = "Exported: " . date("Y-m-d");
-		//print_r($print_csv);
-		array_to_csv_download($print_csv, "disklocation-benchmark-" . date("Ymd-His") . ".tsv", "\t");
+		//print_r($print_csv);die();
+		array_to_csv_download($print_csv, "disklocation-benchmark-" . $mode_file . "-" . date("Ymd-His") . ".tsv", "\t");
 	}
 ?>
