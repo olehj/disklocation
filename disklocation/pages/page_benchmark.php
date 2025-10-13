@@ -88,10 +88,10 @@
 			$speed_values = array();
 			switch($bench_mode) {
 				case 1:
-					$speed_values = $devices[$hash]["benchmark"]["direct"];
+					$speed_values = is_array($devices[$hash]["benchmark"]["direct"]) ? $devices[$hash]["benchmark"]["direct"] : array();
 					break;
 				case 2:
-					$speed_values = array_merge($devices[$hash]["benchmark"]["cache"], $devices[$hash]["benchmark"]["direct"]);
+					$speed_values = is_array($devices[$hash]["benchmark"]["direct"]) ? array_merge($devices[$hash]["benchmark"]["cache"], $devices[$hash]["benchmark"]["direct"]) : $devices[$hash]["benchmark"]["cache"];
 					break;
 				default:
 					$speed_values = $devices[$hash]["benchmark"]["cache"];
@@ -304,7 +304,18 @@
 		<li>The sorting order follows the "Information" list.</li>
 	</ul>
 </blockquote>
-<?php if(!empty($graph_out)) { print("<h2>Export: <a href=\"" . DISKLOCATION_PATH . "/pages/export_bench_tsv.php?download_csv=1\">all benchmarks</a></h2><hr />"); } ?>
+<?php 
+	if(!empty($graph_out)) {
+		print("
+			<h2>Export benchmark:
+				" . ((!$bench_mode || $bench_mode == 2) ? "<a href=\"" . DISKLOCATION_PATH . "/pages/export_bench_tsv.php?download_csv=1&amp;mode=cache\">buffered</a>" : null) . "
+				" . (($bench_mode == 2 && is_array($devices[$hash]["benchmark"]["direct"])) ? "|" : null) . "
+				" . (($bench_mode >= 1 && is_array($devices[$hash]["benchmark"]["direct"])) ? "<a href=\"" . DISKLOCATION_PATH . "/pages/export_bench_tsv.php?download_csv=1&amp;mode=direct\">direct I/O</a>" : null) . "
+			</h2>
+			<hr />
+		");
+	}
+?>
 <div>
 <?php 
 	if(!empty($graph_out)) { print($graph_out); }
