@@ -50,8 +50,6 @@
 	
 	foreach($array_groups as $id => $value) {
 		$group_color = "";
-		$grid_trays = 0;
-		
 		$hide_tray = array();
 		$count_bypass_tray = 0;
 		
@@ -90,7 +88,7 @@
 				$datajson = ( !empty($datajson) ? sort_array($datajson, 'groupid', SORT_ASC, SORT_NUMERIC, 'tray', SORT_ASC, SORT_NUMERIC) : array() );
 			}
 			
-			$total_trays = ( empty($grid_trays) ? $grid_columns * $grid_rows : $grid_trays );
+			$total_trays = $grid_columns * $grid_rows;
 			$total_trays_group += $total_trays;
 			
 			if($biggest_tray_group < $total_trays) {
@@ -142,11 +140,16 @@
 					if(!empty($hide_tray)) {
 						if($count_bypass_tray) {
 							$tray_number = $tray_assign;
+							if($hide_tray[$tray_assign]) {
+								$total_trays_group -= 1;
+							}
 						}
 						else if(!$hide_tray[$tray_assign]) {
 							$tray_number++;
 						}
-						$total_trays_group = $total_trays_group-1;
+						else {
+							$total_trays_group -= 1;
+						}
 					}
 					else {
 						$tray_number = $tray_assign;
