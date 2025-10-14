@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.10.13">
+<!ENTITY version          "2025.10.14">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2025.10.14
+ - Commit #471 - MINOR: Misaligned trays in rare cases. When there's hidden trays, it can be misaligned with the neighbor groups. Adjusted the styles for the dashboards.
+
 ###2025.10.13
  - Commit #469 - IMPROVEMENT: Added direct IO mode for Benchmark. It's now possible to select to use buffered (default), direct (probably the best for this purpose) or both for benchmarking drives. The benchmark data will be split. The graph will only show what's selected for the run, but the benchmark json file will contain all saved data.
 
