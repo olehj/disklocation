@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.10.14">
+<!ENTITY version          "2025.10.15">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2025.10.15
+ - Commit #473 - MINOR: Math is difficult, corrected wrongly counted number of assignable devices when bypassed trays where used.
+
 ###2025.10.14
  - Commit #471 - MINOR: Misaligned trays in rare cases. When there's hidden trays, it can be misaligned with the neighbor groups. Adjusted the styles for the dashboards.
 
