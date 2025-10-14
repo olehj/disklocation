@@ -180,22 +180,20 @@
 					$disklocation_page[$gid] .= "
 						<div style=\"order: " . $tray_assign . "\">
 							<div class=\"flex-container_" . $disk_tray_direction . "\">
-								" . ( $hide_tray[$tray_assign] ? "<div style=\"border: none; width: " . $tray_width . "px; height: " . $tray_height . "px;\"><!--" : null ) . "
-								<div style=\"background-color: #" . $color_array["empty"] . "; width: " . $tray_width . "px; height: " . $tray_height . "px;\">
+								<div style=\"" . ($hide_tray[$tray_assign] ? "border-color: transparent; " : "") . "background-color: " . ($hide_tray[$tray_assign] ? "transparent" : "#" . $color_array["empty"] . "") . "; width: " . $tray_width . "px; height: " . $tray_height . "px;\">
 									<div class=\"flex-container-start\" style=\"white-space: nowrap;\">
-										<b>$empty_tray</b>$insert_break
-										$empty_leddiskop $insert_break
-										$empty_ledsmart $insert_break
-										$empty_ledtemp
+										" . ($hide_tray[$tray_assign] ? "&nbsp;" : "<b>$empty_tray</b>") . " $insert_break
+										" . ($hide_tray[$tray_assign] ? "" : $empty_leddiskop) . " $insert_break
+										" . ($hide_tray[$tray_assign] ? "" : $empty_ledsmart) . " $insert_break
+										" . ($hide_tray[$tray_assign] ? "" : $empty_ledtemp) . "
 									</div>
 									<div class=\"flex-container-middle_" . $disk_tray_direction . "\">
-										$empty_traytext
+										" . ($hide_tray[$tray_assign] ? "&nbsp;" : $empty_traytext) . "
 									</div>
 									<div class=\"flex-container-end\" style=\"white-space: nowrap;\">
 										&nbsp;
 									</div>
 								</div>
-								" . ( $hide_tray[$tray_assign] ? "--></div>" : null ) . "
 							</div>
 						</div>
 					";
@@ -252,18 +250,16 @@
 					$disklocation_dash[$gid] .= "
 						<div style=\"order: " . $tray_assign . "\">
 							<div class=\"flex-container-layout_" . $disk_tray_direction . "\">
-								" . ( $hide_tray[$tray_assign] ? "<div style=\"border: none; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\"><!--" : null ) . "
-								<div style=\"background-color: #" . $color_array["empty"] . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
-									<div class=\"flex-container-start\" style=\"/*min-height: 15px;*/\">
-										" . get_unraid_disk_status("grey-off", '', '', $force_orb_led) . "
+								<div style=\"" . ($hide_tray[$tray_assign] ? "border-color: transparent; " : "") . "background-color: " . ($hide_tray[$tray_assign] ? "transparent" : "#" . $color_array["empty"] . "") . "; width: " . $tray_width/$tray_reduction_factor . "px; height: " . $tray_height/$tray_reduction_factor . "px;\">
+									<div class=\"flex-container-start\">
+										" . ($hide_tray[$tray_assign] ? "&nbsp;" : get_unraid_disk_status("grey-off", '', '', $force_orb_led)) . "
 									</div>
 									<div class=\"flex-container-middle_" . $disk_tray_direction . "\" style=\"padding: 0 0 10px 0;\">
 									</div>
-									<div class=\"flex-container-end\">
-										<b>" . $empty_tray . "</b>
+									<div class=\"flex-container-end\" style=\"white-space: nowrap;\">
+										" . ($hide_tray[$tray_assign] ? "" : "<b>" . $empty_tray . "</b>") . "
 									</div>
 								</div>
-								" . ( $hide_tray[$tray_assign] ? "--></div>" : null ) . "
 							</div>
 						</div>
 					";
@@ -562,7 +558,7 @@
 		$disklocation_page_out_get_float = (!empty($array_groups[$gid]["tray_pos"]) ? $array_groups[$gid]["tray_pos"] : (!empty($dashboard_float) ? $dashboard_float : $tray_pos ) );
 		
 		$disklocation_page_out .= "
-			<div style=\"float: " . $disklocation_page_out_get_float . "; vertical-align: top; padding" . ($disklocation_page_out_get_float == "none" ? "-bottom: 40px" : "0") . ";\">
+			<div style=\"float: " . $disklocation_page_out_get_float . "; vertical-align: top; padding" . ($disklocation_page_out_get_float == "none" ? "-bottom: 40px" : ": 0") . ";\">
 				<h2 style=\"text-align: " . (!empty($array_groups[$gid]["tray_align_txt"]) ? $array_groups[$gid]["tray_align_txt"] : "center" ) . "; " . ( $array_groups[$gid]["tray_align_txt"] == "vertical" ? "float: left; writing-mode: vertical-rl;" : null ) . "\">" . stripslashes(htmlspecialchars($gid_name)) . "</h2>
 				<div class=\"grid-container\" style=\"$css_grid_group\">
 					$disklocation_page[$gid]
