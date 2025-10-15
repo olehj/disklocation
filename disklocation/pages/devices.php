@@ -52,6 +52,7 @@
 		$group_color = "";
 		$hide_tray = array();
 		$count_bypass_tray = 0;
+		$grid_trays = 0;
 		
 		extract($value);
 		
@@ -88,7 +89,7 @@
 				$datajson = ( !empty($datajson) ? sort_array($datajson, 'groupid', SORT_ASC, SORT_NUMERIC, 'tray', SORT_ASC, SORT_NUMERIC) : array() );
 			}
 			
-			$total_trays = $grid_columns * $grid_rows;
+			$total_trays = ( empty($grid_trays) ? $grid_columns * $grid_rows : $grid_trays );
 			$total_trays_group += $total_trays;
 			
 			if($biggest_tray_group < $total_trays) {
