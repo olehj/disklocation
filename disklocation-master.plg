@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2025.10.16
+ - Commit #475 - MINOR: Due to recent changes, the old deprecated "tray override" did malfunction. Reverted some minor changes.
+
 ###2025.10.15
  - Commit #473 - MINOR: Math is difficult, corrected wrongly counted number of assignable devices when bypassed trays where used.
 
