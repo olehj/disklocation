@@ -36,6 +36,8 @@ Menu="Dashboard:0"
 		extract($value);
 		$gid = $id;
 		
+		$gid_name = ($tray_align_txt != "hide" ? ( empty($group_name) ? $gid : $group_name ) : "");
+		
 		$css_grid_group = "
 			grid-template-columns: " . $grid_columns_styles[$gid] . ";
 			grid-template-rows: " . $grid_rows_styles[$gid] . ";
@@ -47,7 +49,7 @@ Menu="Dashboard:0"
 		
 		$disklocation_dash_out .= "
 			<div style=\"float: " . $disklocation_dash_out_get_float . "; vertical-align: top; padding" . ($disklocation_dash_out_get_float == "none" ? "-bottom: 10px" : "0") . ";\">
-				<div style=\"text-align: " . (!empty($array_groups[$gid]["tray_align_txt"]) ? $array_groups[$gid]["tray_align_txt"] : "center" ) . "; " . ( $array_groups[$gid]["tray_align_txt"] == "vertical" ? "float: left; writing-mode: vertical-rl;" : null ) . "\"><b>" . stripslashes(htmlspecialchars($group_name)) . "</b></div>
+				<div style=\"text-align: " . (!empty($array_groups[$gid]["tray_align_txt"]) ? $array_groups[$gid]["tray_align_txt"] : "center" ) . "; " . ( $array_groups[$gid]["tray_align_txt"] == "vertical" ? "float: left; writing-mode: vertical-rl;" : null ) . "\"><b>" . stripslashes(htmlspecialchars($gid_name)) . "</b></div>
 				<div class=\"grid-container\" style=\"$css_grid_group\">
 					$disklocation_dash[$gid]
 				</div>
