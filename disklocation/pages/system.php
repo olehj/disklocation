@@ -251,7 +251,7 @@
 			if($new_array[$id]["tray_height"] && !preg_match("/[0-9]{1,3}/", $new_array[$id]["tray_height"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Tray's smallest side outside limits or invalid number entered."; }
 			if($new_array[$id]["tray_pos"] && !preg_match("/\b(left|right|none)\b/", $new_array[$id]["tray_pos"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Wrong position value."; }
 			if($new_array[$id]["tray_align"] && !preg_match("/\b(left|right|center)\b/", $new_array[$id]["tray_align"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Wrong alignment value."; }
-			if($new_array[$id]["tray_align_txt"] && !preg_match("/\b(left|right|center|vertical)\b/", $new_array[$id]["tray_align_txt"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Wrong alignment value."; }
+			if($new_array[$id]["tray_align_txt"] && !preg_match("/\b(left|right|center|vertical|hide)\b/", $new_array[$id]["tray_align_txt"])) { $disklocation_error[] = "" . $new_array[$id]["group_name"] . ": Wrong alignment value."; }
 			if($id && !preg_match("/[0-9]{1,}/", $id)) { $disklocation_error[] = "" . $id . ": Expected group ID to be an integer."; }
 		}
 		

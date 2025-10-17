@@ -88,17 +88,28 @@
 					" . ( !empty($array_groups[$gid]["grid_trays"]) ? "<span style=\"color: #FF0000;\">Override is now deprecated and should not be used, please adjust the configuration. Adjust the grid size or create a new group and move the devices to new allocations, then delete the override number (blank) or the group altogheter after the devices has been moved.</span>" : null ) . "
 				</blockquote>
 				<p>
+					<b>Tray count start:</b><br />
+					<input type=\"number\" required min=\"0\" max=\"9999999\" name=\"tray_start_num[$gid]\" value=\"" . $array_groups[$gid]["tray_start_num"] . "\" style=\"width: 50px;\" />
+				</p>
+				<blockquote class=\"inline_help\" style=\"white-space: wrap;\">
+					<p>Start counting tray from the entered number.</p>
+				</blockquote>
+				<p>
 					<b>Set physical tray direction:</b><br />
-					<input type=\"radio\" name=\"disk_tray_direction[$gid]\" value=\"h\" " . ( ($array_groups[$gid]["disk_tray_direction"] == "h") ? "checked" : null ) . " />horizontal
-					<input type=\"radio\" name=\"disk_tray_direction[$gid]\" value=\"v\" " . ( ($array_groups[$gid]["disk_tray_direction"] == "v") ? "checked" : null ) . " />vertical
+					<select name=\"disk_tray_direction[$gid]\" style=\"width: 150px;\">
+						<option value=\"h\" " . ( ($array_groups[$gid]["disk_tray_direction"] == "h") ? "selected" : null ) . ">horizontal</option>
+						<option value=\"v\" " . ( ($array_groups[$gid]["disk_tray_direction"] == "v") ? "selected" : null ) . ">vertical</option>
+					</select>
 				</p>
 				<blockquote class=\"inline_help\" style=\"white-space: wrap;\">
 					This is the direction of the tray itself. Is it laying flat/horizontal, or is it vertical?
 				</blockquote>
 				<p>
 					<b>Tray assigment count properties:</b><br />
-					<input type=\"radio\" name=\"grid_count[$gid]\" value=\"column\" " . ( ($array_groups[$gid]["grid_count"] == "column") ? "checked" : null ) . " />count columns
-					<input type=\"radio\" name=\"grid_count[$gid]\" value=\"row\" " . ( ($array_groups[$gid]["grid_count"] == "row") ? "checked" : null ) . " />count rows
+					<select name=\"grid_count[$gid]\" style=\"width: 150px;\">
+						<option value=\"column\" " . ( ($array_groups[$gid]["grid_count"] == "column") ? "selected" : null ) . ">columns</option>
+						<option value=\"row\" " . ( ($array_groups[$gid]["grid_count"] == "row") ? "selected" : null ) . ">rows</option>
+					</select>
 				</p>
 				<blockquote class=\"inline_help\" style=\"white-space: wrap;\">
 					Select how to count the tray:<br />
@@ -107,27 +118,23 @@
 				</blockquote>
 				<p>
 					<b>Tray assigment count direction:</b><br />
-					<input type=\"radio\" name=\"tray_direction[$gid]\" value=\"1\" " . ( ($array_groups[$gid]["tray_direction"] == 1) ? "checked" : null ) . " />left/top
-					<input type=\"radio\" name=\"tray_direction[$gid]\" value=\"2\" " . ( ($array_groups[$gid]["tray_direction"] == 2) ? "checked" : null ) . " />left/bottom
-					<br />
-					<input type=\"radio\" name=\"tray_direction[$gid]\" value=\"3\" " . ( ($array_groups[$gid]["tray_direction"] == 3) ? "checked" : null ) . " />right/top
-					<input type=\"radio\" name=\"tray_direction[$gid]\" value=\"4\" " . ( ($array_groups[$gid]["tray_direction"] == 4) ? "checked" : null ) . " />right/bottom
+					<select name=\"tray_direction[$gid]\" style=\"width: 150px;\">
+						<option value=\"1\" " . ( ($array_groups[$gid]["tray_direction"] == 1) ? "selected" : null ) . ">left / top</option>
+						<option value=\"2\" " . ( ($array_groups[$gid]["tray_direction"] == 2) ? "selected" : null ) . ">left / bottom</option>
+						<option value=\"3\" " . ( ($array_groups[$gid]["tray_direction"] == 3) ? "selected" : null ) . ">right / top</option>
+						<option value=\"4\" " . ( ($array_groups[$gid]["tray_direction"] == 4) ? "selected" : null ) . ">right / bottom</option>
+					</select>
 				</p>
 				<blockquote class=\"inline_help\" style=\"white-space: wrap;\">
 					Select the direction you want to count the trays.
 				</blockquote>
 				<p>
-					<b>Tray count start:</b><br />
-					<input type=\"number\" required min=\"0\" max=\"9999999\" name=\"tray_start_num[$gid]\" value=\"" . $array_groups[$gid]["tray_start_num"] . "\" style=\"width: 50px;\" />
-				</p>
-				<blockquote class=\"inline_help\" style=\"white-space: wrap;\">
-					<p>Start counting tray from the entered number.</p>
-				</blockquote>
-				<p>
 					<b>Set next group position:</b><br />
-					<input type=\"radio\" name=\"tray_pos[$gid]\" value=\"left\" " . ( $array_groups[$gid]["tray_pos"] == 'left' ? "checked" : (!empty($dashboard_float) && $dashboard_float == 'left' ? "checked" : "checked" ) ) . " />Left
-					<input type=\"radio\" name=\"tray_pos[$gid]\" value=\"right\" " . ( $array_groups[$gid]["tray_pos"] == 'right' ? "checked" : (!empty($dashboard_float) && $dashboard_float == 'right' ? "checked" : null ) ) . " />Right
-					<input type=\"radio\" name=\"tray_pos[$gid]\" value=\"none\" " . ( $array_groups[$gid]["tray_pos"] == 'none' ? "checked" : (!empty($dashboard_float) && $dashboard_float == 'none' ? "checked" : null ) ) . "/>Break
+					<select name=\"tray_pos[$gid]\" style=\"width: 150px;\">
+						<option value=\"left\" " . ( $array_groups[$gid]["tray_pos"] == 'left' ? "selected" : (!empty($dashboard_float) && $dashboard_float == 'left' ? "selected" : "selected" ) ) . ">left</option>
+						<option value=\"right\" " . ( $array_groups[$gid]["tray_pos"] == 'right' ? "selected" : (!empty($dashboard_float) && $dashboard_float == 'right' ? "selected" : null ) ) . ">right</option>
+						<option value=\"none\" " . ( $array_groups[$gid]["tray_pos"] == 'none' ? "selected" : (!empty($dashboard_float) && $dashboard_float == 'none' ? "selected" : null ) ) . ">break</option>
+					</select>
 				</p>
 				<blockquote class=\"inline_help\" style=\"white-space: wrap;\">
 					Sets the next group placement, float Tray Layout to the left, right or break them into new position underneath. This might give unexpected results depending on your configuration.
@@ -136,9 +143,11 @@
 				</blockquote>
 				<p>
 					<b>Set group alignment:</b><br />
-					<input type=\"radio\" name=\"tray_align[$gid]\" value=\"left\" " . ( $array_groups[$gid]["tray_align"] == 'left' ? "checked" : null ) . " />Left
-					<input type=\"radio\" name=\"tray_align[$gid]\" value=\"center\" " . ( $array_groups[$gid]["tray_align"] == 'center' ? "checked" : (!empty($array_groups[$gid]["tray_align"]) ? $array_groups[$gid]["tray_align"] : "checked" ) ) . "/>Center
-					<input type=\"radio\" name=\"tray_align[$gid]\" value=\"right\" " . ( $array_groups[$gid]["tray_align"] == 'right' ? "checked" : null ) . " />Right
+					<select name=\"tray_align[$gid]\" style=\"width: 150px;\">
+						<option value=\"left\" " . ( $array_groups[$gid]["tray_align"] == 'left' ? "selected" : (!empty($dashboard_float) && $dashboard_float == 'left' ? "selected" : null ) ) . ">left</option>
+						<option value=\"center\" " . ( $array_groups[$gid]["tray_align"] == 'center' ? "selected" : (!empty($array_groups[$gid]["tray_align"]) ? $array_groups[$gid]["tray_align"] : "selected" ) ) . ">center</option>
+						<option value=\"right\" " . ( $array_groups[$gid]["tray_align"] == 'right' ? "selected" : (!empty($dashboard_float) && $dashboard_float == 'right' ? "selected" : null ) ) . ">right</option>
+					</select>
 				</p>
 				<blockquote class=\"inline_help\" style=\"white-space: wrap;\">
 					Sets the alignment of the group.
@@ -147,10 +156,13 @@
 				</blockquote>
 				<p>
 					<b>Set group name alignment:</b><br />
-					<input type=\"radio\" name=\"tray_align_txt[$gid]\" value=\"left\" " . ( $array_groups[$gid]["tray_align_txt"] == 'left' ? "checked" : null ) . " />Left
-					<input type=\"radio\" name=\"tray_align_txt[$gid]\" value=\"center\" " . ( $array_groups[$gid]["tray_align_txt"] == 'center' ? "checked" : (!empty($array_groups[$gid]["tray_align_txt"]) ? $array_groups[$gid]["tray_align_txt"] : "checked" ) ) . "/>Center
-					<input type=\"radio\" name=\"tray_align_txt[$gid]\" value=\"right\" " . ( $array_groups[$gid]["tray_align_txt"] == 'right' ? "checked" : null ) . " />Right
-					<input type=\"radio\" name=\"tray_align_txt[$gid]\" value=\"vertical\" " . ( $array_groups[$gid]["tray_align_txt"] == 'vertical' ? "checked" : null ) . " />Vertical
+					<select name=\"tray_align_txt[$gid]\" style=\"width: 150px;\">
+						<option value=\"left\" " . ( $array_groups[$gid]["tray_align_txt"] == 'left' ? "selected" : null ) . ">left</option>
+						<option value=\"center\" " . ( $array_groups[$gid]["tray_align_txt"] == 'center' ? "selected" : (!empty($array_groups[$gid]["tray_align_txt"]) ? $array_groups[$gid]["tray_align_txt"] : "selected" ) ) . ">center</option>
+						<option value=\"right\" " . ( $array_groups[$gid]["tray_align_txt"] == 'right' ? "selected" : null ) . ">right</option>
+						<option value=\"vertical\" " . ( $array_groups[$gid]["tray_align_txt"] == 'vertical' ? "selected" : null ) . ">vertical</option>
+						<option value=\"hide\" " . ( $array_groups[$gid]["tray_align_txt"] == 'hide' ? "selected" : null ) . ">hide</option>
+					</select>
 				</p>
 				<blockquote class=\"inline_help\" style=\"white-space: wrap;\">
 					Sets the text alignment of the group name. Vertical mode is only from top to bottom on the left side of the trays.
