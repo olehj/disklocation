@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.10.16">
+<!ENTITY version          "2025.10.17">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2025.10.17
+ - Commit #478 - BUG/FEATURE: Tray Allocations might have faulted in some occasions, adjusted some code to prevent that from happening again. Added selector boxes under "Layout" instead of radio buttons. Added "hide" for the group name text.
+
 ###2025.10.16
  - Commit #475 - MINOR: Due to recent changes, the old deprecated "tray override" did malfunction. Reverted some minor changes.
 

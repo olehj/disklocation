@@ -142,14 +142,14 @@
 						if($count_bypass_tray) {
 							$tray_number = $tray_assign;
 							if($hide_tray[$tray_assign]) {
-								$total_trays_group -= 1;
+								$total_trays_group = is_int($total_trays_group) ? --$total_trays_group : 0;
 							}
 						}
 						else if(!$hide_tray[$tray_assign]) {
 							$tray_number++;
 						}
 						else {
-							$total_trays_group -= 1;
+							$total_trays_group = is_int($total_trays_group) ? --$total_trays_group : 0;
 						}
 					}
 					else {
@@ -550,7 +550,7 @@
 	( is_array($array_groups) ?? ksort($array_groups, SORT_NUMERIC) );
 	
 	foreach($array_groups as $gid => $value) {
-		$gid_name = ( empty($array_groups[$gid]["group_name"]) ? $gid : $array_groups[$gid]["group_name"] );
+		$gid_name = ($array_groups[$gid]["tray_align_txt"] != "hide" ? ( empty($array_groups[$gid]["group_name"]) ? $gid : $array_groups[$gid]["group_name"]) : "");
 		
 		$css_grid_group = "
 			grid-template-columns: " . $grid_columns_styles[$gid] . ";
