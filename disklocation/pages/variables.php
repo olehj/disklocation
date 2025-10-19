@@ -132,8 +132,10 @@
 		$bench_files = array_diff(scandir(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/benchmark/"), array('..', '.'));
 		foreach($bench_files as $file) {
 			$convert["cache"] = json_decode(file_get_contents(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/benchmark/" . $file), true);
-			if(!array_key_exists("cache", $convert["cache"])) { // double check to prevent benchmark array duplication
-				config_array(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/benchmark/" . $file, 'w', $convert);
+			if(is_array($convert["cache"])) {
+				if(!array_key_exists("cache", $convert["cache"])) { // double check to prevent benchmark array duplication
+					config_array(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/benchmark/" . $file, 'w', $convert);
+				}
 			}
 		}
 		$save_bench_mode = config_array(DISKLOCATION_CONF, 'r');
