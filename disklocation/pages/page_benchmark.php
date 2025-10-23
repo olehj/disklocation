@@ -96,7 +96,7 @@
 				default:
 					$speed_values = $devices[$hash]["benchmark"]["cache"];
 			}
-			sort($speed_values);
+			is_array($speed_values) ? sort($speed_values) : $speed_values = array();
 			
 			$speed_graph_text = array();
 			$speed_graph_text["slow"] = floor($speed_values[array_key_first($speed_values)] / 100) * 100;
