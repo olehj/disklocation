@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2025.10.19">
+<!ENTITY version          "2025.10.23">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2025.10.23
+ - Commit #483 - IMPROVEMENT: Added an extra check to verify JSON check during benchmark migration, in case this is related to #482. Changed some code in benchmark page to prevent rest from not loading if a variable is empty. Changed some minor text in system page to not scare people :P
+
 ###2025.10.19
  - Commit #480 - BUG: Fixed a bug where benchmark migration would search for 'null' instead of an array.
 

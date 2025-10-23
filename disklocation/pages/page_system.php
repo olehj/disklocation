@@ -649,7 +649,7 @@
 		
 		$print_force_scan = "
 			<form action=\"" . DISKLOCATION_PATH . "/pages/page_system.php\" method=\"post\">
-				<b>Clicking the buttons will update data directly. It might take a few seconds to several minutes depending on the amount of devices it need to scan.</b>
+				Clicking the buttons will update data directly. It might take a few seconds to several minutes depending on the amount of devices it need to look up.
 				<br />
 				<input type='button' " . ( (!$check_smart_files || $check_devicepath_conflict || !file_exists(DISKLOCATION_DEVICES)) ? "disabled=\"disabled\"" : null ) . " value='SMART' onclick='openBox(\"" . CRONJOB_URL . "?active_smart_scan=1\",\"Updating SMART data on active devices\",600,800,true,\"loadlist\",\":return\")'>
 				<input type='button' " . ( ($check_devicepath_conflict || !file_exists(DISKLOCATION_DEVICES)) ? "disabled=\"disabled\"" : null ) . " value='Force SMART' onclick='openBox(\"" . CRONJOB_URL . "?force_smart_scan=1\",\"Wake up all devices and update SMART data\",600,800,true,\"loadlist\",\":return\")'>
@@ -719,8 +719,8 @@
 		print( function_exists('human_filesize') && function_exists('dirsize') ? "<br />Storage: " . human_filesize(dirsize(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH)+$size_total, 1, true) : null );
 	?>
 </p>
-<h3 class="red">
-	<b>NB! Operations done on this page will execute without warning or confirmation and cannot be undone after execution!</b>
+<h3>
+	<b>Update</b>
 </h3>
 <?php 
 	if($db_update == 2 || strstr($_SERVER["SCRIPT_NAME"], "page_system.php")) { 
