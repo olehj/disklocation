@@ -836,7 +836,7 @@
 		$results = array();
 		
 		switch($dir) {
-			case 1: // ok
+			case 1: // ok | left / top
 				if($grid) {
 					/* 1 = left->right|top->bottom:		verified ok	(row: left->right)
 						1-2-3
@@ -870,7 +870,7 @@
 				
 				break;
 				
-			case 2: // ok
+			case 2: // ok | left | bottom
 				if($grid == "row") {
 					/* 2 = left->right|bottom->top:		verified ok	(row: left->right)
 						4-5-6
@@ -937,7 +937,7 @@
 				
 				break;
 				
-			case 3: // ok
+			case 3: // ok | right / top
 				if($grid == "row") {
 					/* 3 = right->left|top->bottom:		verified ok	(row: left->right)
 						3-2-1
@@ -1006,7 +1006,7 @@
 				
 				break;
 				
-			case 4: // ok
+			case 4: // ok | right / bottom
 				if($grid) {
 					/* 4 = right->left|bottom->top:		verified ok	(row: left->right)
 						6-5-4

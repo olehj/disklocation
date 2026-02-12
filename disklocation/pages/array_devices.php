@@ -34,11 +34,14 @@
 		
 		$purchased_date = "";
 		$installed_date = "";
+		$smart_array = array();
 		$smart_status = 0;
 		$smart_status_icon = "";
 		$smart_loadcycle = "";
 		$smart_temperature = 0;
 		$smart_endurance_used = null;
+		$smart_units_read = null;
+		$smart_units_written = null;
 		
 		$gid = $array_locations[$hash]["groupid"];
 		$groupid = $gid;
