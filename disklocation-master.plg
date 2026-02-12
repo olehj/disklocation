@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2026.02.12">
+<!ENTITY version          "2026.02.13">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2026.02.13
+ - Commit #491 - BUG: Benchmarks showed X first and not last results on the page.
+
 ###2026.02.12
  - Commit #489 - BUG: Tray assignment count direction could fail tray numbering if row/col is 1. If count order was selected to be "left/bottom" or "right/top" when rows or columns were set to 1, it would fail the counting. As these does not make any difference than selecting "left/top" or "right/bottom", the two others are removed from the selection if rows or columns are set to 1.
  - Commit #487 - BUG: Read/written values could be carried over from another device in some situations, values should now return "null" if values doesn't exists.
