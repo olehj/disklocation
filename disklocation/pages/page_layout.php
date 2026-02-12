@@ -120,8 +120,13 @@
 					<b>Tray assigment count direction:</b><br />
 					<select name=\"tray_direction[$gid]\" style=\"width: 150px;\">
 						<option value=\"1\" " . ( ($array_groups[$gid]["tray_direction"] == 1) ? "selected" : null ) . ">left / top</option>
-						<option value=\"2\" " . ( ($array_groups[$gid]["tray_direction"] == 2) ? "selected" : null ) . ">left / bottom</option>
-						<option value=\"3\" " . ( ($array_groups[$gid]["tray_direction"] == 3) ? "selected" : null ) . ">right / top</option>
+						
+						" . ( ($array_groups[$gid]["grid_columns"] > 1 && $array_groups[$gid]["grid_rows"] > 1) ? "<option value=\"2\" " . ( ($array_groups[$gid]["tray_direction"] == 2) ? "selected" : null ) . ">left / bottom</option>" : "" ) . "
+						
+						
+						" . ( ($array_groups[$gid]["grid_columns"] > 1 && $array_groups[$gid]["grid_rows"] > 1) ? "<option value=\"3\" " . ( ($array_groups[$gid]["tray_direction"] == 3) ? "selected" : null ) . ">right / top</option>" : "" ) . "
+						
+						
 						<option value=\"4\" " . ( ($array_groups[$gid]["tray_direction"] == 4) ? "selected" : null ) . ">right / bottom</option>
 					</select>
 				</p>
