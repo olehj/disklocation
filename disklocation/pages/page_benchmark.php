@@ -96,6 +96,7 @@
 				default:
 					$speed_values = $devices[$hash]["benchmark"]["cache"];
 			}
+			$speed_values = is_array($speed_values) ? array_slice($speed_values, -$bench_last_values, null, true) : array();
 			is_array($speed_values) ? sort($speed_values) : $speed_values = array();
 			
 			$speed_graph_text = array();
@@ -113,6 +114,7 @@
 			foreach(array_keys($devices[$hash]["benchmark"]) as $benchmark_mode) {
 				if(is_array($devices[$hash]["benchmark"][$benchmark_mode])) {
 					ksort($devices[$hash]["benchmark"][$benchmark_mode]);
+					$devices[$hash]["benchmark"][$benchmark_mode] = array_slice($devices[$hash]["benchmark"][$benchmark_mode], -$bench_last_values, null, true);
 					
 					foreach($devices[$hash]["benchmark"][$benchmark_mode] as $date => $speed) {
 						$benchmark[$date][$benchmark_mode] = $speed;
