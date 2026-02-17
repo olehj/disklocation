@@ -105,7 +105,7 @@
 					This is the direction of the tray itself. Is it laying flat/horizontal, or is it vertical?
 				</blockquote>
 				<p>
-					<b>Tray assigment count properties:</b><br />
+					<b>Tray assignment count properties:</b><br />
 					<select name=\"grid_count[$gid]\" style=\"width: 150px;\">
 						<option value=\"column\" " . ( ($array_groups[$gid]["grid_count"] == "column") ? "selected" : null ) . ">columns</option>
 						<option value=\"row\" " . ( ($array_groups[$gid]["grid_count"] == "row") ? "selected" : null ) . ">rows</option>
@@ -117,7 +117,7 @@
 					&middot; row: \"left to right\" or \"right to left\"
 				</blockquote>
 				<p>
-					<b>Tray assigment count direction:</b><br />
+					<b>Tray assignment count direction:</b><br />
 					<select name=\"tray_direction[$gid]\" style=\"width: 150px;\">
 						<option value=\"1\" " . ( ($array_groups[$gid]["tray_direction"] == 1) ? "selected" : null ) . ">left / top</option>
 						" . ( ($array_groups[$gid]["grid_columns"] > 1 && $array_groups[$gid]["grid_rows"] > 1) ? "<option value=\"2\" " . ( ($array_groups[$gid]["tray_direction"] == 2) ? "selected" : null ) . ">left / bottom</option>" : "" ) . "
