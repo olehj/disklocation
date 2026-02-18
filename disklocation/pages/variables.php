@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2025, Ole-Henrik Jakobsen
+	 *  Copyright 2025-2026, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
