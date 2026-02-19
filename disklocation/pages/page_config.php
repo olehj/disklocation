@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2025, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2026, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -108,6 +108,15 @@ $(document).ready(function(){
 					Choose "Disk Type" for the traditional color scheme over the array and disk type.<br />
 					Choose "Heat Map" for backgrounds that depends on the temperature range set in Unraid, per disk or global.
 				</blockquote>
+				<p>
+					<b>SMART color theme:</b><br />
+					<input type="radio" name="smart_bg_theme" value="0" <?php if($smart_bg_theme == "0") echo "checked"; ?> />Default
+					<input type="radio" name="smart_bg_theme" value="1" <?php if($smart_bg_theme == "1") echo "checked"; ?> />Custom
+				</p>
+				<blockquote class="inline_help" style="white-space: wrap;">
+					Choose "Default" for using standard color theme for SMART page.<br />
+					Choose "Custom" to follow defined color theme, might work better for Azure theme.
+				</blockquote>
 				<div style="padding-top: 20px;">
 					<table>
 						<tr>
@@ -150,7 +159,7 @@ $(document).ready(function(){
 						</tr>
 					</table>
 				</div>
-				<blockquote class="inline_help" style="white-space: wrap;">
+				<blockquote class="inline_help" style="white-space: no-wrap;">
 					<p>Select the color(s) you want, defaults are:</p>
 					<p>
 						<span style="color: #<?php echo $bgcolor_parity_default ?>">&#11200;</span> #<?php echo $bgcolor_parity_default ?> "Parity"<br />
@@ -170,7 +179,7 @@ $(document).ready(function(){
 				<p>
 					<b>LED display:</b><br />
 					<input type="radio" name="force_orb_led" value="0" <?php if($force_orb_led == 0) echo "checked"; ?> />Unraid icons
-					<input type="radio" name="force_orb_led" value="1" <?php if($force_orb_led == 1) echo "checked"; ?>/>Circular LEDs
+					<input type="radio" name="force_orb_led" value="1" <?php if($force_orb_led == 1) echo "checked"; ?> />Circular LEDs
 				</p>
 				<blockquote class="inline_help" style="white-space: wrap;">
 					Show how to display the LEDs on the overview and dashboard. Unraid icons will show triangluar warning signs, crossed critival signs etc. Circular LEDs will all be color coded circular lights.
@@ -196,7 +205,7 @@ $(document).ready(function(){
 				<p>
 					<b>Ignore multiple LUNs:</b><br />
 					<input type="radio" name="ignore_multi_lun" value="0" <?php if($ignore_multi_lun == 0) echo "checked"; ?> />No
-					<input type="radio" name="ignore_multi_lun" value="1" <?php if($ignore_multi_lun == 1) echo "checked"; ?>/>Yes
+					<input type="radio" name="ignore_multi_lun" value="1" <?php if($ignore_multi_lun == 1) echo "checked"; ?> />Yes
 				</p>
 				<blockquote class="inline_help" style="white-space: wrap;">
 					This is a workaround on devices and systems that generates multiple addresses to the drives. Enable this if you are stuck with an error message on the Dashboard when you can assign devices.
@@ -205,7 +214,7 @@ $(document).ready(function(){
 				<p style="color: red;">
 					<b>Allow editing of Unraid config:</b><br />
 					<input type="radio" name="allow_unraid_edit" value="0" <?php if($allow_unraid_edit == 0) echo "checked"; ?> />No
-					<input type="radio" name="allow_unraid_edit" value="1" <?php if($allow_unraid_edit == 1) echo "checked"; ?>/>Yes
+					<input type="radio" name="allow_unraid_edit" value="1" <?php if($allow_unraid_edit == 1) echo "checked"; ?> />Yes
 				</p>
 				<blockquote class="inline_help" style="white-space: wrap;">
 					This will allow or disallow editing of Unraid config files via this plugin. E.g. acknowledgement of all drives at once, or editing warranty dates etc.

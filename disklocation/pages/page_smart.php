@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2025, Ole-Henrik Jakobsen
+	 *  Copyright 2025-2026, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -124,7 +124,7 @@
 				while($smart_i < count($get_smart_errors)) {
 					if($get_smart_errors[$smart_i]["value"] == "--") {
 						$disk_ack = "N/A";
-						$smart_bg_color = $bgcolor_parity_default;
+						$smart_bg_color = ( !empty($smart_bg_theme) ? $bgcolor_parity : $bgcolor_parity_default );
 					}
 					$print_drives_err[$i_drive] .= "
 						<tr><td style=\"vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px;\">" . $get_smart_errors[$smart_i]["name"] . "</td><td style=\"text-align: right; vertical-align: top; white-space: nowrap; padding: 0 10px 0 10px;\">" . ( ($get_smart_errors[$smart_i]["value"] == "--") ? "" : $get_smart_errors[$smart_i]["value"] ) . "</td></tr>
@@ -136,11 +136,13 @@
 					if(get_disk_ack($data["name"])) {
 						$disk_ack = "YES";
 						$smart_bg_color = $bgcolor_cache_default;
+						$smart_bg_color = ( !empty($smart_bg_theme) ? $bgcolor_cache : $bgcolor_cache_default );
 					}
 					else {
 						$disk_ack = "NO";
 						$disk_not_ack[] = $data["name"];
 						$smart_bg_color = $bgcolor_unraid_default;
+						$smart_bg_color = ( !empty($smart_bg_theme) ? $bgcolor_unraid : $bgcolor_unraid_default );
 					}
 				}
 				
@@ -167,13 +169,13 @@
 <form action="" method="post">
 <table style="width: 800px; border-spacing: 3px; border-collapse: separate;">
 	<tr>
-		<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_parity_default); ?>">
+		<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print(!empty($smart_bg_theme) ? $bgcolor_parity : $bgcolor_parity_default); ?>">
 			<b>Failed</b>
 		</td>
-		<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_unraid_default); ?>">
+		<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print(!empty($smart_bg_theme) ? $bgcolor_unraid : $bgcolor_unraid_default); ?>">
 			<b>Warning</b>
 		</td>
-		<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_cache_default); ?>">
+		<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print(!empty($smart_bg_theme) ? $bgcolor_cache : $bgcolor_cache_default); ?>">
 			<b>Acknowledged</b>
 		</td>
 	</tr>

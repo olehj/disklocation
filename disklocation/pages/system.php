@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2025, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2026, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -155,6 +155,8 @@
 		$_POST["force_orb_led"] = $_POST["force_orb_led"] ? 1 : 0;
 		$_POST["allow_unraid_edit"] = $_POST["allow_unraid_edit"] ? 1 : 0;
 		$_POST["auto_backup_days"] = $_POST["auto_backup_days"] ? $_POST["auto_backup_days"] : 0;
+		$_POST["device_bg_color"] = $_POST["device_bg_color"] ? 1 : 0;
+		$_POST["smart_bg_theme"] = $_POST["smart_bg_theme"] ? 1 : 0;
 		
 		// settings
 		if(!preg_match("/#([a-f0-9]{3}){1,2}\b/i", $_POST["bgcolor_parity"])) { $disklocation_error[] = "Background color for \"Parity\" invalid."; } else { $_POST["bgcolor_parity"] = str_replace("#", "", strtoupper($_POST["bgcolor_parity"])); }
