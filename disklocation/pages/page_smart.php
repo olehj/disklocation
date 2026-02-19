@@ -135,13 +135,11 @@
 				if(empty($disk_ack)) {
 					if(get_disk_ack($data["name"])) {
 						$disk_ack = "YES";
-						$smart_bg_color = $bgcolor_cache_default;
 						$smart_bg_color = ( !empty($smart_bg_theme) ? $bgcolor_cache : $bgcolor_cache_default );
 					}
 					else {
 						$disk_ack = "NO";
 						$disk_not_ack[] = $data["name"];
-						$smart_bg_color = $bgcolor_unraid_default;
 						$smart_bg_color = ( !empty($smart_bg_theme) ? $bgcolor_unraid : $bgcolor_unraid_default );
 					}
 				}
