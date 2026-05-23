@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2026.05.23
+ - Commit #496 - FEATURE: Added Boot/Flash device support for Unraid 7.3. "Temperature N/A" is renamed to "Standby" to clearify difference between "N/A" when in Heat Map view. Adjusted table size for group name in Tray Allocations.
+
 ###2026.02.19
  - Commit #486 - FEATURE: Edit color for SMART Errors/Overview now possible by selecting "SMART color theme" to "Custom" under Configuration tab. It will use the defined colors specified for data type or heat map colors.
  - Commit #489 - IMPROVEMENT: Added updated help text for tray assignment count direction.
