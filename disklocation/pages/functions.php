@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2025, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2026, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -768,7 +768,7 @@
 	}
 	
 	function force_reset_color($config, $devices, $groups, $hash = 0) {
-		global $bgcolor_parity_default, $bgcolor_unraid_default, $bgcolor_cache_default, $bgcolor_others_default, $bgcolor_empty_default;
+		global $bgcolor_parity_default, $bgcolor_unraid_default, $bgcolor_cache_default, $bgcolor_flash_default, $bgcolor_others_default, $bgcolor_empty_default;
 		
 		if($hash == '*' || $hash == 'all') {
 			foreach($devices as $id => $data) { // id=hash not $hash
@@ -788,6 +788,7 @@
 				$config["bgcolor_parity"] = $bgcolor_parity_default;
 				$config["bgcolor_unraid"] = $bgcolor_unraid_default;
 				$config["bgcolor_cache"] = $bgcolor_cache_default;
+				$config["bgcolor_flash"] = $bgcolor_flash_default;
 				$config["bgcolor_others"] = $bgcolor_others_default;
 				$config["bgcolor_empty"] = $bgcolor_empty_default;
 			}
