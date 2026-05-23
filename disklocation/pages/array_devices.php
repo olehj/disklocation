@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2025, Ole-Henrik Jakobsen
+	 *  Copyright 2025-2026, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -101,9 +101,9 @@
 		$smart_array = $smart_json[$hash];
 		
 		$devices[$hash]["raw"]["lun"] =  ( $smart_array["logical_unit_id"] ? $smart_array["logical_unit_id"] : "" . ($smart_array["wwn"]["naa"] ?? null) . " " . ($smart_array["wwn"]["oui"] ?? null) . " " . ($smart_array["wwn"]["id"] ?? null) . "" );
-		$devices[$hash]["formatted"]["lun"] =  $devices[$hash]["raw"]["lun"];
+		$devices[$hash]["formatted"]["lun"] = $devices[$hash]["raw"]["lun"];
 		$devices[$hash]["raw"]["pool"] = $pool;
-		$devices[$hash]["formatted"]["pool"] = ucfirst($devices[$hash]["raw"]["pool"]);
+		$devices[$hash]["formatted"]["pool"] = ($devices[$hash]["raw"]["pool"] == "flash" ? "Boot" : ucfirst($devices[$hash]["raw"]["pool"]));
 		$devices[$hash]["raw"]["smart_status"] = (!empty($smart_array["smart_status"]["passed"]) ? 1 : 0);
 		$devices[$hash]["formatted"]["smart_status"] = ( ($devices[$hash]["raw"]["smart_status"] === 1) ? "PASSED" : "FAILED");
 		$devices[$hash]["raw"]["logical_block_size"] = $smart_array["logical_block_size"];

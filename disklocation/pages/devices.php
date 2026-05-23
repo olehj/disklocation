@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2025, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2026, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -387,7 +387,10 @@
 								break;
 							case "cache":
 								$color_array[$hash] = $bgcolor_cache;
-								break;	
+								break;
+							case "boot":
+								$color_array[$hash] = $bgcolor_flash;
+								break;
 							default:
 								$color_array[$hash] = $bgcolor_others;
 						}

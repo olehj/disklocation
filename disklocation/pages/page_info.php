@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2025, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2026, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -133,21 +133,26 @@
 <table><tr><td style="padding: 10px 10px 10px 10px;">
 <h2 style="margin-top: -10px; padding: 0 0 <?php print($unraid_version_720 ? "0" : "25px") ?> 0;">Disk Information</h2>
 <form action="" method="post">
-<table style="width: 800px; border-spacing: 3px; border-collapse: separate;">
+<table style="max-width: 900px; border-spacing: 3px; border-collapse: separate;">
 	<tr>
-		<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_parity); ?>">
+		<td style="width: 150px; padding: 0 2px 0 2px; background: #<?php print($bgcolor_parity); ?>">
 			<b><?php echo (!$device_bg_color ? "Parity" : "Critical") ?></b>
 		</td>
-		<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_unraid); ?>">
+		<td style="width: 150px; padding: 0 2px 0 2px; background: #<?php print($bgcolor_unraid); ?>">
 			<b><?php echo (!$device_bg_color ? "Data" : "Warning") ?></b>
 		</td>
-		<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_cache); ?>">
+		<td style="width: 150px; padding: 0 2px 0 2px; background: #<?php print($bgcolor_cache); ?>">
 			<b><?php echo (!$device_bg_color ? "Cache/Pool" : "Normal") ?></b>
 		</td>
-		<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_others); ?>">
-			<b><?php echo (!$device_bg_color ? "Unassigned devices" : "Temperature N/A") ?></b>
+		<?php echo (!$device_bg_color ? "" : "<!--") ?>
+		<td style="width: 150px; padding: 0 2px 0 2px; background: #<?php print($bgcolor_flash); ?>">
+			<b>Boot</b>
 		</td>
-		<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_empty); ?>">
+		<?php echo (!$device_bg_color ? "" : "-->") ?>
+		<td style="width: 150px; padding: 0 2px 0 2px; background: #<?php print($bgcolor_others); ?>">
+			<b><?php echo (!$device_bg_color ? "Unassigned" : "Standby") ?></b>
+		</td>
+		<td style="width: 150px; padding: 0 2px 0 2px; background: #<?php print($bgcolor_empty); ?>">
 			<b>Empty trays</b>
 		</td>
 	</tr>

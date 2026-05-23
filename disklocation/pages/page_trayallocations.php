@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2025, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2026, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -146,7 +146,7 @@
 			unset($listarray["groupid"]);
 			unset($listarray["tray"]);
 			// Override array for writable forms
-			$listarray["groupid"] = "<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><select name=\"groups[" . $hash . "]\" style=\"min-width: 0; max-width: 150px; min-width: 40px;\"><option value=\"\" selected style=\"text-align: left;\">--</option>" . $group_options . "</select></td>";
+			$listarray["groupid"] = "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><select name=\"groups[" . $hash . "]\" style=\"width: 150px;\"><option value=\"\" selected style=\"text-align: left;\">--</option>" . $group_options . "</select></td>";
 			$listarray["tray"] = "<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><select name=\"drives[" . $hash . "]\" style=\"min-width: 0; max-width: 50px; width: 40px;\"><option value=\"\" selected style=\"text-align: right;\">--</option>" . $tray_options . "</select></td>";
 			$listarray["manufactured"] = "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><input " . ( $allow_unraid_edit ? null : "readonly=\"readonly\"" ) . " type=\"date\" name=\"manufactured[" . $hash . "]\" max=\"9999-12-31\" value=\"" . $data["manufactured"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" /></td>";
 			$listarray["purchased"] = "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><input " . ( $allow_unraid_edit ? null : "readonly=\"readonly\"" ) . " type=\"date\" name=\"purchased[" . $hash . "]\" max=\"9999-12-31\" value=\"" . $data["purchased"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" /></td>";
@@ -327,21 +327,26 @@
 	<?php print($disk_layouts_alloc); ?>
 	<div style="clear: both;"></div>
 	<div style="padding: 0 0 40px 0;"></div>
-	<table style="width: 800px; border-spacing: 3px; border-collapse: separate; padding: 0 20px 25px 20px;">
+	<table style="max-width: 900px; border-spacing: 3px; border-collapse: separate;">
 		<tr>
-			<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_parity); ?>">
+			<td style="width: 150px; padding: 0 2px 0 2px; background: #<?php print($bgcolor_parity); ?>">
 				<b><?php echo (!$device_bg_color ? "Parity" : "Critical") ?></b>
 			</td>
-			<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_unraid); ?>">
+			<td style="width: 150px; padding: 0 2px 0 2px; background: #<?php print($bgcolor_unraid); ?>">
 				<b><?php echo (!$device_bg_color ? "Data" : "Warning") ?></b>
 			</td>
-			<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_cache); ?>">
+			<td style="width: 150px; padding: 0 2px 0 2px; background: #<?php print($bgcolor_cache); ?>">
 				<b><?php echo (!$device_bg_color ? "Cache/Pool" : "Normal") ?></b>
 			</td>
-			<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_others); ?>">
-				<b><?php echo (!$device_bg_color ? "Unassigned devices" : "Temperature N/A") ?></b>
+			<?php echo (!$device_bg_color ? "" : "<!--") ?>
+			<td style="width: 150px; padding: 0 2px 0 2px; background: #<?php print($bgcolor_flash); ?>">
+				<b>Boot</b>
 			</td>
-			<td style="width: 20%; padding: 0 2px 0 2px; background: #<?php print($bgcolor_empty); ?>">
+			<?php echo (!$device_bg_color ? "" : "-->") ?>
+			<td style="width: 150px; padding: 0 2px 0 2px; background: #<?php print($bgcolor_others); ?>">
+				<b><?php echo (!$device_bg_color ? "Unassigned" : "Standby") ?></b>
+			</td>
+			<td style="width: 150px; padding: 0 2px 0 2px; background: #<?php print($bgcolor_empty); ?>">
 				<b>Empty trays</b>
 			</td>
 		</tr>

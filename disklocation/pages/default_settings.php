@@ -27,6 +27,7 @@
 	$bgcolor_cache =		'5B7845';		// background color for Unraid cache disks / normal temp // old default: FF884C / CABD33
 	$bgcolor_others =		'7C7C7C';		// background color for unassigned/other disks / unknown temp // old default: 41B5EF / 3398CA
 	$bgcolor_empty =		'303030';		// background color for empty trays // old default: AAAAAA / 7C7C7C
+	$bgcolor_flash =		'335C9E';		// background color for flash/boot disks / n/a temp
 	$tray_reduction_factor =	10;			// set the scale divider for the mini tray layout
 	$force_orb_led =		0;			// set the LED to 0: show Unraid icons (triangle warning / hot critical) - 1: show circle LEDs (color coded circles).
 	$device_bg_color =		1;			// choose background for the drives, Drive Type (0) or Heat Map (1)

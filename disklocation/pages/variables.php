@@ -186,6 +186,7 @@
 	$bgcolor_parity_default = strtoupper($bgcolor_parity);
 	$bgcolor_unraid_default = strtoupper($bgcolor_unraid);
 	$bgcolor_cache_default = strtoupper($bgcolor_cache);
+	$bgcolor_flash_default = strtoupper($bgcolor_flash);
 	$bgcolor_others_default = strtoupper($bgcolor_others);
 	$bgcolor_empty_default = strtoupper($bgcolor_empty);
 	

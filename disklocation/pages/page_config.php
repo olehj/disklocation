@@ -75,13 +75,17 @@ $(document).ready(function(){
 			$('#disp_parity').html("Parity");
 			$('#disp_data').html("Data");
 			$('#disp_cache').html("Cache/Pool");
-			$('#disp_unassigned').html("Unassigned devices");
+			$('#disp_flash').html("Boot/Flash");
+			$('#disp_flash_inp').html("<input type=\"hidden\" \"disabled\" name=\"bgcolor_flash\" value=\"#<?php print($bgcolor_flash); ?>\" /><input type=\"color\" required name=\"bgcolor_flash\" list=\"disklocationColorsDef\" value=\"#<?php print($bgcolor_flash); ?>\" />");
+			$('#disp_unassigned').html("Unassigned");
 			break;
 		case '1':
 			$('#disp_parity').html("Critical");
 			$('#disp_data').html("Warning");
 			$('#disp_cache').html("Normal");
-			$('#disp_unassigned').html("Temperature N/A");
+			$('#disp_flash').html("N/A");
+			$('#disp_flash_inp').html("<input type=\"color\" disabled name=\"bgcolor_flash\" list=\"disklocationColorsDef\" value=\"#<?php print($bgcolor_flash); ?>\" /><input type=\"hidden\" \"required\" name=\"bgcolor_flash\" value=\"#<?php print($bgcolor_flash); ?>\" />");
+			$('#disp_unassigned').html("Standby");
 			break;
         }
     });
@@ -124,37 +128,46 @@ $(document).ready(function(){
 								<div id="disp_parity"><?php echo (!$device_bg_color ? "Parity" : "Critical") ?></div>
 							</td>
 							<td style="padding: 0;">
-								<div id="disp_data"><?php echo (!$device_bg_color ? "Data" : "Warning") ?></div></div>
+								<div id="disp_data"><?php echo (!$device_bg_color ? "Data" : "Warning") ?></div>
 							</td>
 							<td style="padding: 0;">
-								<div id="disp_cache"><?php echo (!$device_bg_color ? "Cache/Pool" : "Normal") ?></div></div>
+								<div id="disp_cache"><?php echo (!$device_bg_color ? "Cache/Pool" : "Normal") ?></div>
 							</td>
 						</tr>
 						<tr>
-							<td style="padding: 0;">
+							<td style="padding: 0 20px 0 0;">
 								<input type="color" required name="bgcolor_parity" list="disklocationColorsDef" value="#<?php print($bgcolor_parity); ?>" />
 							</td>
-							<td style="padding: 0;">
+							<td style="padding: 0 20px 0 0;">
 								<input type="color" required name="bgcolor_unraid" list="disklocationColorsDef" value="#<?php print($bgcolor_unraid); ?>" />
 							</td>
-							<td style="padding: 0;">
+							<td style="padding: 0 20px 0 0;">
 								<input type="color" required name="bgcolor_cache" list="disklocationColorsDef" value="#<?php print($bgcolor_cache); ?>" />
 							</td>
 						</tr>
 						<tr>
 							<td style="padding: 0;">
-								<input type="color" required name="bgcolor_others" list="disklocationColorsDef" value="#<?php print($bgcolor_others); ?>" />
+								<div id="disp_flash"><?php echo (!$device_bg_color ? "Boot/Flash" : "N/A") ?></div>
 							</td>
-							<td style="padding: 0;" colspan="2">
-								<div id="disp_unassigned"><?php echo (!$device_bg_color ? "Unassigned devices" : "Temperature N/A") ?></div>
+							<td style="padding: 0;">
+								<div id="disp_unassigned"><?php echo (!$device_bg_color ? "Unassigned" : "Standby") ?></div>
+							</td>
+							<td style="padding: 0;">
+								Empty trays
 							</td>
 						</tr>
 						<tr>
-							<td style="padding: 0;">
-								<input type="color" required name="bgcolor_empty" list="disklocationColorsDef" value="#<?php print($bgcolor_empty); ?>" />
+							<td style="padding: 0 20px 0 0;">
+								<div id="disp_flash_inp">
+									<input type="color" <?php echo (!$device_bg_color ? "required" : "disabled") ?> name="bgcolor_flash" list="disklocationColorsDef" value="#<?php print($bgcolor_flash); ?>" />
+									<input type="hidden" <?php echo (!$device_bg_color ? "disabled" : "required") ?> name="bgcolor_flash" value="#<?php print($bgcolor_flash); ?>" />
+								</div>
 							</td>
-							<td style="padding: 0;" colspan="2">
-								Empty trays
+							<td style="padding: 0 20px 0 0;">
+								<input type="color" required name="bgcolor_others" list="disklocationColorsDef" value="#<?php print($bgcolor_others); ?>" />
+							</td>
+							<td style="padding: 0 20px 0 0;">
+								<input type="color" required name="bgcolor_empty" list="disklocationColorsDef" value="#<?php print($bgcolor_empty); ?>" />
 							</td>
 						</tr>
 					</table>
@@ -165,6 +178,7 @@ $(document).ready(function(){
 						<span style="color: #<?php echo $bgcolor_parity_default ?>">&#11200;</span> #<?php echo $bgcolor_parity_default ?> "Parity"<br />
 						<span style="color: #<?php echo $bgcolor_unraid_default ?>">&#11200;</span> #<?php echo $bgcolor_unraid_default ?> "Data"<br />
 						<span style="color: #<?php echo $bgcolor_cache_default ?>">&#11200;</span> #<?php echo $bgcolor_cache_default ?> "Cache/Pool"<br />
+						<span style="color: #<?php echo $bgcolor_flash_default ?>">&#11200;</span> #<?php echo $bgcolor_flash_default ?> "Boot/Flash devices"<br />
 						<span style="color: #<?php echo $bgcolor_others_default ?>">&#11200;</span> #<?php echo $bgcolor_others_default ?> "Unassigned devices"<br />
 						<span style="color: #<?php echo $bgcolor_empty_default ?>">&#11200;</span> #<?php echo $bgcolor_empty_default ?> "Empty/Available trays"<br />
 					</p>
