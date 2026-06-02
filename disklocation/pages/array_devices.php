@@ -21,27 +21,39 @@
 	
 	//require_once("system.php"); // for debugging
 	$devices = array();
+	$device = null;
+	$devicenode = null;
 	$array_groups = $get_groups;
 	$array_devices = $get_devices;
 	$array_locations = $get_locations;
 	$count_installed_devices = 0;
 	
 	foreach($get_devices as $hash => $data) {
-		$device = $data["device"];
-		$devicenode = $data["devicenode"];
-		//$hash = $data["hash"];
+		$device = ( !empty($data["device"]) ? $data["device"] : 'skip' );
+		$devicenode = ( !empty($data["devicenode"]) ? $data["devicenode"] : 'skip' );
+		if($device == 'skip') continue;
+		if($devicenode == 'skip') continue;
 		$pool = "";
 		
 		$purchased_date = "";
 		$installed_date = "";
+		$dev_calc_unit_size = 0;
+		$dev_calc_unit_factor = 0;
 		$smart_array = array();
+		$smart_errors = array();
 		$smart_status = 0;
 		$smart_status_icon = "";
 		$smart_loadcycle = "";
+		$smart_poweronhours = "";
 		$smart_temperature = 0;
+		$smart_temperature_warning = null;
+		$smart_temperature_critical = null;
 		$smart_endurance_used = null;
 		$smart_units_read = null;
 		$smart_units_written = null;
+		$date_warranty = "";
+		$warranty_expire = "";
+		$warranty_left = "";
 		
 		$gid = $array_locations[$hash]["groupid"];
 		$groupid = $gid;
@@ -184,7 +196,6 @@
 		$devices[$hash]["formatted"]["firmware"] = $devices[$hash]["raw"]["firmware"] ?? "N/A";
 		
 		// SMART data to be parsed on deeper level:
-		$smart_errors = array();
 		$unraid_smart_arr = explode("|", empty($unraid_array[$devicenode]["smEvents"]) ? $get_global_smEvents : $unraid_array[$devicenode]["smEvents"] );
 		$smart_status = $devices[$hash]["raw"]["smart_status"];
 		
@@ -266,9 +277,6 @@
 		$devices[$hash]["raw"]["purchased"] = "" . $unraid_disklog["" . str_replace(" ", "_", $devices[$hash]["raw"]["model"]) . "_" . str_replace(" ", "_", $devices[$hash]["raw"]["serial"]) . ""]["purchase"] . "";
 		$devices[$hash]["raw"]["warranty"] = "" . $unraid_disklog["" . str_replace(" ", "_", $devices[$hash]["raw"]["model"]) . "_" . str_replace(" ", "_", $devices[$hash]["raw"]["serial"]) . ""]["warranty"] . "";
 		$devices[$hash]["raw"]["manufactured"] = "" . $unraid_disklog["" . str_replace(" ", "_", $devices[$hash]["raw"]["model"]) . "_" . str_replace(" ", "_", $devices[$hash]["raw"]["serial"]) . ""]["date"] . "";
-		$date_warranty = "";
-		$warranty_expire = "";
-		$warranty_left = "";
 		
 		if($devices[$hash]["raw"]["purchased"] && ($devices[$hash]["raw"]["warranty"])) {
 			$warranty_start = strtotime($devices[$hash]["raw"]["purchased"]);
