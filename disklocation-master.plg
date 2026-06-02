@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2026.05.23">
+<!ENTITY version          "2026.06.02">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2026.06.02
+ - Commit #499 - MINOR: Incorrect power_on_hours value could occur. Decleared more variables to prevent picking up invalid values.
+
 ###2026.05.23
  - Commit #496 - FEATURE: Added Boot/Flash device support for Unraid 7.3. "Temperature N/A" is renamed to "Standby" to clearify difference between "N/A" when in Heat Map view. Adjusted table size for group name in Tray Allocations.
 
