@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2025, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2026, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -70,7 +70,7 @@
 				
 				// store files in /tmp
 				if(isset($smart_array["serial_number"]) && $smart_model_name) {
-					$filename_smart_data_tmp = DISKLOCATION_TMP_PATH."/smart/".str_replace(" ", "_", $smart_model_name)."_" . $smart_array["serial_number"] . ".json";
+					$filename_smart_data_tmp = DISKLOCATION_TMP_PATH."/smart/".preg_replace("/[ ]|[]|[\]]|[\]]/", "_", $smart_model_name)."_" . $smart_array["serial_number"] . ".json";
 					$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "SMART FILE", $filename_smart_data_tmp);
 					if(!in_array("silent", $argv)) { print("SMART FILE: " . $filename_smart_data_tmp . "\n"); }
 					file_put_contents($filename_smart_data_tmp, $smart_run);
@@ -81,7 +81,7 @@
 				if(!in_array("silent", $argv)) { print("SMART SKIPPED: " . $value[4] . " (exceeded time limit)\n"); }
 			}
 		}
-		
+
 		// grab changes just in case, this will decrease Disk Location plugin loading time drastically.
 		$lsblk_json = shell_exec("lsblk -p -o NAME,MOUNTPOINT,SERIAL,PATH --json");
 		file_put_contents(DISKLOCATION_LSBLK, $lsblk_json);
@@ -302,7 +302,7 @@
 						
 						// store files in /tmp
 						if(isset($smart_array["serial_number"]) && $smart_model_name) {
-							$filename_smart_data_tmp = DISKLOCATION_TMP_PATH."/smart/".str_replace(" ", "_", $smart_model_name)."_" . $smart_array["serial_number"] . ".json";
+							$filename_smart_data_tmp = DISKLOCATION_TMP_PATH."/smart/".preg_replace("/[ ]|[]|[\]]|[\]]/", "_", $smart_model_name)."_" . $smart_array["serial_number"] . ".json";
 							file_put_contents($filename_smart_data_tmp, $smart_cmd[$i]);
 						}
 						

@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2025, Ole-Henrik Jakobsen
+	 *  Copyright 2025-2026, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -175,7 +175,7 @@
 				flush();
 				
 				if($serial_number && $model_name) {
-					$filename_benchmark = UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/benchmark/".str_replace(" ", "_", $model_name)."_" . $serial_number . ".json";
+					$filename_benchmark = UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/benchmark/".preg_replace("/[ ]|[]|[\]]|[\]]/", "_", $model_name)."_" . $serial_number . ".json";
 					if(file_exists($filename_benchmark)) {
 						$speed_array_contents = config_array($filename_benchmark, 'r');
 					}
