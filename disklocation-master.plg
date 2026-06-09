@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2026.06.02">
+<!ENTITY version          "2026.06.09">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2026.06.09
+ - Commit #501 - BUG: Devices with square brackets in their SMART name would fail, square brackets are now replaced to underscore instead.
+
 ###2026.06.02
  - Commit #499 - MINOR: Incorrect power_on_hours value could occur. Decleared more variables to prevent picking up invalid values.
 
