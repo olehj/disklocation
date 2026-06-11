@@ -191,6 +191,9 @@
 	$bgcolor_empty_default = strtoupper($bgcolor_empty);
 	
 	$sql_status = "";
+	
+	$pattern_device_name = "/[^[:alnum:]._-]/";	// detect everything except alphanumeric, punct and dash
+	//$pattern_device_name = "/[ ]|[]|[\]]|[\]]/";	// only detect spaces and square brackets
 
 	// get Unraid disks
 	$get_default_smEvents = "5|187|197|198|199"; // default Unraid smEvents

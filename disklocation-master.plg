@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2026.06.09">
+<!ENTITY version          "2026.06.11">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2026.06.11
+ - Commit #501 - BUG: Improved on commit #501, converts all none alphanumeric, dash, dot and underscore to underscore.
+
 ###2026.06.09
  - Commit #501 - BUG: Devices with square brackets in their SMART name would fail, square brackets are now replaced to underscore instead.
 

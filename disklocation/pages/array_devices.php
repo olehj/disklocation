@@ -108,7 +108,7 @@
 		$devices[$hash]["formatted"]["bgcolor"] = $devices[$hash]["raw"]["bgcolor"];
 		
 		// SMART files $smart_array:
-		$smart_file[$hash] = file_get_contents(DISKLOCATION_TMP_PATH."/smart/".preg_replace("/[ ]|[]|[\]]|[\]]/", "_", $devices[$hash]["raw"]["model"])."_" . $devices[$hash]["raw"]["serial"] . ".json");
+		$smart_file[$hash] = file_get_contents(DISKLOCATION_TMP_PATH."/smart/".preg_replace($pattern_device_name, "_", $devices[$hash]["raw"]["model"])."_" . $devices[$hash]["raw"]["serial"] . ".json");
 		$smart_json[$hash] = json_decode($smart_file[$hash], true);
 		$smart_array = $smart_json[$hash];
 		
@@ -274,9 +274,9 @@
 		$devices[$hash]["formatted"]["maxTemp"] = $smart_temperature_critical;
 		
 		// Unraid disk.log $unraid_disklog
-		$devices[$hash]["raw"]["purchased"] = "" . $unraid_disklog["" . preg_replace("/[ ]|[]|[\]]|[\]]/", "_", $devices[$hash]["raw"]["model"]) . "_" . preg_replace("/[ ]|[]|[\]]|[\]]/", "_", $devices[$hash]["raw"]["serial"]) . ""]["purchase"] . "";
-		$devices[$hash]["raw"]["warranty"] = "" . $unraid_disklog["" . preg_replace("/[ ]|[]|[\]]|[\]]/", "_", $devices[$hash]["raw"]["model"]) . "_" . preg_replace("/[ ]|[]|[\]]|[\]]/", "_", $devices[$hash]["raw"]["serial"]) . ""]["warranty"] . "";
-		$devices[$hash]["raw"]["manufactured"] = "" . $unraid_disklog["" . preg_replace("/[ ]|[]|[\]]|[\]]/", "_", $devices[$hash]["raw"]["model"]) . "_" . preg_replace("/[ ]|[]|[\]]|[\]]/", "_", $devices[$hash]["raw"]["serial"]) . ""]["date"] . "";
+		$devices[$hash]["raw"]["purchased"] = "" . $unraid_disklog["" . preg_replace($pattern_device_name, "_", $devices[$hash]["raw"]["model"]) . "_" . preg_replace($pattern_device_name, "_", $devices[$hash]["raw"]["serial"]) . ""]["purchase"] . "";
+		$devices[$hash]["raw"]["warranty"] = "" . $unraid_disklog["" . preg_replace($pattern_device_name, "_", $devices[$hash]["raw"]["model"]) . "_" . preg_replace($pattern_device_name, "_", $devices[$hash]["raw"]["serial"]) . ""]["warranty"] . "";
+		$devices[$hash]["raw"]["manufactured"] = "" . $unraid_disklog["" . preg_replace($pattern_device_name, "_", $devices[$hash]["raw"]["model"]) . "_" . preg_replace($pattern_device_name, "_", $devices[$hash]["raw"]["serial"]) . ""]["date"] . "";
 		
 		if($devices[$hash]["raw"]["purchased"] && ($devices[$hash]["raw"]["warranty"])) {
 			$warranty_start = strtotime($devices[$hash]["raw"]["purchased"]);
@@ -301,7 +301,7 @@
 		$devices[$hash]["formatted"]["manufactured"] = $devices[$hash]["raw"]["manufactured"];
 		
 		// get benchmarks
-		$benchmark_file[$hash] = UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/benchmark/".preg_replace("/[ ]|[]|[\]]|[\]]/", "_", $data["model_name"])."_" . $data["smart_serialnumber"] . ".json";
+		$benchmark_file[$hash] = UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/benchmark/".preg_replace($pattern_device_name, "_", $data["model_name"])."_" . $data["smart_serialnumber"] . ".json";
 		$devices[$hash]["benchmark"] = file_exists($benchmark_file[$hash]) ? array_slice(json_decode(file_get_contents($benchmark_file[$hash]), true), "-" . $bench_last_values . "") : null ;
 		
 		if(empty($devices[$hash]["raw"]["status"]) || $devices[$hash]["raw"]["status"] == 'h') {

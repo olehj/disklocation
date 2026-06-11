@@ -330,9 +330,9 @@
 			$array_devices[$results[$id]["hash"]]["color"] = ( (!empty($_POST["bgcolor_custom"][$results[$id]["hash"]]) && strtoupper($_POST["bgcolor_custom"][$results[$id]["hash"]]) != "#".strtoupper($bgcolor_empty)) ? str_replace("#", "", strtoupper($_POST["bgcolor_custom"][$results[$id]["hash"]])) : null );
 			
 			if($allow_unraid_edit) {
-				if($array_devices[$results[$id]["hash"]]["manufactured"]) { $create_disklog_ini[preg_replace("/[ ]|[]|[\]]|[\]]/", "_", $array_devices[$results[$id]["hash"]]["model_name"] . "_" . $array_devices[$results[$id]["hash"]]["smart_serialnumber"])]["date"] = $_POST["manufactured"][$results[$id]["hash"]]; }
-				if($array_devices[$results[$id]["hash"]]["purchased"]) { $create_disklog_ini[preg_replace("/[ ]|[]|[\]]|[\]]/", "_", $array_devices[$results[$id]["hash"]]["model_name"] . "_" . $array_devices[$results[$id]["hash"]]["smart_serialnumber"])]["purchase"] = $_POST["purchased"][$results[$id]["hash"]]; }
-				if($array_devices[$results[$id]["hash"]]["warranty"]) { $create_disklog_ini[preg_replace("/[ ]|[]|[\]]|[\]]/", "_", $array_devices[$results[$id]["hash"]]["model_name"] . "_" . $array_devices[$results[$id]["hash"]]["smart_serialnumber"])]["warranty"] = $_POST["warranty"][$results[$id]["hash"]]; }
+				if($array_devices[$results[$id]["hash"]]["manufactured"]) { $create_disklog_ini[preg_replace($pattern_device_name, "_", $array_devices[$results[$id]["hash"]]["model_name"] . "_" . $array_devices[$results[$id]["hash"]]["smart_serialnumber"])]["date"] = $_POST["manufactured"][$results[$id]["hash"]]; }
+				if($array_devices[$results[$id]["hash"]]["purchased"]) { $create_disklog_ini[preg_replace($pattern_device_name, "_", $array_devices[$results[$id]["hash"]]["model_name"] . "_" . $array_devices[$results[$id]["hash"]]["smart_serialnumber"])]["purchase"] = $_POST["purchased"][$results[$id]["hash"]]; }
+				if($array_devices[$results[$id]["hash"]]["warranty"]) { $create_disklog_ini[preg_replace($pattern_device_name, "_", $array_devices[$results[$id]["hash"]]["model_name"] . "_" . $array_devices[$results[$id]["hash"]]["smart_serialnumber"])]["warranty"] = $_POST["warranty"][$results[$id]["hash"]]; }
 			}
 		}
 		
