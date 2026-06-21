@@ -649,33 +649,38 @@
 	
 	function seconds_to_time($seconds, $array = '', $format = '') {
 		$seconds = (int)$seconds;
-		$dateTime = new DateTime();
-		$dateTime->sub(new DateInterval("PT{$seconds}S"));
-		$interval = (new DateTime())->diff($dateTime);
-		$pieces = explode(' ', $interval->format('%y %m %d'));
-		$intervals = ( ($format == "short") ? ['Y', 'M', 'D'] : [' year', ' month', ' day'] );
-		$result = [];
-		foreach ($pieces as $i => $value) {
-			if (!$value) {
-				continue;
+		try {
+			$dateTime = new DateTime();
+			$dateTime->sub(new DateInterval("PT{$seconds}S"));
+			$interval = (new DateTime())->diff($dateTime);
+			$pieces = explode(' ', $interval->format('%y %m %d'));
+			$intervals = ( ($format == "short") ? ['Y', 'M', 'D'] : [' year', ' month', ' day'] );
+			$result = [];
+			foreach ($pieces as $i => $value) {
+				if (!$value) {
+					continue;
+				}
+				$periodName = $intervals[$i];
+				if ($value > 1 && $format != "short") {
+					$periodName .= 's';
+				}
+				$result_arr[$intervals[$i]] = $value;
+				$result[] = "{$value}{$periodName}";
 			}
-			$periodName = $intervals[$i];
-			if ($value > 1 && $format != "short") {
-				$periodName .= 's';
-			}
-			$result_arr[$intervals[$i]] = $value;
-			$result[] = "{$value}{$periodName}";
-		}
-		if($array) {
-			return $result_arr;
-		}
-		else {
-			if($format == "short") {
-				return implode(' ', $result);
+			if($array) {
+				return $result_arr;
 			}
 			else {
-				return implode(', ', $result);
+				if($format == "short") {
+					return implode(' ', $result);
+				}
+				else {
+					return implode(', ', $result);
+				}
 			}
+		}
+		catch(Exception) {
+			return false;
 		}
 	}
 	
