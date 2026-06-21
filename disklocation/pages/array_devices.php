@@ -157,9 +157,22 @@
 			$smart_i = 0;
 			while($smart_i < count($smart_array["ata_smart_attributes"]["table"])) {
 				if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Power_On_Hours") {			// ID 9
-					$smart_poweronhours = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"] ?? 0;
-					$smart_poweronhours = ( $smart_poweronhours < $data["powerontime"] ? $data["powerontime"] : $smart_poweronhours );
+					$smart_poweronhours_val = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"] ?? 0;
+					$smart_poweronhours_str = explode(" ", $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["string"]) ?? 0;
+					
+					// test power_on_hours numbers, try to fetch the most correct one:
+					if(seconds_to_time(60*60*$smart_poweronhours_val)) {
+						$smart_poweronhours = $smart_poweronhours_val;
+					}
+					else if(seconds_to_time(60*60*$smart_poweronhours_str[0])) {
+						$smart_poweronhours = $smart_poweronhours_str[0];
+					}
+					else {
+						$smart_poweronhours = null;
+					}
 				}
+				$smart_poweronhours = ( $smart_poweronhours < $data["powerontime"] ? $data["powerontime"] : $smart_poweronhours );
+				
 				if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Load_Cycle_Count") {			// ID 193
 					$smart_loadcycle = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"] ?? 0;
 					$smart_loadcycle = ( $smart_loadcycle < $data["smart_loadcycle"] ? $data["smart_loadcycle"] : $smart_loadcycle );

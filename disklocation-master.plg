@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2026.06.11">
+<!ENTITY version          "2026.06.22">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2026.06.22
+ - Commit #504 - BUG: Power_On_Hours from SMART fails when too high numbers are entered. Added and parses an extra "string" value if the two others default fails, otherwise leave empty.
+
 ###2026.06.11
  - Commit #501 - BUG: Improved on commit #501, converts all none alphanumeric, dash, dot and underscore to underscore.
 
