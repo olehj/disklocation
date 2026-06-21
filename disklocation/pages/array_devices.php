@@ -171,6 +171,8 @@
 						$smart_poweronhours = null;
 					}
 				}
+				$smart_poweronhours = ( $smart_poweronhours < $data["powerontime"] ? $data["powerontime"] : $smart_poweronhours );
+				
 				if($smart_array["ata_smart_attributes"]["table"][$smart_i]["name"] == "Load_Cycle_Count") {			// ID 193
 					$smart_loadcycle = $smart_array["ata_smart_attributes"]["table"][$smart_i]["raw"]["value"] ?? 0;
 					$smart_loadcycle = ( $smart_loadcycle < $data["smart_loadcycle"] ? $data["smart_loadcycle"] : $smart_loadcycle );
