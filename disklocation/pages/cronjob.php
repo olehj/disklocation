@@ -195,6 +195,11 @@
 			
 			$devices_current = (empty($get_devices) ? array() : $get_devices);
 			$locations_current = (empty($get_locations) ? array() : $get_locations);
+			
+			$physical_locations = dev_by_phy_path();
+			if(is_array($physical_locations) && !empty($physical_locations)) {
+				config_array(PHYSICAL_LOCATION_FILE, 'w', $physical_locations);
+			}
 		}
 		
 		$i=0;

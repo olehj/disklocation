@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2025, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2026, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -32,6 +32,7 @@
 		define("DISKLOCATION_CONF", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/settings.json");
 		define("DISKLOCATION_DEVICES", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/devices.json");
 		define("DISKLOCATION_LOCATIONS", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/locations.json");
+		define("DISKLOCATION_PHYSICAL", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/physical.json");
 		define("DISKLOCATION_GROUPS", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/groups.json");
 		define("DISKLOCATION_LOCK_FILE", DISKLOCATION_TMP_PATH . "/db.lock");
 		define("CRONJOB_URL", DISKLOCATION_PATH . "/pages/cronjob.php");
@@ -307,12 +308,13 @@
 		}
 		
 		if($type == "reset") {
-			if($operation == "temp") {
+			if($operation == "temp" || $operation == "all" || $operation == "wipe") {
 				if(file_exists(DISKLOCATION_TMP_PATH . "/smart")) {
 					array_map('unlink', glob(DISKLOCATION_TMP_PATH . "/smart/*.json"));
 					rmdir(DISKLOCATION_TMP_PATH . "/smart");
 				}
 				file_exists(DISKLOCATION_TMP_PATH . "/powermode.json") ? unlink(DISKLOCATION_TMP_PATH . "/powermode.json") : null;
+				file_exists(DISKLOCATION_TMP_PATH . "/phyloc.json") ? unlink(DISKLOCATION_TMP_PATH . "/phyloc.json") : null;
 				file_exists(DISKLOCATION_TMP_PATH . "/lsblk.json") ? unlink(DISKLOCATION_TMP_PATH . "/lsblk.json") : null;
 				file_exists(DISKLOCATION_TMP_PATH . "/zpool_status.dat") ? unlink(DISKLOCATION_TMP_PATH . "/zpool_status.dat") : null;
 			}
@@ -325,6 +327,9 @@
 			}
 			if($operation == "locations" || $operation == "all" || $operation == "wipe") {
 				file_exists(DISKLOCATION_LOCATIONS) ? unlink(DISKLOCATION_LOCATIONS) : null;
+			}
+			if($operation == "physical" || $operation == "all" || $operation == "wipe") {
+				file_exists(DISKLOCATION_PHYSICAL) ? unlink(DISKLOCATION_PHYSICAL) : null;
 			}
 			if($operation == "devices" || $operation == "all" || $operation == "wipe") {
 				file_exists(DISKLOCATION_DEVICES) ? unlink(DISKLOCATION_DEVICES) : null;
@@ -436,7 +441,7 @@
 					$time_diff = $time_now->diff($time_backup);
 					
 					if($auto_backup_days && $time_diff->format("%a") > $auto_backup_days) {
-						database_backup(DISKLOCATION_CONF.",".DISKLOCATION_DEVICES.",".DISKLOCATION_GROUPS.",".DISKLOCATION_LOCATIONS.( !empty($get_benchmark_files) ? "," . $get_benchmark_files : null ), "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/");
+						database_backup(DISKLOCATION_CONF.",".DISKLOCATION_DEVICES.",".DISKLOCATION_GROUPS.",".DISKLOCATION_LOCATIONS.",".DISKLOCATION_PHYSICAL.( !empty($get_benchmark_files) ? "," . $get_benchmark_files : null ), "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/");
 						print(in_array("silent", $argv) ? null : "Previous backup was more than $auto_backup_days days old, new backup created.\n");
 					}
 					else {
@@ -444,12 +449,12 @@
 					}
 				}
 				else {
-					database_backup(DISKLOCATION_CONF.",".DISKLOCATION_DEVICES.",".DISKLOCATION_GROUPS.",".DISKLOCATION_LOCATIONS.( !empty($get_benchmark_files) ? "," . $get_benchmark_files : null ), "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/");
+					database_backup(DISKLOCATION_CONF.",".DISKLOCATION_DEVICES.",".DISKLOCATION_GROUPS.",".DISKLOCATION_LOCATIONS.",".DISKLOCATION_PHYSICAL.( !empty($get_benchmark_files) ? "," . $get_benchmark_files : null ), "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/");
 					print(in_array("silent", $argv) ? null : "Backup created.\n");
 				}
 			}
 			else {
-				database_backup(DISKLOCATION_CONF.",".DISKLOCATION_DEVICES.",".DISKLOCATION_GROUPS.",".DISKLOCATION_LOCATIONS.( !empty($get_benchmark_files) ? "," . $get_benchmark_files : null ), "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/");
+				database_backup(DISKLOCATION_CONF.",".DISKLOCATION_DEVICES.",".DISKLOCATION_GROUPS.",".DISKLOCATION_LOCATIONS.",".DISKLOCATION_PHYSICAL.( !empty($get_benchmark_files) ? "," . $get_benchmark_files : null ), "" . UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup/");
 				print(!in_array("silent", $argv) && in_array("backup", $argv) ? "Backup created.\n" : null);
 			}
 		}
@@ -608,6 +613,7 @@
 			" . ( file_exists(DISKLOCATION_CONF) ? "<input type=\"radio\" name=\"reset_op\" value=\"settings\" /> configuration" : null ) . "
 			" . ( file_exists(DISKLOCATION_GROUPS) ? "<input type=\"radio\" name=\"reset_op\" value=\"groups\" /> layout (includes tray allocations)" : null ) . "
 			" . ( file_exists(DISKLOCATION_LOCATIONS) ? "<input type=\"radio\" name=\"reset_op\" value=\"locations\" /> tray allocations" : null ) . "
+			" . ( file_exists(DISKLOCATION_PHYSICAL) ? "<input type=\"radio\" name=\"reset_op\" value=\"physical\" /> physical locations" : null ) . "
 			" . ( file_exists(DISKLOCATION_DEVICES) ? "<input type=\"radio\" name=\"reset_op\" value=\"devices\" /> devices" : null ) . "
 			" . ( (file_exists(DISKLOCATION_CONF) || file_exists(DISKLOCATION_GROUPS) || file_exists(DISKLOCATION_LOCATIONS) || file_exists(DISKLOCATION_DEVICES)) ? "<input type=\"radio\" name=\"reset_op\" value=\"all\" /> all" : null ) . "
 			" . ( (file_exists(DISKLOCATION_CONF) || file_exists(DISKLOCATION_GROUPS) || file_exists(DISKLOCATION_LOCATIONS) || file_exists(DISKLOCATION_DEVICES) || file_exists(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/benchmark") || file_exists(UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/backup") || file_exists(DISKLOCATION_TMP_PATH . "/smart")) ? "<input type=\"radio\" name=\"reset_op\" value=\"wipe\" /> wipe (including backups, benchmarks and smart data)" : null ) . "
