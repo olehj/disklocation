@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2024-2025, Ole-Henrik Jakobsen
+	 *  Copyright 2024-2026, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -37,6 +37,9 @@
 	}
 	if(file_exists(DISKLOCATION_LOCATIONS)) {
 		$get_locations = json_decode(file_get_contents(DISKLOCATION_LOCATIONS), true);
+	}
+	if(file_exists(DISKLOCATION_PHYSICAL)) {
+		$get_physical = json_decode(file_get_contents(DISKLOCATION_PHYSICAL), true);
 	}
 	if(file_exists(DISKLOCATION_GROUPS)) {
 		$get_groups = json_decode(file_get_contents(DISKLOCATION_GROUPS), true);
