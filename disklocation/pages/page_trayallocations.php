@@ -160,7 +160,7 @@
 					<button type=\"submit\" name=\"hash_remove\" value=\"" . $hash . "\" title=\"This will force move the drive to the &quot;History&quot; section.\" style=\"margin: 0; padding: 0; min-width: 0; width: 20px; height: 20px; background-color: #FFFFFF;\"><i style=\"font-size: 15px;\" class=\"fa fa-minus-circle fa-lg\"/></i></button>
 				</td>
 				<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px; text-align: center;\"><input type=\"button\" class=\"diskLocation\" style=\"background-color: #F2F2F2; transform: none;\" onclick=\"locateStart()\" value=\"Locate\" id=\"" . $data["device"] . "\" name=\"" . $allocated . "\" /></td>
-				<!--<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px; text-align: center;\"><input " . (!empty($get_physical[$phyloc_array[$raw["node"]]]) ? "checked=\"checked\"" : "") . " " . (empty($phyloc_array[$raw["node"]]) ? "disabled=\"disabled\"" : "") . " type=\"checkbox\" value=\"" . $raw["node"] . "\" name=\"physical[" . $hash . "]\" /></td>-->
+				<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px; text-align: center;\"><input " . (!empty($get_physical[$phyloc_array[$raw["node"]]]) ? "checked=\"checked\"" : "") . " " . (empty($phyloc_array[$raw["node"]]) ? "disabled=\"disabled\"" : "") . " type=\"checkbox\" value=\"" . $raw["node"] . "\" name=\"physical[" . $hash . "]\" /></td>
 				
 			";
 			
@@ -381,7 +381,7 @@
 					<tr>
 						<td style="width: 0; padding: 0 10px 0 10px;"><b>#</b></td>
 						<td style="width: 0; padding: 0 10px 0 10px;"><b>Locate</b></td>
-						<!--<td style="width: 0; padding: 0 10px 0 10px;"><b>Physical</b></td>-->
+						<td style="width: 0; padding: 0 10px 0 10px;"><b>Physical</b></td>
 						<?php print($table_trayalloc_order_name_html); ?>
 						<td style="width: 0; padding: 0 10px 0 10px;"><b>Custom Color</b></td>
 					</tr>
