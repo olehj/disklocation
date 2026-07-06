@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2026.07.06
+ - Commit #507 - BUG: SMART data gets saved even if it's empty. SMART data got pulled when there's nothing to fetch. Checks if SMART is available and enabled before saving new SMART json files.
+
 ###2026.06.22
  - Commit #504 - BUG: Power_On_Hours from SMART fails when too high numbers are entered. Added and parses an extra "string" value if the two others default fails, otherwise leave empty.
 
