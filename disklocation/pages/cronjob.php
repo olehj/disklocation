@@ -69,7 +69,7 @@
 				$deviceid[$i] = hash('sha256', $smart_model_name . ( isset($smart_array["serial_number"]) ? $smart_array["serial_number"] : null));
 				
 				// store files in /tmp
-				if(isset($smart_array["serial_number"]) && $smart_model_name) {
+				if(isset($smart_array["serial_number"]) && $smart_model_name && $smart_array["smart_support"]["available"] == true && $smart_array["smart_support"]["enabled"] == true) {
 					$filename_smart_data_tmp = DISKLOCATION_TMP_PATH."/smart/".preg_replace($pattern_device_name, "_", $smart_model_name)."_" . $smart_array["serial_number"] . ".json";
 					$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "SMART FILE", $filename_smart_data_tmp);
 					if(!in_array("silent", $argv)) { print("SMART FILE: " . $filename_smart_data_tmp . "\n"); }
@@ -306,7 +306,7 @@
 						}
 						
 						// store files in /tmp
-						if(isset($smart_array["serial_number"]) && $smart_model_name) {
+						if(isset($smart_array["serial_number"]) && $smart_model_name && $smart_array["smart_support"]["available"] == true && $smart_array["smart_support"]["enabled"] == true) {
 							$filename_smart_data_tmp = DISKLOCATION_TMP_PATH."/smart/".preg_replace($pattern_device_name, "_", $smart_model_name)."_" . $smart_array["serial_number"] . ".json";
 							file_put_contents($filename_smart_data_tmp, $smart_cmd[$i]);
 						}
