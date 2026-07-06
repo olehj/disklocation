@@ -274,9 +274,11 @@
 		$post_drives = $_POST["drives"];
 		$post_groups = $_POST["groups"];
 		$array_trayid = unserialize($_POST["array_trayid"]);
+		$post_physical = $_POST["physical"];
 		$array_devices = $get_devices;
 		$array_locations = $get_locations;
 		$array_groups = $get_groups;
+		$array_physical = array(); // clear every save, $get_physical should not be used.
 		$create_disklog_ini = array();
 		
 		// Get new allocations and adjust location array:
@@ -310,6 +312,14 @@
 		foreach($array_locations as $hash => $value) {
 			$results[$value["groupid"] ."|". $value["tray"]] = $value;
 			$results[$value["groupid"] ."|". $value["tray"]]["hash"] = $hash;
+			
+			// Get physical allocations:
+			if(!empty($post_physical[$hash])) {
+				$physical_path = dev_by_phy_path($post_physical[$hash]);
+				
+				$array_physical[$physical_path]["groupid"] = $value["groupid"];
+				$array_physical[$physical_path]["tray"] = $value["tray"];
+			}
 		}
 		
 		// Create new location array and adjust devices array:
@@ -339,6 +349,7 @@
 		if(empty($disklocation_error)) {	
 			config_array(DISKLOCATION_DEVICES, "w", $array_devices);
 			config_array(DISKLOCATION_LOCATIONS, "w", $array_locations);
+			config_array(DISKLOCATION_PHYSICAL, "w", $array_physical);
 			
 			if($allow_unraid_edit) { 
 				$new_disklog = array_merge($unraid_disklog, $create_disklog_ini);
@@ -346,7 +357,7 @@
 			}
 			
 			$SUBMIT_RELOAD = 1;
-			$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: save_allocations", array($results, $array_devices, $array_locations, $new_disklog));
+			$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: save_allocations", array($results, $array_devices, $array_locations, $array_physical, $new_disklog));
 		}
 		if(!empty($disklocation_error)) {
 			$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: save_allocations", $disklocation_error);

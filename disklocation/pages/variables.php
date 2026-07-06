@@ -34,6 +34,7 @@
 	define("DISKLOCATION_CONF", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/settings.json");
 	define("DISKLOCATION_DEVICES", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/devices.json");
 	define("DISKLOCATION_LOCATIONS", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/locations.json");
+	define("DISKLOCATION_PHYSICAL", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/physical.json");
 	define("DISKLOCATION_GROUPS", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/groups.json");
 	define("DISKLOCATION_LOCK_FILE", DISKLOCATION_TMP_PATH . "/db.lock");
 	define("DISKLOCATION_LSBLK", DISKLOCATION_TMP_PATH . "/lsblk.json");
@@ -42,6 +43,7 @@
 	define("CRONJOB_FILE", EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/cronjob.php");
 	define("POWERMODE_FILE", DISKLOCATION_TMP_PATH . "/powermode.json");
 	define("POWERMODE_IGNORE_FILE", DISKLOCATION_TMP_PATH . "/powermode_ignore.json");
+	define("PHYSICAL_LOCATION_FILE", DISKLOCATION_TMP_PATH . "/phyloc.json");
 	define("BENCHMARK_URL", DISKLOCATION_PATH . "/pages/benchmark.php");
 	define("BENCHMARK_FILE", EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/pages/benchmark.php");
 	define("DISKLOGFILE", UNRAID_CONFIG_PATH . "/disk.log");
@@ -73,6 +75,10 @@
 		$lsblk_array = json_decode(file_get_contents(DISKLOCATION_LSBLK), true);
 		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: lsblk", $lsblk_array);
 	}
+	if(file_exists(PHYSICAL_LOCATION_FILE)) {
+		$phyloc_array = json_decode(file_get_contents(PHYSICAL_LOCATION_FILE), true);
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: phyloc", $phyloc_array);
+	}
 	if(file_exists(DISKLOCATION_ZPOOL)) {
 		$zpool_status = file_get_contents(DISKLOCATION_ZPOOL);
 		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "FILE: zpool_status", $zpool_status);
@@ -89,6 +95,10 @@
 	if(file_exists(DISKLOCATION_LOCATIONS)) {
 		$get_locations = json_decode(file_get_contents(DISKLOCATION_LOCATIONS), true);
 		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: get_locations", $get_locations);
+	}
+	if(file_exists(DISKLOCATION_PHYSICAL)) {
+		$get_physical = json_decode(file_get_contents(DISKLOCATION_PHYSICAL), true);
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: get_physical", $get_physical);
 	}
 	if(file_exists(DISKLOCATION_GROUPS)) {
 		$get_groups = json_decode(file_get_contents(DISKLOCATION_GROUPS), true);

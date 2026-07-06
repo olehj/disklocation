@@ -1097,6 +1097,43 @@
 		}
 	}
 	
+	function dev_by_phy_path($device = null) {
+		/*
+		Array
+		(
+		[sdx] => pci-0000:00:00.0-sas-phy0-lun-0
+		)
+		
+		device=sdx
+		string(32) "pci-0000:00:00.0-sas-phy0-lun-0"
+		*/
+		
+		$nodes = array();
+		
+		$dir = array_diff(scandir("/dev/disk/by-path"), array('..', '.'));
+		
+		$files = preg_grep("/part/", $dir, PREG_GREP_INVERT);
+		
+		foreach($files as $phy) {
+			if(is_link("/dev/disk/by-path/" . $phy)) {
+				$node = str_replace("../", "", readlink("/dev/disk/by-path/" . $phy));
+				$nodes[$node] = $phy;
+			}
+		}
+		
+		if(!empty($nodes)) {
+			if(!empty($device)) {
+				return $nodes[$device];
+			}
+			else {
+				return $nodes;
+			}
+		}
+		else {
+			return null;
+		}
+	}
+	
 	function get_smart_rotation($input) {
 		switch($input) {
 			case -2:

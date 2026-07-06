@@ -160,6 +160,8 @@
 					<button type=\"submit\" name=\"hash_remove\" value=\"" . $hash . "\" title=\"This will force move the drive to the &quot;History&quot; section.\" style=\"margin: 0; padding: 0; min-width: 0; width: 20px; height: 20px; background-color: #FFFFFF;\"><i style=\"font-size: 15px;\" class=\"fa fa-minus-circle fa-lg\"/></i></button>
 				</td>
 				<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px; text-align: center;\"><input type=\"button\" class=\"diskLocation\" style=\"background-color: #F2F2F2; transform: none;\" onclick=\"locateStart()\" value=\"Locate\" id=\"" . $data["device"] . "\" name=\"" . $allocated . "\" /></td>
+				<!--<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px; text-align: center;\"><input " . (!empty($get_physical[$phyloc_array[$raw["node"]]]) ? "checked=\"checked\"" : "") . " " . (empty($phyloc_array[$raw["node"]]) ? "disabled=\"disabled\"" : "") . " type=\"checkbox\" value=\"" . $raw["node"] . "\" name=\"physical[" . $hash . "]\" /></td>-->
+				
 			";
 			
 			$arr_length = count($table_trayalloc_order_system);
@@ -379,6 +381,7 @@
 					<tr>
 						<td style="width: 0; padding: 0 10px 0 10px;"><b>#</b></td>
 						<td style="width: 0; padding: 0 10px 0 10px;"><b>Locate</b></td>
+						<!--<td style="width: 0; padding: 0 10px 0 10px;"><b>Physical</b></td>-->
 						<?php print($table_trayalloc_order_name_html); ?>
 						<td style="width: 0; padding: 0 10px 0 10px;"><b>Custom Color</b></td>
 					</tr>
@@ -401,6 +404,7 @@
 									<tr style=\"border: solid 1px #000000;\">
 										<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px;\"><b>#</b></td>
 										<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px;\"><b>Locate</b></td>
+										<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px;\"><b>Physical</b></td>
 										$table_trayalloc_order_name_html
 										<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px;\"><b>Custom Color</b></td>
 									</tr>
@@ -414,6 +418,12 @@
 							<blockquote class='inline_help'>
 								<dt>Tray allocations</dt>
 								<dd>Select where to assign the drives and the empty trays, be sure to select a unique tray slot number. It will detect failure and none of the new settings will be saved.</dd>
+								
+								<dt>Physical</dt>
+								<dd>
+									Some devices can be assigned to be attached to a physical address, using this will autoreplace devices added to that slot in the future. Device PATH are assigned to tray slots instead of device name and serial number.<br />
+									WARNING! If a SAS card, SAS-SATA breakout cables, motherboard has changed or HBA PCI position swap has been done, the physical locations must be reconfigured in the plugin! This function will always be experimental due to endless possible configurations out there. Using HBA cards in a fixed PCI location should keep the same addresses.
+								</dd>
 								
 								<dt>Manufactured, Purchased and Warranty</dt>
 								<dd>For Unraid array drives which already got the date set, this will be detected automatically and used. You can use this plugin to enter all the dates in bulk if the "Allow editing of Unraid config" is set to "Yes" under Configuration.</dd>
