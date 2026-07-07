@@ -28,7 +28,8 @@
 	$array_groups = $get_groups;
 	( is_array($array_groups) ?? ksort($array_groups, SORT_NUMERIC) );
 	$array_devices = $get_devices;
-	$array_locations = $get_locations;
+	//$array_locations = $get_locations; // generated from array_devices.php
+	
 	$array_trayid = array();
 	
 	$select_db_devices = ( !empty($select_db_devices) ? $select_db_devices : $select_db_devices_default );
@@ -364,7 +365,10 @@
 						}
 					}
 					
-					$drive_tray_order[$hash] = get_tray_location($get_locations, $hash, $gid);
+					//$drive_tray_order[$hash] = get_tray_location($get_locations, $hash, $gid);
+					
+					$drive_tray_order[$hash] = ( isset($get_physical[$phyloc_array[$devicenode]]) ? $get_physical[$phyloc_array[$devicenode]]["tray"] : get_tray_location($get_locations, $hash, $gid) );
+					
 					$drive_tray_order[$hash] = ( !isset($drive_tray_order[$hash]) ? $tray_assign : $drive_tray_order[$hash] );
 					
 					if(isset($displayinfo["tray"])) {

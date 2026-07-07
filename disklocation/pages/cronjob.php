@@ -28,6 +28,23 @@
 	
 	$time_start = hrtime(true);
 	
+	function update_temp_files() {
+		$lsblk_json = shell_exec("lsblk -p -o NAME,MOUNTPOINT,SERIAL,PATH --json");
+		file_put_contents(DISKLOCATION_LSBLK, $lsblk_json);
+		
+		if(is_file("/usr/sbin/zpool")) {
+			$zpool_status = shell_exec("/usr/sbin/zpool status");
+			file_put_contents(DISKLOCATION_ZPOOL, $zpool_status);
+		}
+		
+		$physical_locations = dev_by_phy_path();
+		if(is_array($physical_locations) && !empty($physical_locations)) {
+			config_array(PHYSICAL_LOCATION_FILE, 'w', $physical_locations);
+			
+			return $physical_locations;
+		}
+	}
+	
 	if(in_array("syslogread", $argv)) {
 		$file = "/var/log/syslog";
 		
@@ -83,13 +100,7 @@
 		}
 
 		// grab changes just in case, this will decrease Disk Location plugin loading time drastically.
-		$lsblk_json = shell_exec("lsblk -p -o NAME,MOUNTPOINT,SERIAL,PATH --json");
-		file_put_contents(DISKLOCATION_LSBLK, $lsblk_json);
-		
-		if(is_file("/usr/sbin/zpool")) {
-			$zpool_status = shell_exec("/usr/sbin/zpool status");
-			file_put_contents(DISKLOCATION_ZPOOL, $zpool_status);
-		}
+		update_temp_files();
 		
 		exit();
 	}
@@ -165,12 +176,7 @@
 		}
 		
 		// grab changes just in case, this will decrease Disk Location plugin loading time drastically.
-		$lsblk_json = shell_exec("lsblk -p -o NAME,MOUNTPOINT,SERIAL,PATH --json");
-		file_put_contents(DISKLOCATION_LSBLK, $lsblk_json);
-		if(is_file("/usr/sbin/zpool")) {
-			$zpool_status = shell_exec("/usr/sbin/zpool status");
-			file_put_contents(DISKLOCATION_ZPOOL, $zpool_status);
-		}
+		$phyloc_array = update_temp_files();
 		
 		if($force_scan_db && !in_array("status", $argv)) {
 			// wait until the cronjob has finished.
@@ -195,11 +201,6 @@
 			
 			$devices_current = (empty($get_devices) ? array() : $get_devices);
 			$locations_current = (empty($get_locations) ? array() : $get_locations);
-			
-			$physical_locations = dev_by_phy_path();
-			if(is_array($physical_locations) && !empty($physical_locations)) {
-				config_array(PHYSICAL_LOCATION_FILE, 'w', $physical_locations);
-			}
 		}
 		
 		$i=0;
@@ -425,17 +426,16 @@
 									"endurance" => $smart_endurance_used,
 									"loadcycle" => $smart_loadcycle,
 									"powerontime" => ( (!empty($smart_poweronhours) && $smart_poweronhours < $smart_array["power_on_time"]["hours"]) ? $smart_poweronhours : $smart_array["power_on_time"]["hours"] ),
-									"status" => ( !file_exists(DISKLOCATION_DEVICES) ? 'h' : $devices_current[$deviceid[$i]]["status"] ),
+									"status" => ( !file_exists(DISKLOCATION_DEVICES) ? 'h' : ( !empty($get_physical[$phyloc_array[$lsscsi_devicenode[$i]]]) ? '' : $devices_current[$deviceid[$i]]["status"] ) ),
 									"errors" => ($smart_error_msg ?? null)
 								);
+								
 								$devices_updates = array_replace_recursive($devices_current, $update);
 								
 								$location[$deviceid[$i]] = array();
-								if(!array_key_exists($deviceid[$i], $locations_current)) { // if device is new or reappered, erase removed input and reset status
-									$location[$deviceid[$i]] = array(
-										"status" => 'h',
-										"removed" => ''
-									);
+								if(!array_key_exists($deviceid[$i], $locations_current)) { // if device is new or reappered, erase removed input and reset status if slot is not physically found.
+									$location[$deviceid[$i]]["status"] = ( !empty($get_physical[$phyloc_array[$lsscsi_devicenode[$i]]]) ? "" : "h" );
+									$location[$deviceid[$i]]["removed"] = '';
 								}
 								$location_update = array_replace_recursive($devices_updates, $location);
 								
@@ -469,7 +469,8 @@
 						$smart_log .= $smart_output;
 					}
 					else {
-						$smart_output = "skipped.\n";
+						//$smart_output = "skipped.\n";
+						$smart_output = "";
 						//print($smart_output);
 						$smart_log .= $smart_output;
 					}

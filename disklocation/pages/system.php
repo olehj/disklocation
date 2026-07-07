@@ -278,7 +278,12 @@
 		$array_devices = $get_devices;
 		$array_locations = $get_locations;
 		$array_groups = $get_groups;
-		$array_physical = array(); // clear every save, $get_physical should not be used.
+		if(!empty($_POST["update_physical"])) {
+			$array_physical = array();
+		}
+		else {
+			$array_physical = $get_physical;
+		}
 		$create_disklog_ini = array();
 		
 		// Get new allocations and adjust location array:
@@ -349,7 +354,9 @@
 		if(empty($disklocation_error)) {	
 			config_array(DISKLOCATION_DEVICES, "w", $array_devices);
 			config_array(DISKLOCATION_LOCATIONS, "w", $array_locations);
-			config_array(DISKLOCATION_PHYSICAL, "w", $array_physical);
+			//if(!empty($_POST["update_physical"])) {
+				config_array(DISKLOCATION_PHYSICAL, "w", $array_physical);
+			//}
 			
 			if($allow_unraid_edit) { 
 				$new_disklog = array_merge($unraid_disklog, $create_disklog_ini);

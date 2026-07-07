@@ -55,9 +55,6 @@
 		$warranty_expire = "";
 		$warranty_left = "";
 		
-		$gid = $array_locations[$hash]["groupid"];
-		$groupid = $gid;
-		
 		if($zfs_check) {
 			$zfs_disk_info = zfs_disk($data["smart_serialnumber"], $zfs_parser, $lsblk_array, 1);
 		}
@@ -74,11 +71,13 @@
 		// DB $data:
 		$devices[$hash]["raw"]["status"] = $data["status"] ?? null;
 		$devices[$hash]["formatted"]["status"] = $devices[$hash]["raw"]["status"];
-		$devices[$hash]["raw"]["tray"] = $array_locations[$hash]["tray"] ?? 0;
+		//$devices[$hash]["raw"]["tray"] = $array_locations[$hash]["tray"] ?? 0;
+		$devices[$hash]["raw"]["tray"] = ( isset($get_physical[$phyloc_array[$devicenode]]) ? $get_physical[$phyloc_array[$devicenode]]["tray"] : ($array_locations[$hash]["tray"] ?? 0) );
 		$devices[$hash]["formatted"]["tray"] = $devices[$hash]["raw"]["tray"];
-		$devices[$hash]["raw"]["groupid"] = $groupid;
+		$devices[$hash]["raw"]["groupid"] = ( isset($get_physical[$phyloc_array[$devicenode]]) ? $get_physical[$phyloc_array[$devicenode]]["groupid"] : ($array_locations[$hash]["groupid"]) );
+		//$devices[$hash]["raw"]["groupid"] = $groupid;
 		$devices[$hash]["formatted"]["groupid"] = $devices[$hash]["raw"]["groupid"];
-		$devices[$hash]["raw"]["group_name"] = $array_groups[$gid]["group_name"];
+		$devices[$hash]["raw"]["group_name"] = $array_groups[$devices[$hash]["raw"]["groupid"]]["group_name"];
 		$devices[$hash]["formatted"]["group_name"] = $devices[$hash]["raw"]["group_name"];
 		$devices[$hash]["raw"]["device"] = $device;
 		$devices[$hash]["formatted"]["device"] = $devices[$hash]["raw"]["device"];
@@ -106,6 +105,12 @@
 		$devices[$hash]["formatted"]["comment"] = $devices[$hash]["raw"]["comment"]; // bscode2html(stripslashes(htmlspecialchars($data["comment"])))
 		$devices[$hash]["raw"]["bgcolor"] = $data["color"];
 		$devices[$hash]["formatted"]["bgcolor"] = $devices[$hash]["raw"]["bgcolor"];
+		
+		// Overwrite some variables
+		$gid = $devices[$hash]["raw"]["groupid"];
+		$groupid = $gid;
+		$array_locations[$hash]["tray"] = $devices[$hash]["raw"]["tray"];
+		$array_locations[$hash]["groupid"] = $devices[$hash]["raw"]["groupid"];
 		
 		// SMART files $smart_array:
 		$smart_file[$hash] = file_get_contents(DISKLOCATION_TMP_PATH."/smart/".preg_replace($pattern_device_name, "_", $devices[$hash]["raw"]["model"])."_" . $devices[$hash]["raw"]["serial"] . ".json");

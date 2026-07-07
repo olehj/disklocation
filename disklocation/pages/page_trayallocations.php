@@ -119,18 +119,25 @@
 			
 			$tray_assign = ( !is_numeric($data["tray"]) ? null : $data["tray"] );
 			$tray_options = "";
-			
+			$tray_options_hidden_val = "";
 			for($tray_i = $smallest_tray_group; $tray_i <= $biggest_tray_group; ++$tray_i) {
 				if($array_trayid[$gid][$tray_assign] === $tray_i) { $selected="selected"; } else { $selected=""; }
 				$tray_options .= "<option value=\"" . $tray_i . "\" " . $selected . " style=\"text-align: right;\">" . $tray_i . "</option>";
+				if(!empty($get_physical[$phyloc_array[$raw["node"]]]) && !empty($selected)) {
+					$tray_options_hidden_val = $tray_i;
+				}
 			}
 			
 			$group_options = "";
+			$group_options_hidden_val = "";
 			for($group_i = 0; $group_i < $total_groups; ++$group_i) {
 				$gid = $group[$group_i]["id"];
 				$gid_name = ( empty($group[$group_i]["group_name"]) ? $gid : $group[$group_i]["group_name"] );
 				if($data["groupid"] == $gid) { $selected="selected"; } else { $selected=""; }
 				$group_options .= "<option value=\"$gid\" " . $selected . " style=\"text-align: left;\">" . stripslashes(htmlspecialchars($gid_name)) . "</option>";
+				if(!empty($get_physical[$phyloc_array[$raw["node"]]]) && !empty($selected)) {
+					$group_options_hidden_val = $gid;
+				}
 			}
 			
 			$warr_options = "";
@@ -146,8 +153,8 @@
 			unset($listarray["groupid"]);
 			unset($listarray["tray"]);
 			// Override array for writable forms
-			$listarray["groupid"] = "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><select name=\"groups[" . $hash . "]\" style=\"width: 150px;\"><option value=\"\" selected style=\"text-align: left;\">--</option>" . $group_options . "</select></td>";
-			$listarray["tray"] = "<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><select name=\"drives[" . $hash . "]\" style=\"min-width: 0; max-width: 50px; width: 40px;\"><option value=\"\" selected style=\"text-align: right;\">--</option>" . $tray_options . "</select></td>";
+			$listarray["groupid"] = "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><select " . (!empty($get_physical[$phyloc_array[$raw["node"]]]) ? "disabled=\"disabled\"" : "") . " name=\"groups[" . $hash . "]\" style=\"width: 150px;\"><option value=\"\" selected style=\"text-align: left;\">--</option>" . $group_options . "</select>" . (!empty($get_physical[$phyloc_array[$raw["node"]]]) ? "<input type=\"hidden\" name=\"groups[" . $hash . "]\" value=\"$group_options_hidden_val\" />" : "") . "</td>";
+			$listarray["tray"] = "<td style=\"width: 0; white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><select " . (!empty($get_physical[$phyloc_array[$raw["node"]]]) ? "disabled=\"disabled\"" : "") . " name=\"drives[" . $hash . "]\" style=\"min-width: 0; max-width: 50px; width: 40px;\"><option value=\"\" selected style=\"text-align: right;\">--</option>" . $tray_options . "</select>" . (!empty($get_physical[$phyloc_array[$raw["node"]]]) ? "<input type=\"hidden\" name=\"drives[" . $hash . "]\" value=\"$tray_options_hidden_val\" />" : "") . "</td>";
 			$listarray["manufactured"] = "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><input " . ( $allow_unraid_edit ? null : "readonly=\"readonly\"" ) . " type=\"date\" name=\"manufactured[" . $hash . "]\" max=\"9999-12-31\" value=\"" . $data["manufactured"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" /></td>";
 			$listarray["purchased"] = "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><input " . ( $allow_unraid_edit ? null : "readonly=\"readonly\"" ) . " type=\"date\" name=\"purchased[" . $hash . "]\" max=\"9999-12-31\" value=\"" . $data["purchased"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" /></td>";
 			$listarray["installed"] = "<td style=\"white-space: nowrap; padding: 0 10px 0 10px; text-align: right;\"><input type=\"date\" name=\"installed[" . $hash . "]\" max=\"9999-12-31\" value=\"" . $data["installed"] . "\" style=\"min-width: 0; max-width: 130px; width: 130px;\" /></td>";
@@ -417,12 +424,19 @@
 							<?php print( !$allow_unraid_edit ? "<span class=\"red\">Columns containing \"Manufactured\", \"Purchased\" and \"Warranty\" is read-only. To enable editing, go to Configuration and set \"Allow editing of Unraid config\" to \"Yes\"</span>" : "" ); ?>
 							<blockquote class='inline_help'>
 								<dt>Tray allocations</dt>
-								<dd>Select where to assign the drives and the empty trays, be sure to select a unique tray slot number. It will detect failure and none of the new settings will be saved.</dd>
+								<dd>Select where to assign the drives and the empty trays, be sure to select a unique tray number. It will detect failure and none of the new settings will be saved.</dd>
 								
 								<dt>Physical</dt>
 								<dd>
-									Some devices can be assigned to be attached to a physical address, using this will autoreplace devices added to that slot in the future. Device PATH are assigned to tray slots instead of device name and serial number.<br />
-									WARNING! If a SAS card, SAS-SATA breakout cables, motherboard has changed or HBA PCI position swap has been done, the physical locations must be reconfigured in the plugin! This function will always be experimental due to endless possible configurations out there. Using HBA cards in a fixed PCI location should keep the same addresses.
+									Some devices can be used to assign a tray to a physical address. Using this will automatically replace drives added to that tray. Device path are assigned to trays instead of device name and serial number. This requires a drive to be attached and assigned before it can be used.<br />
+									<span class="red">IMPORTANT!</span>
+									If there is a system change with e.g. HBA/SAS card (even motherboard PCI-slot), SAS-SATA breakout cables or motherboard, the physical locations must be wiped and reconfigured in the plugin. Using HBA/SAS cards in a fixed PCI location should normally use the same addresses. If such a major change is required and you want to preserve the tray locations:
+									<ul>
+										<li>Press "Save" on this page to update the manual location database.</li>
+										<li>go to the "System" tab and create a backup</li>
+										<li>then wipe ONLY the "physical" configuration BEFORE doing the changes</li>
+									</ul>
+									Hot swapping requires execution of Force SMART+DB, and will be prompted within 5 minutes. Inserting devices in powered off mode, will automatically execute it during boot.
 								</dd>
 								
 								<dt>Manufactured, Purchased and Warranty</dt>
@@ -465,16 +479,17 @@
 							<hr />
 							<input type="hidden" name="array_trayid" value="<?php print(serialize($array_trayid)) ?>" />
 							<input type="submit" name="save_allocations" value="Save" />
+							<input type="checkbox" name="update_physical" value="1" /> <b>and reconfigure physical trays</b>
 							<span style="padding-left: 50px;"></span>
 							<input type="submit" name="killall_smartlocate" value="Force Stop All Locate" />
 							<span style="padding-left: 50px;"></span>
 							<input type="submit" name="reset_all_colors" value="Reset All Custom Colors" /> <b>or choose "Empty" color (first color listed) per device under "Custom Color" to reset, and then hit the "Save" button.</b>
 							<blockquote class='inline_help'>
-								<ul>
-									<li>"Save" button will store all information entered.</li>
-									<li>"Force Stop All Locate" button will terminate all "Locate" runs.</li>
-									<li>"Reset All Custom Colors" will delete all custome stored colors from the database.</li>
-								</ul>
+								<dt>Buttons</dt>
+								<dd>"Save" button will store all information entered.</dd>
+								<dd>"Save" checkbox will regenerate physical trays. It will wipe current configuration and rewrite new physical tray addresses to assigned trays. Old saved physical trays with no connected drives will be deleted. This box must also be checked to deactivate the physical option on a drive/location. In most cases you DO NOT want to use this unless required.</dd>
+								<dd>"Force Stop All Locate" button will terminate all "Locate" runs.</dd>
+								<dd>"Reset All Custom Colors" will delete all custome stored colors from the database.</dd>
 							</blockquote>
 							<hr />
 						</td>
@@ -506,10 +521,8 @@
 				?>
 				<blockquote class='inline_help'>
 					<dt>"History buttons"</dt>
-					<ul>
-						<li>Delete, this will flag the drive hidden in the database.</li>
-						<li>Add, will revert to &quot;not found list&quot; if the drive does not exists, but will reappear in the configuration if it really does. Usually it shouldn't be any need for this.</li>
-					</ul>
+					<dd>Delete, this will flag the drive hidden in the database.</dd>
+					<dd>Add, will revert to &quot;not found list&quot; if the drive does not exists, but will reappear in the configuration if it really does. Usually it shouldn't be any need for this.</dd>
 				</blockquote>
 			</td>
 		</tr>
