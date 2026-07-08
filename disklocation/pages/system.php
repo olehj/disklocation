@@ -118,6 +118,7 @@
 		unset($groups["swap_right"]);
 		
 		$locations = config_array(DISKLOCATION_LOCATIONS, 'r');
+		
 		foreach($locations as $hash => $array) {
 			if($array["groupid"] == $group_left) {
 				$locations[$hash]["swap_right"] = $group_right;
@@ -137,11 +138,34 @@
 			}
 		}
 		
+		$array = array();
+		$locations_phy = config_array(DISKLOCATION_PHYSICAL, 'r');
+		
+		foreach($locations_phy as $path => $array) {
+			if($array["groupid"] == $group_left) {
+				$locations_phy[$path]["swap_right"] = $group_right;
+			}
+			if($array["groupid"] == $group_right) {
+				$locations_phy[$path]["swap_left"] = $group_left;
+			}
+		}
+		foreach($locations_phy as $path => $array) {
+			if($array["groupid"] == $group_left) {
+				$locations_phy[$path]["groupid"] = $locations_phy[$path]["swap_right"];
+				unset($locations_phy[$path]["swap_right"]);
+			}
+			if($array["groupid"] == $group_right) {
+				$locations_phy[$path]["groupid"] = $locations_phy[$path]["swap_left"];
+				unset($locations_phy[$path]["swap_left"]);
+			}
+		}
+		
 		config_array(DISKLOCATION_GROUPS, 'w', $groups);
 		config_array(DISKLOCATION_LOCATIONS, 'w', $locations);
+		config_array(DISKLOCATION_PHYSICAL, 'w', $locations_phy);
 		
 		$SUBMIT_RELOAD = 1;
-		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: group_swap", array($locations, $groups));
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "POST: group_swap", array($locations, $locations_phy, $groups));
 	}
 	
 	if(isset($_POST["save_settings"])) {
