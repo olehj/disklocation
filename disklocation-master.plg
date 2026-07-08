@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2026.07.07">
+<!ENTITY version          "2026.07.08">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2026.07.08
+ - Commit #511 - BUG: Physical assignments wont move with the groups. Added physical.json into the rewrite loop with locations.json.
+
 ###2026.07.07
  - Commit #506 - FEATURE: Physical assignment of trays. Some devices can be used to assign a tray to a physical address. Using this will automatically replace drives added to that tray. Device path are assigned to trays instead of device name and serial number.
 
