@@ -1110,14 +1110,16 @@
 		
 		$nodes = array();
 		
-		$dir = array_diff(scandir("/dev/disk/by-path"), array('..', '.'));
-		
-		$files = preg_grep("/part/", $dir, PREG_GREP_INVERT);
-		
-		foreach($files as $phy) {
-			if(is_link("/dev/disk/by-path/" . $phy)) {
-				$node = str_replace("../", "", readlink("/dev/disk/by-path/" . $phy));
-				$nodes[$node] = $phy;
+		if(is_dir("/dev/disk/by-path")) {
+			$dir = array_diff(scandir("/dev/disk/by-path"), array('..', '.'));
+			
+			$files = preg_grep("/part/", $dir, PREG_GREP_INVERT);
+			
+			foreach($files as $phy) {
+				if(is_link("/dev/disk/by-path/" . $phy)) {
+					$node = str_replace("../", "", readlink("/dev/disk/by-path/" . $phy));
+					$nodes[$node] = $phy;
+				}
 			}
 		}
 		
