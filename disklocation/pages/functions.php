@@ -729,8 +729,16 @@
 	}
 	
 	function find_and_set_removed_devices_status($db, $locations, $arr_hash) {
+		/* status:
+			null/a	allocated
+			d	deleted (undelete from System to make them visible again)
+			r	removed (not found disks, date added for reference)
+			h	history (devices in history list)
+			c	cold storage (devices stored with location, but not to be removed during database update)
+		*/
+		
 		foreach($db as $hash => $array) {
-			( ($db[$hash]["status"] != 'd') ? $db_hash[] = $hash : null );
+			( ($db[$hash]["status"] != 'd' && $db[$hash]["status"] != 'c') ? $db_hash[] = $hash : null );
 		}
 		
 		$arr_hash = array_filter($arr_hash);

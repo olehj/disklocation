@@ -69,7 +69,7 @@
 			$i_arr=0;
 			if(!$total_groups || empty($array_locations)) {
 				foreach($array_devices as $hash => $array) {
-					if(!$array_devices[$hash]["status"]) {
+					if(!$array_devices[$hash]["status"] || $array_devices[$hash]["status"] == "c") {
 						$datajson[$i_arr] = $array_devices[$hash];
 						$datajson[$i_arr]["hash"] = $hash;
 						$i_arr++;
@@ -78,7 +78,7 @@
 			}
 			else {
 				foreach($array_devices as $hash => $array) {
-					if(!$array_devices[$hash]["status"] && $array_locations[$hash]["groupid"] == $gid) {
+					if((!$array_devices[$hash]["status"] || $array_devices[$hash]["status"] == "c") && $array_locations[$hash]["groupid"] == $gid) {
 						$datajson[$i_arr] = $array_devices[$hash];
 						$datajson[$i_arr]["hash"] = $hash;
 						$datajson[$i_arr] += $array_locations[$hash];
