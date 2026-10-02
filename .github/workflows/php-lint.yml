@@ -1,0 +1,35 @@
+name: PHP Lint
+
+on:
+  push:
+    branches: [ master, devel ]
+  pull_request:
+    branches: [ master, devel ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: [ '8.1', '8.2', '8.3' ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          tools: none
+          coverage: none
+
+      - name: Lint changed and existing PHP files
+        run: |
+          set -e
+          status=0
+          while IFS= read -r -d '' file; do
+            if ! php -l "$file"; then
+              status=1
+            fi
+          done < <(find . -type f -name '*.php' -print0)
+          exit $status

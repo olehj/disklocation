@@ -25,7 +25,7 @@
 		exit;
 	}
 	else if(isset($_GET["disklocation"]) && $_GET["cmd"] == "stop") {
-		shell_exec("pkill -f \"smartlocate " . escapeshellarg($_GET["disklocation"] . "\""));
+		shell_exec("pkill -f " . escapeshellarg($smartlocate_path . "/smartlocate " . $_GET["disklocation"]));
 		exit;
 	}
 	else if(isset($_GET["cmd"]) == "killall") {

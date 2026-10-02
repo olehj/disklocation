@@ -181,10 +181,16 @@
 	<a href="<?php echo DISKLOCATION_PATH ?>/pages/export_info_tsv.php?download_csv=1">formatted</a>
 	|
 	<a href="<?php echo DISKLOCATION_PATH ?>/pages/export_info_tsv.php?download_csv=1&amp;raw_data_csv=1">raw data</a>
+	(TSV)
+	&nbsp;&nbsp;
+	<a href="<?php echo DISKLOCATION_PATH ?>/pages/export_info_json.php?download_json=1">formatted</a>
+	|
+	<a href="<?php echo DISKLOCATION_PATH ?>/pages/export_info_json.php?download_json=1&amp;raw_data_json=1">raw data</a>
+	(JSON)
 	
 </h2>
 <blockquote class='inline_help'>
-	<p>Download a TSV file based upon the selection and ordering of the Information table above. If you're using HTML in the comment section, it will include HTML code if inserted and will not parse it anyhow. TSV is the same as CSV, but the extension for TAB delimited instead of COMMA.</p>
+	<p>Download a TSV or JSON file based upon the selection and ordering of the Information table above. If you're using HTML in the comment section, it will include HTML code if inserted and will not parse it anyhow. TSV is the same as CSV, but the extension for TAB delimited instead of COMMA. JSON is intended for scripting and integrations (e.g. Home Assistant, Grafana, Homepage) where a structured format is easier to consume than a delimited file.</p>
 	<p>Output raw data will not format numbers for the file output. Eg. HDD sizes like 8.0TB will be 8001563222016 instead. However, the SMART units read and written is calculated with the logical block size and shown in raw after that.</p>
 </blockquote>
 </td></tr></table>

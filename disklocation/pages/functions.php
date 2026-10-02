@@ -24,6 +24,23 @@
 		include("load_settings.php");
 	}
 	
+	function sanitize_smart_type_flag($value) {
+		// $value ends up interpolated, unquoted, directly into several shell_exec() calls
+		// (cronjob.php, hddcheck.php, benchmark.php) that run smartctl/hdparm, because it
+		// needs to stay as multiple distinct shell tokens (e.g. "-d sat,0" or
+		// "-d areca,1/2 /dev/sdb") rather than a single escapeshellarg()-quoted argument.
+		// Since it originates from an admin-configurable Unraid SMART setting rather than
+		// unauthenticated user input, the risk is limited to a trusted admin/root context -
+		// but we still strip anything outside smartctl's -d TYPE[,PORT[/EPORT]] syntax and
+		// a "/dev/name" path (letters, digits, comma, slash, dot, dash, underscore, colon,
+		// space) so stray shell metacharacters (; | & ` $ ( ) newlines, etc.) can never reach
+		// the shell, whether typed by mistake or introduced via a corrupted/malicious config.
+		if(empty($value)) {
+			return $value;
+		}
+		return preg_replace('/[^A-Za-z0-9_,\/\.\-: ]/', '', $value);
+	}
+	
 	function debug($output, $file, $line, $program, $input = '') { // $output = 0: off | 1: write logfile | 2: return log | 3: write logfile & return log
 		if($output) {
 			if($output && $line && $program && $input) {
@@ -433,6 +450,16 @@
 		header('Content-Disposition: attachment; filename="'.$filename.'";');
 		// make php send the generated csv lines to the browser
 		fpassthru($f);
+	}
+	
+	function array_to_json_download($data, $filename = "output.json") {
+		// $data is expected to be a plain associative/indexed array ready for json_encode()
+		// (unlike array_to_csv_download, this does not need a header row baked into the array)
+		$json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+		header('Content-Type: application/json');
+		header('Content-Disposition: attachment; filename="'.$filename.'";');
+		header('Content-Length: ' . strlen($json));
+		echo $json;
 	}
 	
 	function is_tray_allocated($db, $tray, $gid) {
