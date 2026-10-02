@@ -269,7 +269,11 @@
 					
 					$deviceid[$i] = hash('sha256', $smart_model_name . ( isset($smart_array["serial_number"]) ? $smart_array["serial_number"] : null));
 					
-					$search_existing = array_search($deviceid[$i], $devices, TRUE);
+					// $devices is keyed by hash with each value a nested device-attributes array, so
+					// array_search() by value could never match a hash string here - it always
+					// returned false, silently defeating this duplicate-device (multi-LUN/multi-path,
+					// see $ignore_multi_lun) guard. array_key_exists() is the check that was intended.
+					$search_existing = array_key_exists($deviceid[$i], $devices);
 					
 					// skip if no device id exists
 					if(!empty($deviceid[$i]) && !$search_existing) {
