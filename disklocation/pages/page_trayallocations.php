@@ -300,7 +300,7 @@
 		";
 		
 		$disk_layouts_alloc .= "
-			<div style=\"float: left; padding: " . ($unraid_version_720 ? "0" : "10px") . " 20px " . ($unraid_version_720 ? "0" : "10px") . " 20px;\">
+			<div class=\"dl-group-wrap\" style=\"float: left; padding: " . ($unraid_version_720 ? "0" : "10px") . " 20px " . ($unraid_version_720 ? "0" : "10px") . " 20px;\">
 				<h2 style=\"text-align: center; " . ($unraid_version_720 ? "margin-top: 0;" : null) . "\">
 					" . stripslashes(htmlspecialchars($gid_name)) . "
 				</h2>
