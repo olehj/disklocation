@@ -46,6 +46,7 @@
 
 <CHANGES>
 ###2026.10.02
+ - Commit #524 - FEATURE: Added cold storage option to save information of a drive not attached or online.
  - Commit #519 - MINOR: Make the tray map usable on mobile viewports (Thanks to joshmans@github).
  - Commit #518 - ENHANCEMENT: Fix pkill quoting, add JSON export, add PHP lint CI, harden shell_exec() calls (Thanks to joshmans@github).
 
