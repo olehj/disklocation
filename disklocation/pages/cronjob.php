@@ -292,7 +292,7 @@
 								$get_notifications = json_decode(shell_exec("/usr/local/emhttp/webGui/scripts/notify get"), true);
 								
 								if(!empty($deviceid[$i]) && recursive_array_search("" . $smart_model_name . " " . $smart_array["serial_number"] . "", $get_notifications) === false) { // only send notification if it doesn't exists:
-									shell_exec("/usr/local/emhttp/webGui/scripts/notify -e \"Disk Location: " . $lsscsi_devicenode[$i] . "\" -s \"Alert - Device failure\" -d \"" . $smart_model_name . " " . $smart_array["serial_number"] . "\" -i \"alert\" -m \"" . implode(", ", $smart_error_msg) . "\"");
+									shell_exec("/usr/local/emhttp/webGui/scripts/notify -e " . escapeshellarg("Disk Location: " . $lsscsi_devicenode[$i]) . " -s " . escapeshellarg("Alert - Device failure") . " -d " . escapeshellarg($smart_model_name . " " . $smart_array["serial_number"]) . " -i " . escapeshellarg("alert") . " -m " . escapeshellarg(implode(", ", $smart_error_msg)));
 								}
 								$smart_output = "SMART: " . str_pad($lsscsi_devicenodesg[$i], 20) . " FAILED   ";
 								print($smart_output);

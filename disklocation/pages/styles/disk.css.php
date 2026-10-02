@@ -106,3 +106,31 @@ input.diskLocation {
 	50% {background-color: #0066FF;}
 	100% {background-color: #CCCCCC;}
 }
+
+/* Mobile-friendly tray map.
+ *
+ * Each tray tile is rendered with fixed pixel dimensions (see $tray_width/$tray_height
+ * in devices.php), and groups of trays are floated side by side. That's fine on a
+ * desktop screen, but on a phone-width viewport several floated groups side by side
+ * either overflow the page horizontally or get squashed/overlapped. Rather than
+ * rewriting the tray sizing to be fluid (which would need every tile's inline
+ * width/height recalculated server-side), we make each group's own tray grid
+ * independently scrollable and stack groups vertically, so every tray map is always
+ * fully visible and swipeable at its native, correctly-proportioned size.
+ */
+@media (max-width: 900px) {
+	.dl-group-wrap {
+		float: none !important;
+		display: block;
+		max-width: 100%;
+		margin-left: auto;
+		margin-right: auto;
+	}
+	.dl-group-wrap .grid-container {
+		display: inline-grid;
+		max-width: 100%;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+		padding-bottom: 10px; /* keep the scrollbar from sitting on top of the bottom row of trays */
+	}
+}

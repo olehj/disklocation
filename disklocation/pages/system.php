@@ -357,7 +357,8 @@
 		foreach($results as $id => $array) {
 			$array_locations[$results[$id]["hash"]] = $results[$id];
 			unset($array_locations[$results[$id]["hash"]]["hash"]);
-			$array_devices[$results[$id]["hash"]]["status"] = null;  // enable found and assigned devices
+			//$array_devices[$results[$id]["hash"]]["status"] = null;  // enable found and assigned devices
+			$array_devices[$results[$id]["hash"]]["status"] = ( !empty($_POST["status"][$results[$id]["hash"]]) ? $_POST["status"][$results[$id]["hash"]] : null );
 			
 			$array_devices[$results[$id]["hash"]]["manufactured"] = ( !empty($_POST["manufactured"][$results[$id]["hash"]]) ? $_POST["manufactured"][$results[$id]["hash"]] : null );
 			$array_devices[$results[$id]["hash"]]["purchased"] = ( !empty($_POST["purchased"][$results[$id]["hash"]]) ? $_POST["purchased"][$results[$id]["hash"]] : null );

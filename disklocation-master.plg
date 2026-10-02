@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2026.08.21">
+<!ENTITY version          "2026.10.02">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,11 @@
 -->
 
 <CHANGES>
+###2026.10.02
+ - Commit #524 - FEATURE: Added cold storage option to save information of a drive not attached or online.
+ - Commit #519 - MINOR: Make the tray map usable on mobile viewports (Thanks to joshmans@github).
+ - Commit #518 - ENHANCEMENT: Fix pkill quoting, add JSON export, add PHP lint CI, harden shell_exec() calls (Thanks to joshmans@github).
+
 ###2026.08.21
  - Commit #515 - MINOR: Adjusted dev_by_phy_path to include partitions that exists to include more drives to be physically attached in case non part-names does not exists.
 

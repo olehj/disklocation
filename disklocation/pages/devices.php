@@ -69,7 +69,7 @@
 			$i_arr=0;
 			if(!$total_groups || empty($array_locations)) {
 				foreach($array_devices as $hash => $array) {
-					if(!$array_devices[$hash]["status"]) {
+					if(!$array_devices[$hash]["status"] || $array_devices[$hash]["status"] == "c") {
 						$datajson[$i_arr] = $array_devices[$hash];
 						$datajson[$i_arr]["hash"] = $hash;
 						$i_arr++;
@@ -78,7 +78,7 @@
 			}
 			else {
 				foreach($array_devices as $hash => $array) {
-					if(!$array_devices[$hash]["status"] && $array_locations[$hash]["groupid"] == $gid) {
+					if((!$array_devices[$hash]["status"] || $array_devices[$hash]["status"] == "c") && $array_locations[$hash]["groupid"] == $gid) {
 						$datajson[$i_arr] = $array_devices[$hash];
 						$datajson[$i_arr]["hash"] = $hash;
 						$datajson[$i_arr] += $array_locations[$hash];
@@ -569,7 +569,7 @@
 		$disklocation_page_out_get_float = (!empty($array_groups[$gid]["tray_pos"]) ? $array_groups[$gid]["tray_pos"] : (!empty($dashboard_float) ? $dashboard_float : $tray_pos ) );
 		
 		$disklocation_page_out .= "
-			<div style=\"float: " . $disklocation_page_out_get_float . "; vertical-align: top; padding" . ($disklocation_page_out_get_float == "none" ? "-bottom: 40px" : ": 0") . ";\">
+			<div class=\"dl-group-wrap\" style=\"float: " . $disklocation_page_out_get_float . "; vertical-align: top; padding" . ($disklocation_page_out_get_float == "none" ? "-bottom: 40px" : ": 0") . ";\">
 				<h2 style=\"text-align: " . (!empty($array_groups[$gid]["tray_align_txt"]) ? $array_groups[$gid]["tray_align_txt"] : "center" ) . "; " . ( $array_groups[$gid]["tray_align_txt"] == "vertical" ? "float: left; writing-mode: vertical-rl;" : null ) . "\">" . stripslashes(htmlspecialchars($gid_name)) . "</h2>
 				<div class=\"grid-container\" style=\"$css_grid_group\">
 					$disklocation_page[$gid]
