@@ -666,7 +666,8 @@
 			$disks = explode("\n", $zfs_config[$i_loop]["config"]);
 			// Array $match: 0 = disk-by-id | 1 = state | 2 = read | 3 = write | 4 = cksum
 			for($i=0; $i < count($disks); ++$i) {
-				if(preg_match("/(".$disk."|".$zfs_node["node"].")/", $disks[$i])) {
+				//if(preg_match("/(".$disk."|".$zfs_node["node"].")/", $disks[$i])) {
+				if(preg_match("/\b(" . preg_quote($disk, "/") . "|" . preg_quote($zfs_node["node"], "/") . ")(\d+|-part\d+)?\b/", $disks[$i])) { // fix by kapsaicin@github to support all device node names
 					return ( !empty($config) ? $zfs_config[$i_loop] : explode(":", preg_replace("/\s+/", ":", trim($disks[$i]))) );
 				}
 			}
