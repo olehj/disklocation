@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2026.10.02">
+<!ENTITY version          "2026.10.12">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2026.10.12
+ - Commit #528 - MINOR: zfs_disk() substring match: sda matched to ZFS member sdaa1. Thanks to kapsaicin@github for the fix.
+
 ###2026.10.02
  - Commit #524 - FEATURE: Added cold storage option to save information of a drive not attached or online.
  - Commit #519 - MINOR: Make the tray map usable on mobile viewports (Thanks to joshmans@github).
