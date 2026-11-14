@@ -33,7 +33,7 @@
 		file_put_contents(DISKLOCATION_LSBLK, $lsblk_json);
 		
 		if(is_file("/usr/sbin/zpool")) {
-			$zpool_status = shell_exec("/usr/sbin/zpool status");
+			$zpool_status = shell_exec("/usr/sbin/zpool status 2>/dev/null");
 			file_put_contents(DISKLOCATION_ZPOOL, $zpool_status);
 		}
 		
