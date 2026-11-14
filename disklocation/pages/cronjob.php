@@ -397,7 +397,7 @@
 							
 							$nvme_temp = array();
 							if(isset($smart_array["device"]["type"]) && $smart_array["device"]["type"] == "nvme") {
-								$nvme_cmd = shell_exec("nvme id-ctrl $lsscsi_devicenodesg[$i] | grep temp");
+								$nvme_cmd = shell_exec("{ nvme id ctrl $lsscsi_devicenodesg[$i] 2>/dev/null || nvme id-ctrl $lsscsi_devicenodesg[$i] 2>/dev/null; } | grep temp");
 								if(!empty($nvme_cmd)) {
 									list($wctemp_line, $cctemp_line) = explode("\n", $nvme_cmd);
 									list($foo, $wctemp) = explode(":", $wctemp_line);
