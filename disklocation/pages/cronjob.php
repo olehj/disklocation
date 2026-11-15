@@ -33,7 +33,7 @@
 		file_put_contents(DISKLOCATION_LSBLK, $lsblk_json);
 		
 		if(is_file("/usr/sbin/zpool")) {
-			$zpool_status = shell_exec("/usr/sbin/zpool status");
+			$zpool_status = shell_exec("/usr/sbin/zpool status 2>/dev/null");
 			file_put_contents(DISKLOCATION_ZPOOL, $zpool_status);
 		}
 		
@@ -397,7 +397,7 @@
 							
 							$nvme_temp = array();
 							if(isset($smart_array["device"]["type"]) && $smart_array["device"]["type"] == "nvme") {
-								$nvme_cmd = shell_exec("nvme id-ctrl $lsscsi_devicenodesg[$i] | grep temp");
+								$nvme_cmd = shell_exec("{ nvme id ctrl $lsscsi_devicenodesg[$i] 2>/dev/null || nvme id-ctrl $lsscsi_devicenodesg[$i] 2>/dev/null; } | grep temp");
 								if(!empty($nvme_cmd)) {
 									list($wctemp_line, $cctemp_line) = explode("\n", $nvme_cmd);
 									list($foo, $wctemp) = explode(":", $wctemp_line);
