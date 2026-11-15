@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2026.10.12">
+<!ENTITY version          "2026.11.15">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2026.11.15
+ - Commit #531 - MINOR: Avoid console noise at boot: nvme id-ctrl deprecation and zpool 'no pools available'. Thanks to thecode@github.
+
 ###2026.10.12
  - Commit #528 - MINOR: zfs_disk() substring match: sda matched to ZFS member sdaa1. Thanks to kapsaicin@github for the fix.
 
