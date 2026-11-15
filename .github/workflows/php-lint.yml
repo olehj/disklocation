@@ -2,16 +2,16 @@ name: PHP Lint
 
 on:
   push:
-    branches: [ master, devel ]
+    branches: [ devel ]
   pull_request:
-    branches: [ master, devel ]
+    branches: [ devel ]
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-version: [ '8.1', '8.2', '8.3' ]
+        php-version: [ '7.4', '8.4', '8.5' ]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
