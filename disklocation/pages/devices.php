@@ -284,7 +284,7 @@
 					$unraid_array_icon = "";
 					$physical_traynumber = null;
 					
-					if(!$unraid_array[$devicenode]["temp"] || !is_numeric($unraid_array[$devicenode]["temp"])) { // && (!$unraid_array[$devicenode]["temp"] && $unraid_array[$devicenode]["hotTemp"] == 0 && $unraid_array[$devicenode]["maxTemp"] == 0)) {
+					if((!$unraid_array[$devicenode]["temp"] || !is_numeric($unraid_array[$devicenode]["temp"]) || $array_devices[$hash]["status"] == "c")) { // && (!$unraid_array[$devicenode]["temp"] && $unraid_array[$devicenode]["hotTemp"] == 0 && $unraid_array[$devicenode]["maxTemp"] == 0)) {
 						$unraid_array[$devicenode]["temp"] = 0;
 						
 						$temp_status_icon = "<a class='info'><i class='fa fa-circle orb-disklocation grey-orb-disklocation'></i><span>Temperature unavailable</span></a>";
@@ -313,7 +313,7 @@
 					}
 					
 					// Set $smart_status = 2 if $smart_errors was found AND $smart_status has NOT failed AND disk has NOT been acknowledged, else set initial value:
-					$smart_status = ((!empty($devices[$hash]["raw"]["smart_errors"]) && !empty($devices[$hash]["raw"]["smart_status"]) && !get_disk_ack($unraid_array[$data["devicenode"]]["name"])) ? 2 : (!empty($devices[$hash]["raw"]["smart_status"]) ? 1 : 0));
+					$smart_status = ($array_devices[$hash]["status"] != "c" ? ((!empty($devices[$hash]["raw"]["smart_errors"]) && !empty($devices[$hash]["raw"]["smart_status"]) && !get_disk_ack($unraid_array[$data["devicenode"]]["name"])) ? 2 : (!empty($devices[$hash]["raw"]["smart_status"]) ? 1 : 0)) : -1);
 					
 					switch($smart_status) {
 						case 0:
@@ -334,34 +334,41 @@
 					}
 					
 					if(isset($displayinfo["leddiskop"])) {
-						$zfs_disk_status = "";
-						if($zfs_check) {
-							$zfs_disk_status = zfs_disk($data["smart_serialnumber"], $zfs_parser, $lsblk_array);
-						}
-						
-						$unraid_disk_status_color = get_powermode($device, $get_powermode);
-						
-						if(!empty($zfs_disk_status)) {
-							$unraid_array_icon = get_unraid_disk_status($zfs_disk_status[1], '', '', $force_orb_led);
-							$unraid_array_info = get_unraid_disk_status($zfs_disk_status[1],'','array', $force_orb_led);
-							$color_status = get_unraid_disk_status($zfs_disk_status[1],'','color');
-							if($color_status == "green" && ((empty($unraid_array[$devicenode]["color"]) && $unraid_disk_status_color == "green-blink") || $unraid_array[$devicenode]["color"] == "green-blink")) {
-								$unraid_array_icon = get_unraid_disk_status('STANDBY', '', '', $force_orb_led);
-								$unraid_array_info = get_unraid_disk_status('STANDBY','','array', $force_orb_led);
-								$color_status = get_unraid_disk_status('STANDBY','','color');
+						if($array_devices[$hash]["status"] != "c") {
+							$zfs_disk_status = "";
+							if($zfs_check) {
+								$zfs_disk_status = zfs_disk($data["smart_serialnumber"], $zfs_parser, $lsblk_array);
+							}
+							
+							$unraid_disk_status_color = get_powermode($device, $get_powermode);
+							
+							if(!empty($zfs_disk_status)) {
+								$unraid_array_icon = get_unraid_disk_status($zfs_disk_status[1], '', '', $force_orb_led);
+								$unraid_array_info = get_unraid_disk_status($zfs_disk_status[1],'','array', $force_orb_led);
+								$color_status = get_unraid_disk_status($zfs_disk_status[1],'','color');
+								if($color_status == "green" && ((empty($unraid_array[$devicenode]["color"]) && $unraid_disk_status_color == "green-blink") || $unraid_array[$devicenode]["color"] == "green-blink")) {
+									$unraid_array_icon = get_unraid_disk_status('STANDBY', '', '', $force_orb_led);
+									$unraid_array_info = get_unraid_disk_status('STANDBY','','array', $force_orb_led);
+									$color_status = get_unraid_disk_status('STANDBY','','color');
+								}
+							}
+							else {
+								if(!empty($unraid_array[$devicenode]["color"]) && !empty($unraid_array[$devicenode]["status"])) {
+									$unraid_array_icon = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"], '', $force_orb_led);
+									$unraid_array_info = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"],'array', $force_orb_led);
+									$color_status = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"],'color');
+								}
+								else {
+									$unraid_array_icon = get_unraid_disk_status($unraid_disk_status_color, '', '', $force_orb_led);
+									$unraid_array_info = get_unraid_disk_status($unraid_disk_status_color,'','array', $force_orb_led);
+									$color_status = get_unraid_disk_status($unraid_disk_status_color,'','color');
+								}
 							}
 						}
 						else {
-							if(!empty($unraid_array[$devicenode]["color"]) && !empty($unraid_array[$devicenode]["status"])) {
-								$unraid_array_icon = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"], '', $force_orb_led);
-								$unraid_array_info = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"],'array', $force_orb_led);
-								$color_status = get_unraid_disk_status($unraid_array[$devicenode]["color"], $unraid_array[$devicenode]["type"],'color');
-							}
-							else {
-								$unraid_array_icon = get_unraid_disk_status($unraid_disk_status_color, '', '', $force_orb_led);
-								$unraid_array_info = get_unraid_disk_status($unraid_disk_status_color,'','array', $force_orb_led);
-								$color_status = get_unraid_disk_status($unraid_disk_status_color,'','color');
-							}
+							$unraid_array_icon = get_unraid_disk_status('cold', '', '', $force_orb_led);
+							$unraid_array_info = get_unraid_disk_status('cold','','array', $force_orb_led);
+							$color_status = get_unraid_disk_status('cold','','color');
 						}
 					}
 					
@@ -508,6 +515,10 @@
 						$dashboard_orb = $smart_status_info["orb"];
 						
 					}
+					if($array_devices[$hash]["status"] == "c") {
+						$dashboard_orb = $unraid_array_info["orb"];
+					}
+					
 					$dashboard_text = "" . $temp_status_info["text"] . " | SMART: " . $smart_status_info["text"] . " | " . $unraid_array_info["text"] . "";
 					$dashboard_text .= "<br />" . bscode2html(nl2br(stripslashes(htmlspecialchars(keys_to_content($select_db_devices_str, $devices[$hash]["formatted"])))), true) . "";
 					

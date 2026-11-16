@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2026.11.15">
+<!ENTITY version          "2026.11.16">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2026.11.16
+ - Commit #536 - BUG: Cold storage could blink due to missing SMART info. Added checks for cold storage to override missing data.
+
 ###2026.11.15
  - Commit #531 - MINOR: Avoid console noise at boot: nvme id-ctrl deprecation and zpool 'no pools available'. Thanks to thecode@github.
 
