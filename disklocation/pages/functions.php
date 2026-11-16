@@ -573,6 +573,8 @@
 			case 'UNAVAIL': $orb = 'times'; $color = 'red'; $blink = 'red'; $help = 'Device is unavailable'; break;
 			case 'OFFLINE': $orb = 'times'; $color = 'red'; $blink = 'red'; $help = 'Device is offline'; break;
 			case 'STANDBY': $orb = 'circle'; $color = 'grey'; $blink = 'green'; $help = 'Device is online and in standby mode'; break;
+			// Manual cases
+			case 'cold': $orb = 'circle'; $color = 'blue'; $blink = ''; $help = 'Device assigned as cold storage'; break;
 		}
 		
 		if($force_orb_led == 1) {
