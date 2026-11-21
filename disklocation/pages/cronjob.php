@@ -210,7 +210,7 @@
 		while($i < count($lsscsi_arr)) {
 			usleep($smart_exec_delay . 000); // delay script to get the output of the next shell_exec()
 			$time_start_individual = hrtime(true);
-			$lsscsi_parser_array = lsscsi_parser($lsscsi_arr[$i]);
+			$lsscsi_parser_array = lsscsi_parser($lsscsi_arr[$i], $unraid_version_741);
 			
 			$lsscsi_device[$i] = $lsscsi_parser_array["device"];					// get the device address: "1:0:0:0"
 			//$lsscsi_type[$i] = $lsscsi_parser_array["type"];					// get the type: "disk" / "process" (not in use for this script)
@@ -221,7 +221,10 @@
 			else {
 				$lsscsi_devicenode[$i] = str_replace("/dev/", "", $lsscsi_parser_array["sgnode"]);	// if no node name available, use sgnode instead (for nvme drives).
 			}
-			$lsscsi_devicenodesg[$i] = $lsscsi_parser_array["sgnode"];				// get the full path to SCSI Generic device node: "/dev/sg1|/dev/nvme*"
+			// Old way
+			//$lsscsi_devicenodesg[$i] = $lsscsi_parser_array["sgnode"];				// get the full path to SCSI Generic device node: "/dev/sg1|/dev/nvme*"
+			// Turn it around, use devnode before sgnode:
+			$lsscsi_devicenodesg[$i] = ( empty($lsscsi_parser_array["devnode"]) ? $lsscsi_parser_array["sgnode"] : $lsscsi_parser_array["devnode"] );
 			
 			if($lsscsi_device[$i] && $lsscsi_devicenodesg[$i]) {
 				$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "Scanning: " . $lsscsi_device[$i] . " Node: " . $lsscsi_devicenodesg[$i] . "");
