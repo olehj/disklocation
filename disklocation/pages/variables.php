@@ -54,6 +54,7 @@
 	define("SMART_ONE_FILE", "smart-one.cfg");
 	
 	$unraid_version_720 = version_compare(parse_ini_file('/etc/unraid-version')['version'],'7.2.0-beta','>=');
+	$unraid_version_741 = version_compare(parse_ini_file('/etc/unraid-version')['version'],'7.4.1','>=');
 	
 	$page_time_load =  array();
 	

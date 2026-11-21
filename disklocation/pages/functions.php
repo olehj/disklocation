@@ -1105,15 +1105,20 @@
 	}
 	
 	// lsscsi -bg
-	function lsscsi_parser($input) {
-		// \[(.+:.+:.+:.+)\]\s+(-|(\/dev\/(h|s)d[a-z]{1,})?)\s+((\/dev\/(nvme|sg)[0-9]{1,})(n[0-9]{1,})?)
+	function lsscsi_parser($input, $version = 0) {
 		$pattern_device = "\[(.+:.+:.+:.+)\]\s+";						// $1
 		//$pattern_devnode = "(-|(\/dev\/(h|s)d[a-z]{1,})?)\s+";				// $3 pre 6.9
 		//$pattern_scsigendevnode = "((\/dev\/(nvme|sg)[0-9]{1,})(n[0-9]{1,})?)";		// $5 pre 6.9
-		$pattern_devnode = "((\/dev\/((h|s)d[a-z]{1,}|nvme[0-9]{1,})(n[0-9]{1,})?))\s+";	// $2
-		$pattern_scsigendevnode = "(-|(\/dev\/(sg)[0-9]{1,}))";					// $7
+		$pattern_devnode = "(-|(\/dev\/((h|s)d[a-z]{1,}|nvme[0-9]{1,})(n[0-9]{1,})?))\s+";	// $2
 		
-		if($input) {
+		if(empty($version)) {
+			$pattern_scsigendevnode = "(-|(\/dev\/(sg)[0-9]{1,}))";				// $7 pre 7.4.1
+		}
+		else {
+			$pattern_scsigendevnode = "(-|(\/dev\/(sg[0-9]{1,}|ng[0-9]{1,}n[0-9]{1,})))";   // $7
+		}
+		
+		if(!empty($input)) {
 			[$device, $devnode, $scsigendevnode] = explode("|", preg_replace("/" . $pattern_device . "" . $pattern_devnode . "" . $pattern_scsigendevnode . "/iu", "$1|$2|$7", $input));
 			
 			if($scsigendevnode) {

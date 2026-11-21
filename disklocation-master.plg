@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2026.11.16">
+<!ENTITY version          "2026.11.21">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2026.11.21
+ - Commit #538 - BUG: Unraid 7.4.1 causes empty NVME devices. Unraid 7.4.1 includes more drivers built into the kernel and there's some changes with the output of lsscsi that had to be addressed. Function lsscsi_parser regexp was adjusted.
+
 ###2026.11.16
  - Commit #536 - BUG: Cold storage could blink due to missing SMART info. Added checks for cold storage to override missing data.
 
