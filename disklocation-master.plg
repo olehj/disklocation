@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2026.11.21">
+<!ENTITY version          "2026.11.23">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2026.11.23
+ - Commit #538 - BUG: Unraid 7.3.6 uses the same kernel as 7.4.1 and caused the same issues as earlier reported. Included 7.3.6+ in the lsscsi_parser function.
+
 ###2026.11.21
  - Commit #538 - BUG: Unraid 7.4.1 causes empty NVME devices. Unraid 7.4.1 includes more drivers built into the kernel and there's some changes with the output of lsscsi that had to be addressed. Function lsscsi_parser regexp was adjusted.
 
