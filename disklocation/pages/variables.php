@@ -53,8 +53,8 @@
 	define("SMART_ALL_FILE", "smart-all.cfg");
 	define("SMART_ONE_FILE", "smart-one.cfg");
 	
-	$unraid_version_720 = version_compare(parse_ini_file('/etc/unraid-version')['version'],'7.2.0-beta','>=');
-	$unraid_version_741 = version_compare(parse_ini_file('/etc/unraid-version')['version'],'7.4.1','>=');
+	$unraid_version_current = parse_ini_file('/etc/unraid-version')['version'];
+	$unraid_version_720 = version_compare($unraid_version_current,'7.2.0-beta','>=');
 	
 	$page_time_load =  array();
 	

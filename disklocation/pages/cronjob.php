@@ -206,11 +206,12 @@
 		$i=0;
 		
 		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "LSSCSI:" . count($lsscsi_arr) . "");
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "CRONJOB", "UNRAID_VERSION: " . $unraid_version_current . "");
 		
 		while($i < count($lsscsi_arr)) {
 			usleep($smart_exec_delay . 000); // delay script to get the output of the next shell_exec()
 			$time_start_individual = hrtime(true);
-			$lsscsi_parser_array = lsscsi_parser($lsscsi_arr[$i], $unraid_version_741);
+			$lsscsi_parser_array = lsscsi_parser($lsscsi_arr[$i], $unraid_version_current);
 			
 			$lsscsi_device[$i] = $lsscsi_parser_array["device"];					// get the device address: "1:0:0:0"
 			//$lsscsi_type[$i] = $lsscsi_parser_array["type"];					// get the type: "disk" / "process" (not in use for this script)

@@ -1111,11 +1111,11 @@
 		//$pattern_scsigendevnode = "((\/dev\/(nvme|sg)[0-9]{1,})(n[0-9]{1,})?)";		// $5 pre 6.9
 		$pattern_devnode = "(-|(\/dev\/((h|s)d[a-z]{1,}|nvme[0-9]{1,})(n[0-9]{1,})?))\s+";	// $2
 		
-		if(empty($version)) {
-			$pattern_scsigendevnode = "(-|(\/dev\/(sg)[0-9]{1,}))";				// $7 pre 7.4.1
+		if(version_compare($version,'7.3.5','<=') || $version == '7.4.0') {
+			$pattern_scsigendevnode = "(-|(\/dev\/(sg)[0-9]{1,}))";				// $7 7.3.5- && 7.4.0=
 		}
 		else {
-			$pattern_scsigendevnode = "(-|(\/dev\/(sg[0-9]{1,}|ng[0-9]{1,}n[0-9]{1,})))";   // $7
+			$pattern_scsigendevnode = "(-|(\/dev\/(sg[0-9]{1,}|ng[0-9]{1,}n[0-9]{1,})))";   // $7 7.3.6+ && 7.4.1+
 		}
 		
 		if(!empty($input)) {
