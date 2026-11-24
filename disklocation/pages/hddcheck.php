@@ -1,6 +1,6 @@
 <?php
 	/*
-	 *  Copyright 2019-2025, Ole-Henrik Jakobsen
+	 *  Copyright 2019-2026, Ole-Henrik Jakobsen
 	 *
 	 *  This file is part of Disk Location for Unraid.
 	 *
@@ -100,7 +100,10 @@
 			else {
 				$lsscsi_devicenode[$i] = str_replace("/dev/", "", $lsscsi_parser_array["sgnode"]);	// if no node name available, use sgnode instead (for nvme drives).
 			}
-			$lsscsi_devicenodesg[$i] = $lsscsi_parser_array["sgnode"];				// get the full path to SCSI Generic device node: "/dev/sg1|/dev/nvme*"
+			// Old way
+			//$lsscsi_devicenodesg[$i] = $lsscsi_parser_array["sgnode"];				// get the full path to SCSI Generic device node: "/dev/sg1|/dev/nvme*"
+			// Turn it around, use devnode before sgnode:
+			$lsscsi_devicenodesg[$i] = ( empty($lsscsi_parser_array["devnode"]) ? $lsscsi_parser_array["sgnode"] : $lsscsi_parser_array["devnode"] );
 			
 			if($lsscsi_device[$i] && $lsscsi_devicenodesg[$i]) {
 				$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "HDDCHECK", "Scanning: " . $lsscsi_device[$i] . " Node: " . $lsscsi_devicenodesg[$i] . "");

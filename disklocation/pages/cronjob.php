@@ -29,6 +29,9 @@
 	$time_start = hrtime(true);
 	
 	function update_temp_files() {
+		$lsscsi_dat = shell_exec("lsscsi -b -g -D");
+		file_put_contents(DISKLOCATION_LSSCSI, $lsscsi_dat);
+		
 		$lsblk_json = shell_exec("lsblk -p -o NAME,MOUNTPOINT,SERIAL,PATH --json");
 		file_put_contents(DISKLOCATION_LSBLK, $lsblk_json);
 		
@@ -211,7 +214,7 @@
 		while($i < count($lsscsi_arr)) {
 			usleep($smart_exec_delay . 000); // delay script to get the output of the next shell_exec()
 			$time_start_individual = hrtime(true);
-			$lsscsi_parser_array = lsscsi_parser($lsscsi_arr[$i], $unraid_version_current);
+			$lsscsi_parser_array = lsscsi_parser($lsscsi_arr[$i]);
 			
 			$lsscsi_device[$i] = $lsscsi_parser_array["device"];					// get the device address: "1:0:0:0"
 			//$lsscsi_type[$i] = $lsscsi_parser_array["type"];					// get the type: "disk" / "process" (not in use for this script)
