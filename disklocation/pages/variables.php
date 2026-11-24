@@ -37,6 +37,7 @@
 	define("DISKLOCATION_PHYSICAL", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/physical.json");
 	define("DISKLOCATION_GROUPS", UNRAID_CONFIG_PATH . "" . DISKLOCATION_PATH . "/groups.json");
 	define("DISKLOCATION_LOCK_FILE", DISKLOCATION_TMP_PATH . "/db.lock");
+	define("DISKLOCATION_LSSCSI", DISKLOCATION_TMP_PATH . "/lsscsi.dat");
 	define("DISKLOCATION_LSBLK", DISKLOCATION_TMP_PATH . "/lsblk.json");
 	define("DISKLOCATION_ZPOOL", DISKLOCATION_TMP_PATH . "/zpool_status.dat");
 	define("CRONJOB_URL", DISKLOCATION_PATH . "/pages/cronjob.php");
@@ -272,8 +273,8 @@
 	$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: unraid_array", $unraid_array);
 	
 	// get all attached SCSI drives - usually should grab all local drives available
-	$lsscsi_cmd = shell_exec("lsscsi -b -g");
-	$lsscsi_arr = explode(PHP_EOL, $lsscsi_cmd);
+	$lsscsi_dat = ( !file_exists(DISKLOCATION_LSSCSI) ? shell_exec("lsscsi -b -g -D") : file_get_contents(DISKLOCATION_LSSCSI) );
+	$lsscsi_arr = explode(PHP_EOL, $lsscsi_dat);
 	$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: lsscsi_arr", $lsscsi_arr);
 	
 	// get disk logs

@@ -1104,40 +1104,43 @@
 		}
 	}
 	
-	// lsscsi -bg
-	function lsscsi_parser($input, $version = 0) {
-		$pattern_device = "\[(.+:.+:.+:.+)\]\s+";						// $1
-		//$pattern_devnode = "(-|(\/dev\/(h|s)d[a-z]{1,})?)\s+";				// $3 pre 6.9
-		//$pattern_scsigendevnode = "((\/dev\/(nvme|sg)[0-9]{1,})(n[0-9]{1,})?)";		// $5 pre 6.9
-		$pattern_devnode = "(-|(\/dev\/((h|s)d[a-z]{1,}|nvme[0-9]{1,})(n[0-9]{1,})?))\s+";	// $2
-		
-		if(version_compare($version,'7.3.5','<=') || $version == '7.4.0') {
-			$pattern_scsigendevnode = "(-|(\/dev\/(sg)[0-9]{1,}))";				// $7 7.3.5- && 7.4.0=
-		}
-		else {
-			$pattern_scsigendevnode = "(-|(\/dev\/(sg[0-9]{1,}|ng[0-9]{1,}n[0-9]{1,})))";   // $7 7.3.6+ && 7.4.1+
-		}
-		
+	function lsscsi_parser($input) {	// lsscsi -bgD
 		if(!empty($input)) {
-			[$device, $devnode, $scsigendevnode] = explode("|", preg_replace("/" . $pattern_device . "" . $pattern_devnode . "" . $pattern_scsigendevnode . "/iu", "$1|$2|$7", $input));
+			$pattern_device = "\[(.+:.+:.+:.+)\]\s+";						// $1
+			$pattern_type = "(0x[\da-f]{1,})\s+";							// $2
+			$pattern_devnode = "(-|(\/dev\/((h|s)d[a-z]{1,}|nvme[0-9]{1,})(n[0-9]{1,})?))\s+";	// $3
+			$pattern_scsigendevnode = "(-|(\/dev\/(sg[0-9]{1,}|ng[0-9]{1,}n[0-9]{1,})))";		// $8
+			/* Not in use, mostly for reference if needed in the future. Not a complete list.
+			$devtype_arr = array(
+				'0x0' => 'disk',
+				'0x1' => 'tape',
+				'0x5' => 'cd/dvd',
+				'0xc' => 'storage',
+				'0xd' => 'enclosure'
+			);
+			*/
+			[$device, $devtype, $devnode, $scsigendevnode] = explode("|", preg_replace("/" . $pattern_device . "" . $pattern_type . "" . $pattern_devnode . "" . $pattern_scsigendevnode . "/iu", "$1|$2|$3|$8", $input));
 			
-			if($scsigendevnode) {
-				$scsigendevnode = ( strstr($scsigendevnode, "-") ? $devnode : $scsigendevnode ); // script uses SG for most things, so we add nvme into it as well.
+			if($devtype == "0x0") { // fetch only "disk"
+				if($scsigendevnode) {
+					$scsigendevnode = ( strstr($scsigendevnode, "-") ? $devnode : $scsigendevnode ); // Unraid pre 7.4.1 and 7.3.6: add NVME into SG section.
+				}
+				
+				return array(
+					'device'	=> ($device ? trim($device) : ''),
+					'devnode'	=> ($devnode ? str_replace("-", "", trim($devnode)) : ''),
+					'sgnode'	=> ($scsigendevnode ? trim($scsigendevnode) : '')
+				);
 			}
-			
-			return array(
-				'device'	=> ($device ? trim($device) : ''),
-				'devnode'	=> ($devnode ? str_replace("-", "", trim($devnode)) : ''),
-				'sgnode'	=> ($scsigendevnode ? trim($scsigendevnode) : '')
-			);
+			else {
+				return array(
+					'device'	=> '',
+					'devnode'	=> '',
+					'sgnode'	=> ''
+				);
+			}
 		}
-		else {
-			return array(
-				'device'	=> '',
-				'devnode'	=> '',
-				'sgnode'	=> ''
-			);
-		}
+		else return false;
 	}
 	
 	function dev_by_phy_path($device = null) {
