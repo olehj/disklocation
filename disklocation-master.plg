@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2026.11.24">
+<!ENTITY version          "2026.11.25">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,10 @@
 -->
 
 <CHANGES>
+###2026.11.25
+ - Commit #544 - MINOR: Help text out of boxes. Added a style for containing the text inside the inline help boxes. Removed the .php extension of disk.css file as it does not contain any PHP variables anymore.
+ - Commit #543 - ENHANCEMENT: Included Unraid version number and last log of SMART+DB run into debug(). Some rearrangement in how they appear in the debug file. Added lsscsi temporary file into plugin reset function.
+
 ###2026.11.24
  - Commit #542 - MINOR: Broadcom 9500 Tri-Mode HBA virtual enclosure (BROADCOM VirtualSES) detected as a drive, causes mpt3sas log messages every 5 minutes. Modified #538 to skip devices not marked as "disk" type in lsscsi. Also made the lsscsi output to be stored as a temporary file to reduce loading time of the plugin.
 

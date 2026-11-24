@@ -1,3 +1,23 @@
+/*
+*  Copyright 2019-2026, Ole-Henrik Jakobsen
+*
+*  This file is part of Disk Location for Unraid.
+*
+*  Disk Location for Unraid is free software: you can redistribute it and/or modify
+*  it under the terms of the GNU General Public License as published by
+*  the Free Software Foundation, either version 3 of the License, or
+*  (at your option) any later version.
+*
+*  Disk Location for Unraid is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
+*
+*  You should have received a copy of the GNU General Public License
+*  along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
+*
+*/
+
 input.diskLocation {
 	padding: 5px;
 	width: 70px;
@@ -8,7 +28,6 @@ input.diskLocation {
 	margin-left: auto;
 	margin-right: auto;
 }
-
 .grid-container {
 	display: grid;
 	justify-content: center;
@@ -18,14 +37,12 @@ input.diskLocation {
 	display: grid;
 	grid-gap: 0;
 }
-
 .flex-container_h, .flex-container_v {
 	display: flex;
 	margin: 0;
 	flex-direction: column;
 	justify-content: flex-start;
 }
-
 .flex-container_h>div {
 	display: flex;
 	margin: 5px;
@@ -42,7 +59,6 @@ input.diskLocation {
 	border: 2px solid #000000;
 	border-radius: 5px;
 }
-
 .flex-container-start {
 	min-height: 0;
 	text-align: center;
@@ -50,7 +66,6 @@ input.diskLocation {
 .flex-container-start>div {
 	display: flex;
 }
-
 .flex-container-middle_h {
 	width: 100%;
 	padding-left: 10px;
@@ -67,12 +82,10 @@ input.diskLocation {
 	display: flex;
 	text-align: left;
 }
-
 .flex-container-end {
 	display: flex;
 	text-align: right;
 }
-
 .flex-container-layout_h, .flex-container-layout_v {
 	display: flex;
 	margin: 0;
@@ -105,6 +118,9 @@ input.diskLocation {
 	0% {background-color: #CCCCCC;}
 	50% {background-color: #0066FF;}
 	100% {background-color: #CCCCCC;}
+}
+.inline_help {
+	text-wrap: auto;
 }
 
 /* Mobile-friendly tray map.

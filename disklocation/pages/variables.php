@@ -63,6 +63,8 @@
 	$debug_log = array();
 	$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "debug()", "----- DEBUGGING SESSION STARTED -----");
 	
+	$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "Unraid Version", $unraid_version_current);
+	
 	$get_page_info = array();
 	$get_page_info["Version"] = "";
 	$get_page_info = parse_ini_file("" . EMHTTP_ROOT . "" . DISKLOCATION_PATH . "/disklocation.page");
@@ -73,6 +75,16 @@
 		$get_powermode = json_decode(file_get_contents(POWERMODE_FILE), true);
 		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: get_powermode", $get_powermode);
 	}
+	
+	if(file_exists(DISKLOCATION_TMP_PATH."/cron_smart.log")) {
+		$get_last_cronjob = file_get_contents(DISKLOCATION_TMP_PATH."/cron_smart.log");
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "Last Force SMART+DB job", "\n" . $get_last_cronjob);
+	}
+	
+	$lsscsi_dat = ( !file_exists(DISKLOCATION_LSSCSI) ? shell_exec("lsscsi -b -g -D") : file_get_contents(DISKLOCATION_LSSCSI) );
+	$lsscsi_arr = explode(PHP_EOL, $lsscsi_dat);
+	$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: lsscsi", $lsscsi_arr);
+	
 	if(file_exists(DISKLOCATION_LSBLK)) {
 		$lsblk_array = json_decode(file_get_contents(DISKLOCATION_LSBLK), true);
 		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: lsblk", $lsblk_array);
@@ -125,6 +137,12 @@
 	if(is_file(UNRAID_CONFIG_PATH . "/" . SMART_ONE_FILE)) {
 		$unraid_smart_one = parse_ini_file(UNRAID_CONFIG_PATH . "/" . SMART_ONE_FILE, true);
 		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: unraid_smart_one", $unraid_smart_one);
+	}
+	
+	// get disk logs
+	if(file_exists(DISKLOGFILE)) {
+		$unraid_disklog = parse_ini_file(DISKLOGFILE, true);
+		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: unraid_disklog", $unraid_disklog);
 	}
 	
 	$disklocation_error = array();
@@ -271,17 +289,6 @@
 		$i++;
 	}
 	$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: unraid_array", $unraid_array);
-	
-	// get all attached SCSI drives - usually should grab all local drives available
-	$lsscsi_dat = ( !file_exists(DISKLOCATION_LSSCSI) ? shell_exec("lsscsi -b -g -D") : file_get_contents(DISKLOCATION_LSSCSI) );
-	$lsscsi_arr = explode(PHP_EOL, $lsscsi_dat);
-	$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: lsscsi_arr", $lsscsi_arr);
-	
-	// get disk logs
-	if(file_exists(DISKLOGFILE)) {
-		$unraid_disklog = parse_ini_file(DISKLOGFILE, true);
-		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: unraid_disklog", $unraid_disklog);
-	}
 	
 	if(in_array("cronjob", $argv) || in_array("force", $argv)) {
 		if(!isset($argv[2])) { 

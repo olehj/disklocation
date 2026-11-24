@@ -1,32 +1,52 @@
-	i.orb-disklocation {
-		font-size: 1.1rem;
-		margin: 0;
-		padding: 0 2px 0;
-	}
-	.grey-orb-disklocation { color: #222222; }
-	.green-orb-disklocation { color: #33CC33; }
-	.green-blink-disklocation { color: #222222; }
-	.yellow-orb-disklocation { color: #FF9900; }
-	.yellow-blink-disklocation { color: #FF9900; }
-	.yellow-blink-disklocation-bg {
-		animation: blinker-disklocation-yellow-bg 1s ease-in-out infinite;
-	}
-	@keyframes blinker-disklocation-yellow-bg {
-		0% {background-color: #000000;}
-		50% {background-color: #FF9900;}
-		100% {background-color: #000000;}
-	}
-	.red-orb-disklocation { color: #FF3300; }
-	.red-blink-disklocation { color: #FF3300; }
-	.red-blink-disklocation-bg {
-		animation: blinker-disklocation-red-bg 1s ease-in-out infinite;
-	}
-	@keyframes blinker-disklocation-red-bg {
-		0% {background-color: #FF3030;}
-		25% {background-color: #000000;}
-		50% {background-color: #FF3030;}
-		75% {background-color: #000000;}
-		100% {background-color: #FF3030;}
-	}
-	.blue-orb-disklocation { color: #0099FF; }
-	.blue-blink-disklocation { color: #0099FF; }
+/*
+*  Copyright 2019-2026, Ole-Henrik Jakobsen
+*
+*  This file is part of Disk Location for Unraid.
+*
+*  Disk Location for Unraid is free software: you can redistribute it and/or modify
+*  it under the terms of the GNU General Public License as published by
+*  the Free Software Foundation, either version 3 of the License, or
+*  (at your option) any later version.
+*
+*  Disk Location for Unraid is distributed in the hope that it will be useful,
+*  but WITHOUT ANY WARRANTY; without even the implied warranty of
+*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+*  GNU General Public License for more details.
+*
+*  You should have received a copy of the GNU General Public License
+*  along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
+*
+*/
+
+i.orb-disklocation {
+	font-size: 1.1rem;
+	margin: 0;
+	padding: 0 2px 0;
+}
+.grey-orb-disklocation { color: #222222; }
+.green-orb-disklocation { color: #33CC33; }
+.green-blink-disklocation { color: #222222; }
+.yellow-orb-disklocation { color: #FF9900; }
+.yellow-blink-disklocation { color: #FF9900; }
+.yellow-blink-disklocation-bg {
+	animation: blinker-disklocation-yellow-bg 1s ease-in-out infinite;
+}
+@keyframes blinker-disklocation-yellow-bg {
+	0% {background-color: #000000;}
+	50% {background-color: #FF9900;}
+	100% {background-color: #000000;}
+}
+.red-orb-disklocation { color: #FF3300; }
+.red-blink-disklocation { color: #FF3300; }
+.red-blink-disklocation-bg {
+	animation: blinker-disklocation-red-bg 1s ease-in-out infinite;
+}
+@keyframes blinker-disklocation-red-bg {
+	0% {background-color: #FF3030;}
+	25% {background-color: #000000;}
+	50% {background-color: #FF3030;}
+	75% {background-color: #000000;}
+	100% {background-color: #FF3030;}
+}
+.blue-orb-disklocation { color: #0099FF; }
+.blue-blink-disklocation { color: #0099FF; }

@@ -316,6 +316,7 @@
 				file_exists(DISKLOCATION_TMP_PATH . "/powermode.json") ? unlink(DISKLOCATION_TMP_PATH . "/powermode.json") : null;
 				file_exists(DISKLOCATION_TMP_PATH . "/phyloc.json") ? unlink(DISKLOCATION_TMP_PATH . "/phyloc.json") : null;
 				file_exists(DISKLOCATION_TMP_PATH . "/lsblk.json") ? unlink(DISKLOCATION_TMP_PATH . "/lsblk.json") : null;
+				file_exists(DISKLOCATION_TMP_PATH . "/lsscsi.dat") ? unlink(DISKLOCATION_TMP_PATH . "/lsscsi.dat") : null;
 				file_exists(DISKLOCATION_TMP_PATH . "/zpool_status.dat") ? unlink(DISKLOCATION_TMP_PATH . "/zpool_status.dat") : null;
 			}
 			if($operation == "settings" || $operation == "all" || $operation == "wipe") {
