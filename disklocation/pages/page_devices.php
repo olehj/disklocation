@@ -1,13 +1,32 @@
+<?php
+	/*
+	 *  Copyright 2019-2026, Ole-Henrik Jakobsen
+	 *
+	 *  This file is part of Disk Location for Unraid.
+	 *
+	 *  Disk Location for Unraid is free software: you can redistribute it and/or modify
+	 *  it under the terms of the GNU General Public License as published by
+	 *  the Free Software Foundation, either version 3 of the License, or
+	 *  (at your option) any later version.
+	 *
+	 *  Disk Location for Unraid is distributed in the hope that it will be useful,
+	 *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+	 *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	 *  GNU General Public License for more details.
+	 *
+	 *  You should have received a copy of the GNU General Public License
+	 *  along with Disk Location for Unraid.  If not, see <https://www.gnu.org/licenses/>.
+	 *
+	 */
+?>
 <link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/signals.css")?>">
 <link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/help.css")?>">
-<style type="text/css">
-	<?php include("/usr/local/emhttp/plugins/disklocation/pages/styles/disk.css.php"); ?>
-</style>
+<link type="text/css" rel="stylesheet" href="<?autov("" . DISKLOCATION_PATH . "/pages/styles/disk.css")?>">
 
 <blockquote class='inline_help'>
 	<h3><b><?php echo $get_page_info["Title"] ?> ver. <?php echo DISKLOCATION_VERSION ?></b></h3>
 	<p>
-		Made by <?php echo $get_page_info["Author"] ?>. Copyright &copy;2018-2025. All rights reserved.
+		Made by <?php echo $get_page_info["Author"] ?>. Copyright &copy;2018-2026. All rights reserved.
 	</p>
 	<form action="https://www.paypal.com/donate" method="post" target="_top">
 		<input type="hidden" name="cmd" value="_donations" />
@@ -54,6 +73,9 @@
 		
 		<dt>Where is the configuration files stored?</dt>
 		<dd>The configration are stored in: /boot/config/plugins/disklocation/</dd>
+		
+		<dt>Where is the temporary files stored?</dt>
+		<dd>Temporary files are stored in: /tmp/disklocation/</dd>
 		
 		<dt>I want to reset everything to "Factory defaults", how?</dt>
 		<dd>
