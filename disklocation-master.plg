@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2026.11.23">
+<!ENTITY version          "2026.11.24">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,9 @@
 -->
 
 <CHANGES>
+###2026.11.24
+ - Commit #542 - MINOR: Broadcom 9500 Tri-Mode HBA virtual enclosure (BROADCOM VirtualSES) detected as a drive, causes mpt3sas log messages every 5 minutes. Modified #538 to skip devices not marked as "disk" type in lsscsi. Also made the lsscsi output to be stored as a temporary file to reduce loading time of the plugin.
+
 ###2026.11.23
  - Commit #538 - BUG: Unraid 7.3.6 uses the same kernel as 7.4.1 and caused the same issues as earlier reported. Included 7.3.6+ in the lsscsi_parser function.
 
