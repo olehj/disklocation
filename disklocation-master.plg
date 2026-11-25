@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name             "disklocation">
 <!ENTITY author           "Ole-Henrik Jakobsen">
-<!ENTITY version          "2026.11.25">
+<!ENTITY version          "2026.11.26">
 <!ENTITY launch           "Tools/&name;">
 <!ENTITY branch           "master">
 <!ENTITY packageURL       "https://github.com/olehj/disklocation/archive/&branch;.zip">
@@ -45,6 +45,10 @@
 -->
 
 <CHANGES>
+###2026.11.26
+ - Commit #547 - MINOR: Logical disk flashes red with “SMART: Failed” when SMART is unavailable. Devices without SMART data will now report N/A instead of FAILED.
+ - Commit #546 - MINOR: NVMe drive disappears from Disk Location when lsscsi returns another drive’s partition. Added -k flag to lsscsi to enable kernel names instead of device node names.
+
 ###2026.11.25
  - Commit #544 - MINOR: Help text out of boxes. Added a style for containing the text inside the inline help boxes. Removed the .php extension of disk.css file as it does not contain any PHP variables anymore.
  - Commit #543 - ENHANCEMENT: Included Unraid version number and last log of SMART+DB run into debug(). Some rearrangement in how they appear in the debug file. Added lsscsi temporary file into plugin reset function.

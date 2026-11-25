@@ -53,6 +53,7 @@
 	define("UNRAID_MONITOR_FILE", "monitor.ini");
 	define("SMART_ALL_FILE", "smart-all.cfg");
 	define("SMART_ONE_FILE", "smart-one.cfg");
+	define("LSSCSI_FLAGS", "-b -g -D -k");
 	
 	$unraid_version_current = parse_ini_file('/etc/unraid-version')['version'];
 	$unraid_version_720 = version_compare($unraid_version_current,'7.2.0-beta','>=');
@@ -81,7 +82,7 @@
 		$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "Last Force SMART+DB job", "\n" . $get_last_cronjob);
 	}
 	
-	$lsscsi_dat = ( !file_exists(DISKLOCATION_LSSCSI) ? shell_exec("lsscsi -b -g -D") : file_get_contents(DISKLOCATION_LSSCSI) );
+	$lsscsi_dat = ( !file_exists(DISKLOCATION_LSSCSI) ? shell_exec("lsscsi " . LSSCSI_FLAGS) : file_get_contents(DISKLOCATION_LSSCSI) );
 	$lsscsi_arr = explode(PHP_EOL, $lsscsi_dat);
 	$debug_log[] = debug($debug, basename(__FILE__), __LINE__, "ARRAY: lsscsi", $lsscsi_arr);
 	
