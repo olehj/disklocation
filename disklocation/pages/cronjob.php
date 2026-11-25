@@ -29,7 +29,7 @@
 	$time_start = hrtime(true);
 	
 	function update_temp_files() {
-		$lsscsi_dat = shell_exec("lsscsi -b -g -D");
+		$lsscsi_dat = shell_exec("lsscsi " . LSSCSI_FLAGS);
 		file_put_contents(DISKLOCATION_LSSCSI, $lsscsi_dat);
 		
 		$lsblk_json = shell_exec("lsblk -p -o NAME,MOUNTPOINT,SERIAL,PATH --json");

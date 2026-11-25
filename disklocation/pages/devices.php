@@ -313,7 +313,7 @@
 					}
 					
 					// Set $smart_status = 2 if $smart_errors was found AND $smart_status has NOT failed AND disk has NOT been acknowledged, else set initial value:
-					$smart_status = ($array_devices[$hash]["status"] != "c" ? ((!empty($devices[$hash]["raw"]["smart_errors"]) && !empty($devices[$hash]["raw"]["smart_status"]) && !get_disk_ack($unraid_array[$data["devicenode"]]["name"])) ? 2 : (!empty($devices[$hash]["raw"]["smart_status"]) ? 1 : 0)) : -1);
+					$smart_status = ($array_devices[$hash]["status"] != "c" ? ((!empty($devices[$hash]["raw"]["smart_errors"]) && !empty($devices[$hash]["raw"]["smart_status"]) && !get_disk_ack($unraid_array[$data["devicenode"]]["name"])) ? 2 : (!empty($devices[$hash]["raw"]["smart_status"]) ? $devices[$hash]["raw"]["smart_status"] : 0)) : -1);
 					
 					switch($smart_status) {
 						case 0:

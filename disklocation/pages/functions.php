@@ -1104,7 +1104,7 @@
 		}
 	}
 	
-	function lsscsi_parser($input) {	// lsscsi -bgD
+	function lsscsi_parser($input) {	// lsscsi -bgDk
 		if(!empty($input)) {
 			$pattern_device = "\[(.+:.+:.+:.+)\]\s+";						// $1
 			$pattern_type = "(0x[\da-f]{1,})\s+";							// $2
